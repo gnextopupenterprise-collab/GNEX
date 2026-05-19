@@ -3,1214 +3,495 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GNEX Mobile Legends diamond topup price list and WhatsApp checkout.">
 
-<title>GNEX GAME STORE</title>
+<title>GNEX Mobile Legends Topup</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-
-  html, body{
+html,
+body{
 width:100%;
 max-width:100%;
 overflow-x:hidden;
-}
-
-html{
 scroll-behavior:smooth;
 }
 
 body{
-background:#000;
+background:#02040a;
 color:white;
-font-family:sans-serif;
-overflow-x:hidden;
+font-family:Arial, Helvetica, sans-serif;
 }
 
-.gradient-bg{
+.page-glow{
 background:
-linear-gradient(
-135deg,
-#020617 0%,
-#0f172a 40%,
-#1e1b4b 100%
-);
+radial-gradient(circle at 18% 15%, rgba(34, 211, 238, 0.22), transparent 28%),
+radial-gradient(circle at 84% 10%, rgba(236, 72, 153, 0.16), transparent 24%),
+linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98) 55%, rgba(10, 5, 20, 0.98));
 }
 
+.ml-hero-art{
+background:
+linear-gradient(90deg, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.76)),
+url("images/ml-wallpaper.jpg");
+background-size:cover;
+background-position:center 20%;
+}
+
+.package-card{
+background:linear-gradient(180deg, rgba(24, 24, 27, 0.94), rgba(9, 9, 11, 0.96));
+}
+
+.package-card.active{
+border-color:#22d3ee;
+box-shadow:0 0 0 1px rgba(34, 211, 238, 0.45), 0 20px 60px rgba(34, 211, 238, 0.14);
+}
+
+.filter-btn.active{
+background:#22d3ee;
+border-color:#22d3ee;
+color:#000;
+}
 </style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
 </head>
-<body>
 
-  <!-- VIDEO BACKGROUND -->
-<video 
-autoplay 
-muted 
-loop 
-playsinline
-class="fixed top-0 left-0 w-full h-full object-cover -z-10 opacity-20">
+<body class="min-h-screen bg-black text-white">
 
-<source src="" type="video/mp4">
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/80 border-b border-zinc-800/90">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
 
-</video>
-
-  <!-- NAVBAR ----------------------------------------------------------------------------------------------------------------------------------------->
-<nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/70 border-b border-zinc-800">
-
-<div class="w-full px-4 py-4 flex items-center justify-between">
-
-<!-- LOGO + TOGGLE -->
-<div class="flex items-center gap-3 -ml-0">
-
-<!-- TOGGLE BUTTON -->
-<button 
-id="menu-btn"
+<div class="flex items-center gap-3">
+<button
+type="button"
 onclick="toggleSidebar()"
-class="w-14 h-14 rounded-full bg-zinc-900 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-
-<img 
-src="images/logo baru gnex .png"
-class="w-8 h-8 object-contain">
-
+aria-label="Open menu"
+class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-8 h-8 object-contain">
 </button>
 
 <div>
-
-<h1 class="text-2xl font-black text-cyan-400">
-GNEX
-</h1>
-
-<p class="text-zinc-500 text-xs">
-TOPUP STORE
-</p>
-
+<h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">TOPUP STORE</p>
+</div>
 </div>
 
-</div>
-
-
-<!-- TOGGLE BUTTON -->
-
-
-
-<!-- SIDEBAR -->
-<div 
-id="sidebar"
-class="fixed top-0 left-[-300px] w-72 h-full bg-black/95 border-r border-zinc-800 z-[9999] transition-all duration-500 p-8">
-
-<!-- LOGO -->
-<div class="mt-20 mb-12">
-
-<h1 class="text-4xl font-black text-cyan-400">
-GNEX
-</h1>
-
-<p class="text-zinc-500">
-TOPUP STORE
-</p>
-
-</div>
-
-
-<!-- MENU -->
-<div class="flex flex-col gap-6">
-
-<a 
-href="index.html"
-class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
-
-<i class="fa-solid fa-house"></i>
+<div class="hidden md:flex items-center gap-4">
+<a href="index.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
 HOME
-
 </a>
 
-<!------------------------------------------------------------------------------------------
-<button 
-onclick="document.getElementById('price-list').scrollIntoView({behavior:'smooth'})"
-class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
-
-💎 PRICE LIST
-
-</button>
-
-
-<button 
-onclick="document.getElementById('payment').scrollIntoView({behavior:'smooth'})"
-class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
-
-💳 PAYMENT
-
-</button>
---------------------------------------------------------------------------------------------->
-
-<a 
-href="https://wa.me/601115421017"
-target="_blank"
-class="text-white hover:text-green-400 transition text-lg font-semibold">
-<i class="fa-brands fa-whatsapp"></i>
-WHATSAPP
-
-</a>
-
-</div>
-
-</div>
-
-
-<!-- OVERLAY -->
-<div 
-id="overlay"
-class="fixed inset-0 z-[9998] hidden">
-</div>
-
-
-
-<!-- MENU FOR NAVBAR --------------------------------------------------------------------------------------------------------------------------------------------->
-<div class="flex items-center gap-4">
-
-<a href="index.html">
-
-<button 
-class="border border-zinc-700 px-3 md:px-5 py-2 rounded-xl hover:border-cyan-400 transition text-[10px] md:text-sm">
-
-HOME
-
-</button>
-
-</a>
-
-
-<a href="index.html">
-<button 
-onclick="document.getElementById('payment').scrollIntoView({behavior:'smooth'})"
-class="bg-cyan-400 text-black font-bold px-3 md:px-5 py-2 rounded-xl hover:scale-105 transition text-[10px] md:text-sm">
-
+<a href="tournament.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
 TOURNAMENT
-
-</button>
 </a>
 
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-cyan-400 text-black font-bold px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">
+WHATSAPP
+</a>
 </div>
 
 </div>
-
 </nav>
 
-<!---------------------------------------------------------------->
+<!-- SIDEBAR -->
+<aside
+id="sidebar"
+class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60] transition-transform duration-500 p-8 -translate-x-full">
 
+<div class="mt-20 mb-12">
+<h2 class="text-4xl font-black text-cyan-400 leading-none">GNEX</h2>
+<p class="text-zinc-500 mt-2">TOPUP STORE</p>
+</div>
 
+<div class="flex flex-col gap-5">
+<a href="index.html" class="text-white hover:text-cyan-400 transition text-lg font-semibold">HOME</a>
+<button type="button" onclick="goSection('packages')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">PRICE LIST</button>
+<button type="button" onclick="goSection('checkout')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">CHECKOUT</button>
+<a href="tournament.html" class="text-white hover:text-cyan-400 transition text-lg font-semibold">TOURNAMENT</a>
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="text-white hover:text-green-400 transition text-lg font-semibold">WHATSAPP</a>
+</div>
+</aside>
 
+<div id="overlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 z-50 hidden"></div>
 
+<!-- HERO -->
+<header class="page-glow relative overflow-hidden border-b border-zinc-800 pt-28 md:pt-32">
+<div class="max-w-7xl mx-auto px-6 py-12 md:py-16">
+<div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
 
-
-<!-- SCRIPT FOR SIDEBAR -->
-<script>
-
-function toggleSidebar(){
-
-const sidebar =
-document.getElementById("sidebar");
-
-const overlay =
-document.getElementById("overlay");
-
-if(sidebar.style.left === "0px"){
-
-sidebar.style.left = "-300px";
-
-overlay.classList.add("hidden");
-
-}else{
-
-sidebar.style.left = "0px";
-
-overlay.classList.remove("hidden");
-
-}
-
-}
-
-
-
-// CLOSE SIDEBAR BILA CLICK LUAR
-document.addEventListener("click", function(e){
-
-const sidebar =
-document.getElementById("sidebar");
-
-const toggle =
-document.getElementById("menu-btn");
-
-
-// CHECK SIDEBAR OPEN
-if(sidebar.style.left === "0px"){
-
-// JANGAN CLOSE BILA CLICK SIDEBAR ATAU BUTTON
-if(
-!sidebar.contains(e.target) &&
-!toggle.contains(e.target)
-){
-
-sidebar.style.left = "-300px";
-
-document.getElementById("overlay")
-.classList.add("hidden");
-
-}
-
-}
-
-});
-
-</script>
-
-
-
-
-
-<!------------------------------------------------------------------->
-
-<!-- TOP SECTION -->
-<section class=" pt-20 gradient-bg border-b border-zinc-900">
-
-<div class="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-20">
-
-<p class="text-cyan-400 font-bold tracking-widest text-sm">
+<div class="flex flex-col justify-center">
+<p class="text-cyan-400 font-bold tracking-[0.28em] text-xs md:text-sm">
 TOPUP STORE
 </p>
 
-<h1 class="text-4xl md:text-7xl font-black leading-none mt-4">
-MOBILE LEGENDS
+<h1 class="text-4xl sm:text-5xl md:text-7xl font-black leading-[0.95] mt-4">
+MOBILE LEGENDS <span class="text-cyan-400">DIAMOND TOPUP</span>
 </h1>
 
-<h2 class="text-zinc-400 text-xl mt-4">
-DIAMOND PRICE LIST
-</h2>
-
-<p class="text-zinc-500 mt-6 max-w-2xl">
-Fast delivery • Trusted seller Since 2019 
+<p class="text-zinc-300 mt-6 text-base md:text-lg leading-relaxed max-w-2xl">
+Pilih channel harga: QR Transfer, TNG Pin atau DIGI/CELCOM. Masukkan ID dan checkout terus melalui WhatsApp.
 </p>
 
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">50+</p>
+<p class="text-xs text-zinc-500 mt-1">Packages</p>
 </div>
 
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">QR</p>
+<p class="text-xs text-zinc-500 mt-1">Transfer</p>
+</div>
+
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">PIN</p>
+<p class="text-xs text-zinc-500 mt-1">TNG Easy</p>
+</div>
+
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">WA</p>
+<p class="text-xs text-zinc-500 mt-1">Checkout</p>
+</div>
+</div>
+</div>
+
+<div class="ml-hero-art relative overflow-hidden rounded-xl border border-zinc-800 min-h-[360px]">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent"></div>
+<div class="relative z-10 h-full min-h-[360px] p-6 md:p-8 flex flex-col justify-between">
+<div class="flex items-center justify-between gap-4">
+<img src="images/logo-ml.png" alt="Mobile Legends logo" class="w-36 h-16 object-contain">
+<span class="bg-amber-300 text-black text-xs font-black px-3 py-1 rounded">QR / PIN READY</span>
+</div>
+
+<div class="max-w-md">
+<p class="text-cyan-300 font-black tracking-[0.2em] text-xs">GNEX FAST CHECKOUT</p>
+<h2 class="text-3xl md:text-4xl font-black mt-2">Select. Confirm. Rank Up.</h2>
+<p class="text-zinc-300 mt-3 text-sm leading-relaxed">
+Order summary akan ikut package dan channel yang dipilih.
+</p>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</header>
+
+<!-- PROCESS -->
+<section class="max-w-7xl mx-auto px-6 py-8">
+<div class="grid sm:grid-cols-4 gap-3">
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">01</p>
+<p class="font-bold mt-2">Choose Channel</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">02</p>
+<p class="font-bold mt-2">Select Package</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">03</p>
+<p class="font-bold mt-2">Enter ID</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">04</p>
+<p class="font-bold mt-2">WhatsApp Order</p>
+</div>
+</div>
 </section>
 
+<!-- PACKAGES -->
+<main id="packages" class="max-w-7xl mx-auto px-6 pb-16 md:pb-20">
+<div class="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
 
-
-
-
-<!-- PRICE LIST -->
-<section class="py-16">
-
-<div class="max-w-7xl mx-auto px-4 md:px-6">
-
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-
+<section>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
 <div>
-
-<p class="text-cyan-400 text-sm font-bold tracking-widest">
-TOPUP STORE
-</p>
-
-<h2 class="text-2xl md:text-5xl font-black mt-2 leading-tight">
-GAME PRICE LIST
-</h2>
-
+<p class="text-cyan-400 text-xs font-bold tracking-[0.24em]">MOBILE LEGENDS</p>
+<h2 class="text-3xl md:text-5xl font-black mt-2 leading-tight">DIAMOND PRICE LIST</h2>
 </div>
 
-<p class="text-zinc-500 text-sm">
-Fast Delivery • Trusted Seller
-</p>
-
+<p class="text-zinc-500 text-sm">QR Transfer / TNG Pin / DIGI & CELCOM</p>
 </div>
 
-
-
-<!-- GRID -->
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
-
-
-<!-- CARD 1 14 DIAMOND -->
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM1.17
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-14 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'14 Diamonds',
-'RM1.17',
-'RM1.17',
-'NOT AVAILABLE',
-'NOT AVAILABLE'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
+<div class="flex flex-wrap gap-3 mb-6">
+<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold transition">
+All Packages
 </button>
-
-</div>
-
-
-<!-- CARD 1 42 DIAMOND-->
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM3.50 - 5
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-42 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'42 Diamonds',
-'RM3.50',
-'RM3.50',
-'RM5.00',
-'RM5.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
+<button type="button" onclick="filterPackages('qr', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+QR Transfer
 </button>
-
-</div>
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
+<button type="button" onclick="filterPackages('pin', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+TNG Pin
 </button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
+<button type="button" onclick="filterPackages('telco', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+DIGI/CELCOM
 </button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
+<button type="button" onclick="filterPackages('first', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+First / Weekly
 </button>
-
 </div>
 
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
-</button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
-</button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
-</button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-
-<!-- CARD 1 0 DIAMOND------------------------------------------------------------------------------------------------------------------>
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
-
-<div class="flex justify-between items-center mb-4">
-
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
-MLBB
-</span>
-
-<span class="text-cyan-400 text-xs font-bold">
-RM0.00
-</span>
-
-</div>
-
-<h3 class="text-2xl md:text-2xl font-black">
-0 💎
-</h3>
-
-<button 
-onclick="selectPackage(
-'0 Diamonds',
-'RM0.00',
-'RM0.00',
-'RM0.00',
-'RM0.00'
-)"
-class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
-
-SELECT
-
-</button>
-
-</div>
-
-<!---------------------------------------------------------------------------------------------------------------------------------->
-
-</div>
-
-</div>
-
+<div id="packageGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 </section>
 
-
-
-
-
-<!-- PAYMENT -->
-<section id="payment" class="py-20 border-t border-zinc-900">
-
-<div class="max-w-7xl mx-auto px-6">
-
-<h2 class="text-4xl md:text-5xl font-black">
-PAYMENT METHOD
-</h2>
-
-<p class="text-zinc-400 mt-3">
-Safe payment & instant process
-</p>
-
-
-
-<!-- SELECTED PACKAGE -->
-<div
-class="mt-8 mb-10 border border-cyan-400 rounded-3xl p-6 bg-cover bg-center relative overflow-hidden"
-style="background-image:url('images/ff-wallpaper.jpg');">
-
-<div class="absolute inset-0 bg-black/90"></div>
-
-<div class="relative z-10">
-
-<p id="selected-package" class="text-zinc-400 text-sm mb-2">
-SELECTED PACKAGE
-</p>
-
-<h3 id="selectedPackage" class="text-5xl font-black text-cyan-400">
-100 Diamonds
-</h3>
-
-</div>
-
-</div>
-
-
-
-
-
-<!-- PAYMENT GRID -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-
-
-<!-- TOUCH N GO -->
-<div 
-onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
-class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
-
-<div class="flex items-center justify-between">
-
+<!-- CHECKOUT -->
+<aside id="checkout" class="lg:sticky lg:top-28">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
+<div class="relative h-32 bg-cover bg-center" style="background-image:url('images/ml-wallpaper.jpg');">
+<div class="absolute inset-0 bg-black/65"></div>
+<div class="relative z-10 p-5 flex items-center justify-between">
 <div>
-
-<h3 class="text-2xl md:text-3xl font-bold">
-Touch 'n Go
-</h3>
-
-<p class="text-zinc-400 mt-2">
-Qr & Pin Payement
-</p>
-
+<p class="text-cyan-300 text-xs font-bold tracking-[0.2em]">ORDER SUMMARY</p>
+<h3 class="text-2xl font-black mt-1">Mobile Legends</h3>
+</div>
+<img src="images/logo-ml.png" alt="Mobile Legends logo" class="w-24 h-12 object-contain">
+</div>
 </div>
 
-<div class="text-right border-l border-zinc-700 pl-6">
+<div class="p-5">
+<div class="rounded-lg border border-cyan-400/40 bg-black/60 p-4">
+<p class="text-zinc-500 text-xs font-bold">SELECTED PACKAGE</p>
+<p id="selectedPackage" class="text-2xl font-black text-cyan-300 mt-2">42 Diamond</p>
+<p id="selectedChannel" class="text-zinc-400 text-sm mt-1">DIGI/CELCOM</p>
+<p id="selectedPrice" class="text-amber-300 font-black mt-2">MYR5.00</p>
+</div>
 
-<p id="tngPrice" class="text-2xl font-black">
-RM0.00
-</p>
+<label class="block text-sm font-bold text-zinc-300 mt-5 mb-2" for="playerId">Player ID</label>
+<input id="playerId" type="text" placeholder="Masukkan ID Mobile Legends" class="w-full bg-black border border-zinc-800 rounded-lg px-4 py-3 outline-none focus:border-cyan-400 transition">
 
+<label class="block text-sm font-bold text-zinc-300 mt-4 mb-2" for="serverId">Server ID</label>
+<input id="serverId" type="text" placeholder="Masukkan Server ID" class="w-full bg-black border border-zinc-800 rounded-lg px-4 py-3 outline-none focus:border-cyan-400 transition">
 
-<button 
-onclick="orderNow('Touch N Go')"
-class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
-
-BUY NOW
-
+<button type="button" onclick="orderNow()" class="w-full mt-5 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
+CHECKOUT WHATSAPP
 </button>
 
-</div>
-
-</div>
-
-</div>
-
-
-
-
-
-<!-- DIGI -->
-<div 
-onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
-class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
-
-<div class="flex items-center justify-between">
-
-<div>
-
-<h3 class="text-3xl font-bold">
-DIGI PIN
-</h3>
-
-<p class="text-zinc-400 mt-2">
-Pin Payment
+<p class="text-zinc-500 text-xs mt-3 leading-relaxed">
+QR Transfer untuk harga tepat. TNG Pin untuk customer yang nak beli guna pin/easy amount.
 </p>
+</div>
+</div>
+</aside>
 
 </div>
+</main>
 
-<div class="text-right border-l border-zinc-700 pl-6">
-
-<p id="digiPrice" class="text-2xl font-black">
-RM0.00
-</p>
-
-<button 
-onclick="orderNow('DIGI PIN')"
-class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
-
-BUY NOW
-
-</button>
-
+<!-- TRUST STRIP -->
+<section class="max-w-7xl mx-auto px-6 pb-16">
+<div class="grid md:grid-cols-3 gap-4">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">QR Transfer</h3>
+<p class="text-zinc-500 text-sm mt-2">Harga ikut nilai tepat untuk customer yang boleh transfer/QR.</p>
 </div>
 
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">TNG Pin</h3>
+<p class="text-zinc-500 text-sm mt-2">Harga mudah untuk customer yang belum ada account atau guna pin.</p>
 </div>
 
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">Order Record</h3>
+<p class="text-zinc-500 text-sm mt-2">WhatsApp checkout simpan package, channel dan harga.</p>
 </div>
-
-
-
-
-
-<!-- BANK ------------------------------------------------------------------------------------------------------------------------------------------->
-<div 
-onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
-class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
-
-<div class="flex items-center justify-between">
-
-<div>
-
-<h3 class="text-3xl font-bold">
-ONLINE BANKING
-</h3>
-
-<p class="text-zinc-400 mt-2">
-QR Payment
-</p>
-
 </div>
-
-<div class="text-right border-l border-zinc-700 pl-6">
-
-<p id="bankPrice" class="text-2xl font-black">
-RM0.00
-</p>
-
-<button 
-onclick="orderNow('ONLINE BANKING')"
-class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
-
-BUY NOW
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- CELCOM ------------------------------------------------------------------------------------------------------------------------------------------------>
-<div 
-onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
-class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
-
-<div class="flex items-center justify-between">
-
-<div>
-
-<h3 class="text-3xl font-bold">
-CELCOM PIN
-</h3>
-
-<p class="text-zinc-400 mt-2">
-Pin Payment
-</p>
-
-</div>
-
-<div class="text-right border-l border-zinc-700 pl-6">
-
-<p id="celcomPrice" class="text-2xl font-black">
-RM0.00
-</p>
-
-<button 
-onclick="orderNow('CELCOM PIN')"
-class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
-
-BUY NOW
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- WHATSAPP ----------------------------------------------------------------------------------------------------------------------------------------------->
-<div id="waOrder"
-class="bg-zinc-900 border border-green-500 rounded-3xl p-6 hover:scale-[1.02] transition md:col-span-2">
-
-<div class="flex items-center justify-between">
-
-<div>
-
-<h3 class="text-3xl font-bold text-green-400">
-WhatsApp Order
-</h3>
-
-<p class="text-zinc-400 mt-2">
-Manual Order Support
-</p>
-
-</div>
-
-<a 
-id="whatsappBtn"
-href="https://wa.me/601115421017"
-target="_blank"
-class="bg-green-500 hover:bg-green-400 text-black font-bold px-6 md:px-8 py-3 md:py-4 rounded-2xl text-sm md:text-base">
-
-ORDER NOW
-
-</a>
-
-</div>
-
-</div>
-
-
-
-
-
-<!-- BACK BUTTON -->
-<div class="text-center mt-16">
-
-<a 
-href="index.html"
-class="border border-zinc-700 hover:border-cyan-400 px-6 md:px-8 py-3 md:py-4 rounded-2xl inline-block transition text-sm md:text-base">
-
-⬅ BACK HOME
-
-</a>
-
-</div>
-
-</div>
-
 </section>
-
-
-<!-- OVERLAY -->
-<div 
-id="overlay"
-class="fixed top-0 left-0 w-full h-full z-[9998] hidden">
-</div>
-
-
-<script>
-
-function selectPackage(
-name,
-tngPrice,
-bankPrice,
-digiPrice,
-celcomPrice
-){
-
-// PACKAGE
-document.getElementById("selectedPackage").innerHTML = name;
-
-
-// PAYMENT PRICE
-document.getElementById("tngPrice").innerHTML = tngPrice;
-
-document.getElementById("digiPrice").innerHTML = digiPrice;
-
-document.getElementById("bankPrice").innerHTML = bankPrice;
-
-document.getElementById("celcomPrice").innerHTML = celcomPrice;
-
-
-
-
-// WHATSAPP MESSAGE
-let message = `Hello GNEX`;
-
-// WHATSAPP LINK
-let url =
-`https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
-
-document.getElementById("whatsappBtn").href = url;
-
-
-// AUTO SCROLL
-  document.getElementById("selected-package")
-    .scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-
-}
-
-function orderNow(payment){
-
-let selectedPackage =
-document.getElementById("selectedPackage").innerText;
-
-let price = "";
-
-if(payment === "Touch N Go"){
-price = document.getElementById("tngPrice").innerText;
-}
-
-if(payment === "DIGI PIN"){
-price = document.getElementById("digiPrice").innerText;
-}
-
-if(payment === "ONLINE BANKING"){
-price = document.getElementById("bankPrice").innerText;
-}
-
-if(payment === "CELCOM PIN"){
-price = document.getElementById("celcomPrice").innerText;
-}
-
-let message =
-`Hello GNEX, saya nak beli:
-
-Package : ${selectedPackage}
-Payment : ${payment}
-Harga : ${price}`;
-
-let url =
-`https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
-
-window.open(url, "_blank");
-
-}
-
-
-
-</script>
-
-<script>
-
-function toggleSidebar() {
-
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-if(sidebar.style.left === "0px") {
-
-sidebar.style.left = "-300px";
-overlay.classList.add("hidden");
-
-} else {
-
-sidebar.style.left = "0px";
-overlay.classList.remove("hidden");
-
-}
-
-}
-
-function closeSidebar() {
-
-document.getElementById("sidebar").style.left = "-300px";
-document.getElementById("overlay").classList.add("hidden");
-
-}
-
-</script>
-
 
 <!-- FOOTER -->
-<footer class="border-t border-zinc-800 bg-black/80 mt-20">
-
-<div class="max-w-7xl mx-auto px-4 md:px-6 py-10">
-
-<div class="grid md:grid-cols-3 gap-10">
-
-<!-- BRAND -->
+<footer class="border-t border-zinc-800 bg-black/80">
+<div class="max-w-7xl mx-auto px-6 py-10">
+<div class="grid md:grid-cols-3 gap-8">
 <div>
-
-<h2 class="text-3xl font-black text-cyan-400">
-GNEX
-</h2>
-
+<h2 class="text-3xl font-black text-cyan-400">GNEX</h2>
 <p class="text-zinc-500 mt-3 text-sm leading-relaxed">
-Fast topup service for gamers. 
-Trusted seller with instant process 
-and affordable prices.
+Fast topup service for gamers. Trusted seller with simple WhatsApp checkout.
 </p>
-
 </div>
 
-
-
-<!-- MENU -->
 <div>
-
-<h3 class="text-white font-bold text-lg mb-4">
-Follow Us
-</h3>
-
-<div class="flex flex-col gap-4 text-zinc-400 text-sm">
-
-<!-- TIKTOK -->
-<a 
-href="https://www.tiktok.com/@officialgnex"
-target="_blank"
-class="flex items-center gap-3 hover:text-cyan-400 transition">
-
-<i class="fa-brands fa-tiktok text-lg"></i>
-
-Tiktok
-
-</a>
-
-
-<!-- INSTAGRAM -->
-<a 
-href="https://instagram.com/officialgnex"
-target="_blank"
-class="flex items-center gap-3 hover:text-pink-400 transition">
-
-<i class="fa-brands fa-instagram text-lg"></i>
-
-Instagram
-
-</a>
-
-
-<!-- WHATSAPP -->
-<a 
-href="https://whatsapp.com/channel/0029Va8PWv61noz1ttETrH2x"
-target="_blank"
-class="flex items-center gap-3 hover:text-green-400 transition">
-
-<i class="fa-brands fa-whatsapp text-lg"></i>
-
-WhatsApp Channel
-
-</a>
-
+<h3 class="font-bold mb-3">Menu</h3>
+<div class="flex flex-col gap-2 text-zinc-500 text-sm">
+<a href="index.html" class="hover:text-cyan-400 transition">Home</a>
+<a href="tournament.html" class="hover:text-cyan-400 transition">Tournament</a>
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="hover:text-green-400 transition">WhatsApp</a>
+</div>
 </div>
 
-</div>
-
-
-
-<!-- CONTACT -->
 <div>
-
-<h3 class="text-white font-bold text-lg mb-4">
-Contact
-</h3>
-
-<div class="flex flex-col gap-3 text-zinc-400 text-sm">
-
-<a 
-href="https://wa.me/601115421017"
-target="_blank"
-class="hover:text-green-400 transition">
-
-WhatsApp
-
-</a>
-
-<p>
-gnextopupenterprise@gmail.com
-</p>
-
-<p>
-Collab
-</p>
-
+<h3 class="font-bold mb-3">Contact</h3>
+<div class="flex flex-col gap-2 text-zinc-500 text-sm">
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="hover:text-green-400 transition">WhatsApp</a>
+<p>gnextopupenterprise@gmail.com</p>
+<p>Collab</p>
+</div>
+</div>
 </div>
 
+<div class="border-t border-zinc-800 mt-8 pt-6 text-zinc-600 text-xs md:text-sm">
+(c) 2026 GNEX TOPUP STORE. All rights reserved.
 </div>
-
 </div>
-
-
-
-
-
-<!-- BOTTOM -->
-<div class="border-t border-zinc-800 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-
-<p class="text-zinc-600 text-xs md:text-sm">
-© 2026 GNEX TOPUP STORE. All rights reserved.
-</p>
-
-<div class="flex items-center gap-4 text-xl">
-
-<a href="#" class="hover:text-cyan-400 transition">
-🎮
-</a>
-
-<a href="#" class="hover:text-pink-400 transition">
-📷
-</a>
-
-<a href="#" class="hover:text-green-400 transition">
-📱
-</a>
-
-</div>
-
-</div>
-
-</div>
-
 </footer>
 
+<script>
+const packages = [
+{name:"42 Diamond", price:"MYR5.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"98 Diamond", price:"MYR10.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"140 Diamond", price:"MYR15.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"210 Diamond", price:"MYR20.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"252 Diamond", price:"MYR25.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"312 Diamond", price:"MYR30.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"355 Diamond", price:"MYR35.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"443 Diamond", price:"MYR40.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"485 Diamond", price:"MYR45.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"541 Diamond", price:"MYR50.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"583 Diamond", price:"MYR55.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"667 Diamond", price:"MYR60.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"716 Diamond", price:"MYR65.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"772 Diamond", price:"MYR70.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"814 Diamond", price:"MYR75.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"856 Diamond", price:"MYR80.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"898 Diamond", price:"MYR85.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"968 Diamond", price:"MYR90.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"1014 Diamond", price:"MYR95.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"1085 Diamond", price:"MYR100.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"1295 Diamond", price:"MYR120.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"1656 Diamond", price:"MYR150.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"2204 Diamond", price:"MYR200.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"3405 Diamond", price:"MYR300.00", channel:"DIGI/CELCOM", category:"telco"},
+{name:"14 Diamond", price:"MYR1.17", channel:"QR Transfer", category:"qr"},
+{name:"42 Diamond", price:"MYR3.50", channel:"QR Transfer", category:"qr"},
+{name:"56 Diamond", price:"MYR4.67", channel:"QR Transfer", category:"qr"},
+{name:"70 Diamond", price:"MYR5.80", channel:"QR Transfer", category:"qr"},
+{name:"112 Diamond", price:"MYR9.30", channel:"QR Transfer", category:"qr"},
+{name:"140 Diamond", price:"MYR11.40", channel:"QR Transfer", category:"qr"},
+{name:"284 Diamond", price:"MYR22.00", channel:"QR Transfer", category:"qr"},
+{name:"355 Diamond", price:"MYR28.30", channel:"QR Transfer", category:"qr"},
+{name:"429 Diamond", price:"MYR32.90", channel:"QR Transfer", category:"qr"},
+{name:"716 Diamond", price:"MYR56.70", channel:"QR Transfer", category:"qr"},
+{name:"1000 Diamond", price:"MYR78.70", channel:"QR Transfer", category:"qr"},
+{name:"1070 Diamond", price:"MYR84.50", channel:"QR Transfer", category:"qr"},
+{name:"1446 Diamond", price:"MYR113.00", channel:"QR Transfer", category:"qr"},
+{name:"2976 Diamond", price:"MYR226.50", channel:"QR Transfer", category:"qr"},
+{name:"56 Diamond", price:"MYR5.00", channel:"TNG Pin", category:"pin"},
+{name:"112 Diamond", price:"MYR10.00", channel:"TNG Pin", category:"pin"},
+{name:"168 Diamond", price:"MYR15.00", channel:"TNG Pin", category:"pin"},
+{name:"252 Diamond", price:"MYR20.00", channel:"TNG Pin", category:"pin"},
+{name:"298 Diamond", price:"MYR25.00", channel:"TNG Pin", category:"pin"},
+{name:"355 Diamond", price:"MYR30.00", channel:"TNG Pin", category:"pin"},
+{name:"397 Diamond", price:"MYR35.00", channel:"TNG Pin", category:"pin"},
+{name:"513 Diamond", price:"MYR40.00", channel:"TNG Pin", category:"pin"},
+{name:"611 Diamond", price:"MYR50.00", channel:"TNG Pin", category:"pin"},
+{name:"667 Diamond", price:"MYR55.00", channel:"TNG Pin", category:"pin"},
+{name:"716 Diamond", price:"MYR60.00", channel:"TNG Pin", category:"pin"},
+{name:"884 Diamond", price:"MYR70.00", channel:"TNG Pin", category:"pin"},
+{name:"1056 Diamond", price:"MYR80.00", channel:"TNG Pin", category:"pin"},
+{name:"1145 Diamond", price:"MYR90.00", channel:"TNG Pin", category:"pin"},
+{name:"1229 Diamond", price:"MYR100.00", channel:"TNG Pin", category:"pin"},
+{name:"1875 Diamond", price:"MYR150.00", channel:"TNG Pin", category:"pin"},
+{name:"2488 Diamond", price:"MYR200.00", channel:"TNG Pin", category:"pin"},
+{name:"3116 Diamond", price:"MYR250.00", channel:"TNG Pin", category:"pin"},
+{name:"4562 Diamond", price:"MYR350.00", channel:"TNG Pin", category:"pin"},
+{name:"First Recharge 50+50", price:"MYR4.50", channel:"First Recharge", category:"first"},
+{name:"First Recharge 150+150", price:"MYR14.00", channel:"First Recharge", category:"first"},
+{name:"First Recharge 250+250", price:"MYR24.00", channel:"First Recharge", category:"first"},
+{name:"First Recharge 500+500", price:"MYR45.00", channel:"First Recharge", category:"first"},
+{name:"Weekly", price:"MYR9.00", channel:"Weekly", category:"first"}
+];
+
+let currentPackage = packages[0];
+let currentFilter = "all";
+
+function toggleSidebar(){
+document.getElementById("sidebar").classList.toggle("-translate-x-full");
+document.getElementById("overlay").classList.toggle("hidden");
+}
+
+function closeSidebar(){
+document.getElementById("sidebar").classList.add("-translate-x-full");
+document.getElementById("overlay").classList.add("hidden");
+}
+
+function goSection(sectionId){
+closeSidebar();
+document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
+}
+
+function packageLabel(pkg){
+if(pkg.category === "qr"){
+return "QR";
+}
+
+if(pkg.category === "pin"){
+return "PIN";
+}
+
+if(pkg.category === "telco"){
+return "TELCO";
+}
+
+return "SPECIAL";
+}
+
+function renderPackages(filter = "all"){
+const packageGrid = document.getElementById("packageGrid");
+const visiblePackages = packages.filter((pkg) => filter === "all" || pkg.category === filter);
+
+packageGrid.innerHTML = visiblePackages.map((pkg, index) => `
+<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}">
+<div class="flex justify-between items-center mb-5 gap-2">
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">${packageLabel(pkg)}</span>
+<span class="text-cyan-400 text-xs font-black text-right">${pkg.price}</span>
+</div>
+<h3 class="text-2xl font-black leading-tight">${pkg.name}</h3>
+<p class="text-zinc-500 text-xs mt-2">${pkg.channel}</p>
+<button type="button" onclick="selectPackage(${packages.indexOf(pkg)})" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+</article>
+`).join("");
+
+if(visiblePackages.length === 0){
+packageGrid.innerHTML = `<p class="text-zinc-500">No package found.</p>`;
+}
+}
+
+function filterPackages(category, button){
+currentFilter = category;
+document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("active"));
+button.classList.add("active");
+renderPackages(category);
+}
+
+function selectPackage(index){
+currentPackage = packages[index];
+document.getElementById("selectedPackage").innerText = currentPackage.name;
+document.getElementById("selectedChannel").innerText = currentPackage.channel;
+document.getElementById("selectedPrice").innerText = currentPackage.price;
+renderPackages(currentFilter);
+document.getElementById("checkout").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function orderNow(){
+const playerId = document.getElementById("playerId").value.trim() || "Belum isi";
+const serverId = document.getElementById("serverId").value.trim() || "Belum isi";
+
+const message =
+`Hello GNEX, saya nak beli Mobile Legends topup:
+
+Package: ${currentPackage.name}
+Channel: ${currentPackage.channel}
+Harga: ${currentPackage.price}
+Player ID: ${playerId}
+Server ID: ${serverId}`;
+
+const url = `https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
+window.open(url, "_blank");
+}
+
+renderPackages();
+</script>
 
 </body>
 </html>
