@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GNEX GAME STORE</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+  html, body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+background:#000;
+color:white;
+font-family:sans-serif;
+overflow-x:hidden;
+}
+
+.gradient-bg{
+background:
+linear-gradient(
+135deg,
+#020617 0%,
+#0f172a 40%,
+#1e1b4b 100%
+);
+}
+
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+<body>
+
+  <!-- VIDEO BACKGROUND -->
+<video 
+autoplay 
+muted 
+loop 
+playsinline
+class="fixed top-0 left-0 w-full h-full object-cover -z-10 opacity-20">
+
+<source src="" type="video/mp4">
+
+</video>
+
+  <!-- NAVBAR ----------------------------------------------------------------------------------------------------------------------------------------->
+<nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/70 border-b border-zinc-800">
+
+<div class="w-full px-4 py-4 flex items-center justify-between">
+
+<!-- LOGO + TOGGLE -->
+<div class="flex items-center gap-3 -ml-0">
+
+<!-- TOGGLE BUTTON -->
+<button 
+id="menu-btn"
+onclick="toggleSidebar()"
+class="w-14 h-14 rounded-full bg-zinc-900 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+
+<img 
+src="images/logo baru gnex .png"
+class="w-8 h-8 object-contain">
+
+</button>
+
+<div>
+
+<h1 class="text-2xl font-black text-cyan-400">
+GNEX
+</h1>
+
+<p class="text-zinc-500 text-xs">
+TOPUP STORE
+</p>
+
+</div>
+
+</div>
+
+
+<!-- TOGGLE BUTTON -->
+
+
+
+<!-- SIDEBAR -->
+<div 
+id="sidebar"
+class="fixed top-0 left-[-300px] w-72 h-full bg-black/95 border-r border-zinc-800 z-[9999] transition-all duration-500 p-8">
+
+<!-- LOGO -->
+<div class="mt-20 mb-12">
+
+<h1 class="text-4xl font-black text-cyan-400">
+GNEX
+</h1>
+
+<p class="text-zinc-500">
+TOPUP STORE
+</p>
+
+</div>
+
+
+<!-- MENU -->
+<div class="flex flex-col gap-6">
+
+<a 
+href="index.html"
+class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
+
+<i class="fa-solid fa-house"></i>
+HOME
+
+</a>
+
+<!------------------------------------------------------------------------------------------
+<button 
+onclick="document.getElementById('price-list').scrollIntoView({behavior:'smooth'})"
+class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
+
+💎 PRICE LIST
+
+</button>
+
+
+<button 
+onclick="document.getElementById('payment').scrollIntoView({behavior:'smooth'})"
+class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
+
+💳 PAYMENT
+
+</button>
+--------------------------------------------------------------------------------------------->
+
+<a 
+href="https://wa.me/601115421017"
+target="_blank"
+class="text-white hover:text-green-400 transition text-lg font-semibold">
+<i class="fa-brands fa-whatsapp"></i>
+WHATSAPP
+
+</a>
+
+</div>
+
+</div>
+
+
+<!-- OVERLAY -->
+<div 
+id="overlay"
+class="fixed inset-0 z-[9998] hidden">
+</div>
+
+
+
+<!-- MENU FOR NAVBAR --------------------------------------------------------------------------------------------------------------------------------------------->
+<div class="flex items-center gap-4">
+
+<a href="index.html">
+
+<button 
+class="border border-zinc-700 px-3 md:px-5 py-2 rounded-xl hover:border-cyan-400 transition text-[10px] md:text-sm">
+
+HOME
+
+</button>
+
+</a>
+
+
+<a href="index.html">
+<button 
+onclick="document.getElementById('payment').scrollIntoView({behavior:'smooth'})"
+class="bg-cyan-400 text-black font-bold px-3 md:px-5 py-2 rounded-xl hover:scale-105 transition text-[10px] md:text-sm">
+
+TOURNAMENT
+
+</button>
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<!---------------------------------------------------------------->
+
+
+
+
+
+
+<!-- SCRIPT FOR SIDEBAR -->
+<script>
+
+function toggleSidebar(){
+
+const sidebar =
+document.getElementById("sidebar");
+
+const overlay =
+document.getElementById("overlay");
+
+if(sidebar.style.left === "0px"){
+
+sidebar.style.left = "-300px";
+
+overlay.classList.add("hidden");
+
+}else{
+
+sidebar.style.left = "0px";
+
+overlay.classList.remove("hidden");
+
+}
+
+}
+
+
+
+// CLOSE SIDEBAR BILA CLICK LUAR
+document.addEventListener("click", function(e){
+
+const sidebar =
+document.getElementById("sidebar");
+
+const toggle =
+document.getElementById("menu-btn");
+
+
+// CHECK SIDEBAR OPEN
+if(sidebar.style.left === "0px"){
+
+// JANGAN CLOSE BILA CLICK SIDEBAR ATAU BUTTON
+if(
+!sidebar.contains(e.target) &&
+!toggle.contains(e.target)
+){
+
+sidebar.style.left = "-300px";
+
+document.getElementById("overlay")
+.classList.add("hidden");
+
+}
+
+}
+
+});
+
+</script>
+
+
+
+
+
+<!------------------------------------------------------------------->
+
+<!-- TOP SECTION -->
+<section class=" pt-20 gradient-bg border-b border-zinc-900">
+
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-20">
+
+<p class="text-cyan-400 font-bold tracking-widest text-sm">
+TOPUP STORE
+</p>
+
+<h1 class="text-4xl md:text-7xl font-black leading-none mt-4">
+FREE FIRE
+</h1>
+
+<h2 class="text-zinc-400 text-xl mt-4">
+DIAMOND PRICE LIST
+</h2>
+
+<p class="text-zinc-500 mt-6 max-w-2xl">
+Fast delivery • Trusted seller • Instant process
+</p>
+
+</div>
+
+</section>
+
+
+
+
+
+<!-- PRICE LIST -->
+<section class="py-16">
+
+<div class="max-w-7xl mx-auto px-4 md:px-6">
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+
+<div>
+
+<p class="text-cyan-400 text-sm font-bold tracking-widest">
+TOPUP STORE
+</p>
+
+<h2 class="text-2xl md:text-5xl font-black mt-2 leading-tight">
+GAME PRICE LIST
+</h2>
+
+</div>
+
+<p class="text-zinc-500 text-sm">
+Fast Delivery • Trusted Seller
+</p>
+
+</div>
+
+
+
+<!-- GRID -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
+
+
+<!-- CARD 1 25 DIAMOND -->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM1
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+25 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'25 Diamonds',
+'RM1.00',
+'RM1.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 100 DIAMOND-->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM4 - 5
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+100 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'100 Diamonds',
+'RM4.00',
+'RM4.00',
+'RM5.00',
+'RM5.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+<!-- CARD 1 125 DIAMOND -->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM5
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+125 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'125 Diamonds',
+'RM5.00',
+'RM5.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+
+<!-- CARD 2 200 DIAMOND-->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM8 - 10
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+200 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'200 Diamonds',
+'RM8.00',
+'RM8.00',
+'RM10.00',
+'RM10.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD  250 DIAMOND ------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM10
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+250 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'250 Diamonds',
+'RM10.00',
+'RM10.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 3 310 DIAMOND -------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM12 - 15
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+310 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'310 Diamonds',
+'RM12.00',
+'RM12.00',
+'RM15.00',
+'RM15.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 385 DIAMOND -------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM15
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+385 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'385 Diamonds',
+'RM15.00',
+'RM15.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 4 410 DIAMOND---------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md:p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM16 - 20
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+410 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'410 Diamonds',
+'RM16.00',
+'RM16.00',
+'RM20.00',
+'RM20.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 520 DIAMOND ----------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-3 md: p-4 hover:border-cyan-400 transition">
+  
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM20
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+520 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'520 Diamonds',
+'RM20.00',
+'RM20.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 545 DIAMOND ------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM21 - 25
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+545 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'545 Diamonds',
+'RM21.00',
+'RM21.00',
+'RM25.00',
+'RM25.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+<!-- CARD 6 645 DIAMOND-------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM25 - 30
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+645 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'645 Diamonds',
+'RM25.00',
+'RM25.00',
+'RM30.00',
+'RM30.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 770 DIAMOND ---------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM30
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+770 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'770 Diamonds',
+'RM30.00',
+'RM30.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 7 880 DIAMOND ----------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM34 - 40
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+880 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'880 Diamonds',
+'RM34.00',
+'RM34.00',
+'RM40.00',
+'RM40.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+<!-- CARD 1 1110 DIAMOND ---------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM40
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1110 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1110 Diamonds',
+'RM40.00',
+'RM40.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 9 1160 --------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM42 - 50
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1160 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1160 Diamonds',
+'RM42.00',
+'RM42.00',
+'RM50.00',
+'RM50.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+<!-- CARD 1 1370 DIAMOND ---------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM50
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1370 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1110 Diamonds',
+'RM50.00',
+'RM50.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+<!-- CARD 10 1395 DIAMOND -------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM51 - 60
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1395 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1395 Diamonds',
+'RM51.00',
+'RM51.00',
+'RM60.00',
+'RM60.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 1630 DIAMOND ---------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM60
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1630 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1630 Diamonds',
+'RM60.00',
+'RM60.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+<!-- CARD 11 1680 DIAMOND ------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM62 - 70
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1680 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1680 Diamonds',
+'RM62.00',
+'RM62.00',
+'RM70.00',
+'RM70.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+
+
+<!-- CARD 12 1890 DIAMOND ---------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM70 - 80
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+1890 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'1890 Diamonds',
+'RM70.00',
+'RM70.00',
+'RM80.00',
+'RM80.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+<!-- CARD 13 2180 DIAMOND --------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM78 - 90
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+2180 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'2180 Diamonds',
+'RM78.00',
+'RM78.00',
+'RM90.00',
+'RM90.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+<!-- CARD 1 2230 DIAMOND --------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM80
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+2230 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'2230 Diamonds',
+'RM80.00',
+'RM80.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+<!-- CARD 14 2380 DIAMOND ---------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM86 - 100
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+2380 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'2380 Diamonds',
+'RM86.00',
+'RM86.00',
+'RM100.00',
+'RM100.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 1 2490 DIAMOND ------------------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM90
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+2490 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'2490 Diamonds',
+'RM90.00',
+'RM90.00',
+'NOT AVAILABLE',
+'NOT AVAILABLE'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+
+<!-- CARD 15 ------------------------------------------------------------------------------------------------------------------------------------------->
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+Diamond
+</span>
+
+</div>
+
+<h3 class="text-2xl md:text-2xl font-black">
+2775 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'2775 Diamonds',
+'RM100.00',
+'RM100.00',
+'RM120.00',
+'RM120.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+<!-- CARD 16 ------------------------------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM2 - 5
+</span>
+
+</div>
+
+<h3 class="text-sm font-black">
+Weekly Lite Pass 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'Weekly Lite Pass Diamonds',
+'RM2.00',
+'RM2.00',
+'RM5.00 2 item',
+'RM5.00 2 item'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+<!-- CARD 16 ------------------------------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM7 - 10
+</span>
+
+</div>
+
+<h3 class="text-1xl font-black">
+Weekly Pass 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'Weekly Pass Diamonds',
+'RM7.00',
+'RM7.00',
+'RM10.00',
+'RM10.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 16 ------------------------------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM35 - 40
+</span>
+
+</div>
+
+<h3 class="text-1xl font-black">
+Monthly Pass 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'Monthly Pass Diamonds',
+'RM35.00',
+'RM35.00',
+'RM40.00',
+'RM40.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+<!-- CARD 16 ------------------------------------------------------------------------------------------------------------------------------------------------>
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 hover:border-cyan-400 transition">
+
+<div class="flex justify-between items-center mb-4">
+
+<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded-full">
+FREE FIRE
+</span>
+
+<span class="text-cyan-400 text-xs font-bold">
+RM42 - 50
+</span>
+
+</div>
+
+<h3 class="text-1xl font-black">
+Combo Pass 💎
+</h3>
+
+<button 
+onclick="selectPackage(
+'Combo Pass Diamonds',
+'RM42.00',
+'RM42.00',
+'RM50.00',
+'RM50.00'
+)"
+class="w-full mt-4 bg-cyan-400 text-black font-bold py-2 md:py-3 rounded-xl hover:scale-105 transition text-xs md:text-sm">
+
+SELECT
+
+</button>
+
+</div>
+
+
+
+
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+
+
+<!-- PAYMENT -->
+<section id="payment" class="py-20 border-t border-zinc-900">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h2 class="text-4xl md:text-5xl font-black">
+PAYMENT METHOD
+</h2>
+
+<p class="text-zinc-400 mt-3">
+Safe payment & instant process
+</p>
+
+
+
+<!-- SELECTED PACKAGE -->
+<div
+class="mt-8 mb-10 border border-cyan-400 rounded-3xl p-6 bg-cover bg-center relative overflow-hidden"
+style="background-image:url('images/ff-wallpaper.jpg');">
+
+<div class="absolute inset-0 bg-black/90"></div>
+
+<div class="relative z-10">
+
+<p id="selected-package" class="text-zinc-400 text-sm mb-2">
+SELECTED PACKAGE
+</p>
+
+<h3 id="selectedPackage" class="text-5xl font-black text-cyan-400">
+100 Diamonds
+</h3>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- PAYMENT GRID -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+
+
+<!-- TOUCH N GO -->
+<div 
+onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
+class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<h3 class="text-2xl md:text-3xl font-bold">
+Touch 'n Go
+</h3>
+
+<p class="text-zinc-400 mt-2">
+Qr & Pin Payement
+</p>
+
+</div>
+
+<div class="text-right border-l border-zinc-700 pl-6">
+
+<p id="tngPrice" class="text-2xl font-black">
+RM0.00
+</p>
+
+
+<button 
+onclick="orderNow('Touch N Go')"
+class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
+
+BUY NOW
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- DIGI -->
+<div 
+onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
+class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<h3 class="text-3xl font-bold">
+DIGI PIN
+</h3>
+
+<p class="text-zinc-400 mt-2">
+Pin Payment
+</p>
+
+</div>
+
+<div class="text-right border-l border-zinc-700 pl-6">
+
+<p id="digiPrice" class="text-2xl font-black">
+RM0.00
+</p>
+
+<button 
+onclick="orderNow('DIGI PIN')"
+class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
+
+BUY NOW
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- BANK ------------------------------------------------------------------------------------------------------------------------------------------->
+<div 
+onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
+class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<h3 class="text-3xl font-bold">
+ONLINE BANKING
+</h3>
+
+<p class="text-zinc-400 mt-2">
+QR Payment
+</p>
+
+</div>
+
+<div class="text-right border-l border-zinc-700 pl-6">
+
+<p id="bankPrice" class="text-2xl font-black">
+RM0.00
+</p>
+
+<button 
+onclick="orderNow('ONLINE BANKING')"
+class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
+
+BUY NOW
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- CELCOM ------------------------------------------------------------------------------------------------------------------------------------------------>
+<div 
+onclick="document.getElementById('waOrder').scrollIntoView({behavior:'smooth'})"
+class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-cyan-400 transition cursor-pointer">
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<h3 class="text-3xl font-bold">
+CELCOM PIN
+</h3>
+
+<p class="text-zinc-400 mt-2">
+Pin Payment
+</p>
+
+</div>
+
+<div class="text-right border-l border-zinc-700 pl-6">
+
+<p id="celcomPrice" class="text-2xl font-black">
+RM0.00
+</p>
+
+<button 
+onclick="orderNow('CELCOM PIN')"
+class="mt-3 bg-cyan-400 text-black font-bold px-5 py-2 rounded-xl hover:scale-105 transition text-sm">
+
+BUY NOW
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- WHATSAPP ----------------------------------------------------------------------------------------------------------------------------------------------->
+<div id="waOrder"
+class="bg-zinc-900 border border-green-500 rounded-3xl p-6 hover:scale-[1.02] transition md:col-span-2">
+
+<div class="flex items-center justify-between">
+
+<div>
+
+<h3 class="text-3xl font-bold text-green-400">
+WhatsApp Order
+</h3>
+
+<p class="text-zinc-400 mt-2">
+Manual Order Support
+</p>
+
+</div>
+
+<a 
+id="whatsappBtn"
+href="https://wa.me/601115421017"
+target="_blank"
+class="bg-green-500 hover:bg-green-400 text-black font-bold px-6 md:px-8 py-3 md:py-4 rounded-2xl text-sm md:text-base">
+
+ORDER NOW
+
+</a>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- BACK BUTTON -->
+<div class="text-center mt-16">
+
+<a 
+href="index.html"
+class="border border-zinc-700 hover:border-cyan-400 px-6 md:px-8 py-3 md:py-4 rounded-2xl inline-block transition text-sm md:text-base">
+
+⬅ BACK HOME
+
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- OVERLAY -->
+<div 
+id="overlay"
+class="fixed top-0 left-0 w-full h-full z-[9998] hidden">
+</div>
+
+
+<script>
+
+function selectPackage(
+name,
+tngPrice,
+bankPrice,
+digiPrice,
+celcomPrice
+){
+
+// PACKAGE
+document.getElementById("selectedPackage").innerHTML = name;
+
+
+// PAYMENT PRICE
+document.getElementById("tngPrice").innerHTML = tngPrice;
+
+document.getElementById("digiPrice").innerHTML = digiPrice;
+
+document.getElementById("bankPrice").innerHTML = bankPrice;
+
+document.getElementById("celcomPrice").innerHTML = celcomPrice;
+
+
+
+
+// WHATSAPP MESSAGE
+let message = `Hello GNEX`;
+
+// WHATSAPP LINK
+let url =
+`https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
+
+document.getElementById("whatsappBtn").href = url;
+
+
+// AUTO SCROLL
+  document.getElementById("selected-package")
+    .scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+}
+
+function orderNow(payment){
+
+let selectedPackage =
+document.getElementById("selectedPackage").innerText;
+
+let price = "";
+
+if(payment === "Touch N Go"){
+price = document.getElementById("tngPrice").innerText;
+}
+
+if(payment === "DIGI PIN"){
+price = document.getElementById("digiPrice").innerText;
+}
+
+if(payment === "ONLINE BANKING"){
+price = document.getElementById("bankPrice").innerText;
+}
+
+if(payment === "CELCOM PIN"){
+price = document.getElementById("celcomPrice").innerText;
+}
+
+let message =
+`Hello GNEX, saya nak beli:
+
+Package : ${selectedPackage}
+Payment : ${payment}
+Harga : ${price}`;
+
+let url =
+`https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
+
+window.open(url, "_blank");
+
+}
+
+
+
+</script>
+
+<script>
+
+function toggleSidebar() {
+
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+if(sidebar.style.left === "0px") {
+
+sidebar.style.left = "-300px";
+overlay.classList.add("hidden");
+
+} else {
+
+sidebar.style.left = "0px";
+overlay.classList.remove("hidden");
+
+}
+
+}
+
+function closeSidebar() {
+
+document.getElementById("sidebar").style.left = "-300px";
+document.getElementById("overlay").classList.add("hidden");
+
+}
+
+</script>
+
+
+<!-- FOOTER -->
+<footer class="border-t border-zinc-800 bg-black/80 mt-20">
+
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-10">
+
+<div class="grid md:grid-cols-3 gap-10">
+
+<!-- BRAND -->
+<div>
+
+<h2 class="text-3xl font-black text-cyan-400">
+GNEX
+</h2>
+
+<p class="text-zinc-500 mt-3 text-sm leading-relaxed">
+Fast topup service for gamers. 
+Trusted seller with instant process 
+and affordable prices.
+</p>
+
+</div>
+
+
+
+<!-- MENU -->
+<div>
+
+<h3 class="text-white font-bold text-lg mb-4">
+Follow Us
+</h3>
+
+<div class="flex flex-col gap-4 text-zinc-400 text-sm">
+
+<!-- TIKTOK -->
+<a 
+href="https://www.tiktok.com/@officialgnex"
+target="_blank"
+class="flex items-center gap-3 hover:text-cyan-400 transition">
+
+<i class="fa-brands fa-tiktok text-lg"></i>
+
+Tiktok
+
+</a>
+
+
+<!-- INSTAGRAM -->
+<a 
+href="https://instagram.com/officialgnex"
+target="_blank"
+class="flex items-center gap-3 hover:text-pink-400 transition">
+
+<i class="fa-brands fa-instagram text-lg"></i>
+
+Instagram
+
+</a>
+
+
+<!-- WHATSAPP -->
+<a 
+href="https://whatsapp.com/channel/0029Va8PWv61noz1ttETrH2x"
+target="_blank"
+class="flex items-center gap-3 hover:text-green-400 transition">
+
+<i class="fa-brands fa-whatsapp text-lg"></i>
+
+WhatsApp Channel
+
+</a>
+
+</div>
+
+</div>
+
+
+
+<!-- CONTACT -->
+<div>
+
+<h3 class="text-white font-bold text-lg mb-4">
+Contact
+</h3>
+
+<div class="flex flex-col gap-3 text-zinc-400 text-sm">
+
+<a 
+href="https://wa.me/601115421017"
+target="_blank"
+class="hover:text-green-400 transition">
+
+WhatsApp
+
+</a>
+
+<p>
+gnextopupenterprise@gmail.com
+</p>
+
+<p>
+Collab
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- BOTTOM -->
+<div class="border-t border-zinc-800 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+
+<p class="text-zinc-600 text-xs md:text-sm">
+© 2026 GNEX TOPUP STORE. All rights reserved.
+</p>
+
+<div class="flex items-center gap-4 text-xl">
+
+<a href="#" class="hover:text-cyan-400 transition">
+🎮
+</a>
+
+<a href="#" class="hover:text-pink-400 transition">
+📷
+</a>
+
+<a href="#" class="hover:text-green-400 transition">
+📱
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</footer>
+
+
+</body>
+</html>
