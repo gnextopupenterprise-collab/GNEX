@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNEX Official Jersey</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+html{
+scroll-behavior:smooth;
+}
+
+body{
+margin:0;
+background:#030712;
+color:white;
+font-family:Arial, Helvetica, sans-serif;
+overflow-x:hidden;
+}
+
+.hero-jersey{
+background:
+linear-gradient(90deg, rgba(3,7,18,.96) 0%, rgba(3,7,18,.82) 38%, rgba(3,7,18,.35) 100%),
+url("images/jersey/jersey-hero.jpg");
+background-size:cover;
+background-position:center;
+}
+
+.grid-lines{
+background-image:
+linear-gradient(rgba(34,211,238,.08) 1px, transparent 1px),
+linear-gradient(90deg, rgba(34,211,238,.08) 1px, transparent 1px);
+background-size:56px 56px;
+}
+
+.slash-card{
+clip-path:polygon(0 0, 92% 0, 100% 22%, 100% 100%, 8% 100%, 0 78%);
+}
+
+.size-button.active{
+background:#22d3ee;
+color:#020617;
+border-color:#22d3ee;
+box-shadow:0 0 22px rgba(34,211,238,.35);
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-zinc-800">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+
+<a href="index.html" class="flex items-center gap-3">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-12 h-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20">
+<div>
+<h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">JERSEY STORE</p>
+</div>
+</a>
+
+<div class="hidden md:flex items-center gap-4">
+<a href="index.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">HOME</a>
+<a href="#features" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">DETAIL</a>
+<a href="#size-chart" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">SIZE</a>
+<a href="#order" class="bg-cyan-400 text-black font-black px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">ORDER</a>
+</div>
+
+<a href="#order" class="md:hidden bg-cyan-400 text-black font-black px-4 py-2 rounded-lg text-sm">ORDER</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero-jersey relative min-h-screen pt-28 overflow-hidden">
+<div class="absolute inset-0 grid-lines opacity-55"></div>
+<div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#030712] to-transparent"></div>
+
+<div class="relative max-w-7xl mx-auto px-6 min-h-[calc(100vh-7rem)] flex flex-col justify-center">
+<div class="max-w-3xl">
+<p class="text-cyan-300 font-black tracking-[0.32em] text-xs md:text-sm">OFFICIAL GNEX MERCH</p>
+
+<h1 class="mt-5 text-5xl sm:text-6xl md:text-8xl font-black leading-[0.9]">
+BE THE <span class="text-cyan-300">NEX</span>
+</h1>
+
+<p class="mt-6 text-zinc-200 text-base md:text-lg leading-relaxed max-w-2xl">
+Jersey rasmi GNEX dengan material microfiber eyelet, ringan untuk gaming event, tournament dan daily wear.
+</p>
+
+<div class="flex flex-col sm:flex-row gap-4 mt-8">
+<a href="#order" class="text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black px-8 py-4 rounded-lg transition shadow-lg shadow-cyan-500/25">
+BELI SEKARANG
+</a>
+<a href="#gallery" class="text-center border border-white/30 hover:border-cyan-300 px-8 py-4 rounded-lg font-black transition">
+VIEW JERSEY
+</a>
+</div>
+</div>
+
+<div class="grid md:grid-cols-4 gap-3 mt-12 max-w-5xl">
+<div class="slash-card bg-black/70 border border-cyan-400/30 p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.2em]">PRICE</p>
+<h3 class="text-3xl font-black mt-2">RM65</h3>
+</div>
+
+<div class="slash-card bg-black/70 border border-cyan-400/30 p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.2em]">MATERIAL</p>
+<h3 class="text-xl font-black mt-2">Microfiber</h3>
+</div>
+
+<div class="slash-card bg-black/70 border border-cyan-400/30 p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.2em]">WEIGHT</p>
+<h3 class="text-xl font-black mt-2">145 GSM</h3>
+</div>
+
+<div class="slash-card bg-black/70 border border-cyan-400/30 p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.2em]">STOCK</p>
+<h3 class="text-xl font-black mt-2">50 PCS</h3>
+</div>
+</div>
+</div>
+</header>
+
+<!-- FEATURES -->
+<section id="features" class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">JERSEY DETAIL</p>
+<h2 class="text-3xl md:text-5xl font-black mt-3">Built for All.</h2>
+</div>
+<p class="text-zinc-500 text-sm max-w-md">Design biru, putih dan gold dengan identity GNEX Esport.</p>
+</div>
+
+<div class="grid md:grid-cols-4 gap-4">
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<p class="text-3xl font-black text-green-300">01</p>
+<h3 class="font-black mt-4">Microfiber Eyelet</h3>
+<p class="text-zinc-500 text-sm mt-2">Material sejuk dan selesa untuk pakai lama.</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<p class="text-3xl font-black text-green-300">02</p>
+<h3 class="font-black mt-4">145 GSM</h3>
+<p class="text-zinc-500 text-sm mt-2">Ringan, tak berat, sesuai untuk event dan casual.</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<p class="text-3xl font-black text-green-300">03</p>
+<h3 class="font-black mt-4">Limited Edition</h3>
+<p class="text-zinc-500 text-sm mt-2">Batch terhad 50 pcs untuk drop GNEX.</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<p class="text-3xl font-black text-green-300">04</p>
+<h3 class="font-black mt-4">Official Jersey</h3>
+<p class="text-zinc-500 text-sm mt-2">Logo dan warna rasmi GNEX untuk supporter.</p>
+</div>
+</div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="border-y border-zinc-900 bg-zinc-950/60">
+<div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 items-stretch">
+
+<div class="relative min-h-[520px] rounded-lg overflow-hidden border border-cyan-400/30 bg-black">
+<img id="mainPreview" src="images/jersey/jersey-model-1.jpeg" alt="GNEX jersey preview" class="absolute inset-0 w-full h-full object-cover object-top">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/15"></div>
+<div class="absolute left-5 bottom-5">
+<p class="text-cyan-300 font-black tracking-[0.2em] text-xs">OFFICIAL</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">GNEX Jersey</h2>
+</div>
+</div>
+
+<div class="grid gap-4">
+<button type="button" onclick="setPreview('images/jersey/jersey-model-1.jpeg')" class="group rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 text-left hover:border-cyan-400 transition">
+<div class="grid grid-cols-[140px_1fr] min-h-40">
+<img src="images/jersey/jersey-model-1.jpeg" alt="Jersey model front" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500">
+<div class="p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.22em]">LOOK 01</p>
+<h3 class="text-2xl font-black mt-2">Front Detail</h3>
+<p class="text-zinc-500 text-sm mt-3">Logo chest GNEX dan warna rasmi biru putih gold.</p>
+</div>
+</div>
+</button>
+
+<button type="button" onclick="setPreview('images/jersey/jersey-model-2.jpeg')" class="group rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 text-left hover:border-cyan-400 transition">
+<div class="grid grid-cols-[140px_1fr] min-h-40">
+<img src="images/jersey/jersey-model-2.jpeg" alt="Jersey model side" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-500">
+<div class="p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.22em]">LOOK 02</p>
+<h3 class="text-2xl font-black mt-2">Lifestyle Fit</h3>
+<p class="text-zinc-500 text-sm mt-3">Sesuai untuk team, supporter dan event tournament.</p>
+</div>
+</div>
+</button>
+
+<button type="button" onclick="setPreview('images/jersey/jersey-hero.jpg')" class="group rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 text-left hover:border-cyan-400 transition">
+<div class="grid grid-cols-[140px_1fr] min-h-40">
+<img src="images/jersey/jersey-hero.jpg" alt="Jersey promo poster" class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500">
+<div class="p-5">
+<p class="text-cyan-300 text-xs font-black tracking-[0.22em]">PROMO</p>
+<h3 class="text-2xl font-black mt-2">Jersey Drop</h3>
+<p class="text-zinc-500 text-sm mt-3">RM65, microfiber eyelet, limited edition 50 pcs.</p>
+</div>
+</div>
+</button>
+</div>
+
+</div>
+</div>
+</section>
+
+<!-- SIZE CHART / ORDER -->
+<section id="size-chart" class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="grid lg:grid-cols-[0.95fr_1.05fr] gap-6 items-start">
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">SIZE CHART</p>
+<h2 class="text-3xl md:text-4xl font-black mt-3">Choose your fit.</h2>
+<div class="mt-6 overflow-hidden rounded-lg border border-zinc-800 bg-black">
+<img src="images/jersey/jersey-size-chart.png" alt="GNEX jersey size chart" class="w-full h-auto">
+</div>
+</div>
+
+<div id="order" class="rounded-lg border border-cyan-400/40 bg-black p-6 md:p-7 sticky top-24">
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">ORDER FORM</p>
+<h2 class="text-4xl md:text-5xl font-black mt-3">RM65</h2>
+<p class="text-zinc-400 mt-3">Pilih size dan terus WhatsApp GNEX untuk confirm stock.</p>
+
+<div class="mt-6">
+<p class="text-sm font-black text-zinc-300 mb-3">SIZE</p>
+<div class="grid grid-cols-5 gap-2">
+<button type="button" class="size-button active border border-zinc-700 rounded-lg py-3 font-black" onclick="selectSize(this,'XS')">XS</button>
+<button type="button" class="size-button border border-zinc-700 rounded-lg py-3 font-black" onclick="selectSize(this,'S')">S</button>
+<button type="button" class="size-button border border-zinc-700 rounded-lg py-3 font-black" onclick="selectSize(this,'M')">M</button>
+<button type="button" class="size-button border border-zinc-700 rounded-lg py-3 font-black" onclick="selectSize(this,'L')">L</button>
+<button type="button" class="size-button border border-zinc-700 rounded-lg py-3 font-black" onclick="selectSize(this,'XL')">XL</button>
+</div>
+</div>
+
+<div class="grid sm:grid-cols-2 gap-3 mt-6">
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-zinc-500 text-xs font-bold">SELECTED SIZE</p>
+<p id="selectedSize" class="text-2xl font-black mt-2">XS</p>
+</div>
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-zinc-500 text-xs font-bold">WHATSAPP</p>
+<p class="text-2xl font-black mt-2">01115421017</p>
+</div>
+</div>
+
+<a id="orderLink" href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20order%20Official%20GNEX%20Jersey.%20Size%3A%20XS" target="_blank" rel="noopener" class="mt-6 flex justify-center bg-cyan-400 hover:bg-cyan-300 text-black font-black px-6 py-4 rounded-lg transition shadow-lg shadow-cyan-500/20">
+ORDER VIA WHATSAPP
+</a>
+</div>
+
+</div>
+</section>
+
+<footer class="border-t border-zinc-800 py-8 text-center text-zinc-500 text-sm">
+(c) 2026 GNEX / Official Jersey
+</footer>
+
+<script>
+let selectedSize = "XS";
+
+function setPreview(src){
+document.getElementById("mainPreview").src = src;
+}
+
+function selectSize(button, size){
+selectedSize = size;
+document.querySelectorAll(".size-button").forEach((item) => item.classList.remove("active"));
+button.classList.add("active");
+document.getElementById("selectedSize").textContent = size;
+document.getElementById("orderLink").href = `https://wa.me/601115421017?text=${encodeURIComponent(`Hi GNEX, saya nak order Official GNEX Jersey. Size: ${size}`)}`;
+}
+</script>
+
+</body>
+</html>
