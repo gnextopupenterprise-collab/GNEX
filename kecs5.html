@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="King Elite CS Season 5 - GNEX Free Fire Clash Squad tournament.">
+<title>King Elite CS Season 5</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+html,
+body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+scroll-behavior:smooth;
+}
+
+body{
+background:#030712;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.hero-bg{
+background:
+linear-gradient(90deg, rgba(3,7,18,.97) 0%, rgba(3,7,18,.82) 45%, rgba(3,7,18,.42) 100%),
+url("images/ff-wallpaper.jpg");
+background-size:cover;
+background-position:center;
+}
+
+.glow-card{
+background:linear-gradient(180deg, rgba(24,24,27,.86), rgba(3,7,18,.94));
+border:1px solid rgba(63,63,70,.85);
+box-shadow:0 24px 80px rgba(0,0,0,.35);
+}
+
+.cyan-line{
+background:linear-gradient(90deg, transparent, rgba(34,211,238,.9), transparent);
+}
+</style>
+</head>
+
+<body class="min-h-screen bg-black text-white">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-zinc-800">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+<a href="index.html" class="flex items-center gap-3">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-12 h-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20">
+<div>
+<h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">TOURNAMENT</p>
+</div>
+</a>
+
+<div class="hidden md:flex items-center gap-4">
+<a href="index.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">HOME</a>
+<a href="tournament.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">TOURNAMENT</a>
+<a href="#rules" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">RULES</a>
+<a href="#join" class="bg-cyan-400 text-black font-black px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">JOIN</a>
+</div>
+
+<a href="#join" class="md:hidden bg-cyan-400 text-black font-black px-4 py-2 rounded-lg text-sm">JOIN</a>
+</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero-bg relative overflow-hidden pt-24 md:pt-32 border-b border-zinc-900">
+<div class="absolute inset-x-0 top-24 h-px cyan-line"></div>
+<div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent"></div>
+
+<div class="relative max-w-7xl mx-auto px-6 py-10 md:py-20">
+<div class="grid lg:grid-cols-[1fr_0.8fr] gap-8 items-center">
+
+<div>
+<p class="text-cyan-400 font-black tracking-[0.28em] text-xs md:text-sm">FREE FIRE CLASH SQUAD</p>
+<h1 id="tourName" class="text-4xl sm:text-5xl md:text-7xl font-black leading-[0.92] mt-4">
+KING ELITE CS <span class="text-cyan-400">SEASON 5</span>
+</h1>
+<p class="text-zinc-300 mt-5 max-w-2xl leading-relaxed">
+Official page untuk King Elite CS Season 5. Info tournament, rules, schedule dan join link dalam satu tempat.
+</p>
+
+<div class="flex flex-col sm:flex-row gap-3 mt-7">
+<a id="heroJoinLink" href="https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
+JOIN VIA WHATSAPP
+</a>
+<a href="#rules" class="text-center border border-zinc-600 px-7 py-4 rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black">
+VIEW RULES
+</a>
+</div>
+</div>
+
+<div class="glow-card rounded-xl p-5 md:p-6">
+<div class="flex items-center justify-between gap-3">
+<div>
+<p class="text-cyan-400 text-xs font-black tracking-[0.22em]">LIVE EVENT</p>
+<h2 class="text-2xl md:text-3xl font-black mt-1">Tournament Info</h2>
+</div>
+<span id="tourStatus" class="bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
+</div>
+
+<div class="grid grid-cols-2 gap-3 mt-5">
+<div class="rounded-lg border border-zinc-800 bg-black p-4">
+<p class="text-zinc-500 text-xs font-bold">PRIZE POOL</p>
+<p id="tourPrize" class="text-3xl font-black text-amber-300 mt-1">RM300</p>
+</div>
+<div class="rounded-lg border border-zinc-800 bg-black p-4">
+<p class="text-zinc-500 text-xs font-bold">GAME</p>
+<p id="tourGame" class="text-xl font-black mt-2">Free Fire</p>
+</div>
+<div class="rounded-lg border border-zinc-800 bg-black p-4">
+<p class="text-zinc-500 text-xs font-bold">DATE</p>
+<p id="tourDate" class="text-xl font-black mt-2">30 May 2026</p>
+</div>
+<div class="rounded-lg border border-zinc-800 bg-black p-4">
+<p class="text-zinc-500 text-xs font-bold">FORMAT</p>
+<p id="tourFormat" class="text-xl font-black mt-2">Clash Squad</p>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</header>
+
+<!-- SCHEDULE -->
+<section id="schedule" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">MATCH FLOW</p>
+<h2 class="text-3xl md:text-5xl font-black mt-2">Schedule</h2>
+</div>
+<p id="dbStatus" class="text-zinc-500 text-sm">Loading Google Sheet database...</p>
+</div>
+
+<div id="scheduleList" class="grid md:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- RULES -->
+<section id="rules" class="border-y border-zinc-900 bg-zinc-950/60">
+<div class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">RULEBOOK</p>
+<h2 class="text-3xl md:text-5xl font-black mt-2">King Elite CS Rules</h2>
+</div>
+<a href="https://gnexdata.blogspot.com/2026/05/rule-king-elite-cs.html" target="_blank" rel="noopener" class="text-cyan-300 hover:text-cyan-100 font-bold text-sm">
+FULL RULES BLOGSPOT
+</a>
+</div>
+
+<div id="rulesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+</section>
+
+<!-- JOIN -->
+<section id="join" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<div class="rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
+<div>
+<p class="text-3xl md:text-4xl font-black">Ready to join KECS5?</p>
+<p class="text-black/70 mt-2 font-semibold">Contact admin GNEX melalui WhatsApp untuk daftar team.</p>
+</div>
+<a id="joinLink" href="https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-7 py-4 rounded-lg hover:bg-zinc-900 transition">
+JOIN VIA WHATSAPP
+</a>
+</div>
+</section>
+
+<footer class="border-t border-zinc-800 py-8 text-center text-zinc-500 text-sm">
+(c) 2026 GNEX TOURNAMENT / King Elite CS Season 5
+</footer>
+
+<script>
+// Google Sheet published database tabs.
+const DATABASE = {
+tournament: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1HGEFlRAFj6iK2acq-FZC6fV-QAgGN8XUz8Tshg21nLZC5MtTNbMu7kY-mk/pub?gid=2032022313&single=true&output=csv",
+rules: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1HGEFlRAFj6iK2acq-FZC6fV-QAgGN8XUz8Tshg21nLZC5MtTNbMu7kY-mk/pub?gid=683776512&single=true&output=csv",
+schedule: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1HGEFlRAFj6iK2acq-FZC6fV-QAgGN8XUz8Tshg21nLZC5MtTNbMu7kY-mk/pub?gid=1878658192&single=true&output=csv"
+};
+
+let databaseLive = true;
+
+const fallbackTournament = {
+name:"KING ELITE CS SEASON 5",
+game:"Free Fire",
+status:"LIVE",
+prize_pool:"RM300",
+date:"30 May 2026",
+format:"Clash Squad",
+join_url:"https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205"
+};
+
+const fallbackRules = [
+{category:"Eligibility", rule_title:"Syarat Kelayakan", rule_text:"Minimum Rank Diamond ke atas, level 20+, minimum 2 Heroic Emblem CS ke atas dan bebas blacklist player panel."},
+{category:"Character", rule_title:"Skill Character", rule_text:"Skill aktif Alok. Skill pasif Nairi, Kelly, Caroline. Skill pet Falco."},
+{category:"Gameplay", rule_title:"Warning & Disqualification", rule_text:"Kesalahan pertama untuk match room berbeza diberi 1 amaran. Amaran kedua boleh menyebabkan match disqualify bergantung pada kesalahan."},
+{category:"Weapon", rule_title:"Senjata", rule_text:"Hanya damage shotgun M1887 dibenarkan. Tidak boleh tumbuk musuh atau guna pistol. Damage senjata lain boleh menyebabkan disqualify."},
+{category:"Gloo Wall", rule_title:"Gloo Wall", rule_text:"Tidak boleh panjat gloo wall menegak lebih dari 2 gloo wall atau buat gloo wall tinggi untuk naik. Gloo wall tupai dibenarkan."},
+{category:"Outgame", rule_title:"Toxic Behavior", rule_text:"Bahasa kesat atau hina negara, negeri, agama, bangsa dan kaum boleh dikenakan penalti tidak boleh bermain 4 perlawanan."}
+];
+
+const fallbackSchedule = [
+{match:"Qualifier Round", date:"30 May 2026", time:"8:30 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Semi Final", date:"30 May 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Grand Final", date:"30 May 2026", time:"11:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"}
+];
+
+function parseCsv(csv){
+const rows = [];
+let row = [];
+let value = "";
+let quoted = false;
+
+for(let i = 0; i < csv.length; i += 1){
+const char = csv[i];
+const next = csv[i + 1];
+
+if(char === '"' && quoted && next === '"'){
+value += '"';
+i += 1;
+}else if(char === '"'){
+quoted = !quoted;
+}else if(char === "," && !quoted){
+row.push(value);
+value = "";
+}else if((char === "\n" || char === "\r") && !quoted){
+if(value || row.length){
+row.push(value);
+rows.push(row);
+row = [];
+value = "";
+}
+if(char === "\r" && next === "\n") i += 1;
+}else{
+value += char;
+}
+}
+
+if(value || row.length){
+row.push(value);
+rows.push(row);
+}
+
+const headers = rows.shift() || [];
+return rows.map((items) => Object.fromEntries(headers.map((header, index) => [header.trim(), (items[index] || "").trim()])));
+}
+
+async function loadCsv(url, fallback){
+if(!url) return fallback;
+try{
+const controller = new AbortController();
+const timer = setTimeout(() => controller.abort(), 1600);
+const response = await fetch(url, {signal: controller.signal});
+clearTimeout(timer);
+if(!response.ok) throw new Error("CSV request failed");
+return parseCsv(await response.text());
+}catch(error){
+databaseLive = false;
+return fallback;
+}
+}
+
+function validTournament(row){
+return row && row.name && row.prize_pool && row.join_url;
+}
+
+function validRule(row){
+return row && row.category && row.rule_title && row.rule_text;
+}
+
+function validSchedule(row){
+return row && row.match && row.date && row.time;
+}
+
+function renderTournament(tournament){
+document.getElementById("tourName").innerHTML = `${tournament.name.replace("SEASON 5", '<span class="text-cyan-400">SEASON 5</span>')}`;
+document.getElementById("tourStatus").textContent = tournament.status;
+document.getElementById("tourPrize").textContent = tournament.prize_pool;
+document.getElementById("tourGame").textContent = tournament.game;
+document.getElementById("tourDate").textContent = tournament.date;
+document.getElementById("tourFormat").textContent = tournament.format;
+document.getElementById("joinLink").href = tournament.join_url;
+document.getElementById("heroJoinLink").href = tournament.join_url;
+}
+
+function renderRules(rules){
+document.getElementById("rulesList").innerHTML = rules.map((rule, index) => `
+<article class="rounded-lg border border-zinc-800 bg-black p-5 hover:border-cyan-400 transition">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">${String(index + 1).padStart(2, "0")} / ${rule.category}</p>
+<h3 class="text-xl font-black mt-3">${rule.rule_title}</h3>
+<p class="text-zinc-400 text-sm leading-relaxed mt-3">${rule.rule_text}</p>
+</article>
+`).join("");
+}
+
+function renderSchedule(schedule){
+document.getElementById("scheduleList").innerHTML = schedule.map((item, index) => `
+<article class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<p class="text-amber-300 text-xs font-black tracking-[0.2em]">MATCH ${String(index + 1).padStart(2, "0")}</p>
+<h3 class="text-2xl font-black mt-3">${item.match}</h3>
+<p class="text-zinc-500 text-sm mt-2">${item.date} / ${item.time}</p>
+<div class="mt-5 rounded-lg bg-black border border-zinc-800 p-4 flex items-center justify-between gap-3">
+<span class="font-black">${item.team_a}</span>
+<span class="text-cyan-300 font-black">VS</span>
+<span class="font-black">${item.team_b}</span>
+</div>
+<p class="text-green-300 text-sm font-bold mt-4">${item.status}</p>
+</article>
+`).join("");
+}
+
+async function init(){
+const [tournamentRows, loadedRules, loadedSchedule] = await Promise.all([
+loadCsv(DATABASE.tournament, [fallbackTournament]),
+loadCsv(DATABASE.rules, fallbackRules),
+loadCsv(DATABASE.schedule, fallbackSchedule)
+]);
+const tournament = validTournament(tournamentRows[0]) ? tournamentRows[0] : fallbackTournament;
+const rules = loadedRules.filter(validRule);
+const schedule = loadedSchedule.filter(validSchedule);
+
+renderTournament(tournament);
+renderRules(rules.length ? rules : fallbackRules);
+renderSchedule(schedule.length ? schedule : fallbackSchedule);
+document.getElementById("dbStatus").textContent = databaseLive ? "Live Google Sheet database connected." : "Google Sheet failed. Showing local data.";
+}
+
+init();
+</script>
+
+</body>
+</html>
