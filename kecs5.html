@@ -83,7 +83,7 @@ Official page untuk King Elite CS Season 5. Info tournament, rules, schedule dan
 </p>
 
 <div class="flex flex-col sm:flex-row gap-3 mt-7">
-<a id="heroJoinLink" href="https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
+<a id="heroJoinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
 JOIN VIA WHATSAPP
 </a>
 <a href="#rules" class="text-center border border-zinc-600 px-7 py-4 rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black">
@@ -101,29 +101,57 @@ VIEW RULES
 <span id="tourStatus" class="bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
 </div>
 
-<div class="grid grid-cols-2 gap-3 mt-5">
-<div class="rounded-lg border border-zinc-800 bg-black p-4">
-<p class="text-zinc-500 text-xs font-bold">PRIZE POOL</p>
-<p id="tourPrize" class="text-3xl font-black text-amber-300 mt-1">RM300</p>
-</div>
-<div class="rounded-lg border border-zinc-800 bg-black p-4">
-<p class="text-zinc-500 text-xs font-bold">GAME</p>
-<p id="tourGame" class="text-xl font-black mt-2">Free Fire</p>
-</div>
-<div class="rounded-lg border border-zinc-800 bg-black p-4">
-<p class="text-zinc-500 text-xs font-bold">DATE</p>
-<p id="tourDate" class="text-xl font-black mt-2">30 May 2026</p>
-</div>
-<div class="rounded-lg border border-zinc-800 bg-black p-4">
-<p class="text-zinc-500 text-xs font-bold">FORMAT</p>
-<p id="tourFormat" class="text-xl font-black mt-2">Clash Squad</p>
-</div>
-</div>
+<div class="grid sm:grid-cols-2 gap-3 mt-5">
+<button type="button" onclick="scrollToPanel('schedule')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">01</p>
+<p class="text-2xl font-black mt-2">JADUAL</p>
+<p class="text-zinc-500 text-sm mt-1">Tarikh, masa dan team VS team</p>
+</button>
+
+<button type="button" onclick="scrollToPanel('rules')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">02</p>
+<p class="text-2xl font-black mt-2">RULES</p>
+<p class="text-zinc-500 text-sm mt-1">Rule King Elite CS</p>
+</button>
+
+<button type="button" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">03</p>
+<p class="text-2xl font-black mt-2">GNEX LAGA CS</p>
+<p class="text-zinc-500 text-sm mt-1">Site baru coming soon</p>
+</button>
+
+<button type="button" onclick="scrollToPanel('join')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">04</p>
+<p class="text-2xl font-black text-amber-300 mt-2">ADMIN</p>
+<p class="text-zinc-500 text-sm mt-1"></p>
+</button>
 </div>
 
 </div>
 </div>
 </header>
+
+<!-- QUICK LINKS -->
+<section class="border-b border-zinc-900 bg-black">
+<div class="max-w-7xl mx-auto px-6 py-6">
+<div class="grid sm:grid-cols-3 gap-3">
+<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<p class="text-xl md:text-2xl font-black mt-2">MUSIM AKAN DATANG</p>
+</button>
+
+<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<p class="text-xl md:text-2xl font-black mt-2">ALL SEASON HISTORY</p>
+</button>
+
+<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<p class="text-xl md:text-2xl font-black mt-2">RANKING PLAYER</p>
+</button>
+</div>
+</div>
+</section>
 
 <!-- SCHEDULE -->
 <section id="schedule" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
@@ -146,9 +174,7 @@ VIEW RULES
 <p class="text-cyan-400 font-black tracking-[0.24em] text-xs">RULEBOOK</p>
 <h2 class="text-3xl md:text-5xl font-black mt-2">King Elite CS Rules</h2>
 </div>
-<a href="https://gnexdata.blogspot.com/2026/05/rule-king-elite-cs.html" target="_blank" rel="noopener" class="text-cyan-300 hover:text-cyan-100 font-bold text-sm">
-FULL RULES BLOGSPOT
-</a>
+<p id="rulesSource" class="text-zinc-500 text-sm">Rules disimpan dalam page. Boleh sambung Google Doc bila link publish ada.</p>
 </div>
 
 <div id="rulesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -160,9 +186,9 @@ FULL RULES BLOGSPOT
 <div class="rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
 <div>
 <p class="text-3xl md:text-4xl font-black">Ready to join KECS5?</p>
-<p class="text-black/70 mt-2 font-semibold">Contact admin GNEX melalui WhatsApp untuk daftar team.</p>
+<p class="text-black/70 mt-2 font-semibold">Contact admin GNEX di +60 10-827 5117 melalui WhatsApp untuk daftar team.</p>
 </div>
-<a id="joinLink" href="https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-7 py-4 rounded-lg hover:bg-zinc-900 transition">
+<a id="joinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-7 py-4 rounded-lg hover:bg-zinc-900 transition">
 JOIN VIA WHATSAPP
 </a>
 </div>
@@ -181,6 +207,18 @@ schedule: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1
 };
 
 let databaseLive = true;
+const DEFAULT_RULE_IMAGE = "images/ff-wallpaper.jpg";
+const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205";
+
+// Tukar src gambar rule dekat sini nanti.
+const RULE_IMAGES = {
+Eligibility:"images/rules/eligibility.jpg",
+Character:"images/rules/character.jpg",
+Gameplay:"images/rules/gameplay.jpg",
+Weapon:"images/rules/weapon.jpg",
+"Gloo Wall":"images/rules/gloo-wall.jpg",
+Outgame:"images/rules/outgame.jpg"
+};
 
 const fallbackTournament = {
 name:"KING ELITE CS SEASON 5",
@@ -189,22 +227,43 @@ status:"LIVE",
 prize_pool:"RM300",
 date:"30 May 2026",
 format:"Clash Squad",
-join_url:"https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205"
+slots:"32 Teams",
+join_url:ADMIN_WHATSAPP_URL
 };
 
 const fallbackRules = [
-{category:"Eligibility", rule_title:"Syarat Kelayakan", rule_text:"Minimum Rank Diamond ke atas, level 20+, minimum 2 Heroic Emblem CS ke atas dan bebas blacklist player panel."},
-{category:"Character", rule_title:"Skill Character", rule_text:"Skill aktif Alok. Skill pasif Nairi, Kelly, Caroline. Skill pet Falco."},
-{category:"Gameplay", rule_title:"Warning & Disqualification", rule_text:"Kesalahan pertama untuk match room berbeza diberi 1 amaran. Amaran kedua boleh menyebabkan match disqualify bergantung pada kesalahan."},
-{category:"Weapon", rule_title:"Senjata", rule_text:"Hanya damage shotgun M1887 dibenarkan. Tidak boleh tumbuk musuh atau guna pistol. Damage senjata lain boleh menyebabkan disqualify."},
-{category:"Gloo Wall", rule_title:"Gloo Wall", rule_text:"Tidak boleh panjat gloo wall menegak lebih dari 2 gloo wall atau buat gloo wall tinggi untuk naik. Gloo wall tupai dibenarkan."},
-{category:"Outgame", rule_title:"Toxic Behavior", rule_text:"Bahasa kesat atau hina negara, negeri, agama, bangsa dan kaum boleh dikenakan penalti tidak boleh bermain 4 perlawanan."}
+{category:"Eligibility", rule_title:"Syarat Kelayakan", rule_text:"Minimum Rank Diamond ke atas, level 20+, minimum 2 Heroic Emblem CS ke atas dan bebas blacklist player panel.", image_url:RULE_IMAGES.Eligibility},
+{category:"Character", rule_title:"Skill Character", rule_text:"Skill aktif Alok. Skill pasif Nairi, Kelly, Caroline. Skill pet Falco.", image_url:RULE_IMAGES.Character},
+{category:"Gameplay", rule_title:"Warning & Disqualification", rule_text:"Kesalahan pertama untuk match room berbeza diberi 1 amaran. Amaran kedua boleh menyebabkan match disqualify bergantung pada kesalahan.", image_url:RULE_IMAGES.Gameplay},
+{category:"Weapon", rule_title:"Senjata", rule_text:"Hanya damage shotgun M1887 dibenarkan. Tidak boleh tumbuk musuh atau guna pistol. Damage senjata lain boleh menyebabkan disqualify.", image_url:RULE_IMAGES.Weapon},
+{category:"Gloo Wall", rule_title:"Gloo Wall", rule_text:"Tidak boleh panjat gloo wall menegak lebih dari 2 gloo wall atau buat gloo wall tinggi untuk naik. Gloo wall tupai dibenarkan.", image_url:RULE_IMAGES["Gloo Wall"]},
+{category:"Outgame", rule_title:"Toxic Behavior", rule_text:"Bahasa kesat atau hina negara, negeri, agama, bangsa dan kaum boleh dikenakan penalti tidak boleh bermain 4 perlawanan.", image_url:RULE_IMAGES.Outgame}
 ];
 
 const fallbackSchedule = [
-{match:"Qualifier Round", date:"30 May 2026", time:"8:30 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
-{match:"Semi Final", date:"30 May 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
-{match:"Grand Final", date:"30 May 2026", time:"11:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"}
+{match:"Group Stage A - Match 1", date:"1 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage A - Match 2", date:"1 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage B - Match 1", date:"2 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage B - Match 2", date:"2 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage C - Match 1", date:"3 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage C - Match 2", date:"3 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage D - Match 1", date:"4 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Group Stage D - Match 2", date:"4 June 2026", time:"9:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Penentuan Slot Knockout Stage (8 Player)", date:"16 June 2026", time:"11:30 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M1 - Phase 1 (BO3, 11 Round)", date:"19 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M2 - Phase 1 (BO3, 11 Round)", date:"19 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M3 - Phase 1 (BO3, 11 Round)", date:"20 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M4 - Phase 1 (BO3, 11 Round)", date:"20 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M5 - Phase 2 (BO3, 11 Round)", date:"21 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Knockout Stage M6 - Phase 2 (BO3, 11 Round)", date:"21 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Upper Bracket Final (UBF) - Phase 3 (BO7, 11 Round)", date:"23 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket M7 - Phase 1 (BO3, 11 Round)", date:"24 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket M8 - Phase 1 (BO3, 11 Round)", date:"24 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket M9 - Phase 2 (BO3, 11 Round)", date:"25 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket M10 - Phase 2 (BO3, 11 Round)", date:"25 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket M11 - Phase 3 (BO7, 11 Round)", date:"26 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Lower Bracket Final (LBF) - Phase 4 (BO7, 11 Round)", date:"27 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"},
+{match:"Grand Final Match - Last Fight! (BO7, 11 Round)", date:"28 June 2026", time:"10:00 PM", team_a:"TBD", team_b:"TBD", status:"Upcoming"}
 ];
 
 function parseCsv(csv){
@@ -251,7 +310,7 @@ async function loadCsv(url, fallback){
 if(!url) return fallback;
 try{
 const controller = new AbortController();
-const timer = setTimeout(() => controller.abort(), 1600);
+const timer = setTimeout(() => controller.abort(), 6000);
 const response = await fetch(url, {signal: controller.signal});
 clearTimeout(timer);
 if(!response.ok) throw new Error("CSV request failed");
@@ -260,6 +319,10 @@ return parseCsv(await response.text());
 databaseLive = false;
 return fallback;
 }
+}
+
+function scrollToPanel(id){
+document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function validTournament(row){
@@ -274,41 +337,189 @@ function validSchedule(row){
 return row && row.match && row.date && row.time;
 }
 
+function escapeHtml(value){
+return String(value ?? "")
+.replaceAll("&", "&amp;")
+.replaceAll("<", "&lt;")
+.replaceAll(">", "&gt;")
+.replaceAll('"', "&quot;")
+.replaceAll("'", "&#039;");
+}
+
 function renderTournament(tournament){
 document.getElementById("tourName").innerHTML = `${tournament.name.replace("SEASON 5", '<span class="text-cyan-400">SEASON 5</span>')}`;
-document.getElementById("tourStatus").textContent = tournament.status;
-document.getElementById("tourPrize").textContent = tournament.prize_pool;
-document.getElementById("tourGame").textContent = tournament.game;
-document.getElementById("tourDate").textContent = tournament.date;
-document.getElementById("tourFormat").textContent = tournament.format;
-document.getElementById("joinLink").href = tournament.join_url;
-document.getElementById("heroJoinLink").href = tournament.join_url;
+document.getElementById("tourStatus").textContent = tournament.status || "LIVE";
+document.getElementById("joinLink").href = ADMIN_WHATSAPP_URL;
+document.getElementById("heroJoinLink").href = ADMIN_WHATSAPP_URL;
 }
 
 function renderRules(rules){
-document.getElementById("rulesList").innerHTML = rules.map((rule, index) => `
-<article class="rounded-lg border border-zinc-800 bg-black p-5 hover:border-cyan-400 transition">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">${String(index + 1).padStart(2, "0")} / ${rule.category}</p>
-<h3 class="text-xl font-black mt-3">${rule.rule_title}</h3>
-<p class="text-zinc-400 text-sm leading-relaxed mt-3">${rule.rule_text}</p>
+const rulesWithImages = rules.map((rule) => ({
+...rule,
+image_url: rule.image_url || RULE_IMAGES[rule.category] || DEFAULT_RULE_IMAGE
+}));
+document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, index) => `
+<article class="group overflow-hidden rounded-lg border border-zinc-800 bg-black hover:border-cyan-400 transition">
+<div class="relative h-44 overflow-hidden bg-zinc-900">
+<img src="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" alt="${escapeHtml(rule.rule_title)}" class="h-full w-full object-cover opacity-70 group-hover:scale-105 transition duration-500" loading="lazy" onerror="this.src='${DEFAULT_RULE_IMAGE}'">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent"></div>
+<div class="absolute left-4 right-4 bottom-4">
+<p class="text-cyan-300 text-xs font-black tracking-[0.22em]">${String(index + 1).padStart(2, "0")} / ${escapeHtml(rule.category)}</p>
+<h3 class="text-2xl font-black mt-1 leading-none">${escapeHtml(rule.rule_title)}</h3>
+</div>
+</div>
+<div class="p-5">
+<div class="h-1 w-16 bg-cyan-400 rounded-full mb-4"></div>
+<p class="text-zinc-400 text-sm leading-relaxed">${escapeHtml(rule.rule_text)}</p>
+</div>
 </article>
+`).join("");
+}
+
+const monthIndex = {
+jan:0,january:0,januari:0,
+feb:1,february:1,februari:1,
+mar:2,march:2,mac:2,
+apr:3,april:3,
+may:4,mei:4,
+jun:5,june:5,
+jul:6,july:6,julai:6,
+aug:7,august:7,ogos:7,
+sep:8,september:8,
+oct:9,october:9,okt:9,oktober:9,
+nov:10,november:10,
+dec:11,december:11,dis:11,disember:11
+};
+
+function parseDateValue(dateText){
+const text = String(dateText || "").trim().replaceAll(",", "");
+const numeric = text.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+if(numeric){
+const year = Number(numeric[3].length === 2 ? `20${numeric[3]}` : numeric[3]);
+return new Date(year, Number(numeric[2]) - 1, Number(numeric[1]));
+}
+const parts = text.split(/\s+/);
+const day = Number(parts[0]);
+const month = monthIndex[String(parts[1] || "").toLowerCase()];
+const year = Number(parts.find((part) => /^\d{4}$/.test(part))) || new Date().getFullYear();
+if(!day || month === undefined) return null;
+return new Date(year, month, day);
+}
+
+function parseTimeValue(timeText, baseDate){
+const match = String(timeText || "").trim().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+if(!match || !baseDate) return null;
+let hour = Number(match[1]);
+const minute = Number(match[2] || 0);
+const meridiem = String(match[3] || "").toLowerCase();
+if(meridiem === "pm" && hour < 12) hour += 12;
+if(meridiem === "am" && hour === 12) hour = 0;
+const date = new Date(baseDate);
+date.setHours(hour, minute, 0, 0);
+return date;
+}
+
+function getMatchWindow(item){
+const baseDate = parseDateValue(item.date);
+const timeParts = String(item.time || "").split(/\s*[-–—]\s*/);
+const start = parseTimeValue(timeParts[0], baseDate);
+let end = parseTimeValue(item.end_time || timeParts[1], baseDate);
+if(start && !end) end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+if(start && end && end <= start) end.setDate(end.getDate() + 1);
+return {start, end};
+}
+
+function decorateSchedule(schedule){
+const now = new Date();
+const items = schedule.map((item) => ({...item, ...getMatchWindow(item)}))
+.sort((a, b) => (a.start?.getTime() || 0) - (b.start?.getTime() || 0));
+let focusIndex = items.findIndex((item) => item.start && item.end && now >= item.start && now <= item.end);
+if(focusIndex === -1) focusIndex = items.findIndex((item) => item.start && item.start > now);
+if(focusIndex === -1 && items.length) focusIndex = items.length - 1;
+
+return items.map((item, index) => {
+let computedStatus = "UPCOMING";
+if(item.start && item.end && now >= item.start && now <= item.end) computedStatus = "LIVE";
+else if(item.end && now > item.end) computedStatus = "COMPLETED";
+else if(index === focusIndex) computedStatus = "NEXT MATCH";
+return {...item, computedStatus, isFocus:index === focusIndex};
+});
+}
+
+function getGroupStageName(match){
+const found = String(match || "").match(/Group Stage\s+([A-D])/i);
+return found ? `Group Stage ${found[1].toUpperCase()}` : "";
+}
+
+function scheduleStatusFor(items){
+if(items.some((item) => item.computedStatus === "LIVE")) return "LIVE";
+if(items.some((item) => item.computedStatus === "NEXT MATCH")) return "NEXT MATCH";
+if(items.every((item) => item.computedStatus === "COMPLETED")) return "COMPLETED";
+return "UPCOMING";
+}
+
+function groupScheduleCards(schedule){
+const grouped = [];
+const groupStage = new Map();
+
+schedule.forEach((item) => {
+const groupName = getGroupStageName(item.match);
+if(!groupName){
+grouped.push({...item, cardType:"single", title:item.match, items:[item], isFocus:item.isFocus});
+return;
+}
+if(!groupStage.has(groupName)){
+const card = {cardType:"group", title:groupName, items:[], isFocus:false};
+groupStage.set(groupName, card);
+grouped.push(card);
+}
+const card = groupStage.get(groupName);
+card.items.push(item);
+card.isFocus = card.isFocus || item.isFocus;
+});
+
+return grouped.map((card) => ({
+...card,
+date: card.items[0]?.date || "",
+time: card.items[0]?.time || "",
+computedStatus: scheduleStatusFor(card.items)
+}));
+}
+
+function renderMatchRows(items){
+return items.map((item) => `
+<div class="rounded-lg bg-black border border-zinc-800 p-4">
+<div class="flex items-center justify-between gap-3 text-xs text-zinc-500 font-bold">
+<span>${escapeHtml(item.date)}</span>
+<span>${escapeHtml(item.time)}</span>
+</div>
+<div class="mt-3 flex items-center justify-between gap-3">
+<span class="font-black">${escapeHtml(item.team_a || "TBD")}</span>
+<span class="text-cyan-300 font-black">VS</span>
+<span class="font-black text-right">${escapeHtml(item.team_b || "TBD")}</span>
+</div>
+</div>
 `).join("");
 }
 
 function renderSchedule(schedule){
-document.getElementById("scheduleList").innerHTML = schedule.map((item, index) => `
-<article class="rounded-lg border border-zinc-800 bg-zinc-950 p-5 hover:border-cyan-400 transition">
+const decoratedSchedule = decorateSchedule(schedule);
+const scheduleCards = groupScheduleCards(decoratedSchedule);
+document.getElementById("scheduleList").innerHTML = scheduleCards.map((card, index) => {
+const statusColor = card.computedStatus === "LIVE" ? "text-green-300 border-green-500/40 bg-green-500/10" : card.computedStatus === "NEXT MATCH" ? "text-amber-300 border-amber-500/40 bg-amber-500/10" : card.computedStatus === "COMPLETED" ? "text-zinc-500 border-zinc-700 bg-zinc-900" : "text-cyan-300 border-cyan-500/30 bg-cyan-500/10";
+const cardState = card.isFocus ? "border-cyan-400 shadow-lg shadow-cyan-500/10" : "border-zinc-800";
+return `
+<article class="rounded-lg ${cardState} bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<div class="flex items-center justify-between gap-3">
 <p class="text-amber-300 text-xs font-black tracking-[0.2em]">MATCH ${String(index + 1).padStart(2, "0")}</p>
-<h3 class="text-2xl font-black mt-3">${item.match}</h3>
-<p class="text-zinc-500 text-sm mt-2">${item.date} / ${item.time}</p>
-<div class="mt-5 rounded-lg bg-black border border-zinc-800 p-4 flex items-center justify-between gap-3">
-<span class="font-black">${item.team_a}</span>
-<span class="text-cyan-300 font-black">VS</span>
-<span class="font-black">${item.team_b}</span>
+<span class="${statusColor} border px-3 py-1 rounded-full text-[11px] font-black">${escapeHtml(card.computedStatus)}</span>
 </div>
-<p class="text-green-300 text-sm font-bold mt-4">${item.status}</p>
+<h3 class="text-2xl font-black mt-3">${escapeHtml(card.title)}</h3>
+<p class="text-zinc-500 text-sm mt-2">${escapeHtml(card.date)} / ${escapeHtml(card.time)}</p>
+<div class="mt-5 space-y-3">${renderMatchRows(card.items)}</div>
 </article>
-`).join("");
+`;
+}).join("");
 }
 
 async function init(){
@@ -324,6 +535,7 @@ const schedule = loadedSchedule.filter(validSchedule);
 renderTournament(tournament);
 renderRules(rules.length ? rules : fallbackRules);
 renderSchedule(schedule.length ? schedule : fallbackSchedule);
+document.getElementById("rulesSource").textContent = rules.length ? "Rules loaded from Google Sheet. Add image_url column to change card images." : "Showing saved rules.";
 document.getElementById("dbStatus").textContent = databaseLive ? "Live Google Sheet database connected." : "Google Sheet failed. Showing local data.";
 }
 
