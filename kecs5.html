@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="King Elite CS Season 5 - GNEX Free Fire Clash Squad tournament.">
+<link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
 <title>King Elite CS Season 5</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
@@ -40,6 +42,16 @@ background:linear-gradient(90deg, transparent, rgba(34,211,238,.9), transparent)
 }
 </style>
 </head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-QXRQM1SYWH');
+</script>
 
 <body class="min-h-screen bg-black text-white">
 
@@ -174,7 +186,7 @@ VIEW RULES
 <p class="text-cyan-400 font-black tracking-[0.24em] text-xs">RULEBOOK</p>
 <h2 class="text-3xl md:text-5xl font-black mt-2">King Elite CS Rules</h2>
 </div>
-<p id="rulesSource" class="text-zinc-500 text-sm">Rules disimpan dalam page. Boleh sambung Google Doc bila link publish ada.</p>
+<p id="rulesSource" class="text-zinc-500 text-sm"></p>
 </div>
 
 <div id="rulesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -198,6 +210,13 @@ JOIN VIA WHATSAPP
 (c) 2026 GNEX TOURNAMENT / King Elite CS Season 5
 </footer>
 
+<div id="imageModal" onclick="closeImageModal()" class="fixed inset-0 z-[100] hidden bg-black/90 p-4">
+<button type="button" onclick="event.stopPropagation(); closeImageModal()" class="absolute right-5 top-5 rounded-lg border border-zinc-700 bg-black px-4 py-2 font-black text-white">
+CLOSE
+</button>
+<img id="modalImage" src="" alt="Rule image" onclick="event.stopPropagation()" class="mx-auto h-full max-h-[90vh] w-full max-w-5xl object-contain">
+</div>
+
 <script>
 // Google Sheet published database tabs.
 const DATABASE = {
@@ -212,12 +231,14 @@ const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20say
 
 // Tukar src gambar rule dekat sini nanti.
 const RULE_IMAGES = {
-Eligibility:"images/rules/eligibility.jpg",
-Character:"images/rules/character.jpg",
-Gameplay:"images/rules/gameplay.jpg",
-Weapon:"images/rules/weapon.jpg",
-"Gloo Wall":"images/rules/gloo-wall.jpg",
-Outgame:"images/rules/outgame.jpg"
+Eligibility:"imagesrules/syaratkelayakan.png",
+Character:"imagesrules/character.jpeg",
+SettingRoom:"imagesrules/settingroom1.png",
+SettingRoom2:"imagesrules/settingroom2.png",
+Gameplay:"images/ff-wallpaper.jpeg",
+Weapon:"imagesrules/weapon.jpeg",
+"Gloo Wall":"imagesrules/gloo-wall.jpeg",
+Outgame:"imagesrules/outgame.jpeg"
 };
 
 const fallbackTournament = {
@@ -360,8 +381,14 @@ image_url: rule.image_url || RULE_IMAGES[rule.category] || DEFAULT_RULE_IMAGE
 }));
 document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, index) => `
 <article class="group overflow-hidden rounded-lg border border-zinc-800 bg-black hover:border-cyan-400 transition">
-<div class="relative h-44 overflow-hidden bg-zinc-900">
-<img src="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" alt="${escapeHtml(rule.rule_title)}" class="h-full w-full object-cover opacity-70 group-hover:scale-105 transition duration-500" loading="lazy" onerror="this.src='${DEFAULT_RULE_IMAGE}'">
+<div class="relative h-44 cursor-pointer overflow-hidden bg-zinc-900" data-full-image="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" onclick="openImageModal(this.dataset.fullImage)">
+<img
+  src="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}"
+  alt="${escapeHtml(rule.rule_title)}"
+  class="h-full w-full object-cover opacity-70 group-hover:scale-105 transition duration-500"
+  loading="lazy"
+  onerror="this.src='${DEFAULT_RULE_IMAGE}'"
+>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent"></div>
 <div class="absolute left-4 right-4 bottom-4">
 <p class="text-cyan-300 text-xs font-black tracking-[0.22em]">${String(index + 1).padStart(2, "0")} / ${escapeHtml(rule.category)}</p>
@@ -535,11 +562,25 @@ const schedule = loadedSchedule.filter(validSchedule);
 renderTournament(tournament);
 renderRules(rules.length ? rules : fallbackRules);
 renderSchedule(schedule.length ? schedule : fallbackSchedule);
-document.getElementById("rulesSource").textContent = rules.length ? "Rules loaded from Google Sheet. Add image_url column to change card images." : "Showing saved rules.";
-document.getElementById("dbStatus").textContent = databaseLive ? "Live Google Sheet database connected." : "Google Sheet failed. Showing local data.";
+document.getElementById("rulesSource").textContent = rules.length ? "" : "Showing saved rules.";
+document.getElementById("dbStatus").textContent = databaseLive ? "" : "Google Sheet failed. Showing local data.";
 }
 
 init();
+
+function openImageModal(src){
+  document.getElementById("modalImage").src = src;
+  document.getElementById("imageModal").classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function closeImageModal(){
+  document.getElementById("imageModal").classList.add("hidden");
+  document.getElementById("modalImage").src = "";
+  document.body.classList.remove("overflow-hidden");
+}
+
+
 </script>
 
 </body>
