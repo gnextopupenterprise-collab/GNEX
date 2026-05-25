@@ -1,0 +1,24 @@
+{
+  "name": "GNEX Topup Store",
+  "short_name": "GNEX",
+  "description": "GNEX tournament, topup, jersey and esport hub.",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#02040a",
+  "theme_color": "#02040a",
+  "icons": [
+    {
+      "src": "images/gnex-home-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/gnex-home-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
