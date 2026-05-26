@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNEX Ranking Player Mockup</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+html,
+body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+scroll-behavior:smooth;
+}
+
+body{
+background:#02040a;
+font-family:Arial, Helvetica, sans-serif;
+letter-spacing:0;
+}
+
+.hero-bg{
+background:
+linear-gradient(90deg,rgba(2,4,10,.98),rgba(2,4,10,.78),rgba(2,4,10,.48)),
+url("images/ff-wallpaper.jpg") center/cover no-repeat;
+}
+.card{background:linear-gradient(180deg,rgba(17,24,39,.86),rgba(0,0,0,.86))}
+.rank-card{
+position:relative;
+background:
+linear-gradient(180deg,rgba(17,24,39,.86),rgba(0,0,0,.86));
+box-shadow:0 22px 45px rgba(0,0,0,.38);
+}
+.player-frame{
+background:
+linear-gradient(180deg,rgba(2,4,10,.35),rgba(0,0,0,.72)),
+url("images/ff-wallpaper.jpg") center/cover no-repeat;
+}
+.player-avatar{
+filter:contrast(1.08) saturate(1.08);
+}
+.avatar-aqif{object-position:70% 16%}
+.avatar-xsyamz{object-position:50% 13%}
+.avatar-masdo{object-position:46% 14%}
+.player-poster{
+filter:drop-shadow(0 18px 28px rgba(0,0,0,.62)) contrast(1.08) saturate(1.08);
+}
+</style>
+</head>
+<body class="min-h-screen bg-black text-white">
+<nav class="fixed top-0 left-0 z-50 w-full border-b border-zinc-800 bg-black/80 backdrop-blur-xl">
+<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
+<a href="index.html" class="flex items-center gap-3">
+<img src="images/logo baru gnex .png" class="h-12 w-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20" alt="GNEX">
+<div>
+<h1 class="text-2xl font-black leading-none text-cyan-400">GNEX</h1>
+<p class="mt-1 text-xs tracking-wide text-zinc-500">TOURNAMENT</p>
+</div>
+</a>
+<div class="hidden items-center gap-4 md:flex">
+<a href="index.html" class="rounded-lg border border-zinc-700 px-5 py-2 text-sm transition hover:border-cyan-400">HOME</a>
+<a href="tournament.html" class="rounded-lg border border-zinc-700 px-5 py-2 text-sm transition hover:border-cyan-400">TOURNAMENT</a>
+<a href="kecs5.html#rules" class="rounded-lg border border-zinc-700 px-5 py-2 text-sm transition hover:border-cyan-400">RULES</a>
+<a href="kecs5.html#join" class="rounded-lg bg-cyan-400 px-5 py-2 text-sm font-black text-black transition hover:bg-cyan-300">JOIN</a>
+</div>
+<a href="kecs5.html#join" class="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-black text-black md:hidden">JOIN</a>
+</div>
+</nav>
+
+<header class="hero-bg border-b border-zinc-900 pt-20">
+<div class="mx-auto max-w-7xl px-6 py-14 md:py-20">
+<p class="text-xs font-black tracking-[0.28em] text-cyan-400 md:text-sm">KING ELITE CS SEASON 5</p>
+<h2 class="mt-4 text-4xl font-black leading-[0.92] sm:text-5xl md:text-7xl">RANKING<br><span class="text-cyan-400">PLAYER</span></h2>
+<p class="mt-5 max-w-xl text-zinc-300">Ranking player KECS.</p>
+
+<div class="mt-9 flex flex-wrap gap-3">
+<button class="rounded-lg bg-cyan-400 px-7 py-3 text-sm font-black text-black">OVERALL</button>
+<button class="rounded-lg border border-zinc-700 bg-black/50 px-7 py-3 text-sm font-black">POINT</button>
+<button class="rounded-lg border border-zinc-700 bg-black/50 px-7 py-3 text-sm font-black">WIN</button>
+<button class="rounded-lg border border-zinc-700 bg-black/50 px-7 py-3 text-sm font-black">LOSE</button>
+</div>
+</div>
+</header>
+
+<main class="mx-auto max-w-7xl px-6 py-10">
+<section id="topRankingCards" class="grid gap-x-4 gap-y-10 md:grid-cols-3">
+<article class="rank-card rounded-xl border border-amber-300/60 p-5">
+<p class="text-xs font-black tracking-[0.24em] text-amber-300">TOP 1</p>
+<div class="mt-4 flex items-start justify-between gap-4">
+<div class="flex min-w-0 items-center gap-4">
+<img src="gambarplayerkecs/AQIF.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-aqif h-20 w-20 rounded-full border-2 border-amber-300 object-cover" alt="AQIF">
+<div class="min-w-0">
+<h3 class="text-2xl font-black">AQIF</h3>
+<p class="text-sm text-zinc-500">Solo ranking leader</p>
+</div>
+</div>
+<div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-300/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
+<img src="gambarplayerkecs/AQIF.png" class="player-poster h-full w-full object-contain object-bottom" alt="AQIF">
+</div>
+</div>
+<div class="mt-5 grid grid-cols-3 gap-3 text-center">
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-amber-300">110</p><p class="text-xs text-zinc-500">POINT</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-emerald-400">22</p><p class="text-xs text-zinc-500">WIN</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-red-400">7</p><p class="text-xs text-zinc-500">LOSE</p></div>
+</div>
+</article>
+
+<article class="rank-card rounded-xl border border-cyan-400/50 p-5">
+<p class="text-xs font-black tracking-[0.24em] text-cyan-300">TOP 2</p>
+<div class="mt-4 flex items-start justify-between gap-4">
+<div class="flex min-w-0 items-center gap-4">
+<img src="gambarplayerkecs/XSYAMZ.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-xsyamz h-20 w-20 rounded-full border-2 border-cyan-400 object-cover" alt="XSYAMZ">
+<div class="min-w-0"><h3 class="text-2xl font-black">XSYAMZ</h3><p class="text-sm text-zinc-500">Chasing top spot</p></div>
+</div>
+<div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-cyan-400/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
+<img src="gambarplayerkecs/XSYAMZ.png" class="player-poster h-full w-full object-contain object-bottom" alt="XSYAMZ">
+</div>
+</div>
+<div class="mt-5 grid grid-cols-3 gap-3 text-center">
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-cyan-300">98</p><p class="text-xs text-zinc-500">POINT</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-emerald-400">17</p><p class="text-xs text-zinc-500">WIN</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-red-400">2</p><p class="text-xs text-zinc-500">LOSE</p></div>
+</div>
+</article>
+
+<article class="rank-card rounded-xl border border-zinc-500 p-5">
+<p class="text-xs font-black tracking-[0.24em] text-zinc-300">TOP 3</p>
+<div class="mt-4 flex items-start justify-between gap-4">
+<div class="flex min-w-0 items-center gap-4">
+<img src="gambarplayerkecs/MASDO.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-masdo h-20 w-20 rounded-full border-2 border-zinc-400 object-cover" alt="MASDO">
+<div class="min-w-0"><h3 class="text-2xl font-black">MASDO</h3><p class="text-sm text-zinc-500">Consistent player</p></div>
+</div>
+<div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-zinc-400/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
+<img src="gambarplayerkecs/MASDO.png" class="player-poster h-full w-full object-contain object-bottom" alt="MASDO">
+</div>
+</div>
+<div class="mt-5 grid grid-cols-3 gap-3 text-center">
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-zinc-300">58</p><p class="text-xs text-zinc-500">POINT</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-emerald-400">11</p><p class="text-xs text-zinc-500">WIN</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-red-400">6</p><p class="text-xs text-zinc-500">LOSE</p></div>
+</div>
+</article>
+</section>
+
+<section class="mt-8 overflow-hidden rounded-xl border border-zinc-800 bg-black/80">
+<div class="hidden border-b border-zinc-900 px-5 py-4 text-xs font-black tracking-[0.16em] text-cyan-300 md:grid md:grid-cols-[80px_1fr_120px_100px_100px]">
+<p>RANK</p><p>PLAYER</p><p>POINT</p><p>WIN</p><p>LOSE</p>
+</div>
+<div id="rankingTableRows" class="divide-y divide-zinc-900">
+<div class="grid gap-4 px-4 py-4 md:grid-cols-[80px_1fr_120px_100px_100px] md:items-center md:px-5"><p class="font-black text-amber-300">#1</p><div class="flex items-center gap-3"><img src="gambarplayerkecs/AQIF.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-aqif h-10 w-10 rounded-full object-cover"><p class="font-black">AQIF</p></div><div class="grid grid-cols-3 gap-2 text-center md:contents"><p class="rounded-lg bg-zinc-950 px-2 py-2 font-black text-amber-300 md:bg-transparent md:p-0 md:text-left">110<span class="block text-[10px] text-zinc-500 md:hidden">POINT</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-emerald-400 md:bg-transparent md:p-0 md:text-left">22<span class="block text-[10px] text-zinc-500 md:hidden">WIN</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-red-400 md:bg-transparent md:p-0 md:text-left">7<span class="block text-[10px] text-zinc-500 md:hidden">LOSE</span></p></div></div>
+<div class="grid gap-4 px-4 py-4 md:grid-cols-[80px_1fr_120px_100px_100px] md:items-center md:px-5"><p class="font-black text-cyan-300">#2</p><div class="flex items-center gap-3"><img src="gambarplayerkecs/XSYAMZ.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-xsyamz h-10 w-10 rounded-full object-cover"><p class="font-black">XSYAMZ</p></div><div class="grid grid-cols-3 gap-2 text-center md:contents"><p class="rounded-lg bg-zinc-950 px-2 py-2 md:bg-transparent md:p-0 md:text-left">98<span class="block text-[10px] text-zinc-500 md:hidden">POINT</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-emerald-400 md:bg-transparent md:p-0 md:text-left">17<span class="block text-[10px] text-zinc-500 md:hidden">WIN</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-red-400 md:bg-transparent md:p-0 md:text-left">2<span class="block text-[10px] text-zinc-500 md:hidden">LOSE</span></p></div></div>
+<div class="grid gap-4 px-4 py-4 md:grid-cols-[80px_1fr_120px_100px_100px] md:items-center md:px-5"><p class="font-black">#3</p><div class="flex items-center gap-3"><img src="gambarplayerkecs/MASDO.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-masdo h-10 w-10 rounded-full object-cover"><p class="font-black">MASDO</p></div><div class="grid grid-cols-3 gap-2 text-center md:contents"><p class="rounded-lg bg-zinc-950 px-2 py-2 md:bg-transparent md:p-0 md:text-left">58<span class="block text-[10px] text-zinc-500 md:hidden">POINT</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-emerald-400 md:bg-transparent md:p-0 md:text-left">11<span class="block text-[10px] text-zinc-500 md:hidden">WIN</span></p><p class="rounded-lg bg-zinc-950 px-2 py-2 text-red-400 md:bg-transparent md:p-0 md:text-left">6<span class="block text-[10px] text-zinc-500 md:hidden">LOSE</span></p></div></div>
+</div>
+</section>
+</main>
+<script>
+const RANKING_DATABASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1HGEFlRAFj6iK2acq-FZC6fV-QAgGN8XUz8Tshg21nLZC5MtTNbMu7kY-mk/pub?gid=987650105&single=true&output=csv";
+
+const fallbackRanking = [
+{rank:"1", player_name:"AQIF", profile_image:"gambarplayerkecs/AQIF.png", point:"110", win:"22", lose:"7"},
+{rank:"2", player_name:"XSYAMZ", profile_image:"gambarplayerkecs/XSYAMZ.png", point:"98", win:"17", lose:"2"},
+{rank:"3", player_name:"MASDO", profile_image:"gambarplayerkecs/MASDO.png", point:"58", win:"11", lose:"6"}
+];
+
+function parseCsv(csv){
+const rows = [];
+let row = [];
+let cell = "";
+let quoted = false;
+for(let i = 0; i < csv.length; i += 1){
+const char = csv[i];
+const next = csv[i + 1];
+if(char === '"' && quoted && next === '"'){
+cell += '"';
+i += 1;
+}else if(char === '"'){
+quoted = !quoted;
+}else if(char === "," && !quoted){
+row.push(cell);
+cell = "";
+}else if((char === "\n" || char === "\r") && !quoted){
+if(char === "\r" && next === "\n") i += 1;
+row.push(cell);
+if(row.some(value => value.trim() !== "")) rows.push(row);
+row = [];
+cell = "";
+}else{
+cell += char;
+}
+}
+row.push(cell);
+if(row.some(value => value.trim() !== "")) rows.push(row);
+return rows;
+}
+
+function rowsToObjects(rows){
+const headers = rows[0].map(header => header.trim());
+return rows.slice(1).map(row => Object.fromEntries(headers.map((header, index) => [header, (row[index] || "").trim()])))
+.filter(player => player.player_name);
+}
+
+function safeImage(src){
+return src || "images/logo-gnex-esport-64x64.png";
+}
+
+function rankColor(rank){
+if(String(rank) === "1") return {border:"border-amber-300/60", text:"text-amber-300", line:"border-amber-300/40"};
+if(String(rank) === "2") return {border:"border-cyan-400/50", text:"text-cyan-300", line:"border-cyan-400/40"};
+return {border:"border-zinc-500", text:"text-zinc-300", line:"border-zinc-400/40"};
+}
+
+function renderTopCards(players){
+const topCards = document.getElementById("topRankingCards");
+topCards.innerHTML = players.slice(0, 3).map((player, index) => {
+const rank = player.rank || String(index + 1);
+const color = rankColor(rank);
+const image = safeImage(player.profile_image);
+return `
+<article class="rank-card rounded-xl border ${color.border} p-5">
+<p class="text-xs font-black tracking-[0.24em] ${color.text}">TOP ${rank}</p>
+<div class="mt-4 flex items-start justify-between gap-4">
+<div class="flex min-w-0 items-center gap-4">
+<img src="${image}" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar h-20 w-20 rounded-full border-2 ${rank === "1" ? "border-amber-300" : rank === "2" ? "border-cyan-400" : "border-zinc-400"} object-cover object-top" alt="${player.player_name}">
+<div class="min-w-0">
+<h3 class="text-2xl font-black">${player.player_name}</h3>
+<p class="text-sm text-zinc-500">${rank === "1" ? "Solo ranking leader" : rank === "2" ? "Chasing top spot" : "Consistent player"}</p>
+</div>
+</div>
+<div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border ${color.line} sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
+<img src="${image}" class="player-poster h-full w-full object-contain object-bottom" alt="${player.player_name}">
+</div>
+</div>
+<div class="mt-5 grid grid-cols-3 gap-3 text-center">
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black ${color.text}">${player.point || "0"}</p><p class="text-xs text-zinc-500">POINT</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-emerald-400">${player.win || "0"}</p><p class="text-xs text-zinc-500">WIN</p></div>
+<div class="rounded-lg bg-black/90 p-3"><p class="text-xl font-black text-red-400">${player.lose || "0"}</p><p class="text-xs text-zinc-500">LOSE</p></div>
+</div>
+</article>`;
+}).join("");
+}
+
+function renderRankingTable(players){
+const rows = document.getElementById("rankingTableRows");
+rows.innerHTML = players.map((player, index) => {
+const rank = player.rank || String(index + 1);
+const color = rank === "1" ? "text-amber-300" : rank === "2" ? "text-cyan-300" : "";
+const image = safeImage(player.profile_image);
+return `
+<div class="grid gap-4 px-4 py-4 md:grid-cols-[80px_1fr_120px_100px_100px] md:items-center md:px-5">
+<p class="font-black ${color}">#${rank}</p>
+<div class="flex items-center gap-3">
+<img src="${image}" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar h-10 w-10 rounded-full object-cover object-top">
+<p class="font-black">${player.player_name}</p>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center md:contents">
+<p class="rounded-lg bg-zinc-950 px-2 py-2 font-black ${color} md:bg-transparent md:p-0 md:text-left">${player.point || "0"}<span class="block text-[10px] text-zinc-500 md:hidden">POINT</span></p>
+<p class="rounded-lg bg-zinc-950 px-2 py-2 text-emerald-400 md:bg-transparent md:p-0 md:text-left">${player.win || "0"}<span class="block text-[10px] text-zinc-500 md:hidden">WIN</span></p>
+<p class="rounded-lg bg-zinc-950 px-2 py-2 text-red-400 md:bg-transparent md:p-0 md:text-left">${player.lose || "0"}<span class="block text-[10px] text-zinc-500 md:hidden">LOSE</span></p>
+</div>
+</div>`;
+}).join("");
+}
+
+async function loadRanking(){
+let players = fallbackRanking;
+try{
+const response = await fetch(`${RANKING_DATABASE}&cache=${Date.now()}`);
+if(!response.ok) throw new Error("Ranking sheet failed");
+const csv = await response.text();
+const parsed = rowsToObjects(parseCsv(csv));
+if(parsed.length) players = parsed;
+}catch(error){
+console.warn(error);
+}
+players.sort((a, b) => {
+const pointDiff = Number(b.point || 0) - Number(a.point || 0);
+if(pointDiff) return pointDiff;
+const winDiff = Number(b.win || 0) - Number(a.win || 0);
+if(winDiff) return winDiff;
+return Number(a.lose || 0) - Number(b.lose || 0);
+});
+players = players.map((player, index) => ({...player, rank:String(index + 1)}));
+renderTopCards(players);
+renderRankingTable(players);
+}
+
+loadRanking();
+</script>
+</body>
+</html>

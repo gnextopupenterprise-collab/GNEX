@@ -160,10 +160,10 @@ VIEW RULES
 <p class="text-xl md:text-2xl font-black mt-2">ALL SEASON HISTORY</p>
 </button>
 
-<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<a href="ranking-mockup.html" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 transition hover:border-cyan-400 hover:bg-cyan-400/5">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">OPEN</p>
 <p class="text-xl md:text-2xl font-black mt-2">RANKING PLAYER</p>
-</button>
+</a>
 </div>
 </div>
 </section>
@@ -189,7 +189,7 @@ VIEW RULES
 <p class="text-cyan-400 font-black tracking-[0.24em] text-xs">RULEBOOK</p>
 <h2 class="text-3xl md:text-5xl font-black mt-2">King Elite CS Rules</h2>
 </div>
-<p id="rulesSource" class="text-zinc-500 text-sm"></p>
+<p id="rulesSource" class="text-zinc-500 text-sm leading-7 whitespace-pre-line"></p>
 </div>
 
 <div id="rulesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -229,7 +229,7 @@ schedule: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1
 };
 
 let databaseLive = true;
-const DEFAULT_RULE_IMAGE = "images/ff-wallpaper.jpg";
+const DEFAULT_RULE_IMAGE = "images/King Elite CS Logo Metalic.png";
 const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205";
 
 // Tukar src gambar rule dekat sini nanti.
@@ -238,10 +238,19 @@ Eligibility:"imagesrules/syaratkelayakan.png",
 Character:"imagesrules/character.jpeg",
 SettingRoom:"imagesrules/settingroom1.png",
 SettingRoom2:"imagesrules/settingroom2.png",
-Gameplay:"images/ff-wallpaper.jpeg",
+Gameplay:"images/King Elite CS Logo Metalic.png",
 Weapon:"imagesrules/weapon.jpeg",
 "Gloo Wall":"imagesrules/gloo-wall.jpeg",
 Outgame:"imagesrules/outgame.jpeg"
+};
+
+const RULE_TITLE_IMAGES = {
+"IN GAMEPLAY RULE": {
+"Kedudukan / Placement": "imagesrules/KedudukanPlacement.png",
+"Tempat Berstruktur/Structure Area":"imagesrules/TempatBerstrukturStructureArea.jpg",
+"Tempat Berstruktur/Structure Area 2":"imagesrules/ketinggianrumah.jpg",
+"Gloo Wall":"imagesrules/GlooWall.jpg"
+}
 };
 
 const fallbackTournament = {
@@ -377,14 +386,29 @@ document.getElementById("joinLink").href = ADMIN_WHATSAPP_URL;
 document.getElementById("heroJoinLink").href = ADMIN_WHATSAPP_URL;
 }
 
+function getRuleImage(rule){
+const titleImages = RULE_TITLE_IMAGES[rule.category] || {};
+return rule.image_url || titleImages[rule.rule_title] || RULE_IMAGES[rule.category] || DEFAULT_RULE_IMAGE;
+}
+
+function getFirstUrl(value){
+return String(value || "").match(/https?:\/\/[^\s]+/i)?.[0] || "";
+}
+
+function removeFirstUrl(value){
+return String(value || "").replace(/https?:\/\/[^\s]+/i, "").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 function renderRules(rules){
 const rulesWithImages = rules.map((rule) => ({
 ...rule,
-image_url: rule.image_url || RULE_IMAGES[rule.category] || DEFAULT_RULE_IMAGE
+image_url: getRuleImage(rule),
+rule_link: getFirstUrl(rule.rule_link || rule.link || rule.url || rule.rule_text || rule.source),
+display_text: removeFirstUrl(rule.rule_text)
 }));
 document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, index) => `
 <article class="group overflow-hidden rounded-lg border border-zinc-800 bg-black hover:border-cyan-400 transition">
-<div class="relative h-44 cursor-pointer overflow-hidden bg-zinc-900" data-full-image="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" onclick="openImageModal(this.dataset.fullImage)">
+<div class="relative h-66 cursor-pointer overflow-hidden bg-zinc-900" data-full-image="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" onclick="openImageModal(this.dataset.fullImage)">
 <img
   src="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}"
   alt="${escapeHtml(rule.rule_title)}"
@@ -400,7 +424,12 @@ document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, inde
 </div>
 <div class="p-5">
 <div class="h-1 w-16 bg-cyan-400 rounded-full mb-4"></div>
-<p class="text-zinc-400 text-sm leading-relaxed">${escapeHtml(rule.rule_text)}</p>
+<p class="whitespace-pre-line text-zinc-400 text-sm leading-relaxed">${escapeHtml(rule.display_text)}</p>
+${rule.rule_link ? `
+<a href="${escapeHtml(rule.rule_link)}" target="_blank" rel="noopener" class="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-cyan-400 px-4 py-3 text-sm font-black text-black transition hover:bg-cyan-300">
+OPEN LINK
+</a>
+` : ""}
 </div>
 </article>
 `).join("");
