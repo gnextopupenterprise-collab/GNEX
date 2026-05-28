@@ -43,6 +43,104 @@ box-shadow:0 24px 80px rgba(0,0,0,.35);
 .cyan-line{
 background:linear-gradient(90deg, transparent, rgba(34,211,238,.9), transparent);
 }
+
+.electric-border{
+position:relative;
+overflow:hidden;
+isolation:isolate;
+border:1px solid rgba(34,211,238,.28);
+box-shadow:0 0 0 1px rgba(34,211,238,.06), 0 18px 60px rgba(0,0,0,.34);
+}
+
+.electric-border::before{
+content:"";
+position:absolute;
+inset:-2px;
+z-index:-2;
+border-radius:inherit;
+background:conic-gradient(from 0deg, transparent 0 18%, rgba(34,211,238,.95) 22%, transparent 30% 56%, rgba(250,204,21,.9) 62%, transparent 72% 100%);
+animation:electricSpin 3.5s linear infinite;
+filter:blur(.2px);
+}
+
+.electric-border::after{
+content:"";
+position:absolute;
+inset:1px;
+z-index:-1;
+border-radius:calc(.5rem - 1px);
+background:linear-gradient(180deg, rgba(9,9,11,.98), rgba(2,6,23,.98));
+}
+
+.kecs-logo-glow{
+filter:drop-shadow(0 0 18px rgba(34,211,238,.45)) drop-shadow(0 22px 42px rgba(0,0,0,.7));
+}
+
+.blue-flame-logo{
+position:relative;
+isolation:isolate;
+}
+
+.blue-flame-logo::before,
+.blue-flame-logo::after{
+content:"";
+position:absolute;
+inset:8%;
+z-index:-1;
+border-radius:45% 55% 42% 58%;
+background:
+radial-gradient(circle at 50% 58%, rgba(255,255,255,.38), transparent 18%),
+radial-gradient(circle at 48% 45%, rgba(34,211,238,.8), transparent 36%),
+radial-gradient(circle at 46% 65%, rgba(37,99,235,.72), transparent 58%);
+filter:blur(12px);
+transform:scale(1.12);
+animation:blueFlamePulse 2.8s ease-in-out infinite alternate;
+}
+
+.blue-flame-logo::after{
+inset:-4%;
+background:
+radial-gradient(ellipse at 50% 80%, rgba(59,130,246,.5), transparent 48%),
+radial-gradient(ellipse at 42% 42%, rgba(34,211,238,.32), transparent 42%);
+filter:blur(24px);
+animation-duration:4.2s;
+opacity:.75;
+}
+
+.info-card{
+background:linear-gradient(180deg, rgba(9,9,11,.92), rgba(2,6,23,.92));
+border:1px solid rgba(63,63,70,.85);
+}
+
+.gtml-panel{
+background:linear-gradient(180deg, rgba(9,9,11,.9), rgba(2,6,23,.96));
+border:1px solid rgba(63,63,70,.85);
+box-shadow:0 22px 60px rgba(0,0,0,.35);
+}
+
+.flag-slot{
+background:radial-gradient(circle at center, rgba(34,211,238,.16), rgba(2,6,23,.95));
+}
+
+.schedule-flag{
+background:radial-gradient(circle at center, rgba(34,211,238,.12), rgba(2,6,23,.95));
+}
+
+@keyframes electricSpin{
+to{transform:rotate(360deg);}
+}
+
+@keyframes blueFlamePulse{
+0%{transform:scale(1.02) rotate(-3deg); opacity:.58;}
+50%{transform:scale(1.18) rotate(2deg); opacity:.92;}
+100%{transform:scale(1.08) rotate(4deg); opacity:.68;}
+}
+
+@media (prefers-reduced-motion:reduce){
+.electric-border::before{animation:none;}
+.blue-flame-logo::before,
+.blue-flame-logo::after{animation:none;}
+}
 </style>
 </head>
 
@@ -86,7 +184,7 @@ background:linear-gradient(90deg, transparent, rgba(34,211,238,.9), transparent)
 <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black to-transparent"></div>
 
 <div class="relative max-w-7xl mx-auto px-6 py-10 md:py-20">
-<div class="grid lg:grid-cols-[1fr_0.8fr] gap-8 items-center">
+<div class="grid lg:grid-cols-[0.9fr_0.45fr_0.72fr] gap-8 items-center">
 
 <div>
 <p class="text-cyan-400 font-black tracking-[0.28em] text-xs md:text-sm">FREE FIRE CLASH SQUAD</p>
@@ -97,76 +195,112 @@ KING ELITE CS <span class="text-cyan-400">SEASON 5</span>
 Official page untuk King Elite CS Season 5. Info tournament, rules, schedule dan join link dalam satu tempat.
 </p>
 
-<div class="flex flex-col sm:flex-row gap-3 mt-7">
-<a id="heroJoinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
+<div class="mt-7 flex items-center gap-4">
+<div class="blue-flame-logo flex h-28 w-28 shrink-0 items-center justify-center lg:hidden">
+<img src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo" class="kecs-logo-glow h-full w-full object-contain">
+</div>
+<div class="ml-auto flex flex-1 flex-col gap-2 sm:flex-row lg:ml-0">
+<a id="heroJoinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-4 py-3 text-sm rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25 sm:px-7 sm:py-4 sm:text-base">
 JOIN VIA WHATSAPP
 </a>
-<a href="#rules" class="text-center border border-zinc-600 px-7 py-4 rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black">
+<a href="#rules" class="text-center border border-zinc-600 px-4 py-3 text-sm rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black sm:px-7 sm:py-4 sm:text-base">
 VIEW RULES
 </a>
 </div>
 </div>
+</div>
 
-<div class="glow-card rounded-xl p-5 md:p-6">
-<div class="flex items-center justify-between gap-3">
+<div class="blue-flame-logo hidden lg:flex items-center justify-center">
+<img id="tourLogo" src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo" class="kecs-logo-glow w-52 xl:w-64 object-contain">
+</div>
+
+<div class="space-y-3">
+<div class="gtml-panel rounded-xl p-5">
+<div class="flex items-start justify-between gap-3">
 <div>
-<p class="text-cyan-400 text-xs font-black tracking-[0.22em]">LIVE EVENT</p>
-<h2 class="text-2xl md:text-3xl font-black mt-1">Tournament Info</h2>
+<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">STATUS</p>
+<span id="tourStatus" class="mt-2 inline-flex bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
 </div>
-<span id="tourStatus" class="bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
+<div class="text-right">
+<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">PRIZE POOL</p>
+<p id="tourPrizePool" class="mt-2 text-4xl md:text-5xl font-black text-amber-300 leading-none">RM300</p>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-2 gap-2">
+<div class="rounded-lg border border-zinc-800 bg-black/70 p-3">
+<p class="text-zinc-500 text-[10px] font-black tracking-[0.16em]">GAME</p>
+<p id="tourGame" class="mt-1 text-sm font-black">Free Fire</p>
+</div>
+<div class="rounded-lg border border-zinc-800 bg-black/70 p-3">
+<p class="text-zinc-500 text-[10px] font-black tracking-[0.16em]">SLOT</p>
+<p id="tourSlots" class="mt-1 text-sm font-black">32 Teams</p>
+</div>
+</div>
 </div>
 
-<div class="grid sm:grid-cols-2 gap-3 mt-5">
-<button type="button" onclick="scrollToPanel('schedule')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<div id="nextMatchCard" class="gtml-panel rounded-xl p-5">
+<div class="flex items-center justify-between gap-3">
+<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">NEXT MATCH</p>
+<span id="nextMatchStatus" class="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[11px] font-black text-amber-300">UP NEXT</span>
+</div>
+<div class="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+<div class="text-center">
+<img id="nextFlagA" src="logoflag/image.png" alt="Team A flag" onerror="this.src='logoflag/image.png'" class="flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
+<p id="nextTeamA" class="mt-2 truncate text-sm font-black">TBD</p>
+</div>
+<div class="text-center">
+<p class="text-3xl font-black text-cyan-300">VS</p>
+<p id="nextMatchLabel" class="mt-2 max-w-28 text-xs font-black text-zinc-400">Loading...</p>
+</div>
+<div class="text-center">
+<img id="nextFlagB" src="logoflag/image.png" alt="Team B flag" onerror="this.src='logoflag/image.png'" class="flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
+<p id="nextTeamB" class="mt-2 truncate text-sm font-black">TBD</p>
+</div>
+</div>
+<p id="nextMatchTime" class="mt-4 text-center text-sm font-black text-amber-300">Checking schedule</p>
+</div>
+</div>
+
+</div>
+
+<div class="mt-8 grid sm:grid-cols-3 gap-3 lg:w-full">
+<button type="button" onclick="scrollToPanel('schedule')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">01</p>
-<p class="text-2xl font-black mt-2">JADUAL</p>
-<p class="text-zinc-500 text-sm mt-1">Tarikh, masa dan team VS team</p>
+<p class="text-xl md:text-2xl font-black mt-2">JADUAL</p>
+<p class="text-zinc-500 text-sm mt-1">Tarikh dan match</p>
 </button>
 
-<button type="button" onclick="scrollToPanel('rules')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<button type="button" onclick="scrollToPanel('rules')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">02</p>
-<p class="text-2xl font-black mt-2">RULES</p>
+<p class="text-xl md:text-2xl font-black mt-2">RULES</p>
 <p class="text-zinc-500 text-sm mt-1">Rule King Elite CS</p>
 </button>
 
-<button type="button" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<button type="button" onclick="scrollToPanel('join')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">03</p>
-<p class="text-2xl font-black mt-2">GNEX LAGA CS</p>
-<p class="text-zinc-500 text-sm mt-1">Site baru coming soon</p>
-</button>
-
-<button type="button" onclick="scrollToPanel('join')" class="text-left rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">04</p>
-<p class="text-2xl font-black text-amber-300 mt-2">ADMIN</p>
-<p class="text-zinc-500 text-sm mt-1"></p>
+<p class="text-xl md:text-2xl font-black text-amber-300 mt-2">ADMIN</p>
+<p class="text-zinc-500 text-sm mt-1">Contact untuk daftar</p>
 </button>
 </div>
 
+<div class="mt-3 grid sm:grid-cols-3 gap-3 lg:w-full">
+<button type="button" class="electric-border text-left rounded-lg bg-black/90 p-4 cursor-default">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<p class="text-lg md:text-xl font-black mt-2">MUSIM AKAN DATANG</p>
+</button>
+
+<a href="ranking-mockup.html" class="electric-border text-left rounded-lg bg-black/90 p-4 transition hover:border-cyan-400 hover:bg-cyan-400/5">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">OPEN</p>
+<p class="text-lg md:text-xl font-black mt-2">RANKING PLAYER</p>
+</a>
+
+<button type="button" class="electric-border text-left rounded-lg bg-black/90 p-4 cursor-default">
+<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
+<p class="text-lg md:text-xl font-black mt-2">HISTORY SEASON</p>
+</button>
 </div>
 </div>
 </header>
-
-<!-- QUICK LINKS -->
-<section class="border-b border-zinc-900 bg-black">
-<div class="max-w-7xl mx-auto px-6 py-6">
-<div class="grid sm:grid-cols-3 gap-3">
-<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
-<p class="text-xl md:text-2xl font-black mt-2">MUSIM AKAN DATANG</p>
-</button>
-
-<button type="button" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 cursor-default">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
-<p class="text-xl md:text-2xl font-black mt-2">ALL SEASON HISTORY</p>
-</button>
-
-<a href="ranking-mockup.html" class="text-left rounded-lg border border-zinc-800 bg-zinc-950 p-4 transition hover:border-cyan-400 hover:bg-cyan-400/5">
-<p class="text-cyan-400 text-xs font-black tracking-[0.2em]">OPEN</p>
-<p class="text-xl md:text-2xl font-black mt-2">RANKING PLAYER</p>
-</a>
-</div>
-</div>
-</section>
 
 <!-- SCHEDULE -->
 <section id="schedule" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
@@ -229,8 +363,17 @@ schedule: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7L2IuseDmFr_NtqEpw1
 };
 
 let databaseLive = true;
+let activeScheduleData = [];
+let scheduleRefreshTimer = null;
 const DEFAULT_RULE_IMAGE = "images/King Elite CS Logo Metalic.png";
+const DEFAULT_FLAG_IMAGE = "logoflag/image.png";
+const FLAG_FOLDER = "gambarplayerkecs/logoflag";
 const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205";
+
+const FLAG_NAME_MAP = {
+// Kalau nama file tak sama dengan nama negeri dalam Sheet, tambah sini.
+// contoh: "negeri sembilan": "gambarplayerkecs/logoflag/ns.png"
+};
 
 // Tukar src gambar rule dekat sini nanti.
 const RULE_IMAGES = {
@@ -379,11 +522,48 @@ return String(value ?? "")
 .replaceAll("'", "&#039;");
 }
 
+function setText(id, value){
+const element = document.getElementById(id);
+if(element) element.textContent = value;
+}
+
+function slugifyFlagName(value){
+return String(value || "")
+.trim()
+.toLowerCase()
+.replace(/['"]/g, "")
+.replace(/&/g, "and")
+.replace(/[^a-z0-9]+/g, "-")
+.replace(/^-+|-+$/g, "");
+}
+
+function resolveFlagSource(value, fallbackName){
+const raw = String(value || "").trim();
+const name = raw || String(fallbackName || "").trim();
+if(!name || /^tbd$/i.test(name)) return DEFAULT_FLAG_IMAGE;
+if(/^https?:\/\//i.test(name) || /\.(png|jpe?g|webp|gif)$/i.test(name) || name.includes("/")) return name;
+const key = name.toLowerCase();
+if(FLAG_NAME_MAP[key]) return FLAG_NAME_MAP[key];
+return `${FLAG_FOLDER}/${slugifyFlagName(name)}.png`;
+}
+
+function getTeamFlag(item, side){
+const direct = side === "a"
+? (item.team_a_flag || item.flag_a || item.logo_a || item.negeri_a || item.state_a || item.team_a_state)
+: (item.team_b_flag || item.flag_b || item.logo_b || item.negeri_b || item.state_b || item.team_b_state);
+const teamName = side === "a" ? item.team_a : item.team_b;
+return resolveFlagSource(direct, teamName);
+}
+
 function renderTournament(tournament){
 document.getElementById("tourName").innerHTML = `${tournament.name.replace("SEASON 5", '<span class="text-cyan-400">SEASON 5</span>')}`;
-document.getElementById("tourStatus").textContent = tournament.status || "LIVE";
+setText("tourStatus", tournament.status || "LIVE");
 document.getElementById("joinLink").href = ADMIN_WHATSAPP_URL;
 document.getElementById("heroJoinLink").href = ADMIN_WHATSAPP_URL;
+setText("tourPrizePool", tournament.prize_pool || "RM300");
+setText("tourSlots", tournament.slots || "32 Teams");
+setText("tourFormat", tournament.format || "Clash Squad");
+setText("tourGame", tournament.game || "Free Fire");
 }
 
 function getRuleImage(rule){
@@ -553,9 +733,15 @@ return items.map((item) => `
 <span>${escapeHtml(item.time)}</span>
 </div>
 <div class="mt-3 flex items-center justify-between gap-3">
-<span class="font-black">${escapeHtml(item.team_a || "TBD")}</span>
+<span class="flex min-w-0 items-center gap-2 font-black">
+<img src="${escapeHtml(getTeamFlag(item, "a"))}" alt="${escapeHtml(item.team_a || "TBD")} flag" onerror="this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
+<span class="truncate">${escapeHtml(item.team_a || "TBD")}</span>
+</span>
 <span class="text-cyan-300 font-black">VS</span>
-<span class="font-black text-right">${escapeHtml(item.team_b || "TBD")}</span>
+<span class="flex min-w-0 items-center justify-end gap-2 font-black text-right">
+<span class="truncate">${escapeHtml(item.team_b || "TBD")}</span>
+<img src="${escapeHtml(getTeamFlag(item, "b"))}" alt="${escapeHtml(item.team_b || "TBD")} flag" onerror="this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
+</span>
 </div>
 </div>
 `).join("");
@@ -581,6 +767,35 @@ return `
 }).join("");
 }
 
+function renderNextMatch(schedule){
+const decoratedSchedule = decorateSchedule(schedule);
+const match = decoratedSchedule.find((item) => item.isFocus) || decoratedSchedule[0];
+if(!match) return;
+
+const statusClass = match.computedStatus === "LIVE"
+? "border-green-500/40 bg-green-500/10 text-green-300"
+: match.computedStatus === "COMPLETED"
+? "border-zinc-700 bg-zinc-900 text-zinc-400"
+: "border-amber-500/40 bg-amber-500/10 text-amber-300";
+
+setText("nextMatchLabel", match.match || "Next Match");
+setText("nextMatchTime", `${match.date || ""} / ${match.time || ""}`);
+setText("nextTeamA", match.team_a || "TBD");
+setText("nextTeamB", match.team_b || "TBD");
+setText("nextMatchStatus", match.computedStatus || "UP NEXT");
+document.getElementById("nextMatchStatus").className = `${statusClass} rounded-full border px-3 py-1 text-[11px] font-black`;
+
+const flagA = document.getElementById("nextFlagA");
+const flagB = document.getElementById("nextFlagB");
+if(flagA) flagA.src = getTeamFlag(match, "a");
+if(flagB) flagB.src = getTeamFlag(match, "b");
+}
+
+function refreshSchedulePanels(){
+renderSchedule(activeScheduleData);
+renderNextMatch(activeScheduleData);
+}
+
 async function init(){
 const [tournamentRows, loadedRules, loadedSchedule] = await Promise.all([
 loadCsv(DATABASE.tournament, [fallbackTournament]),
@@ -593,7 +808,10 @@ const schedule = loadedSchedule.filter(validSchedule);
 
 renderTournament(tournament);
 renderRules(rules.length ? rules : fallbackRules);
-renderSchedule(schedule.length ? schedule : fallbackSchedule);
+activeScheduleData = schedule.length ? schedule : fallbackSchedule;
+refreshSchedulePanels();
+if(scheduleRefreshTimer) clearInterval(scheduleRefreshTimer);
+scheduleRefreshTimer = setInterval(refreshSchedulePanels, 60000);
 document.getElementById("rulesSource").textContent = rules.length ? "" : "Showing saved rules.";
 document.getElementById("dbStatus").textContent = databaseLive ? "" : "Google Sheet failed. Showing local data.";
 }
