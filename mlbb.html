@@ -231,25 +231,25 @@ Order summary akan ikut package dan channel yang dipilih.
 <p class="text-zinc-500 text-sm">QR Transfer / TNG Pin / DIGI & CELCOM</p>
 </div>
 
-<div class="flex flex-wrap gap-3 mb-6">
-<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold transition">
+<div class="flex flex-wrap gap-2 md:gap-3 mb-5">
+<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
 All Packages
 </button>
-<button type="button" onclick="filterPackages('qr', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('qr', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 QR Transfer
 </button>
-<button type="button" onclick="filterPackages('pin', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('pin', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 TNG Pin
 </button>
-<button type="button" onclick="filterPackages('telco', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('telco', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 DIGI/CELCOM
 </button>
-<button type="button" onclick="filterPackages('first', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('first', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 First / Weekly
 </button>
 </div>
 
-<div id="packageGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+<div id="packageGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"></div>
 </section>
 
 <!-- CHECKOUT -->
@@ -455,14 +455,14 @@ const packageGrid = document.getElementById("packageGrid");
 const visiblePackages = packages.filter((pkg) => filter === "all" || pkg.category === filter);
 
 packageGrid.innerHTML = visiblePackages.map((pkg, index) => `
-<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}">
-<div class="flex justify-between items-center mb-5 gap-2">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">${packageLabel(pkg)}</span>
-<span class="text-cyan-400 text-xs font-black text-right">${pkg.price}</span>
+<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}">
+<div class="flex justify-between items-center mb-3 gap-2">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded">${packageLabel(pkg)}</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black text-right leading-tight">${pkg.price}</span>
 </div>
-<h3 class="text-2xl font-black leading-tight">${pkg.name}</h3>
-<p class="text-zinc-500 text-xs mt-2">${pkg.channel}</p>
-<button type="button" onclick="selectPackage(${packages.indexOf(pkg)})" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-xl md:text-[22px] font-black leading-tight">${pkg.name}</h3>
+<p class="text-zinc-500 text-[11px] mt-1.5">${pkg.channel}</p>
+<button type="button" onclick="selectPackage(${packages.indexOf(pkg)})" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 `).join("");
 

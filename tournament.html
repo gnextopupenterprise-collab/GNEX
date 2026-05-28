@@ -43,6 +43,121 @@ border:1px solid rgba(63, 63, 70, 0.85);
 .match-line{
 background:linear-gradient(180deg, rgba(34, 211, 238, 0), rgba(34, 211, 238, 0.85), rgba(34, 211, 238, 0));
 }
+
+.logo-carousel{
+position:relative;
+height:230px;
+max-width:720px;
+margin:0 auto;
+perspective:900px;
+}
+
+.logo-carousel-item{
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+width:220px;
+height:190px;
+margin:auto;
+opacity:0;
+transform:translateX(0) scale(.7) rotateY(0deg);
+transition:transform .75s ease, opacity .75s ease, filter .75s ease;
+filter:drop-shadow(0 0 18px rgba(34,211,238,.12));
+}
+
+.logo-carousel-item img{
+max-width:100%;
+max-height:100%;
+object-fit:contain;
+pointer-events:none;
+}
+
+.logo-carousel-item.is-center{
+opacity:1;
+z-index:5;
+transform:translateX(0) scale(1.12) rotateY(0deg);
+filter:drop-shadow(0 0 34px rgba(34,211,238,.45));
+}
+
+.logo-carousel-item.is-left{
+opacity:.72;
+z-index:4;
+transform:translateX(-170px) scale(.82) rotateZ(-13deg) rotateY(28deg);
+}
+
+.logo-carousel-item.is-right{
+opacity:.72;
+z-index:4;
+transform:translateX(170px) scale(.82) rotateZ(13deg) rotateY(-28deg);
+}
+
+.logo-carousel-item.is-far-left{
+opacity:.34;
+z-index:3;
+transform:translateX(-285px) scale(.62) rotateZ(-22deg) rotateY(38deg);
+}
+
+.logo-carousel-item.is-far-right{
+opacity:.34;
+z-index:3;
+transform:translateX(285px) scale(.62) rotateZ(22deg) rotateY(-38deg);
+}
+
+@media (max-width:640px){
+.logo-carousel{
+height:190px;
+max-width:100%;
+}
+
+.logo-carousel-item{
+width:160px;
+height:145px;
+}
+
+.logo-carousel-item.is-left{
+transform:translateX(-105px) scale(.76) rotateZ(-13deg) rotateY(28deg);
+}
+
+.logo-carousel-item.is-right{
+transform:translateX(105px) scale(.76) rotateZ(13deg) rotateY(-28deg);
+}
+
+.logo-carousel-item.is-far-left{
+transform:translateX(-165px) scale(.56) rotateZ(-20deg) rotateY(38deg);
+}
+
+.logo-carousel-item.is-far-right{
+transform:translateX(165px) scale(.56) rotateZ(20deg) rotateY(-38deg);
+}
+}
+
+.hero-event-carousel .logo-carousel{
+height:170px;
+max-width:520px;
+}
+
+.hero-event-carousel .logo-carousel-item{
+width:170px;
+height:150px;
+}
+
+.hero-event-carousel .logo-carousel-item.is-left{
+transform:translateX(-125px) scale(.78) rotateZ(-13deg) rotateY(28deg);
+}
+
+.hero-event-carousel .logo-carousel-item.is-right{
+transform:translateX(125px) scale(.78) rotateZ(13deg) rotateY(-28deg);
+}
+
+.hero-event-carousel .logo-carousel-item.is-far-left{
+transform:translateX(-205px) scale(.56) rotateZ(-22deg) rotateY(38deg);
+}
+
+.hero-event-carousel .logo-carousel-item.is-far-right{
+transform:translateX(205px) scale(.56) rotateZ(22deg) rotateY(-38deg);
+}
 </style>
 </head>
 
@@ -171,6 +286,31 @@ VIEW SCHEDULE
 </div>
 </div>
 </a>
+</div>
+
+<div class="hero-event-carousel mt-5 border-t border-zinc-800/80 pt-4 overflow-hidden">
+<div>
+<p class="text-[10px] md:text-xs text-cyan-400 font-bold tracking-[0.22em]">CHOOSE EVENT</p>
+<p class="text-zinc-500 text-xs mt-1">Tap atau scroll logo</p>
+</div>
+
+<div class="logo-carousel" id="tournamentLogoCarousel">
+<a href="#" class="logo-carousel-item" aria-label="King Elite CS">
+<img src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo">
+</a>
+<a href="#" class="logo-carousel-item" aria-label="GTML Season 7">
+<img src="images/gtmllogo.png" alt="GTML Season 7 logo">
+</a>
+<a href="#" class="logo-carousel-item" aria-label="GNEX Esport">
+<img src="images/logo-gnex-esport-64x64.png" alt="GNEX Esport logo">
+</a>
+<a href="#" class="logo-carousel-item" aria-label="King Elite CS next">
+<img src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo">
+</a>
+<a href="#" class="logo-carousel-item" aria-label="GTML archive">
+<img src="imagelogo/gtmllogo.png" alt="GTML archive logo">
+</a>
+</div>
 </div>
 </div>
 
@@ -413,6 +553,57 @@ REGISTER VIA WHATSAPP
 <footer class="border-t border-zinc-800 py-8 text-center text-zinc-600 text-sm">
 (c) 2026 GNEX TOPUP STORE / Tournament Center
 </footer>
+
+<script>
+const logoCarousel = document.getElementById("tournamentLogoCarousel");
+if(logoCarousel){
+const logoItems = Array.from(logoCarousel.querySelectorAll(".logo-carousel-item"));
+const logoPositions = ["is-center", "is-right", "is-far-right", "is-far-left", "is-left"];
+let activeLogoIndex = 0;
+let logoTouchStartX = 0;
+
+function renderLogoCarousel(){
+logoItems.forEach((item, index) => {
+item.classList.remove(...logoPositions);
+const offset = (index - activeLogoIndex + logoItems.length) % logoItems.length;
+item.classList.add(logoPositions[offset] || "is-far-right");
+});
+}
+
+function moveLogoCarousel(direction){
+activeLogoIndex = (activeLogoIndex + direction + logoItems.length) % logoItems.length;
+renderLogoCarousel();
+}
+
+logoItems.forEach((item, index) => {
+item.addEventListener("click", (event) => {
+if(item.getAttribute("href") === "#" || index !== activeLogoIndex){
+event.preventDefault();
+}
+activeLogoIndex = index;
+renderLogoCarousel();
+});
+});
+
+logoCarousel.addEventListener("wheel", (event) => {
+event.preventDefault();
+moveLogoCarousel(event.deltaY > 0 || event.deltaX > 0 ? 1 : -1);
+}, {passive:false});
+
+logoCarousel.addEventListener("touchstart", (event) => {
+logoTouchStartX = event.touches[0].clientX;
+}, {passive:true});
+
+logoCarousel.addEventListener("touchend", (event) => {
+const diff = event.changedTouches[0].clientX - logoTouchStartX;
+if(Math.abs(diff) > 35){
+moveLogoCarousel(diff < 0 ? 1 : -1);
+}
+});
+
+renderLogoCarousel();
+}
+</script>
 
 </body>
 </html>

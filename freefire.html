@@ -231,312 +231,312 @@ Order summary akan update automatik bila package dipilih.
 <p class="text-zinc-500 text-sm">Fast Delivery / Trusted Seller</p>
 </div>
 
-<div class="flex flex-wrap gap-3 mb-6">
-<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold transition">
+<div class="flex flex-wrap gap-2 md:gap-3 mb-5">
+<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
 All Packages
 </button>
-<button type="button" onclick="filterPackages('popular', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('popular', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 Popular
 </button>
-<button type="button" onclick="filterPackages('budget', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('budget', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 Budget
 </button>
-<button type="button" onclick="filterPackages('best', this)" class="filter-btn border border-zinc-700 px-4 py-2 rounded-lg text-sm font-bold hover:border-cyan-400 transition">
+<button type="button" onclick="filterPackages('best', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 Best Value
 </button>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM1</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM1</span>
 </div>
-<h3 class="text-3xl font-black">25</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'25 Diamonds','RM1.00','RM1.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">25</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'25 Diamonds','RM1.00','RM1.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM4 - 5</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM4 - 5</span>
 </div>
-<h3 class="text-3xl font-black">100</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'100 Diamonds','RM4.00','RM4.00','RM5.00','RM5.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">100</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'100 Diamonds','RM4.00','RM4.00','RM5.00','RM5.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM5</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM5</span>
 </div>
-<h3 class="text-3xl font-black">125</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'125 Diamonds','RM5.00','RM5.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">125</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'125 Diamonds','RM5.00','RM5.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM8 - 10</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM8 - 10</span>
 </div>
-<h3 class="text-3xl font-black">200</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'200 Diamonds','RM8.00','RM8.00','RM10.00','RM10.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">200</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'200 Diamonds','RM8.00','RM8.00','RM10.00','RM10.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM10</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM10</span>
 </div>
-<h3 class="text-3xl font-black">250</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'250 Diamonds','RM10.00','RM10.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">250</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'250 Diamonds','RM10.00','RM10.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM12 - 15</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM12 - 15</span>
 </div>
-<h3 class="text-3xl font-black">310</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'310 Diamonds','RM12.00','RM12.00','RM15.00','RM15.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">310</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'310 Diamonds','RM12.00','RM12.00','RM15.00','RM15.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM15</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM15</span>
 </div>
-<h3 class="text-3xl font-black">385</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'385 Diamonds','RM15.00','RM15.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">385</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'385 Diamonds','RM15.00','RM15.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM16 - 20</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM16 - 20</span>
 </div>
-<h3 class="text-3xl font-black">410</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'410 Diamonds','RM16.00','RM16.00','RM20.00','RM20.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">410</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'410 Diamonds','RM16.00','RM16.00','RM20.00','RM20.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM20</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM20</span>
 </div>
-<h3 class="text-3xl font-black">520</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'520 Diamonds','RM20.00','RM20.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">520</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'520 Diamonds','RM20.00','RM20.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card active relative border border-cyan-400 rounded-xl p-4 transition hover:border-cyan-300" data-category="popular best">
+<article class="package-card active relative border border-cyan-400 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-300" data-category="popular best">
 <span class="absolute -top-px right-4 bg-amber-300 text-black text-[10px] font-black px-2 py-1 rounded-b">BEST VALUE</span>
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM21 - 25</span>
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM21 - 25</span>
 </div>
-<h3 class="text-3xl font-black">545</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'545 Diamonds','RM21.00','RM21.00','RM25.00','RM25.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">545</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'545 Diamonds','RM21.00','RM21.00','RM25.00','RM25.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="popular best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM25 - 30</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="popular best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM25 - 30</span>
 </div>
-<h3 class="text-3xl font-black">645</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'645 Diamonds','RM25.00','RM25.00','RM30.00','RM30.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">645</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'645 Diamonds','RM25.00','RM25.00','RM30.00','RM30.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="popular best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM30</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="popular best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM30</span>
 </div>
-<h3 class="text-3xl font-black">770</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'770 Diamonds','RM30.00','RM30.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">770</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'770 Diamonds','RM30.00','RM30.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM34 - 40</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM34 - 40</span>
 </div>
-<h3 class="text-3xl font-black">880</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'880 Diamonds','RM34.00','RM34.00','RM40.00','RM40.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">880</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'880 Diamonds','RM34.00','RM34.00','RM40.00','RM40.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM40</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM40</span>
 </div>
-<h3 class="text-3xl font-black">1110</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1110 Diamonds','RM40.00','RM40.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1110</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1110 Diamonds','RM40.00','RM40.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM42 - 50</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM42 - 50</span>
 </div>
-<h3 class="text-3xl font-black">1160</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1160 Diamonds','RM42.00','RM42.00','RM50.00','RM50.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1160</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1160 Diamonds','RM42.00','RM42.00','RM50.00','RM50.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM50</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM50</span>
 </div>
-<h3 class="text-3xl font-black">1370</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1370 Diamonds','RM50.00','RM50.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1370</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1370 Diamonds','RM50.00','RM50.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM51 - 60</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM51 - 60</span>
 </div>
-<h3 class="text-3xl font-black">1395</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1395 Diamonds','RM51.00','RM51.00','RM60.00','RM60.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1395</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1395 Diamonds','RM51.00','RM51.00','RM60.00','RM60.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM60</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM60</span>
 </div>
-<h3 class="text-3xl font-black">1630</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1630 Diamonds','RM60.00','RM60.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1630</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1630 Diamonds','RM60.00','RM60.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM62 - 70</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM62 - 70</span>
 </div>
-<h3 class="text-3xl font-black">1680</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1680 Diamonds','RM62.00','RM62.00','RM70.00','RM70.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1680</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1680 Diamonds','RM62.00','RM62.00','RM70.00','RM70.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM70 - 80</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM70 - 80</span>
 </div>
-<h3 class="text-3xl font-black">1890</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'1890 Diamonds','RM70.00','RM70.00','RM80.00','RM80.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">1890</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'1890 Diamonds','RM70.00','RM70.00','RM80.00','RM80.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM78 - 90</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM78 - 90</span>
 </div>
-<h3 class="text-3xl font-black">2180</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'2180 Diamonds','RM78.00','RM78.00','RM90.00','RM90.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">2180</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'2180 Diamonds','RM78.00','RM78.00','RM90.00','RM90.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM80</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM80</span>
 </div>
-<h3 class="text-3xl font-black">2230</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'2230 Diamonds','RM80.00','RM80.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">2230</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'2230 Diamonds','RM80.00','RM80.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM86 - 100</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM86 - 100</span>
 </div>
-<h3 class="text-3xl font-black">2380</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'2380 Diamonds','RM86.00','RM86.00','RM100.00','RM100.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">2380</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'2380 Diamonds','RM86.00','RM86.00','RM100.00','RM100.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM90</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM90</span>
 </div>
-<h3 class="text-3xl font-black">2490</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'2490 Diamonds','RM90.00','RM90.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">2490</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'2490 Diamonds','RM90.00','RM90.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">FREE FIRE</span>
-<span class="text-cyan-400 text-xs font-black">RM100 - 120</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM100 - 120</span>
 </div>
-<h3 class="text-3xl font-black">2775</h3>
-<p class="text-zinc-500 text-xs mt-1">Diamonds</p>
-<button type="button" onclick="selectPackage(this,'2775 Diamonds','RM100.00','RM100.00','RM120.00','RM120.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-2xl md:text-[26px] font-black leading-tight">2775</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Diamonds</p>
+<button type="button" onclick="selectPackage(this,'2775 Diamonds','RM100.00','RM100.00','RM120.00','RM120.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">PASS</span>
-<span class="text-cyan-400 text-xs font-black">RM2 - 5</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">PASS</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM2 - 5</span>
 </div>
-<h3 class="text-xl font-black">Weekly Lite Pass</h3>
-<p class="text-zinc-500 text-xs mt-1">Special Package</p>
-<button type="button" onclick="selectPackage(this,'Weekly Lite Pass','RM2.00','RM2.00','RM5.00 2 item','RM5.00 2 item')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-lg md:text-xl font-black leading-tight">Weekly Lite Pass</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Special Package</p>
+<button type="button" onclick="selectPackage(this,'Weekly Lite Pass','RM2.00','RM2.00','RM5.00 2 item','RM5.00 2 item')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="budget popular">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">PASS</span>
-<span class="text-cyan-400 text-xs font-black">RM7 - 10</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget popular">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">PASS</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM7 - 10</span>
 </div>
-<h3 class="text-xl font-black">Weekly Pass</h3>
-<p class="text-zinc-500 text-xs mt-1">Special Package</p>
-<button type="button" onclick="selectPackage(this,'Weekly Pass','RM7.00','RM7.00','RM10.00','RM10.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-lg md:text-xl font-black leading-tight">Weekly Pass</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Special Package</p>
+<button type="button" onclick="selectPackage(this,'Weekly Pass','RM7.00','RM7.00','RM10.00','RM10.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="popular best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">PASS</span>
-<span class="text-cyan-400 text-xs font-black">RM35 - 40</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="popular best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">PASS</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM35 - 40</span>
 </div>
-<h3 class="text-xl font-black">Monthly Pass</h3>
-<p class="text-zinc-500 text-xs mt-1">Special Package</p>
-<button type="button" onclick="selectPackage(this,'Monthly Pass','RM35.00','RM35.00','RM40.00','RM40.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-lg md:text-xl font-black leading-tight">Monthly Pass</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Special Package</p>
+<button type="button" onclick="selectPackage(this,'Monthly Pass','RM35.00','RM35.00','RM40.00','RM40.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card border border-zinc-800 rounded-xl p-4 transition hover:border-cyan-400" data-category="best">
-<div class="flex justify-between items-center mb-5">
-<span class="text-[10px] bg-zinc-800 px-2 py-1 rounded">PASS</span>
-<span class="text-cyan-400 text-xs font-black">RM42 - 50</span>
+<article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="best">
+<div class="flex justify-between items-center gap-2 mb-3">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">PASS</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black leading-tight text-right">RM42 - 50</span>
 </div>
-<h3 class="text-xl font-black">Combo Pass</h3>
-<p class="text-zinc-500 text-xs mt-1">Special Package</p>
-<button type="button" onclick="selectPackage(this,'Combo Pass','RM42.00','RM42.00','RM50.00','RM50.00')" class="w-full mt-5 bg-cyan-400 text-black font-black py-3 rounded-lg hover:bg-cyan-300 transition text-sm">SELECT</button>
+<h3 class="text-lg md:text-xl font-black leading-tight">Combo Pass</h3>
+<p class="text-zinc-500 text-[11px] mt-1">Special Package</p>
+<button type="button" onclick="selectPackage(this,'Combo Pass','RM42.00','RM42.00','RM50.00','RM50.00')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
 </div>
