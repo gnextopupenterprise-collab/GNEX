@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest?v=2">
 <meta name="theme-color" content="#02040a">
 
-<title>GNEX Topup Store</title>
+<title>GNEX Center</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -31,6 +31,146 @@ background:
 radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.22), transparent 28%),
 radial-gradient(circle at 82% 8%, rgba(168, 85, 247, 0.16), transparent 26%),
 linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98) 55%, rgba(10, 5, 20, 0.98));
+}
+
+.hero-video{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit:cover;
+opacity:.34;
+filter:saturate(1.25) contrast(1.08);
+}
+
+.hero-red-motion{
+position:absolute;
+inset:0;
+background:
+radial-gradient(circle at var(--x, 72%) var(--y, 28%), rgba(239, 68, 68, .2), transparent 24%),
+radial-gradient(circle at 20% 80%, rgba(34, 211, 238, .14), transparent 30%);
+mix-blend-mode:screen;
+animation:redMotion 9s ease-in-out infinite alternate;
+}
+
+@keyframes redMotion{
+0%{
+--x:68%;
+--y:24%;
+transform:scale(1);
+}
+
+100%{
+--x:86%;
+--y:52%;
+transform:scale(1.08);
+}
+}
+
+.promo-carousel{
+position:relative;
+height:220px;
+max-width:780px;
+overflow:hidden;
+}
+
+.promo-slide{
+position:absolute;
+top:50%;
+left:50%;
+width: min(100%, 960px);
+aspect-ratio: 16 / 9;
+overflow:hidden;
+border-radius:14px;
+border:1px solid rgba(34, 211, 238, .45);
+background:
+linear-gradient(135deg, rgba(34, 211, 238, .22), rgba(0,0,0,.82)),
+linear-gradient(160deg, #06121f, #02040a 58%, #1b0710);
+box-shadow:0 20px 70px rgba(0,0,0,.48);
+transform:translate(-50%, -50%) scale(.72);
+opacity:.28;
+transition:transform .45s ease, opacity .45s ease, filter .45s ease;
+filter:blur(.5px);
+}
+
+.promo-slide.is-active{
+z-index:4;
+opacity:1;
+transform:translate(-50%, -50%) scale(1);
+filter:blur(0);
+}
+
+.promo-slide.is-left{
+z-index:2;
+opacity:.5;
+transform:translate(calc(-50% - 265px), -50%) scale(.78) rotate(-4deg);
+}
+
+.promo-slide.is-right{
+z-index:2;
+opacity:.5;
+transform:translate(calc(-50% + 265px), -50%) scale(.78) rotate(4deg);
+}
+
+.promo-slide.is-hidden{
+z-index:1;
+opacity:.18;
+transform:translate(calc(-50% + 440px), -50%) scale(.64) rotate(8deg);
+}
+
+.promo-slide-inner{
+position:absolute;
+inset:0;
+z-index:1;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+padding:18px;
+background:linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.9));
+}
+
+.promo-slide-image{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit:cover;
+object-position:center;
+}
+
+.promo-dot{
+width:8px;
+height:8px;
+border-radius:999px;
+background:rgba(255,255,255,.28);
+transition:width .25s ease, background .25s ease;
+}
+
+.promo-dot.is-active{
+width:22px;
+background:#22d3ee;
+}
+
+@media (max-width:640px){
+.promo-carousel{
+height:165px;
+}
+
+.promo-slide{
+width:250px;
+}
+
+.promo-slide.is-left{
+transform:translate(calc(-50% - 150px), -50%) scale(.72) rotate(-5deg);
+}
+
+.promo-slide.is-right{
+transform:translate(calc(-50% + 150px), -50%) scale(.72) rotate(5deg);
+}
+
+.promo-slide.is-hidden{
+transform:translate(calc(-50% + 280px), -50%) scale(.56) rotate(8deg);
+}
 }
 
 .card-glass{
@@ -88,7 +228,7 @@ class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-cent
 
 <div>
 <h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
-<p class="text-zinc-500 text-xs mt-1 tracking-wide">TOPUP STORE</p>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">CENTER</p>
 </div>
 </div>
 
@@ -144,7 +284,7 @@ HOME
 PRICE LIST
 </button>
 
-<button type="button" onclick="goSection('featured-tournament')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
+<button type="button" onclick="window.location.href='tournament.html'" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
 TOURNAMENT
 </button>
 
@@ -161,145 +301,131 @@ WHATSAPP
 <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-50 hidden"></div>
 
 <!-- HERO -->
-<header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-28 md:pt-32">
+<header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-24 md:pt-24">
+<video class="hero-video" autoplay muted loop playsinline>
+<source src="videos/a95becc139495c5a04610afbdfb797c6.mp4" type="video/mp4">
+</video>
+<div class="hero-red-motion"></div>
+<div class="absolute inset-0 bg-black/55"></div>
 <div class="absolute inset-x-0 top-24 h-px cyan-line"></div>
 
-<div class="relative max-w-7xl mx-auto px-6 py-14 md:py-20">
+<div class="relative max-w-7xl mx-auto px-6 py-6 md:py-8">
+<div class="relative">
+<div id="promoCarousel" class="promo-carousel mx-auto">
+<button type="button" class="promo-slide is-active" onclick="setPromoSlide(0)" aria-label="Promo 1">
+  <img class="promo-slide-image" src="image-iklan/67e78d55-c12c-445f-8060-a9e38ea99224.jpeg" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
 <div>
-<p class="text-cyan-400 font-bold tracking-[0.28em] text-xs md:text-sm mb-4" class="">
-GNEX CENTER
-</p>
+<p class="text-cyan-300 text-xs font-black tracking-[0.24em]">test</p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none">GNEX UPDATE</h2>
+</div>
+<p class="text-zinc-300 text-sm"></p>
+</div>
+</button>
 
-<h1 class="text-4xl sm:text-5xl md:text-7xl font-black leading-[0.95] max-w-3xl">
-GNEX ESPORT 
-</h1>
-<span class="text-4xl sm:text-4xl md:text-5xl font-black leading-[0.95] max-w-3xl text-cyan-400 topup-game">TOPUP GAME</span>
+<button type="button" class="promo-slide is-right" onclick="setPromoSlide(1)" aria-label="Promo 2">
+<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm"></p>
+</div>
+</button>
 
+<button type="button" class="promo-slide is-hidden" onclick="setPromoSlide(2)" aria-label="Promo 3">
+<img class="promo-slide-image" src="image-iklan/67e78d55-c12c-445f-8060-a9e38ea99224.jpeg" alt="Iklan GNEX Topup"> 
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm"></p>
+</div>
+</button>
 
-<p class="text-zinc-300 mt-6 text-base md:text-lg leading-relaxed max-w-2xl">
-Tournament, Topup, Jersey dan Esport
-</p>
+<button type="button" class="promo-slide is-left" onclick="setPromoSlide(3)" aria-label="Promo 4">
+<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-amber-200 text-xs font-black tracking-[0.24em]">PROMO 04</p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm">Test</p>
+</div>
+</button>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-5 mt-3 md:mt-10">
-<a href="tournament.html" class="group relative min-h-[60px] md:min-h-[240px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-6 
+<div id="promoDots" class="flex items-center justify-center gap-2 mt-4">
+<button type="button" onclick="setPromoSlide(0)" class="promo-dot is-active" aria-label="Go to promo 1"></button>
+<button type="button" onclick="setPromoSlide(1)" class="promo-dot" aria-label="Go to promo 2"></button>
+<button type="button" onclick="setPromoSlide(2)" class="promo-dot" aria-label="Go to promo 3"></button>
+<button type="button" onclick="setPromoSlide(3)" class="promo-dot" aria-label="Go to promo 4"></button>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
+<a href="tournament.html" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-30 bg-[url('images/BG-GUSION.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
 <div class="relative z-10 h-full flex flex-col justify-between">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.22em]">01</p>
-<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-4">TOURNAMENT</h2>
+<h2 class="text-xl md:text-2xl font-black mt-1 md:mt-3">TOURNAMENT</h2>
 <p class="hidden sm:block text-zinc-400 text-xs md:text-sm mt-1 md:mt-3">Bracket, jadual match dan info event GNEX.</p>
 </div>
-<p class="text-cyan-300 text-xs md:text-base font-black mt-1 md:mt-4">OPEN -></p>
+<p class="text-cyan-300 text-xs md:text-sm font-black mt-1 md:mt-3">OPEN -></p>
 </div>
 </a>
 
-<a href="#price-list" class="group relative min-h-[60px] md:min-h-[240px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-6 
+<a href="#price-list" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-30 bg-[url('images/ml-wallpaper.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
 <div class="relative z-10 h-full flex flex-col justify-between">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.22em]">02</p>
-<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-4">GNEX TOPUP</h2>
+<h2 class="text-xl md:text-2xl font-black mt-1 md:mt-3">GNEX TOPUP</h2>
 <p class="hidden sm:block text-zinc-400 text-xs md:text-sm mt-1 md:mt-3">Diamond, UC dan topup game pilihan player.</p>
 </div>
-<p class="text-cyan-300 text-xs md:text-base font-black mt-1 md:mt-4">VIEW PRICE -></p>
+<p class="text-cyan-300 text-xs md:text-sm font-black mt-1 md:mt-3">VIEW PRICE -></p>
 </div>
 </a>
 
-<a href="jersey.html" class="group relative min-h-[60px] md:min-h-[240px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-6 
+<a href="jersey.html" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/15"></div>
 <div class="relative z-10 h-full flex flex-col justify-between">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.22em]">03</p>
-<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-4">JERSEY</h2>
+<h2 class="text-xl md:text-2xl font-black mt-1 md:mt-3">JERSEY</h2>
 <p class="hidden sm:block text-zinc-400 text-xs md:text-sm mt-1 md:mt-3">Official GNEX jersey, size chart dan order.</p>
 </div>
-<p class="text-cyan-300 text-xs md:text-base font-black mt-1 md:mt-4">SHOP NOW -></p>
+<p class="text-cyan-300 text-xs md:text-sm font-black mt-1 md:mt-3">SHOP NOW -></p>
 </div>
 </a>
 
-<a href="#featured-tournament" class="group relative min-h-[60px] md:min-h-[240px] overflow-hidden rounded-xl border border-amber-300/50 bg-zinc-950 p-4 md:p-6 
+<a href="#payment" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-amber-300/50 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-amber-200 transition">
 <div class="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-black to-cyan-500/10"></div>
-<img src="images/gnex-esport-gold.png" alt="GNEX Esport logo" class="absolute right-[-22px] top-1/2 h-[110px] w-auto -translate-y-1/2 opacity-65 md:top-auto md:right-[-56px] md:bottom-[-48px] md:h-[250px] md:translate-y-0 md:opacity-75 
+<img src="images/gnex-esport-gold.png" alt="GNEX Esport logo" class="absolute right-[-22px] top-1/2 h-[110px] w-auto -translate-y-1/2 opacity-65 md:top-auto md:right-[-36px] md:bottom-[-34px] md:h-[190px] md:translate-y-0 md:opacity-75 
 group-hover:scale-105 transition duration-500">
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-transparent"></div>
 <div class="relative z-10 h-full flex flex-col justify-between">
 <div>
 <p class="text-amber-200 text-xs font-black tracking-[0.22em]">04</p>
-<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-4">GNEX ESPORT</h2>
+<h2 class="text-xl md:text-2xl font-black mt-1 md:mt-3">GNEX ESPORT</h2>
 <p class="hidden sm:block text-zinc-400 text-xs md:text-sm mt-1 md:mt-3">Team identity, community dan official GNEX.</p>
 </div>
-<p class="text-amber-200 text-xs md:text-base font-black mt-1 md:mt-8">EXPLORE -></p>
+<p class="text-amber-200 text-xs md:text-sm font-black mt-1 md:mt-3">EXPLORE -></p>
 </div>
 </a>
 </div>
 </div>
 </header>
-
-<!-- FEATURED TOURNAMENT -->
-<section id="featured-tournament" class="max-w-7xl mx-auto px-6 py-16 md:py-20">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-<div>
-<p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">FEATURED</p>
-<h2 class="text-3xl md:text-4xl font-black mt-2">TOURNAMENT HIGHLIGHT</h2>
-</div>
-<a href="tournament.html" class="text-cyan-300 hover:text-cyan-100 font-bold text-sm">
-VIEW ALL TOURNAMENT
-</a>
-</div>
-
-<div class="grid md:grid-cols-3 gap-5">
-<a href="gtmls7.html" class="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 hover:border-cyan-400/70 transition">
-<div class="relative h-44 overflow-hidden">
-<img src="images/BG-GUSION.jpg" alt="Mobile Legends tournament" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>
-<span class="absolute top-4 left-4 bg-cyan-400 text-black text-xs font-black px-3 py-1 rounded">OPEN</span>
-</div>
-<div class="p-5">
-<h3 class="text-xl font-black">GNEX TOURNAMENT MLBB S7</h3>
-<p class="text-zinc-500 text-sm mt-2">1 May - 3 June 2026</p>
-<div class="flex items-center justify-between mt-5">
-<span class="text-amber-300 font-black">RM300 Prize Pool</span>
-<span class="text-cyan-300 text-sm font-bold">Details</span>
-</div>
-</div>
-</a>
-
-<a href="kecs5.html" class="group overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 hover:border-cyan-400/70 transition">
-<div class="relative h-44 overflow-hidden">
-<img src="images/ff-wallpaper.jpg" alt="Free Fire tournament" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition duration-500">
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent"></div>
-<span class="absolute top-4 left-4 bg-green-400 text-black text-xs font-black px-3 py-1 rounded">LIVE</span>
-</div>
-<div class="p-5">
-<h3 class="text-xl font-black">KING ELITE CS SEASON 5</h3>
-<p class="text-zinc-500 text-sm mt-2">30 May 2026</p>
-<div class="flex items-center justify-between mt-5">
-<span class="text-amber-300 font-black">RM300 Prize Pool</span>
-<span class="text-cyan-300 text-sm font-bold">Details</span>
-</div>
-</div>
-</a>
-
-<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5 flex flex-col justify-between min-h-[292px]">
-<div>
-<p class="text-cyan-400 font-bold text-sm">NEXT SLOT</p>
-<h3 class="text-2xl font-black mt-3">Request Custom Tournament</h3>
-<p class="text-zinc-500 mt-3 leading-relaxed">Nak buat room, bracket atau event komuniti? Contact GNEX untuk setup.</p>
-</div>
-<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="mt-6 inline-flex justify-center bg-cyan-400 text-black font-black px-5 py-3 rounded-lg hover:bg-cyan-300 transition">
-CONTACT GNEX
-</a>
-</div>
-</div>
-</section>
 
 <!-- PRICE LIST -->
 <section id="price-list" class="bg-zinc-950/60 border-y border-zinc-900">
@@ -487,6 +613,31 @@ card.classList.add("animate-card");
 }, index * 120);
 });
 }, 400);
+}
+
+const promoSlides = Array.from(document.querySelectorAll(".promo-slide"));
+const promoDots = Array.from(document.querySelectorAll(".promo-dot"));
+const promoPositions = ["is-active", "is-right", "is-hidden", "is-left"];
+let promoIndex = 0;
+
+function setPromoSlide(nextIndex){
+promoIndex = (nextIndex + promoSlides.length) % promoSlides.length;
+
+promoSlides.forEach((slide,index) => {
+slide.classList.remove(...promoPositions);
+const offset = (index - promoIndex + promoSlides.length) % promoSlides.length;
+slide.classList.add(promoPositions[offset] || "is-hidden");
+});
+
+promoDots.forEach((dot,index) => {
+dot.classList.toggle("is-active", index === promoIndex);
+});
+}
+
+if(promoSlides.length){
+setInterval(() => {
+setPromoSlide(promoIndex + 1);
+}, 4500);
 }
 </script>
 
