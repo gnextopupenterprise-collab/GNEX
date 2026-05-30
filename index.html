@@ -69,8 +69,8 @@ transform:scale(1.08);
 
 .promo-carousel{
 position:relative;
-height:220px;
-max-width:780px;
+width:min(100%, 680px);
+aspect-ratio:16 / 9;
 overflow:hidden;
 }
 
@@ -78,7 +78,7 @@ overflow:hidden;
 position:absolute;
 top:50%;
 left:50%;
-width: min(100%, 960px);
+width:100%;
 aspect-ratio: 16 / 9;
 overflow:hidden;
 border-radius:14px;
@@ -151,13 +151,109 @@ width:22px;
 background:#22d3ee;
 }
 
+.electric-card{
+isolation:isolate;
+}
+
+.electric-card::before{
+content:"";
+position:absolute;
+inset:0;
+z-index:20;
+padding:1px;
+border-radius:inherit;
+pointer-events:none;
+background:
+linear-gradient(110deg, transparent 0 18%, rgba(34,211,238,.95) 28%, rgba(255,255,255,.9) 34%, rgba(34,211,238,.65) 42%, transparent 54%),
+linear-gradient(90deg, rgba(34,211,238,.55), rgba(56,189,248,.08), rgba(34,211,238,.75));
+background-size:220% 100%, 100% 100%;
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
+animation:electricBorder 2.2s linear infinite;
+box-shadow:0 0 18px rgba(34,211,238,.35);
+}
+
+.electric-card::after{
+content:"";
+position:absolute;
+inset:-1px;
+z-index:1;
+border-radius:inherit;
+pointer-events:none;
+opacity:.55;
+background:
+radial-gradient(circle at 18% 0%, rgba(34,211,238,.16), transparent 32%),
+radial-gradient(circle at 86% 100%, rgba(34,211,238,.12), transparent 34%);
+}
+
+.tournament-logo-stack{
+position:absolute;
+right:16px;
+top:16px;
+z-index:12;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.tournament-logo-stack img{
+--logo-scale:1;
+width:32px;
+height:32px;
+object-fit:contain;
+object-position:center;
+transform:scale(var(--logo-scale));
+transition:transform .35s ease, filter .35s ease;
+}
+
+.tournament-logo-stack .cs-logo{
+--logo-scale:.74;
+}
+
+.tournament-logo-stack .gtml-logo{
+--logo-scale:1.18;
+}
+
+.group:hover .tournament-logo-stack img{
+transform:translateY(-2px) scale(calc(var(--logo-scale) * 1.06));
+
+}
+
+@keyframes electricBorder{
+0%{
+background-position:220% 0, 0 0;
+filter:hue-rotate(0deg);
+}
+
+100%{
+background-position:-80% 0, 0 0;
+filter:hue-rotate(18deg);
+}
+}
+
+@media (min-width:768px){
+.tournament-logo-stack{
+top:auto;
+right:16px;
+bottom:16px;
+gap:9px;
+}
+
+.tournament-logo-stack img{
+width:30px;
+height:30px;
+}
+}
+
 @media (max-width:640px){
 .promo-carousel{
-height:165px;
+width:min(100%, 250px);
+height:auto;
 }
 
 .promo-slide{
-width:250px;
+width:100%;
 }
 
 .promo-slide.is-left{
@@ -170,6 +266,17 @@ transform:translate(calc(-50% + 150px), -50%) scale(.72) rotate(5deg);
 
 .promo-slide.is-hidden{
 transform:translate(calc(-50% + 280px), -50%) scale(.56) rotate(8deg);
+}
+
+.tournament-logo-stack{
+right:12px;
+top:12px;
+gap:6px;
+}
+
+.tournament-logo-stack img{
+width:44px;
+height:44px;
 }
 }
 
@@ -303,7 +410,7 @@ WHATSAPP
 <!-- HERO -->
 <header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-24 md:pt-24">
 <video class="hero-video" autoplay muted loop playsinline>
-<source src="videos/a95becc139495c5a04610afbdfb797c6.mp4" type="video/mp4">
+<source src="videos/a95becc139495c5a04610afbdfb797c6.mp" type="video/mp4">
 </video>
 <div class="hero-red-motion"></div>
 <div class="absolute inset-0 bg-black/55"></div>
@@ -313,11 +420,11 @@ WHATSAPP
 <div class="relative">
 <div id="promoCarousel" class="promo-carousel mx-auto">
 <button type="button" class="promo-slide is-active" onclick="setPromoSlide(0)" aria-label="Promo 1">
-  <img class="promo-slide-image" src="image-iklan/67e78d55-c12c-445f-8060-a9e38ea99224.jpeg" alt="Iklan GNEX Topup">
+  <img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
 <div class="promo-slide-inner text-left">
 <div>
-<p class="text-cyan-300 text-xs font-black tracking-[0.24em]">test</p>
-<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none">GNEX UPDATE</h2>
+<p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
 </div>
 <p class="text-zinc-300 text-sm"></p>
 </div>
@@ -335,7 +442,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-hidden" onclick="setPromoSlide(2)" aria-label="Promo 3">
-<img class="promo-slide-image" src="image-iklan/67e78d55-c12c-445f-8060-a9e38ea99224.jpeg" alt="Iklan GNEX Topup"> 
+<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup"> 
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
@@ -349,7 +456,7 @@ WHATSAPP
 <img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
 <div class="promo-slide-inner text-left">
 <div>
-<p class="text-amber-200 text-xs font-black tracking-[0.24em]">PROMO 04</p>
+<p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
 <h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
 </div>
 <p class="text-zinc-300 text-sm">Test</p>
@@ -366,10 +473,15 @@ WHATSAPP
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
-<a href="tournament.html" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
+<a href="tournament.html" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-30 bg-[url('images/BG-GUSION.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
+<div class="tournament-logo-stack" aria-hidden="true">
+<img class="cs-logo" src="images/King Elite CS Logo Metalic.png" alt="">
+<img src="images/gnexlaga.png" alt="">
+<img class="gtml-logo" src="images/gtmllogo.png" alt="">
+</div>
 <div class="relative z-10 h-full flex flex-col justify-between">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.22em]">01</p>
@@ -380,7 +492,7 @@ hover:-translate-y-1 hover:border-cyan-300 transition">
 </div>
 </a>
 
-<a href="#price-list" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
+<a href="#price-list" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-30 bg-[url('images/ml-wallpaper.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
@@ -394,7 +506,7 @@ hover:-translate-y-1 hover:border-cyan-300 transition">
 </div>
 </a>
 
-<a href="jersey.html" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
+<a href="jersey.html" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/15"></div>
@@ -408,7 +520,7 @@ hover:-translate-y-1 hover:border-cyan-300 transition">
 </div>
 </a>
 
-<a href="#payment" class="group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-amber-300/50 bg-zinc-950 p-4 md:p-5 
+<a href="#payment" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-amber-300/50 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-amber-200 transition">
 <div class="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-black to-cyan-500/10"></div>
 <img src="images/gnex-esport-gold.png" alt="GNEX Esport logo" class="absolute right-[-22px] top-1/2 h-[110px] w-auto -translate-y-1/2 opacity-65 md:top-auto md:right-[-36px] md:bottom-[-34px] md:h-[190px] md:translate-y-0 md:opacity-75 
