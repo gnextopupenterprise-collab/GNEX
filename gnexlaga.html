@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GNEX Laga CS</title>
+<link rel="icon" href="images/gnex-home-192.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+html{scroll-behavior:smooth}
+body{
+margin:0;
+background:#02040a;
+color:#fff;
+font-family:Arial,Helvetica,sans-serif;
+}
+.hero-bg{
+position:relative;
+overflow:hidden;
+background:
+linear-gradient(90deg,rgba(0,0,0,.88),rgba(3,10,22,.72),rgba(0,0,0,.88)),
+linear-gradient(135deg,rgba(0,213,255,.18),rgba(255,190,55,.08),rgba(0,0,0,.65)),
+url("images/ff-wallpaper.jpg");
+background-size:cover;
+background-position:center;
+}
+.hero-bg::before{
+content:"";
+position:absolute;
+inset:-30%;
+background:
+radial-gradient(circle at 48% 42%,rgba(0,225,255,.20),transparent 25%),
+radial-gradient(circle at 76% 38%,rgba(255,201,64,.13),transparent 20%);
+filter:blur(28px);
+opacity:.9;
+pointer-events:none;
+}
+.hero-bg::after{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.78) 100%);
+pointer-events:none;
+}
+.nav-shell{
+background:rgba(0,0,0,.86);
+backdrop-filter:blur(18px);
+}
+.panel{
+background:linear-gradient(145deg,rgba(14,18,30,.92),rgba(0,0,0,.88));
+border:1px solid rgba(39,213,240,.28);
+box-shadow:0 0 0 1px rgba(255,255,255,.03),0 18px 60px rgba(0,0,0,.45);
+}
+.laga-logo-wrap{
+position:relative;
+display:grid;
+place-items:center;
+min-height:290px;
+}
+.laga-logo-wrap::before{
+content:"";
+position:absolute;
+width:78%;
+aspect-ratio:1;
+border-radius:50%;
+background:radial-gradient(circle,rgba(0,232,255,.35),rgba(255,198,57,.22) 34%,transparent 68%);
+filter:blur(18px);
+animation:logoPulse 3s ease-in-out infinite;
+}
+.laga-logo-wrap img{
+position:relative;
+width:min(82%,360px);
+filter:drop-shadow(0 0 28px rgba(0,232,255,.28)) drop-shadow(0 22px 35px rgba(0,0,0,.75));
+}
+@keyframes logoPulse{
+0%,100%{transform:scale(.95);opacity:.58}
+50%{transform:scale(1.05);opacity:1}
+}
+.info-card{
+position:relative;
+overflow:hidden;
+background:#030506;
+border:1px solid rgba(63,63,70,.75);
+transition:.22s ease;
+}
+.info-card:hover{
+border-color:#22d3ee;
+transform:translateY(-2px);
+background:rgba(8,31,38,.72);
+}
+.electric-card{
+position:relative;
+overflow:hidden;
+border:1px solid rgba(34,211,238,.45);
+}
+.electric-card::before{
+content:"";
+position:absolute;
+inset:-2px;
+background:linear-gradient(90deg,transparent,#22d3ee,transparent,#facc15,transparent);
+transform:translateX(-105%);
+opacity:.72;
+animation:electricSweep 3.5s linear infinite;
+}
+.electric-card>*{position:relative;z-index:1}
+@keyframes electricSweep{
+0%{transform:translateX(-105%)}
+55%,100%{transform:translateX(105%)}
+}
+.stat-box{
+background:rgba(0,0,0,.72);
+border:1px solid rgba(63,63,70,.75);
+}
+.match-logo{
+width:58px;
+height:58px;
+border-radius:999px;
+object-fit:contain;
+background:rgba(0,18,26,.76);
+border:1px solid rgba(34,211,238,.5);
+padding:8px;
+}
+.rule-card{
+background:linear-gradient(145deg,rgba(10,14,23,.92),rgba(0,0,0,.92));
+border:1px solid rgba(63,63,70,.72);
+}
+.schedule-card{
+background:linear-gradient(145deg,rgba(8,13,24,.96),rgba(0,0,0,.92));
+border:1px solid rgba(34,211,238,.35);
+box-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+.match-row{
+display:grid;
+grid-template-columns:86px 1fr auto 1fr;
+gap:12px;
+align-items:center;
+background:rgba(0,0,0,.58);
+border:1px solid rgba(63,63,70,.72);
+border-radius:10px;
+padding:14px;
+}
+.match-row+.match-row{margin-top:10px}
+.team-name{font-weight:900;line-height:1.15}
+.vs-mark{color:#22d3ee;font-weight:900;letter-spacing:.12em}
+.data-pill{
+display:inline-flex;
+align-items:center;
+gap:8px;
+border:1px solid rgba(34,211,238,.35);
+border-radius:999px;
+padding:6px 10px;
+background:rgba(0,0,0,.55);
+font-size:12px;
+font-weight:900;
+color:#a5f3fc;
+}
+.form-input{
+width:100%;
+border:1px solid rgba(63,63,70,.85);
+background:rgba(0,0,0,.72);
+border-radius:10px;
+padding:14px 16px;
+font-weight:800;
+outline:none;
+transition:.18s ease;
+}
+.form-input:focus{
+border-color:#22d3ee;
+box-shadow:0 0 0 3px rgba(34,211,238,.12);
+}
+.payment-card{
+background:linear-gradient(145deg,rgba(7,12,24,.96),rgba(0,0,0,.92));
+border:1px solid rgba(34,211,238,.38);
+}
+.qr-box{
+background:#fff;
+border-radius:14px;
+padding:10px;
+}
+.qr-box img{
+width:100%;
+max-height:430px;
+object-fit:contain;
+display:block;
+}
+@media(max-width:768px){
+.laga-logo-wrap{min-height:180px}
+.laga-logo-wrap img{width:210px}
+.match-row{grid-template-columns:1fr;text-align:left}
+.vs-mark{letter-spacing:.2em}
+}
+</style>
+</head>
+<body>
+<nav class="nav-shell sticky top-0 z-50 border-b border-zinc-800">
+<div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+<a href="index.html" class="flex items-center gap-3">
+<img src="images/logo baru gnex .png" alt="GNEX" class="w-12 h-12 rounded-full border border-cyan-400 object-cover shadow-[0_0_20px_rgba(34,211,238,.35)]">
+<div>
+<p class="text-cyan-400 text-2xl font-black leading-none">GNEX</p>
+<p class="text-zinc-500 text-xs tracking-wide mt-1">TOURNAMENT</p>
+</div>
+</a>
+<div class="hidden md:flex items-center gap-3">
+<a href="index.html" class="px-7 py-3 rounded-lg border border-zinc-700 hover:border-cyan-400 text-sm font-bold">HOME</a>
+<a href="tournament.html" class="px-7 py-3 rounded-lg border border-zinc-700 hover:border-cyan-400 text-sm font-bold">TOURNAMENT</a>
+<button onclick="scrollToPanel('rules')" class="px-7 py-3 rounded-lg border border-zinc-700 hover:border-cyan-400 text-sm font-bold">RULES</button>
+<button onclick="scrollToPanel('join')" class="px-7 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
+</div>
+<button onclick="scrollToPanel('join')" class="md:hidden px-5 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
+</div>
+</nav>
+
+<header id="top" class="hero-bg border-b border-zinc-900">
+<div class="relative z-10 max-w-7xl mx-auto px-6 py-14 md:py-20">
+<div class="grid lg:grid-cols-[1.05fr_.9fr_.86fr] gap-8 items-center">
+<div>
+<p class="text-cyan-400 font-black tracking-[0.38em] text-xs">FREE FIRE CLASH SQUAD</p>
+<h1 class="mt-5 text-5xl md:text-7xl font-black leading-[.92]">
+GNEX LAGA<br><span class="text-cyan-400">CS</span>
+</h1>
+<p class="mt-6 text-zinc-200 max-w-xl leading-7">
+GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh ditempah terus melalui admin.
+</p>
+<div class="mt-8 flex flex-col sm:flex-row gap-3">
+<button type="button" onclick="scrollToPanel('register')" class="text-center rounded-lg bg-cyan-400 text-black px-8 py-4 font-black shadow-[0_0_22px_rgba(34,211,238,.35)]">TEMPAH SLOT</button>
+<a href="https://tinyurl.com/433s3dmt" target="_blank" rel="noopener" class="text-center rounded-lg border border-zinc-600 px-8 py-4 font-black hover:border-cyan-400">JOIN GROUP</a>
+</div>
+</div>
+
+<div class="laga-logo-wrap">
+<img src="images/gnexlaga.png" alt="GNEX Laga logo">
+</div>
+
+<div class="space-y-4">
+<div class="panel rounded-lg p-5">
+<div class="flex items-center justify-between gap-4">
+<p class="text-zinc-400 text-xs font-black tracking-[.22em]">STATUS</p>
+<span class="rounded-full bg-green-500/20 border border-green-400/40 text-green-300 text-xs px-3 py-1 font-black">OPEN</span>
+</div>
+<div class="mt-5 grid grid-cols-2 gap-3">
+<div>
+<p class="text-zinc-400 text-xs font-black tracking-[.18em]">PAY</p>
+<p class="text-4xl font-black text-amber-300 mt-2">RM6</p>
+</div>
+<div class="stat-box rounded-lg p-4">
+<p class="text-zinc-500 text-xs font-black">MODE</p>
+<p class="text-white font-black mt-2">Squad</p>
+</div>
+<div class="stat-box rounded-lg p-4">
+<p class="text-zinc-500 text-xs font-black">LIVE CASUAL</p>
+<p class="text-white font-black mt-2">@gnex_a7</p>
+</div>
+<div class="stat-box rounded-lg p-4">
+<p class="text-zinc-500 text-xs font-black">GAME</p>
+<p class="text-white font-black mt-2">Free Fire</p>
+</div>
+</div>
+</div>
+
+<div class="panel rounded-lg p-5">
+<div class="flex items-center justify-between">
+<p class="text-zinc-400 text-xs font-black tracking-[.22em]">NEXT MATCH</p>
+<span id="nextMatchBadge" class="rounded-full border border-amber-400/50 text-amber-300 text-[10px] px-3 py-1 font-black">LOADING</span>
+</div>
+<div class="mt-5 flex items-center justify-between gap-4 text-center">
+<div>
+<img src="images/gnexlaga.png" alt="" class="match-logo mx-auto">
+<p id="nextTeamA" class="mt-2 text-sm font-black">TBD</p>
+</div>
+<div>
+<p class="text-cyan-400 text-4xl font-black">VS</p>
+<p id="nextMatchMeta" class="text-zinc-500 text-xs mt-1">Schedule loading</p>
+</div>
+<div>
+<img src="images/gnexlaga.png" alt="" class="match-logo mx-auto">
+<p id="nextTeamB" class="mt-2 text-sm font-black">TBD</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="mt-8 grid sm:grid-cols-3 gap-3">
+<button type="button" onclick="scrollToPanel('schedule')" class="info-card rounded-lg p-5 text-left">
+<p class="text-cyan-400 text-xs font-black">01</p>
+<p class="text-2xl font-black mt-3">JADUAL</p>
+<p class="text-zinc-500 text-sm mt-1">Tarikh dan match.</p>
+</button>
+<button type="button" onclick="scrollToPanel('rules')" class="info-card rounded-lg p-5 text-left">
+<p class="text-cyan-400 text-xs font-black">02</p>
+<p class="text-2xl font-black mt-3">RULES</p>
+<p class="text-zinc-500 text-sm mt-1">Peraturan tournament.</p>
+</button>
+<button type="button" onclick="scrollToPanel('join')" class="info-card rounded-lg p-5 text-left">
+<p class="text-cyan-400 text-xs font-black">03</p>
+<p class="text-2xl font-black text-amber-300 mt-3">ADMIN</p>
+<p class="text-zinc-500 text-sm mt-1">Contact untuk daftar.</p>
+</button>
+</div>
+
+<div class="mt-4 grid sm:grid-cols-3 gap-3">
+<a href="#" class="electric-card rounded-lg p-5 bg-black/80">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">COMING SOON</p>
+<p class="text-xl font-black mt-2">NEXT SEASON</p>
+</a>
+<a href="#" class="electric-card rounded-lg p-5 bg-black/80">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">COMING SOON</p>
+<p class="text-xl font-black mt-2">HISTORY SEASON</p>
+</a>
+<a href="#" class="electric-card rounded-lg p-5 bg-black/80">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">OPEN</p>
+<p class="text-xl font-black mt-2">RANKING PLAYER</p>
+</a>
+</div>
+</div>
+</header>
+
+<main>
+<section id="schedule" class="border-y border-zinc-900 bg-black">
+<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[.24em] text-xs">MATCH FLOW</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">Schedule</h2>
+</div>
+<p id="scheduleSource" class="text-zinc-500 text-sm">Live Google Sheet schedule.</p>
+</div>
+<div id="scheduleList" class="grid lg:grid-cols-2 gap-4">
+<article class="schedule-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">LOADING</p>
+<h3 class="text-2xl font-black mt-2">Loading schedule...</h3>
+</article>
+</div>
+</div>
+</section>
+
+<section id="rules" class="border-b border-zinc-900 bg-zinc-950/70">
+<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[.24em] text-xs">RULEBOOK</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">GNEX Laga Rules</h2>
+</div>
+<p class="text-zinc-500 text-sm">Rules boleh update nanti ikut format tournament.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-4">
+<article class="rule-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black">01</p>
+<h3 class="text-2xl font-black mt-3">Player Rules</h3>
+<p class="text-zinc-400 leading-7 mt-5">Player wajib ikut arahan admin, hadir ikut masa dan guna account sendiri.</p>
+</article>
+<article class="rule-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black">02</p>
+<h3 class="text-2xl font-black mt-3">Match Rules</h3>
+<p class="text-zinc-400 leading-7 mt-5">Format, round dan larangan akan update bila info rasmi siap.</p>
+</article>
+<article class="rule-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black">03</p>
+<h3 class="text-2xl font-black mt-3">Room Rules</h3>
+<p class="text-zinc-400 leading-7 mt-5">Room detail dan waktu check-in akan dipaparkan sebelum match bermula.</p>
+</article>
+</div>
+</div>
+</section>
+
+<!-- 
+<section id="register" class="border-b border-zinc-900 bg-zinc-950/70">
+<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[.24em] text-xs">REGISTRATION</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">Tempah Slot</h2>
+</div>
+<p class="text-zinc-500 text-sm max-w-xl">Isi form, upload screenshot payment, kemudian admin akan confirm slot selepas semakan.</p>
+</div>
+
+<div class="grid lg:grid-cols-[.9fr_1.1fr] gap-5 items-start">
+<div class="payment-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">PAYMENT QR</p>
+<h3 class="text-2xl font-black mt-2">Scan untuk bayar RM6</h3>
+<p class="text-zinc-400 text-sm leading-6 mt-2">Lepas bayar, upload screenshot payment dekat form sebelah.</p>
+<div class="qr-box mt-5">
+<img src="images/qr-man.png" alt="QR payment GNEX Laga">
+</div>
+</div>
+
+<form id="lagaRegisterForm" class="panel rounded-lg p-5 md:p-6 space-y-4" enctype="multipart/form-data">
+<div>
+<label for="wakil" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">WAKIL / NO TELEFON</label>
+<input id="wakil" name="wakil" class="form-input" type="tel" placeholder="Contoh: 0199404591" required>
+</div>
+<div>
+<label for="teamName" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">TEAM NAME</label>
+<input id="teamName" name="team_name" class="form-input" type="text" placeholder="Contoh: NEO VORTEX" required>
+</div>
+<div>
+<label for="paymentProof" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">SCREENSHOT PAYMENT</label>
+<input id="paymentProof" name="payment_proof" class="form-input" type="file" accept="image/*" required>
+<p class="text-zinc-500 text-xs mt-2">Upload gambar resit/payment. Data akan masuk Sheet bahagian Pembayaran.</p>
+</div>
+<button id="registerSubmitBtn" type="submit" class="w-full rounded-lg bg-cyan-400 text-black px-8 py-4 font-black shadow-[0_0_22px_rgba(34,211,238,.25)]">SUBMIT PENDAFTARAN</button>
+<p id="registerStatus" class="text-sm text-zinc-400 leading-6"></p>
+</form>
+</div>
+</div>
+</section>
+-->
+
+
+<section id="join" class="max-w-7xl mx-auto px-6 py-12">
+<div class="rounded-lg border border-cyan-400/50 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
+<div>
+<p class="text-3xl md:text-4xl font-black">Ready to join?</p>
+<p class="mt-2 text-black/70 font-bold">Tempah slot dengan admin atau masuk group GNEX Laga CS.</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+<button type="button" onclick="scrollToPanel('register')" class="rounded-lg bg-black text-cyan-300 px-8 py-4 text-center font-black">TEMPAH SLOT</button>
+<a href="https://tinyurl.com/433s3dmt" target="_blank" rel="noopener" class="rounded-lg bg-black/80 text-cyan-300 px-8 py-4 text-center font-black">JOIN GROUP</a>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="border-t border-zinc-900 py-8 text-center text-zinc-500 text-sm">
+(c) 2026 GNEX TOURNAMENT / GNEX Laga CS
+</footer>
+
+<script>
+function scrollToPanel(id){
+const target=document.getElementById(id);
+if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+const LAGA_DATABASE={
+schedule:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=0&single=true&output=csv"
+};
+
+const LAGA_REGISTER_ENDPOINT="https://script.google.com/macros/s/AKfycbyFY7l08BITAqsMfwNgyTsmVJjGKOM3zFHWIxqb4vDvQc6EzWtKGsMBqM3XT3shFe2z/exec";
+
+const fallbackSchedule=[
+{date:"Wednesday, June 3, 2026",time:"9:00:00 PM",team1:"NEO VORTEX",team2:"VILLAIN VVIP"},
+{date:"Wednesday, June 3, 2026",time:"10:00:00 PM",team1:"SICK",team2:"SHINOBI"},
+{date:"Wednesday, June 3, 2026",time:"11:00:00 PM",team1:"CIRCLE PRIME",team2:"KINDERJOY"}
+];
+
+function parseCsv(text){
+const rows=[];
+let row=[],cell="",quote=false;
+for(let i=0;i<text.length;i++){
+const char=text[i];
+const next=text[i+1];
+if(char==='"'&&quote&&next==='"'){cell+='"';i++;continue}
+if(char==='"'){quote=!quote;continue}
+if(char===","&&!quote){row.push(cell);cell="";continue}
+if((char==="\n"||char==="\r")&&!quote){
+if(char==="\r"&&next==="\n") i++;
+row.push(cell);
+if(row.some(value=>value.trim())) rows.push(row);
+row=[];cell="";
+continue;
+}
+cell+=char;
+}
+row.push(cell);
+if(row.some(value=>value.trim())) rows.push(row);
+return rows;
+}
+
+function rowsToSchedule(rows){
+if(rows.length<2) return [];
+const headers=rows[0].map(header=>header.trim().toLowerCase());
+const index=(names)=>names.map(name=>headers.indexOf(name)).find(i=>i>=0);
+const dateIndex=index(["date","tarikh"]);
+const timeIndex=index(["time","masa"]);
+const teamAIndex=index(["team 1","team1","team a"]);
+const teamBIndex=index(["team 2","team2","team b"]);
+return rows.slice(1).map(row=>({
+date:(row[dateIndex]||"").trim(),
+time:(row[timeIndex]||"").trim(),
+team1:(row[teamAIndex]||"TBD").trim()||"TBD",
+team2:(row[teamBIndex]||"TBD").trim()||"TBD"
+})).filter(match=>match.date&&match.time);
+}
+
+function matchDate(match){
+return new Date(`${match.date} ${match.time}`);
+}
+
+function formatDateTitle(dateText){
+const date=new Date(dateText);
+if(Number.isNaN(date.getTime())) return dateText.toUpperCase();
+return date.toLocaleDateString("en-MY",{day:"numeric",month:"long",year:"numeric",weekday:"long"}).toUpperCase();
+}
+
+function formatTime(timeText){
+const date=new Date(`January 1, 2026 ${timeText}`);
+if(Number.isNaN(date.getTime())) return timeText;
+return date.toLocaleTimeString("en-MY",{hour:"numeric",minute:"2-digit",hour12:true}).toUpperCase();
+}
+
+function groupSchedule(matches){
+return matches.reduce((groups,match)=>{
+const key=new Date(match.date).toDateString();
+if(!groups[key]) groups[key]={date:match.date,matches:[]};
+groups[key].matches.push(match);
+return groups;
+},{});
+}
+
+function renderSchedule(matches){
+const list=document.getElementById("scheduleList");
+if(!list) return;
+const sorted=[...matches].sort((a,b)=>matchDate(a)-matchDate(b));
+const groups=Object.values(groupSchedule(sorted));
+list.innerHTML=groups.map((group,groupIndex)=>`
+<article class="schedule-card rounded-lg p-5">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+<div>
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">GNEX LAGA CS 2026</p>
+<h3 class="text-2xl font-black mt-2">${formatDateTitle(group.date)}</h3>
+</div>
+<span class="data-pill">${group.matches.length} MATCH</span>
+</div>
+${group.matches.map((match,index)=>`
+<div class="match-row">
+<p class="text-amber-300 text-sm font-black">${formatTime(match.time)}</p>
+<p class="team-name">${match.team1}</p>
+<p class="vs-mark">VS</p>
+<p class="team-name text-right md:text-left">${match.team2}</p>
+</div>
+`).join("")}
+</article>
+`).join("");
+}
+
+function updateNextMatch(matches){
+const now=new Date();
+const sorted=[...matches].sort((a,b)=>matchDate(a)-matchDate(b));
+const next=sorted.find(match=>matchDate(match)>=now)||sorted[sorted.length-1];
+if(!next) return;
+document.getElementById("nextTeamA").textContent=next.team1;
+document.getElementById("nextTeamB").textContent=next.team2;
+document.getElementById("nextMatchMeta").textContent=`${formatDateTitle(next.date)} / ${formatTime(next.time)}`;
+document.getElementById("nextMatchBadge").textContent=matchDate(next)<=now?"LATEST":"NEXT MATCH";
+}
+
+async function loadSchedule(){
+let matches=fallbackSchedule;
+try{
+const response=await fetch(LAGA_DATABASE.schedule);
+if(!response.ok) throw new Error("Schedule fetch failed");
+const rows=parseCsv(await response.text());
+const sheetMatches=rowsToSchedule(rows);
+if(sheetMatches.length) matches=sheetMatches;
+document.getElementById("scheduleSource").textContent="Live Google Sheet schedule connected.";
+}catch(error){
+document.getElementById("scheduleSource").textContent="Fallback schedule digunakan. Publish/share Sheet untuk live update.";
+}
+renderSchedule(matches);
+updateNextMatch(matches);
+}
+
+loadSchedule();
+
+const registerForm=document.getElementById("lagaRegisterForm");
+const registerStatus=document.getElementById("registerStatus");
+const registerSubmitBtn=document.getElementById("registerSubmitBtn");
+
+if(registerForm){
+registerForm.addEventListener("submit",async(event)=>{
+event.preventDefault();
+if(LAGA_REGISTER_ENDPOINT.includes("PASTE_APPS_SCRIPT")){
+registerStatus.textContent="Apps Script URL belum dimasukkan. Deploy Apps Script dulu, kemudian paste URL dekat LAGA_REGISTER_ENDPOINT.";
+return;
+}
+registerSubmitBtn.disabled=true;
+registerSubmitBtn.textContent="SUBMITTING...";
+registerStatus.textContent="Sedang hantar pendaftaran...";
+try{
+const file=document.getElementById("paymentProof").files[0];
+const payment=await fileToBase64(file);
+const payload={
+wakil:document.getElementById("wakil").value.trim(),
+team_name:document.getElementById("teamName").value.trim(),
+payment_proof:payment
+};
+await fetch(LAGA_REGISTER_ENDPOINT,{method:"POST",body:JSON.stringify(payload),mode:"no-cors"});
+registerForm.reset();
+registerStatus.textContent="Pendaftaran dihantar. Admin akan semak payment dan confirm slot.";
+}catch(error){
+registerStatus.textContent="Tak dapat hantar pendaftaran. Cuba semula atau contact admin.";
+}finally{
+registerSubmitBtn.disabled=false;
+registerSubmitBtn.textContent="SUBMIT PENDAFTARAN";
+}
+});
+}
+
+function fileToBase64(file){
+return new Promise((resolve,reject)=>{
+if(!file){resolve(null);return}
+const reader=new FileReader();
+reader.onload=()=>resolve({
+name:file.name,
+type:file.type||"image/png",
+data:String(reader.result).split(",")[1]||""
+});
+reader.onerror=reject;
+reader.readAsDataURL(file);
+});
+}
+</script>
+</body>
+</html>
