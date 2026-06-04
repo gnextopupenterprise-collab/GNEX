@@ -106,23 +106,23 @@ function renderRankingTable(){
   rankingTable.innerHTML = data.map((item, index) => {
     return `
       <tr class="border-b border-zinc-800 hover:bg-cyan-400/5 transition">
-        <td class="p-3 text-amber-300 font-black">
+        <td class="p-2 md:p-3 text-amber-300 font-black text-[10px] md:text-sm">
           ${index + 1}
         </td>
 
-        <td class="p-3 font-bold">
+        <td class="p-2 md:p-3 font-bold text-[10px] md:text-sm break-words">
           ${maskCustomerNumber(item.number)}
         </td>
 
-        <td class="p-3 font-bold">
+        <td class="p-2 md:p-3 font-bold text-[10px] md:text-sm break-words">
           ${maskGameId(item.id)}
         </td>
 
-        <td class="p-3 text-cyan-300 font-black">
+        <td class="p-2 md:p-3 text-cyan-300 font-black text-[10px] md:text-sm break-words">
           ${formatRM(item.rm)}
         </td>
 
-        <td class="p-3 font-black">
+        <td class="p-2 md:p-3 font-black text-[10px] md:text-sm">
           ${item.repeat}
         </td>
       </tr>
