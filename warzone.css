@@ -1,0 +1,32 @@
+body{
+    background-color: rgb(102, 102, 102);
+}
+
+.navbar{
+    background-color: blue;
+}
+
+.img-logo-nav {
+    background-color: aliceblue;
+    height: 100px;
+}
+
+.img-logo-nav img {
+    width:200px ;
+    height:100%;
+}
+
+.container-navbar {
+    display: flex;
+}
+
+.container-navbar ul {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+    
+}
+
+.container-navbar button {
+    width:300px ;
+}
