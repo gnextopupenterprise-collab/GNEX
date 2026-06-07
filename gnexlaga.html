@@ -124,19 +124,19 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <button type="button" onclick="scrollToPanel('join')" class="info-card electric-action rounded-lg p-5 text-left">
 <p class="text-cyan-400 text-xs font-black">03</p>
 <p class="text-2xl font-black text-amber-300 mt-3">ADMIN</p>
-<p class="text-zinc-500 text-sm mt-1">Contact untuk daftar.</p>
+<p class="text-zinc-500 text-sm mt-1">GNEX A7</p>
 </button>
 </div>
 
 <div class="mt-4 grid sm:grid-cols-2 gap-3">
-<a href="#" class="electric-card rounded-lg p-5 bg-black/80">
-<p class="text-cyan-400 text-xs font-black tracking-[.22em]">COMING SOON</p>
+<button type="button" onclick="openPanel('tier')" class="electric-card rounded-lg p-5 bg-black/80 text-left">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">LIVE SHEET</p>
 <p class="text-xl font-black mt-2">TIER</p>
-</a>
-<a href="#" class="electric-card rounded-lg p-5 bg-black/80">
-<p class="text-cyan-400 text-xs font-black tracking-[.22em]">COMING SOON</p>
+</button>
+<button type="button" onclick="openPanel('history')" class="electric-card rounded-lg p-5 bg-black/80 text-left">
+<p class="text-cyan-400 text-xs font-black tracking-[.22em]">LIVE SHEET</p>
 <p class="text-xl font-black mt-2">HISTORY MATCH</p>
-</a>
+</button>
 </div>
 </div>
 </header>
@@ -174,23 +174,56 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <p class="text-cyan-400 font-black tracking-[.24em] text-xs">RULEBOOK</p>
 <h2 class="text-4xl md:text-5xl font-black mt-2">GNEX Laga Rules</h2>
 </div>
-<p class="text-zinc-500 text-sm">Rules boleh update nanti ikut format tournament.</p>
+<p class="text-zinc-500 text-sm">RULES LAGA</p>
 </div>
-<div class="grid md:grid-cols-3 gap-4">
+<div id="rulesList" class="grid md:grid-cols-3 gap-4">
 <article class="rule-card rounded-lg p-5">
 <p class="text-cyan-400 text-xs font-black">01</p>
-<h3 class="text-2xl font-black mt-3">Player Rules</h3>
-<p class="text-zinc-400 leading-7 mt-5">Player wajib ikut arahan admin, hadir ikut masa dan guna account sendiri.</p>
+<h3 class="text-2xl font-black mt-3">Loading rules...</h3>
+<p class="text-zinc-400 leading-7 mt-5">Live rules loading.</p>
 </article>
-<article class="rule-card rounded-lg p-5">
-<p class="text-cyan-400 text-xs font-black">02</p>
-<h3 class="text-2xl font-black mt-3">Match Rules</h3>
-<p class="text-zinc-400 leading-7 mt-5">Format, round dan larangan akan update bila info rasmi siap.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="tier" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('tier')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('tier')" aria-label="Close tier">X</button>
+<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[.24em] text-xs">TEAM POWER LIST</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">GNEX Laga Tier</h2>
+</div>
+<p id="tierSource" class="text-zinc-500 text-sm">Live Google Sheet tier.</p>
+</div>
+<div id="tierList" class="tier-grid">
+<article class="tier-card tier-s-plus">
+<p class="tier-label">TIER S+</p>
+<p class="text-zinc-500 text-sm mt-3">Loading tier...</p>
 </article>
-<article class="rule-card rounded-lg p-5">
-<p class="text-cyan-400 text-xs font-black">03</p>
-<h3 class="text-2xl font-black mt-3">Room Rules</h3>
-<p class="text-zinc-400 leading-7 mt-5">Room detail dan waktu check-in akan dipaparkan sebelum match bermula.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="history" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('history')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('history')" aria-label="Close history match">X</button>
+<div class="max-w-7xl mx-auto px-6 py-14">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-black tracking-[.24em] text-xs">RESULT ARCHIVE</p>
+<h2 class="text-4xl md:text-5xl font-black mt-2">History Match</h2>
+</div>
+<p id="historySource" class="text-zinc-500 text-sm">Live Google Sheet history.</p>
+</div>
+<div id="historyList" class="history-grid">
+<article class="history-card">
+<p class="text-zinc-500 text-sm font-bold">Loading history match...</p>
 </article>
 </div>
 </div>
@@ -278,7 +311,7 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 </footer>
 
 <script>
-const modalPanelIds=["schedule","rules","register"];
+const modalPanelIds=["schedule","rules","tier","history","register"];
 
 function openPanel(id){
 const target=document.getElementById(id);
@@ -326,7 +359,10 @@ modalPanelIds.forEach(closePanel);
 });
 
 const LAGA_DATABASE={
-schedule:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=0&single=true&output=csv"
+schedule:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=0&single=true&output=csv",
+tier:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=1601591013&single=true&output=csv",
+rules:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=1417866054&single=true&output=csv",
+history:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQgJls670amThlJJw1AK39YoR8tFogkTOv02Syt-fjbvT5syOVa_JO3zORDhdhn526PhRtdSVVJooRt/pub?gid=2100308072&single=true&output=csv"
 };
 
 const LAGA_REGISTER_ENDPOINT="https://script.google.com/macros/s/AKfycbyFY7l08BITAqsMfwNgyTsmVJjGKOM3zFHWIxqb4vDvQc6EzWtKGsMBqM3XT3shFe2z/exec";
@@ -336,6 +372,22 @@ const fallbackSchedule=[
 {date:"Wednesday, June 3, 2026",time:"10:00:00 PM",team1:"SICK",team2:"SHINOBI"},
 {date:"Wednesday, June 3, 2026",time:"11:00:00 PM",team1:"CIRCLE PRIME",team2:"KINDERJOY"}
 ];
+
+const fallbackTier={
+"Tier S+":["TEAM 1"],
+"Tier S":["TEAM 2","TEAM 3","TEAM 4","TEAM 5"],
+"Tier A":["TEAM 6","TEAM 7","TEAM 8","TEAM 9","TEAM 10"],
+"Tier B":["TEAM 11","TEAM 12","TEAM 13","TEAM 14","TEAM 15","TEAM 16"],
+"Tier C":["TEAM 17","TEAM 18","TEAM 19","TEAM 20","TEAM 21","TEAM 22","TEAM 23","TEAM 24"]
+};
+
+const fallbackRules=[
+{title:"Player Rules",description:"Player wajib ikut arahan admin, hadir ikut masa dan guna account sendiri."},
+{title:"Match Rules",description:"Format, round dan larangan akan update bila info rasmi siap."},
+{title:"Room Rules",description:"Room detail dan waktu check-in akan dipaparkan sebelum match bermula."}
+];
+
+const fallbackHistory=[];
 
 function parseCsv(text){
 const rows=[];
@@ -368,12 +420,46 @@ const dateIndex=index(["date","tarikh"]);
 const timeIndex=index(["time","masa"]);
 const teamAIndex=index(["team 1","team1","team a"]);
 const teamBIndex=index(["team 2","team2","team b"]);
+const teamALogoIndex=index(["team 1 logo link","team1 logo link","team a logo link","logo 1 link","logo1 link","team 1 logo","team1 logo"]);
+const teamBLogoIndex=index(["team 2 logo link","team2 logo link","team b logo link","logo 2 link","logo2 link","team 2 logo","team2 logo"]);
 return rows.slice(1).map(row=>({
 date:(row[dateIndex]||"").trim(),
 time:(row[timeIndex]||"").trim(),
 team1:(row[teamAIndex]||"TBD").trim()||"TBD",
-team2:(row[teamBIndex]||"TBD").trim()||"TBD"
+team2:(row[teamBIndex]||"TBD").trim()||"TBD",
+team1Logo:(row[teamALogoIndex]||"").trim(),
+team2Logo:(row[teamBLogoIndex]||"").trim()
 })).filter(match=>match.date&&match.time);
+}
+
+function rowsToTier(rows){
+if(rows.length<1) return {};
+const headers=rows[0].map(header=>header.trim()).filter(Boolean);
+return headers.reduce((tiers,header,columnIndex)=>{
+tiers[header]=rows.slice(1)
+.map(row=>(row[columnIndex]||"").trim())
+.filter(Boolean);
+return tiers;
+},{});
+}
+
+function rowsToRules(rows){
+return rows
+.map(row=>({
+title:String(row[0]||"").trim(),
+description:String(row[1]||"").trim()
+}))
+.filter(rule=>rule.title&&rule.description)
+.filter(rule=>rule.title!=="-"&&rule.description!=="-")
+.filter((rule,index)=>index>0||!["rule","rules","title","tajuk"].includes(rule.title.toLowerCase()));
+}
+
+function rowsToHistory(rows){
+return rows
+.map(row=>String(row[0]||"").trim())
+.filter(Boolean)
+.filter((link,index)=>index>0||!["link gambar","image","gambar","history match"].includes(link.toLowerCase()))
+.map(link=>({image:link}));
 }
 
 function matchDate(match){
@@ -390,6 +476,26 @@ function formatTime(timeText){
 const date=new Date(`January 1, 2026 ${timeText}`);
 if(Number.isNaN(date.getTime())) return timeText;
 return date.toLocaleTimeString("en-MY",{hour:"numeric",minute:"2-digit",hour12:true}).toUpperCase();
+}
+
+function logoSrc(src){
+const value=String(src||"").trim();
+if(!value) return "images/gnexlaga.png";
+const idMatch=value.match(/[?&]id=([^&]+)/)||value.match(/\/d\/([^/]+)/);
+if(idMatch&&idMatch[1]){
+return `https://drive.google.com/thumbnail?id=${encodeURIComponent(idMatch[1])}&sz=w256`;
+}
+return value;
+}
+
+function driveImageSrc(src,size){
+const value=String(src||"").trim();
+if(!value) return "";
+const idMatch=value.match(/[?&]id=([^&]+)/)||value.match(/\/d\/([^/]+)/);
+if(idMatch&&idMatch[1]){
+return `https://drive.google.com/thumbnail?id=${encodeURIComponent(idMatch[1])}&sz=w${size||1200}`;
+}
+return value;
 }
 
 function groupSchedule(matches){
@@ -416,11 +522,19 @@ list.innerHTML=groups.map((group,groupIndex)=>`
 <span class="data-pill">${group.matches.length} MATCH</span>
 </div>
 ${group.matches.map((match,index)=>`
-<div class="match-row">
-<p class="text-amber-300 text-sm font-black">${formatTime(match.time)}</p>
+<div class="schedule-match-card">
+<div class="schedule-team">
+<img src="${logoSrc(match.team1Logo)}" alt="${match.team1} logo" class="schedule-team-logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
 <p class="team-name">${match.team1}</p>
-<p class="vs-mark">VS</p>
-<p class="team-name text-right md:text-left">${match.team2}</p>
+</div>
+<div class="schedule-vs">
+<p class="text-cyan-400 text-4xl font-black">VS</p>
+<p class="text-amber-300 text-xs font-black mt-1">${formatTime(match.time)}</p>
+</div>
+<div class="schedule-team">
+<img src="${logoSrc(match.team2Logo)}" alt="${match.team2} logo" class="schedule-team-logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
+<p class="team-name">${match.team2}</p>
+</div>
 </div>
 `).join("")}
 </article>
@@ -438,15 +552,117 @@ document.getElementById("nextMatchMeta").textContent=`${formatDateTitle(next.dat
 document.getElementById("nextMatchBadge").textContent=matchDate(next)<=now?"LATEST":"NEXT MATCH";
 }
 
+function tierClassName(tierName){
+return "tier-"+tierName.toLowerCase().replace("+","plus").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+
+function renderTier(tiers){
+const list=document.getElementById("tierList");
+if(!list) return;
+const tierOrder=["Tier S+","Tier S","Tier A","Tier B","Tier C"];
+list.innerHTML=tierOrder.map(tierName=>{
+const teams=tiers[tierName]||[];
+return `
+<article class="tier-card ${tierClassName(tierName)}">
+<div class="flex items-center justify-between gap-3">
+<p class="tier-label">${tierName.toUpperCase()}</p>
+<span class="data-pill">${teams.length} TEAM</span>
+</div>
+<div class="tier-team-list">
+${teams.length?teams.map((team,index)=>`
+<div class="tier-team">
+<span>${String(index+1).padStart(2,"0")}</span>
+<p>${team}</p>
+</div>
+`).join(""):`<p class="tier-empty">Belum ada team.</p>`}
+</div>
+</article>
+`;
+}).join("");
+}
+
+function renderRules(rules){
+const list=document.getElementById("rulesList");
+if(!list) return;
+list.innerHTML=rules.map((rule,index)=>`
+<article class="rule-card rounded-lg p-5">
+<p class="text-cyan-400 text-xs font-black">${String(index+1).padStart(2,"0")}</p>
+<h3 class="text-2xl font-black mt-3">${rule.title}</h3>
+<p class="text-zinc-400 leading-7 mt-5">${rule.description}</p>
+</article>
+`).join("");
+}
+
+function renderHistory(historyItems){
+const list=document.getElementById("historyList");
+if(!list) return;
+if(!historyItems.length){
+list.innerHTML=`<article class="history-card"><p class="history-empty">Belum ada history match.</p></article>`;
+return;
+}
+list.innerHTML=historyItems.map((item,index)=>`
+<article class="history-card">
+<div class="history-image-wrap">
+<img src="${driveImageSrc(item.image,1200)}" alt="History match ${index+1}" class="history-image" onerror="this.closest('.history-card').classList.add('is-broken');">
+<p class="history-broken">Image tidak dapat dibuka.</p>
+</div>
+</article>
+`).join("");
+}
+
+async function loadHistory(){
+let historyItems=fallbackHistory;
+try{
+const response=await fetch(`${LAGA_DATABASE.history}&v=${Date.now()}`,{cache:"no-store"});
+if(!response.ok) throw new Error("History fetch failed");
+const rows=parseCsv(await response.text());
+const sheetHistory=rowsToHistory(rows);
+if(sheetHistory.length) historyItems=sheetHistory;
+document.getElementById("historySource").textContent="History LAGA";
+}catch(error){
+document.getElementById("historySource").textContent="Fallback history digunakan. Publish/share tab History match untuk live update.";
+}
+renderHistory(historyItems);
+}
+
+async function loadRules(){
+let rules=fallbackRules;
+try{
+const response=await fetch(`${LAGA_DATABASE.rules}&v=${Date.now()}`,{cache:"no-store"});
+if(!response.ok) throw new Error("Rules fetch failed");
+const rows=parseCsv(await response.text());
+const sheetRules=rowsToRules(rows);
+if(sheetRules.length) rules=sheetRules;
+}catch(error){
+rules=fallbackRules;
+}
+renderRules(rules);
+}
+
+async function loadTier(){
+let tiers=fallbackTier;
+try{
+const response=await fetch(`${LAGA_DATABASE.tier}&v=${Date.now()}`,{cache:"no-store"});
+if(!response.ok) throw new Error("Tier fetch failed");
+const rows=parseCsv(await response.text());
+const sheetTiers=rowsToTier(rows);
+if(Object.keys(sheetTiers).length) tiers={...fallbackTier,...sheetTiers};
+document.getElementById("tierSource").textContent="GNEX TIER";
+}catch(error){
+document.getElementById("tierSource").textContent="Fallback tier digunakan. Publish/share tab Tier untuk live update.";
+}
+renderTier(tiers);
+}
+
 async function loadSchedule(){
 let matches=fallbackSchedule;
 try{
-const response=await fetch(LAGA_DATABASE.schedule);
+const response=await fetch(`${LAGA_DATABASE.schedule}&v=${Date.now()}`,{cache:"no-store"});
 if(!response.ok) throw new Error("Schedule fetch failed");
 const rows=parseCsv(await response.text());
 const sheetMatches=rowsToSchedule(rows);
 if(sheetMatches.length) matches=sheetMatches;
-document.getElementById("scheduleSource").textContent="Live Google Sheet schedule connected.";
+document.getElementById("scheduleSource").textContent="GNEX LAGA";
 }catch(error){
 document.getElementById("scheduleSource").textContent="Fallback schedule digunakan. Publish/share Sheet untuk live update.";
 }
@@ -455,6 +671,9 @@ updateNextMatch(matches);
 }
 
 loadSchedule();
+loadRules();
+loadTier();
+loadHistory();
 
 const registerForm=document.getElementById("lagaRegisterForm");
 const registerStatus=document.getElementById("registerStatus");

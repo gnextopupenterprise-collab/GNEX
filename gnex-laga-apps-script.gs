@@ -1,8 +1,10 @@
 const REGISTRATION_SHEET_NAME = "Pendaftaran";
 const SCHEDULE_SHEET_NAME = "Sheet1";
 const PAYMENT_FOLDER_NAME = "GNEX LAGA PAYMENT SS";
-const SPREADSHEET_ID = "1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZTk0_wjZ9xA";
-const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZTk0_wjZ9xA/edit";
+const TEAM_LOGO_FOLDER_ID = "";
+const TEAM_LOGO_FOLDER_NAME = "GNEX LAGA";
+const SPREADSHEET_ID = "1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZYtk0_wjZ9xA";
+const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZYtk0_wjZ9xA/edit";
 const DEBUG_SHEET_NAME = "Debug";
 
 function doPost(e) {
@@ -119,10 +121,22 @@ function doGet() {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("GNEX Laga")
+    .addItem("Update Logo Links", "updateScheduleLogoLinks")
+    .addToUi();
+}
+
 function onEdit(e) {
   if (!e || !e.range) return;
 
   const editedSheet = e.range.getSheet();
+  if (isScheduleSheet_(editedSheet)) {
+    updateScheduleLogoLinksOnEdit_(e);
+    return;
+  }
+
   if (editedSheet.getName() !== REGISTRATION_SHEET_NAME) return;
   if (e.range.getRow() === 1) return;
 
@@ -136,9 +150,114 @@ function onEdit(e) {
   confirmSlotToSchedule_(editedSheet, e.range.getRow(), headers);
 }
 
+function updateScheduleLogoLinks() {
+  const ss = openSpreadsheet_();
+  const sheet = getScheduleSheet_(ss);
+  if (!sheet) throw new Error("Schedule sheet tidak jumpa.");
+
+  const config = getScheduleLogoColumnConfig_(sheet);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    SpreadsheetApp.getActive().toast("Schedule belum ada row untuk update logo.", "GNEX Laga", 5);
+    return;
+  }
+
+  let updated = 0;
+  for (let row = 2; row <= lastRow; row++) {
+    updated += updateScheduleLogoLinksForRow_(sheet, row, config);
+  }
+
+  SpreadsheetApp.getActive().toast(`Logo links updated untuk ${updated} cell.`, "GNEX Laga", 5);
+}
+
+function updateScheduleLogoLinksOnEdit_(e) {
+  if (e.range.getRow() === 1) return;
+
+  const sheet = e.range.getSheet();
+  const config = getScheduleLogoColumnConfig_(sheet);
+  const editedColumn = e.range.getColumn();
+  const logoNameColumns = [config.team1LogoNameCol, config.team2LogoNameCol].filter(Boolean);
+  if (!logoNameColumns.includes(editedColumn)) return;
+
+  const startRow = e.range.getRow();
+  const rowCount = e.range.getNumRows();
+  let updated = 0;
+  for (let offset = 0; offset < rowCount; offset++) {
+    updated += updateScheduleLogoLinksForRow_(sheet, startRow + offset, config);
+  }
+  if (updated) SpreadsheetApp.getActive().toast("Logo link jadual updated.", "GNEX Laga", 3);
+}
+
+function updateScheduleLogoLinksForRow_(sheet, row, config) {
+  const team1LogoName = getCellValue_(sheet, row, config.team1LogoNameCol);
+  const team2LogoName = getCellValue_(sheet, row, config.team2LogoNameCol);
+  const team1LogoLink = resolveTeamLogoUrl_(team1LogoName);
+  const team2LogoLink = resolveTeamLogoUrl_(team2LogoName);
+  let updated = 0;
+
+  if (config.team1LogoLinkCol) {
+    sheet.getRange(row, config.team1LogoLinkCol).setValue(team1LogoLink);
+    if (team1LogoLink) updated++;
+  }
+
+  if (config.team2LogoLinkCol) {
+    sheet.getRange(row, config.team2LogoLinkCol).setValue(team2LogoLink);
+    if (team2LogoLink) updated++;
+  }
+
+  return updated;
+}
+
+function getScheduleLogoColumnConfig_(sheet) {
+  const headers = getHeaders_(sheet);
+  return {
+    team1LogoNameCol: headers["team 1 logo filename"] || headers["team1 logo filename"] || headers["team a logo filename"] || headers["logo 1 filename"] || headers["logo1 filename"] || headers["team 1 logo file"] || headers["logo 1"] || headers["logo1"] || 5,
+    team2LogoNameCol: headers["team 2 logo filename"] || headers["team2 logo filename"] || headers["team b logo filename"] || headers["logo 2 filename"] || headers["logo2 filename"] || headers["team 2 logo file"] || headers["logo 2"] || headers["logo2"] || 6,
+    team1LogoLinkCol: headers["team 1 logo link"] || headers["team1 logo link"] || headers["team a logo link"] || headers["logo 1 link"] || headers["logo1 link"] || 7,
+    team2LogoLinkCol: headers["team 2 logo link"] || headers["team2 logo link"] || headers["team b logo link"] || headers["logo 2 link"] || headers["logo2 link"] || 8
+  };
+}
+
+function resolveTeamLogoUrl_(fileName) {
+  const name = String(fileName || "").trim();
+  if (!name) return "";
+
+  const folder = getTeamLogoFolder_();
+  if (!folder) throw new Error("Folder logo team tidak jumpa. Isi TEAM_LOGO_FOLDER_ID atau betulkan TEAM_LOGO_FOLDER_NAME.");
+
+  const files = folder.getFilesByName(name);
+  if (!files.hasNext()) return "";
+
+  const file = files.next();
+  try {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (error) {
+    executionLog_("logo:set-sharing-failed", { fileName: name, message: error.message });
+  }
+  return makeDriveImageUrl_(file.getId());
+}
+
+function getTeamLogoFolder_() {
+  if (TEAM_LOGO_FOLDER_ID) return DriveApp.getFolderById(TEAM_LOGO_FOLDER_ID);
+  const folders = DriveApp.getFoldersByName(TEAM_LOGO_FOLDER_NAME);
+  return folders.hasNext() ? folders.next() : null;
+}
+
+function makeDriveImageUrl_(fileId) {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w256`;
+}
+
+function getScheduleSheet_(ss) {
+  return ss.getSheetByName(SCHEDULE_SHEET_NAME) || ss.getSheetByName("JADUAL LAGA");
+}
+
+function isScheduleSheet_(sheet) {
+  return sheet.getName() === SCHEDULE_SHEET_NAME || sheet.getName() === "JADUAL LAGA";
+}
+
 function confirmSlotToSchedule_(registrationSheet, row, headers) {
   const ss = openSpreadsheet_();
-  const scheduleSheet = ss.getSheetByName(SCHEDULE_SHEET_NAME) || ss.getSheetByName("JADUAL LAGA");
+  const scheduleSheet = getScheduleSheet_(ss);
   if (!scheduleSheet) throw new Error("Schedule sheet tidak jumpa.");
 
   const teamName = getCellValue_(registrationSheet, row, headers["team name"]);
