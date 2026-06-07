@@ -1,6 +1,7 @@
 const CUSTOMER_SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTivUAgNTsrxtYk9_vkOSbk0b9ygF-5l0z0dUvQp0HMhsHYtM2H7_YwG9MeExUCfvrfMtdtgXIKXBBL/pub";
 const CUSTOMER_SHEET_GID = window.CUSTOMER_SHEET_GID || "2059103900";
 const CUSTOMER_SHEET_URL = `${CUSTOMER_SHEET_BASE_URL}?gid=${CUSTOMER_SHEET_GID}&single=true&output=csv`;
+const GAME_ID_VISIBLE_PREFIX = window.GAME_ID_VISIBLE_PREFIX || 0;
 
 let rankingCustomers = [];
 
@@ -190,6 +191,14 @@ function maskGameId(id){
   if(!id) return "-";
 
   const clean = String(id).trim();
+
+  if(GAME_ID_VISIBLE_PREFIX > 0){
+    if(clean.length <= GAME_ID_VISIBLE_PREFIX){
+      return clean + "***";
+    }
+
+    return clean.slice(0, GAME_ID_VISIBLE_PREFIX) + "***";
+  }
 
   if(clean.length <= 3){
     return "***";
