@@ -28,6 +28,10 @@ color:white;
 font-family:Arial, Helvetica, sans-serif;
 }
 
+body.modal-open{
+overflow:hidden;
+}
+
 .hero-bg{
 background:
 radial-gradient(circle at 16% 14%, rgba(34, 211, 238, 0.24), transparent 28%),
@@ -62,6 +66,60 @@ transition:opacity .25s ease;
 
 .compact-tour-card:hover::after{
 opacity:1;
+}
+
+.modal-view{
+position:fixed;
+inset:0;
+z-index:80;
+display:none;
+background:rgba(2,4,10,.82);
+}
+
+.modal-view.is-open{
+display:block;
+}
+
+.modal-backdrop{
+position:absolute;
+inset:0;
+background:rgba(2,4,10,.84);
+backdrop-filter:blur(10px);
+}
+
+.modal-panel{
+position:relative;
+z-index:1;
+height:100vh;
+overflow-y:auto;
+background:linear-gradient(180deg, rgba(2,6,23,.96), rgba(2,4,10,.98));
+border-left:1px solid rgba(34,211,238,.22);
+border-right:1px solid rgba(34,211,238,.22);
+}
+
+.modal-close{
+position:fixed;
+top:16px;
+right:16px;
+z-index:90;
+width:44px;
+height:44px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:10px;
+border:1px solid rgba(34,211,238,.6);
+background:rgba(2,6,23,.94);
+color:white;
+font-weight:900;
+box-shadow:0 0 24px rgba(34,211,238,.16);
+transition:border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.modal-close:hover{
+border-color:rgba(34,211,238,1);
+color:#22d3ee;
+transform:translateY(-1px);
 }
 
 .logo-carousel{
@@ -208,7 +266,7 @@ transform:scale(2);
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
 
 <div class="flex items-center gap-3">
-<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-12 h-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-12 h-12 rounded-full border border-cyan-400 bg-black object-contain p-0.5 shadow-lg shadow-cyan-500/20">
 
 <div>
 <h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
@@ -268,11 +326,11 @@ VIEW SCHEDULE
 </div>
 </div>
 
-<div class="rounded-xl border border-cyan-400/30 bg-black/45 p-3 md:p-5 backdrop-blur-md">
+<div id="ongoing" class="rounded-xl border border-cyan-400/30 bg-black/45 p-3 md:p-5 backdrop-blur-md scroll-mt-28">
 <div class="flex items-center justify-between gap-3 mb-3 md:mb-5">
 <div>
 <p class="text-[10px] md:text-xs text-cyan-400 font-bold tracking-[0.22em]">LIVE EVENT</p>
-<h2 class="text-xl md:text-3xl font-black mt-1">Sedang Berjalan</h2>
+<h2 class="text-xl md:text-3xl font-black mt-1">Ongoing</h2>
 </div>
 
 <span class="bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-bold">
@@ -286,7 +344,7 @@ VIEW SCHEDULE
 <div class="relative z-10 flex items-center justify-between gap-3">
 <div class="min-w-0">
 <div class="flex items-center gap-2">
-<span class="bg-green-400 text-black text-[10px] md:text-xs font-black px-2 py-1 rounded">LIVE</span>
+<span class="bg-red-400 text-black text-[10px] md:text-xs font-black px-2 py-1 rounded">END</span>
 <span class="text-cyan-300 text-[10px] md:text-xs font-black">MLBB</span>
 </div>
 <h3 class="text-base md:text-xl font-black mt-2 leading-tight">GNEX TOURNAMENT MLBB S7</h3>
@@ -325,10 +383,10 @@ VIEW SCHEDULE
 </div>
 
 <div class="logo-carousel" id="tournamentLogoCarousel">
-<a href="#" class="logo-carousel-item" aria-label="King Elite CS">
+<a href="kecs5.html" class="logo-carousel-item" aria-label="King Elite CS">
 <img src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo">
 </a>
-<a href="#" class="logo-carousel-item" aria-label="GTML Season 7">
+<a href="gtmls7.html" class="logo-carousel-item" aria-label="GTML Season 7">
 <img src="images/gtmllogo.png" alt="GTML Season 7 logo">
 </a>
 <a href="gml.html" class="logo-carousel-item" aria-label="GNEX MLBB International Championship">
@@ -349,8 +407,25 @@ VIEW SCHEDULE
 </header>
 
 
+<!-- TOURNAMENT CONTROLS -->
+<section id="schedule" class="border-y border-zinc-900 bg-zinc-950/60 scroll-mt-28">
+<div class="max-w-7xl mx-auto px-6 py-6">
+<div class="flex flex-row items-stretch gap-3">
+<button type="button" onclick="openPanel('tournamentPanel')" aria-controls="tournamentPanel" class="flex-1 rounded-lg border border-cyan-400/40 bg-black/80 px-3 py-4 text-center text-[11px] sm:text-sm font-black tracking-[0.12em] text-cyan-300 hover:border-cyan-300 hover:bg-cyan-400 hover:text-black transition">
+ALL TOURNAMENT
+</button>
+<button type="button" onclick="openPanel('historyPanel')" aria-controls="historyPanel" class="flex-1 rounded-lg border border-cyan-400/40 bg-black/80 px-3 py-4 text-center text-[11px] sm:text-sm font-black tracking-[0.12em] text-cyan-300 hover:border-cyan-300 hover:bg-cyan-400 hover:text-black transition">
+SEASON HISTORY
+</button>
+</div>
+</div>
+</section>
+
 <!-- TOURNAMENT LIST -->
-<section id="schedule" class="border-y border-zinc-900 bg-zinc-950/60">
+<section id="tournamentPanel" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('tournamentPanel')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('tournamentPanel')" aria-label="Close all tournament">X</button>
 <div class="max-w-7xl mx-auto px-6 py-10 md:py-12">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
 <div>
@@ -412,7 +487,7 @@ VIEW SCHEDULE
 </div>
 </a>
 
-<a href="#" class="compact-tour-card group rounded-lg border border-zinc-800 p-4 hover:border-cyan-300 transition">
+<div class="compact-tour-card group rounded-lg border border-zinc-800 p-4">
 <img src="images/logo-gnex-esport-64x64.png" alt="" class="absolute right-4 bottom-4 w-24 opacity-20 group-hover:opacity-35 transition">
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-zinc-950/60"></div>
 <div class="relative z-10 h-full flex flex-col justify-between gap-5">
@@ -425,15 +500,20 @@ VIEW SCHEDULE
 <h3 class="text-xl font-black mt-1 leading-tight">NEXT EVENT</h3>
 <p class="text-zinc-500 text-xs mt-2">Slot untuk tournament baru.</p>
 </div>
-<p class="text-cyan-300 text-xs font-black">UPDATE LATER -&gt;</p>
+<p class="text-zinc-500 text-xs font-black">UPDATE LATER</p>
 </div>
-</a>
+</div>
+</div>
 </div>
 </div>
 </section>
 
 <!-- ARCHIVE -->
-<section class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<section id="historyPanel" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('historyPanel')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('historyPanel')" aria-label="Close season history">X</button>
+<div class="max-w-7xl mx-auto px-6 py-14 md:py-16">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
 <p class="text-cyan-400 font-bold text-xs tracking-[0.24em]">ARCHIVE</p>
@@ -473,6 +553,8 @@ VIEW SCHEDULE
 <a href="https://wa.me/601115421017?text=Hello%20GNEX%2C%20saya%20nak%20register%20team%20untuk%20tournament" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-6 py-3 rounded-lg hover:bg-zinc-900 transition">
 REGISTER VIA WHATSAPP
 </a>
+</div>
+</div>
 </div>
 </section>
 
@@ -530,6 +612,40 @@ moveLogoCarousel(diff < 0 ? 1 : -1);
 
 renderLogoCarousel();
 }
+
+const modalPanelIds = ["tournamentPanel", "historyPanel"];
+
+function openPanel(id){
+const target = document.getElementById(id);
+if(!target) return;
+modalPanelIds.forEach((panelId) => {
+const panel = document.getElementById(panelId);
+if(panel){
+panel.classList.remove("is-open");
+panel.setAttribute("aria-hidden", "true");
+}
+});
+target.classList.add("is-open");
+target.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
+}
+
+function closePanel(id){
+const target = document.getElementById(id);
+if(target){
+target.classList.remove("is-open");
+target.setAttribute("aria-hidden", "true");
+}
+if(!document.querySelector(".modal-view.is-open")){
+document.body.classList.remove("modal-open");
+}
+}
+
+document.addEventListener("keydown", (event) => {
+if(event.key === "Escape"){
+modalPanelIds.forEach(closePanel);
+}
+});
 </script>
 
 </body>

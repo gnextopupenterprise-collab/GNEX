@@ -72,6 +72,11 @@ color:#000;
 
 <body class="min-h-screen bg-black text-white">
 
+<script>
+window.CUSTOMER_SHEET_GID = "216399178";
+</script>
+<script src="datacust.js"></script>
+
 <!-- NAVBAR -->
 <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/80 border-b border-zinc-800/90">
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
@@ -100,6 +105,10 @@ HOME
 TOURNAMENT
 </a>
 
+<button type="button" onclick="openRankingModal()" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+RANKING
+</button>
+
 <a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-cyan-400 text-black font-bold px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">
 WHATSAPP
 </a>
@@ -123,6 +132,7 @@ class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60
 <button type="button" onclick="goSection('packages')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">PRICE LIST</button>
 <button type="button" onclick="goSection('checkout')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">CHECKOUT</button>
 <a href="tournament.html" class="text-white hover:text-cyan-400 transition text-lg font-semibold">TOURNAMENT</a>
+<button type="button" onclick="closeSidebar(); openRankingModal();" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">RANKING</button>
 <a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="text-white hover:text-green-400 transition text-lg font-semibold">WHATSAPP</a>
 </div>
 </aside>
@@ -168,6 +178,14 @@ Pilih channel harga: QR Transfer, TNG Pin atau DIGI/CELCOM. Masukkan ID dan chec
 <p class="text-xs text-zinc-500 mt-1">Checkout</p>
 </div>
 </div>
+
+<button 
+  type="button"
+  onclick="openRankingModal()"
+  class="border border-zinc-800 bg-black/45 rounded-lg p-4 text-left hover:border-cyan-400 hover:bg-black/70 transition">
+  <p class="text-2xl font-black">RANKING</p>
+  <p class="text-xs text-zinc-500 mt-1">Customer</p>
+</button>
 </div>
 
 <div class="ml-hero-art relative overflow-hidden rounded-xl border border-zinc-800 min-h-[360px]">
@@ -313,6 +331,78 @@ QR Transfer untuk harga tepat. TNG Pin untuk customer yang nak beli guna pin/eas
 </div>
 </div>
 </section>
+
+<!-- RANKING CUSTOMER MODAL -->
+<div id="rankingModal" class="fixed inset-0 z-[999] hidden">
+
+  <!-- background blur -->
+  <div 
+    onclick="closeRankingModal()"
+    class="absolute inset-0 bg-black/80 backdrop-blur-md">
+  </div>
+
+  <!-- modal content -->
+  <div class="relative z-10 min-h-screen flex items-center justify-center px-2 md:px-4 py-6 md:py-8">
+
+    <section id="customerRanking" class="w-[calc(100vw-20px)] md:w-full max-w-5xl">
+      <div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5 md:p-6 shadow-2xl shadow-cyan-500/10">
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+          <div>
+            <p class="text-cyan-400 text-xs font-bold tracking-[0.24em]">MOBILE LEGENDS</p>
+            <h2 class="text-3xl md:text-4xl font-black mt-2">RANKING CUSTOMER</h2>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <input 
+              id="rankingSearch"
+              type="text" 
+              placeholder="Search number / ID"
+              oninput="renderRankingTable()"
+              class="w-full md:w-auto bg-black border border-zinc-800 rounded-lg px-3 md:px-4 py-3 outline-none focus:border-cyan-400 transition text-xs md:text-sm"
+            >
+
+            <button 
+              onclick="loadRankingCustomer()" 
+              class="bg-cyan-400 text-black font-black px-5 py-3 rounded-lg hover:bg-cyan-300 transition text-sm">
+              CARI
+            </button>
+
+            <button 
+              onclick="closeRankingModal()" 
+              class="bg-red-500 text-white font-black px-4 py-3 rounded-lg hover:bg-red-400 transition text-sm">
+              BACK
+            </button>
+          </div>
+        </div>
+
+        <div class="max-h-[65vh] overflow-y-auto overflow-x-hidden">
+  <table class="w-full table-fixed text-left border-collapse">
+            <thead class="sticky top-0 z-10">
+              <tr class="bg-black border border-zinc-800 text-zinc-300">
+                <th class="p-3 text-sm">#</th>
+                <th class="p-3 text-sm">Cust</th>
+                <th class="p-3 text-sm">ID</th>
+                <th class="p-3 text-sm">RM</th>
+                <th class="p-3 text-sm">Rp Order</th>
+              </tr>
+            </thead>
+
+            <tbody id="rankingTable">
+              <tr>
+                <td colspan="5" class="p-4 text-zinc-500 text-center">
+                  Tekan cari untuk paparkan ranking customer.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="border-t border-zinc-800 bg-black/80">

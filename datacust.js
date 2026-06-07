@@ -1,4 +1,6 @@
-const CUSTOMER_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTivUAgNTsrxtYk9_vkOSbk0b9ygF-5l0z0dUvQp0HMhsHYtM2H7_YwG9MeExUCfvrfMtdtgXIKXBBL/pub?gid=2059103900&single=true&output=csv";
+const CUSTOMER_SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTivUAgNTsrxtYk9_vkOSbk0b9ygF-5l0z0dUvQp0HMhsHYtM2H7_YwG9MeExUCfvrfMtdtgXIKXBBL/pub";
+const CUSTOMER_SHEET_GID = window.CUSTOMER_SHEET_GID || "2059103900";
+const CUSTOMER_SHEET_URL = `${CUSTOMER_SHEET_BASE_URL}?gid=${CUSTOMER_SHEET_GID}&single=true&output=csv`;
 
 let rankingCustomers = [];
 
