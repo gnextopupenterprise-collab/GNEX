@@ -26,6 +26,16 @@ background:#030712;
 font-family:Arial, Helvetica, sans-serif;
 }
 
+body.modal-open{
+overflow:hidden;
+}
+
+.brand-logo{
+width:2rem;
+height:2rem;
+object-fit:contain;
+}
+
 .hero-bg{
 background:
 linear-gradient(90deg, rgba(3,7,18,.97) 0%, rgba(3,7,18,.82) 45%, rgba(3,7,18,.42) 100%),
@@ -126,6 +136,140 @@ background:radial-gradient(circle at center, rgba(34,211,238,.16), rgba(2,6,23,.
 background:radial-gradient(circle at center, rgba(34,211,238,.12), rgba(2,6,23,.95));
 }
 
+.toggle-panel[hidden]{
+display:none;
+}
+
+.toggle-button{
+min-height:44px;
+}
+
+.rule-cover{
+height:16rem;
+}
+
+.status-card{
+padding:1rem;
+}
+
+.status-card-label{
+font-size:.65rem;
+}
+
+.status-pill{
+font-size:.68rem;
+padding:.2rem .6rem;
+}
+
+.status-prize{
+font-size:2.35rem;
+}
+
+.status-mini-box{
+padding:.65rem;
+}
+
+.status-mini-label{
+font-size:.58rem;
+}
+
+.status-mini-value{
+font-size:.8rem;
+}
+
+.next-match-card{
+padding:1rem;
+}
+
+.next-match-label{
+font-size:.65rem;
+}
+
+.next-match-pill{
+font-size:.65rem;
+padding:.18rem .55rem;
+}
+
+.next-team-flag{
+width:3rem;
+height:3rem;
+padding:.4rem;
+}
+
+.next-team-name{
+font-size:.78rem;
+}
+
+.next-vs{
+font-size:1.65rem;
+}
+
+.next-format-button{
+margin-top:.35rem;
+font-size:.65rem;
+padding:.25rem .55rem;
+}
+
+.next-format-text{
+font-size:.72rem;
+line-height:1.25;
+}
+
+.next-match-time{
+font-size:.8rem;
+}
+
+.modal-view{
+position:fixed;
+inset:0;
+z-index:100;
+display:none;
+padding:18px;
+}
+
+.modal-view.is-open{
+display:block;
+}
+
+.modal-backdrop{
+position:absolute;
+inset:0;
+background:rgba(0,0,0,.78);
+backdrop-filter:blur(10px);
+}
+
+.modal-panel{
+position:relative;
+z-index:1;
+max-width:1180px;
+height:calc(100dvh - 36px);
+margin:0 auto;
+overflow-y:auto;
+background:linear-gradient(145deg, rgba(8,13,24,.98), rgba(0,0,0,.96));
+border:1px solid rgba(34,211,238,.36);
+border-radius:10px;
+box-shadow:0 26px 90px rgba(0,0,0,.72);
+}
+
+.modal-close{
+position:sticky;
+top:12px;
+right:12px;
+z-index:5;
+display:flex;
+align-items:center;
+justify-content:center;
+width:72px;
+height:42px;
+margin:12px 12px -54px auto;
+border:1px solid rgba(34,211,238,.55);
+border-radius:10px;
+background:#02040a;
+color:#a5f3fc;
+font-weight:900;
+box-shadow:0 0 22px rgba(34,211,238,.18);
+}
+
 @keyframes electricSpin{
 to{transform:rotate(360deg);}
 }
@@ -140,6 +284,139 @@ to{transform:rotate(360deg);}
 .electric-border::before{animation:none;}
 .blue-flame-logo::before,
 .blue-flame-logo::after{animation:none;}
+}
+
+@media (max-width:640px){
+nav .brand-logo{
+width:2rem;
+height:2rem;
+}
+
+.mobile-tight-card{
+padding:1rem;
+}
+
+.mobile-tight-card h3{
+font-size:1.15rem;
+line-height:1.15;
+}
+
+.rule-cover{
+height:11.5rem;
+}
+
+.section-pad{
+padding-left:1rem;
+padding-right:1rem;
+}
+
+.schedule-row{
+padding:.75rem;
+}
+
+.join-card{
+padding:.8rem;
+gap:.65rem;
+}
+
+.join-card-title{
+font-size:1.15rem;
+line-height:1.1;
+}
+
+.join-card-text{
+font-size:.76rem;
+line-height:1.35;
+margin-top:.3rem;
+}
+
+.join-card-button{
+padding:.7rem .85rem;
+font-size:.76rem;
+}
+
+.status-card{
+padding:.85rem;
+}
+
+.status-prize{
+font-size:1.9rem;
+}
+
+.status-mini-box{
+padding:.55rem;
+}
+
+.next-match-card{
+padding:.85rem;
+}
+
+.next-team-flag{
+width:2.75rem;
+height:2.75rem;
+}
+
+.next-vs{
+font-size:1.45rem;
+}
+
+.main-action-grid{
+grid-template-columns:repeat(2, minmax(0, 1fr));
+}
+
+.main-action-grid .info-card,
+.main-action-grid .electric-border{
+padding:.65rem;
+min-height:4.85rem;
+}
+
+.main-action-grid p:nth-child(2){
+font-size:.9rem;
+line-height:1.15;
+}
+
+.main-action-grid p:first-child{
+font-size:.58rem;
+letter-spacing:.15em;
+}
+
+.main-action-grid p:nth-child(3){
+font-size:.7rem;
+line-height:1.2;
+}
+
+.hero-actions{
+flex-direction:row;
+gap:.5rem;
+}
+
+.hero-actions a,
+.hero-actions button{
+flex:1 1 0;
+padding:.85rem .5rem;
+font-size:.78rem;
+}
+
+.modal-view{
+padding:0;
+}
+
+.modal-panel{
+height:100dvh;
+border-radius:0;
+border-left:0;
+border-right:0;
+}
+
+.modal-panel>.section-pad{
+padding-top:4rem;
+padding-bottom:2rem;
+}
+
+.modal-close{
+top:10px;
+margin:10px 10px -54px auto;
+}
 }
 </style>
 </head>
@@ -160,7 +437,9 @@ to{transform:rotate(360deg);}
 <nav class="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-zinc-800">
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
 <a href="index.html" class="flex items-center gap-3">
-<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-12 h-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20">
+<span class="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400 bg-zinc-950 shadow-lg shadow-cyan-500/20 transition hover:shadow-cyan-500/40">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="brand-logo">
+</span>
 <div>
 <h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
 <p class="text-zinc-500 text-xs mt-1 tracking-wide">TOURNAMENT</p>
@@ -170,7 +449,7 @@ to{transform:rotate(360deg);}
 <div class="hidden md:flex items-center gap-4">
 <a href="index.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">HOME</a>
 <a href="tournament.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">TOURNAMENT</a>
-<a href="#rules" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">RULES</a>
+<button type="button" onclick="openPanel('rules')" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 transition text-sm">RULES</button>
 <a href="#join" class="bg-cyan-400 text-black font-black px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">JOIN</a>
 </div>
 
@@ -199,13 +478,13 @@ Official page untuk King Elite CS Season 5. Info tournament, rules, schedule dan
 <div class="blue-flame-logo flex h-28 w-28 shrink-0 items-center justify-center lg:hidden">
 <img src="images/King Elite CS Logo Metalic.png" alt="King Elite CS logo" class="kecs-logo-glow h-full w-full object-contain">
 </div>
-<div class="ml-auto flex flex-1 flex-col gap-2 sm:flex-row lg:ml-0">
+<div class="hero-actions ml-auto flex flex-1 flex-col gap-2 sm:flex-row lg:ml-0">
 <a id="heroJoinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="text-center bg-cyan-400 text-black font-black px-4 py-3 text-sm rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25 sm:px-7 sm:py-4 sm:text-base">
 JOIN VIA WHATSAPP
 </a>
-<a href="#rules" class="text-center border border-zinc-600 px-4 py-3 text-sm rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black sm:px-7 sm:py-4 sm:text-base">
+<button type="button" onclick="openPanel('rules')" class="text-center border border-zinc-600 px-4 py-3 text-sm rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-black sm:px-7 sm:py-4 sm:text-base">
 VIEW RULES
-</a>
+</button>
 </div>
 </div>
 </div>
@@ -215,62 +494,65 @@ VIEW RULES
 </div>
 
 <div class="space-y-3">
-<div class="gtml-panel rounded-xl p-5">
+<div class="status-card gtml-panel rounded-xl p-5">
 <div class="flex items-start justify-between gap-3">
 <div>
-<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">STATUS</p>
-<span id="tourStatus" class="mt-2 inline-flex bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
+<p class="status-card-label text-zinc-400 text-xs font-black tracking-[0.22em]">STATUS</p>
+<span id="tourStatus" class="status-pill mt-2 inline-flex bg-green-500/15 text-green-300 border border-green-500/30 px-3 py-1 rounded-full text-xs font-black">LIVE</span>
 </div>
 <div class="text-right">
-<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">PRIZE POOL</p>
-<p id="tourPrizePool" class="mt-2 text-4xl md:text-5xl font-black text-amber-300 leading-none">RM300</p>
+<p class="status-card-label text-zinc-400 text-xs font-black tracking-[0.22em]">PRIZE POOL</p>
+<p id="tourPrizePool" class="status-prize mt-2 text-4xl md:text-5xl font-black text-amber-300 leading-none">RM300</p>
 </div>
 </div>
 <div class="mt-4 grid grid-cols-2 gap-2">
-<div class="rounded-lg border border-zinc-800 bg-black/70 p-3">
-<p class="text-zinc-500 text-[10px] font-black tracking-[0.16em]">GAME</p>
-<p id="tourGame" class="mt-1 text-sm font-black">Free Fire</p>
+<div class="status-mini-box rounded-lg border border-zinc-800 bg-black/70 p-3">
+<p class="status-mini-label text-zinc-500 text-[10px] font-black tracking-[0.16em]">GAME</p>
+<p id="tourGame" class="status-mini-value mt-1 text-sm font-black">Free Fire</p>
 </div>
-<div class="rounded-lg border border-zinc-800 bg-black/70 p-3">
-<p class="text-zinc-500 text-[10px] font-black tracking-[0.16em]">SLOT</p>
-<p id="tourSlots" class="mt-1 text-sm font-black">32 Teams</p>
+<div class="status-mini-box rounded-lg border border-zinc-800 bg-black/70 p-3">
+<p class="status-mini-label text-zinc-500 text-[10px] font-black tracking-[0.16em]">SLOT</p>
+<p id="tourSlots" class="status-mini-value mt-1 text-sm font-black">32 Teams</p>
 </div>
 </div>
 </div>
 
-<div id="nextMatchCard" class="gtml-panel rounded-xl p-5">
+<div id="nextMatchCard" class="next-match-card gtml-panel rounded-xl p-5">
 <div class="flex items-center justify-between gap-3">
-<p class="text-zinc-400 text-xs font-black tracking-[0.22em]">NEXT MATCH</p>
-<span id="nextMatchStatus" class="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[11px] font-black text-amber-300">UP NEXT</span>
+<p class="next-match-label text-zinc-400 text-xs font-black tracking-[0.22em]">NEXT MATCH</p>
+<span id="nextMatchStatus" class="next-match-pill rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-[11px] font-black text-amber-300">UP NEXT</span>
 </div>
-<div class="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+<div class="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
 <div class="text-center">
-<img id="nextFlagA" src="logoflag/image.png" alt="Team A flag" onerror="this.src='logoflag/image.png'" class="flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
-<p id="nextTeamA" class="mt-2 truncate text-sm font-black">TBD</p>
-</div>
-<div class="text-center">
-<p class="text-3xl font-black text-cyan-300">VS</p>
-<p id="nextMatchLabel" class="mt-2 max-w-28 text-xs font-black text-zinc-400">Loading...</p>
+<img id="nextFlagA" src="gambarplayerkecs/logoflag/image.png" alt="Team A flag" onerror="this.onerror=null; this.src='gambarplayerkecs/logoflag/image.png'" class="next-team-flag flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
+<p id="nextTeamA" class="next-team-name mt-2 truncate text-sm font-black">TBD</p>
 </div>
 <div class="text-center">
-<img id="nextFlagB" src="logoflag/image.png" alt="Team B flag" onerror="this.src='logoflag/image.png'" class="flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
-<p id="nextTeamB" class="mt-2 truncate text-sm font-black">TBD</p>
+<p class="next-vs text-3xl font-black text-cyan-300">VS</p>
+<button type="button" id="nextFormatButton" class="next-format-button rounded-lg border border-cyan-500/40 bg-cyan-400/10 px-2 py-1 font-black text-cyan-200 transition hover:bg-cyan-400 hover:text-black" aria-expanded="false" aria-controls="nextMatchLabel" onclick="togglePanel(this, 'nextMatchLabel', 'VIEW FORMAT', 'HIDE FORMAT')">
+VIEW FORMAT
+</button>
+<p id="nextMatchLabel" class="next-format-text mt-2 max-w-28 font-black text-zinc-400" hidden>Loading...</p>
+</div>
+<div class="text-center">
+<img id="nextFlagB" src="gambarplayerkecs/logoflag/image.png" alt="Team B flag" onerror="this.onerror=null; this.src='gambarplayerkecs/logoflag/image.png'" class="next-team-flag flag-slot mx-auto h-16 w-16 rounded-full border border-cyan-400/30 object-contain p-2">
+<p id="nextTeamB" class="next-team-name mt-2 truncate text-sm font-black">TBD</p>
 </div>
 </div>
-<p id="nextMatchTime" class="mt-4 text-center text-sm font-black text-amber-300">Checking schedule</p>
+<p id="nextMatchTime" class="next-match-time mt-3 text-center text-sm font-black text-amber-300">Checking schedule</p>
 </div>
 </div>
 
 </div>
 
-<div class="mt-8 grid sm:grid-cols-3 gap-3 lg:w-full">
-<button type="button" onclick="scrollToPanel('schedule')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<div class="main-action-grid mt-8 grid grid-cols-2 md:grid-cols-3 gap-3 lg:w-full">
+<button type="button" onclick="openPanel('schedule')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">01</p>
 <p class="text-xl md:text-2xl font-black mt-2">JADUAL</p>
 <p class="text-zinc-500 text-sm mt-1">Tarikh dan match</p>
 </button>
 
-<button type="button" onclick="scrollToPanel('rules')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
+<button type="button" onclick="openPanel('rules')" class="info-card text-left rounded-lg p-4 hover:border-cyan-400 hover:bg-cyan-400/5 transition">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">02</p>
 <p class="text-xl md:text-2xl font-black mt-2">RULES</p>
 <p class="text-zinc-500 text-sm mt-1">Rule King Elite CS</p>
@@ -281,9 +563,7 @@ VIEW RULES
 <p class="text-xl md:text-2xl font-black text-amber-300 mt-2">ADMIN</p>
 <p class="text-zinc-500 text-sm mt-1">Contact untuk daftar</p>
 </button>
-</div>
 
-<div class="mt-3 grid sm:grid-cols-3 gap-3 lg:w-full">
 <button type="button" class="electric-border text-left rounded-lg bg-black/90 p-4 cursor-default">
 <p class="text-cyan-400 text-xs font-black tracking-[0.2em]">COMING SOON</p>
 <p class="text-lg md:text-xl font-black mt-2">MUSIM AKAN DATANG</p>
@@ -303,7 +583,11 @@ VIEW RULES
 </header>
 
 <!-- SCHEDULE -->
-<section id="schedule" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<section id="schedule" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('schedule')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('schedule')" aria-label="Back from schedule">BACK</button>
+<div class="section-pad max-w-7xl mx-auto px-6 py-14 md:py-16">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
 <p class="text-cyan-400 font-black tracking-[0.24em] text-xs">MATCH FLOW</p>
@@ -313,11 +597,16 @@ VIEW RULES
 </div>
 
 <div id="scheduleList" class="grid md:grid-cols-3 gap-4"></div>
+</div>
+</div>
 </section>
 
 <!-- RULES -->
-<section id="rules" class="border-y border-zinc-900 bg-zinc-950/60">
-<div class="max-w-7xl mx-auto px-6 py-14 md:py-16">
+<section id="rules" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('rules')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('rules')" aria-label="Back from rules">BACK</button>
+<div class="section-pad max-w-7xl mx-auto px-6 py-14 md:py-16">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
 <p class="text-cyan-400 font-black tracking-[0.24em] text-xs">RULEBOOK</p>
@@ -328,16 +617,17 @@ VIEW RULES
 
 <div id="rulesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 </div>
+</div>
 </section>
 
 <!-- JOIN -->
-<section id="join" class="max-w-7xl mx-auto px-6 py-14 md:py-16">
-<div class="rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
+<section id="join" class="section-pad max-w-7xl mx-auto px-6 py-8 md:py-10">
+<div class="join-card mx-auto max-w-4xl rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
 <div>
-<p class="text-3xl md:text-4xl font-black">Ready to join KECS5?</p>
-<p class="text-black/70 mt-2 font-semibold">Contact admin GNEX di +60 10-827 5117 melalui WhatsApp untuk daftar team.</p>
+<p class="join-card-title text-2xl md:text-3xl font-black">Ready to join KECS5?</p>
+<p class="join-card-text text-black/70 mt-2 font-semibold">Contact admin GNEX di +60 10-827 5117 melalui WhatsApp untuk daftar team.</p>
 </div>
-<a id="joinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-7 py-4 rounded-lg hover:bg-zinc-900 transition">
+<a id="joinLink" href="https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205" target="_blank" rel="noopener" class="join-card-button bg-black text-white text-center font-black px-5 py-3 rounded-lg hover:bg-zinc-900 transition">
 JOIN VIA WHATSAPP
 </a>
 </div>
@@ -366,9 +656,10 @@ let databaseLive = true;
 let activeScheduleData = [];
 let scheduleRefreshTimer = null;
 const DEFAULT_RULE_IMAGE = "images/King Elite CS Logo Metalic.png";
-const DEFAULT_FLAG_IMAGE = "logoflag/image.png";
+const DEFAULT_FLAG_IMAGE = "gambarplayerkecs/logoflag/image.png";
 const FLAG_FOLDER = "gambarplayerkecs/logoflag";
 const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205";
+const modalPanelIds = ["schedule", "rules"];
 
 const FLAG_NAME_MAP = {
 // Kalau nama file tak sama dengan nama negeri dalam Sheet, tambah sini.
@@ -498,8 +789,58 @@ return fallback;
 }
 
 function scrollToPanel(id){
-document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"});
+const target = document.getElementById(id);
+if(target && target.classList.contains("modal-view")){
+openPanel(id);
+return;
 }
+target?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function openPanel(id){
+const target = document.getElementById(id);
+if(!target) return;
+if(!target.classList.contains("modal-view")){
+scrollToPanel(id);
+return;
+}
+modalPanelIds.forEach((panelId) => {
+const panel = document.getElementById(panelId);
+if(panel){
+panel.classList.remove("is-open");
+panel.setAttribute("aria-hidden", "true");
+}
+});
+target.classList.add("is-open");
+target.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
+}
+
+function closePanel(id){
+const target = document.getElementById(id);
+if(target){
+target.classList.remove("is-open");
+target.setAttribute("aria-hidden", "true");
+}
+if(!document.querySelector(".modal-view.is-open")){
+document.body.classList.remove("modal-open");
+}
+}
+
+function togglePanel(button, targetId, closedText, openText){
+const panel = document.getElementById(targetId);
+if(!panel) return;
+const willOpen = panel.hidden;
+panel.hidden = !willOpen;
+button.setAttribute("aria-expanded", String(willOpen));
+button.textContent = willOpen ? openText : closedText;
+}
+
+document.addEventListener("keydown", (event) => {
+if(event.key === "Escape"){
+modalPanelIds.forEach(closePanel);
+}
+});
 
 function validTournament(row){
 return row && row.name && row.prize_pool && row.join_url;
@@ -587,14 +928,14 @@ rule_link: getFirstUrl(rule.rule_link || rule.link || rule.url || rule.rule_text
 display_text: removeFirstUrl(rule.rule_text)
 }));
 document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, index) => `
-<article class="group overflow-hidden rounded-lg border border-zinc-800 bg-black hover:border-cyan-400 transition">
-<div class="relative h-66 cursor-pointer overflow-hidden bg-zinc-900" data-full-image="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" onclick="openImageModal(this.dataset.fullImage)">
+<article class="mobile-tight-card group overflow-hidden rounded-lg border border-zinc-800 bg-black p-4 hover:border-cyan-400 transition">
+<div class="rule-cover relative cursor-pointer overflow-hidden rounded-lg bg-zinc-900 md:h-64" data-full-image="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}" onclick="openImageModal(this.dataset.fullImage)">
 <img
   src="${escapeHtml(rule.image_url || DEFAULT_RULE_IMAGE)}"
   alt="${escapeHtml(rule.rule_title)}"
   class="h-full w-full object-cover opacity-70 group-hover:scale-105 transition duration-500"
   loading="lazy"
-  onerror="this.src='${DEFAULT_RULE_IMAGE}'"
+  onerror="this.onerror=null; this.src='${DEFAULT_RULE_IMAGE}'"
 >
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent"></div>
 <div class="absolute left-4 right-4 bottom-4">
@@ -602,7 +943,10 @@ document.getElementById("rulesList").innerHTML = rulesWithImages.map((rule, inde
 <h3 class="text-2xl font-black mt-1 leading-none">${escapeHtml(rule.rule_title)}</h3>
 </div>
 </div>
-<div class="p-5">
+<button type="button" class="toggle-button mt-4 inline-flex w-full items-center justify-center rounded-lg border border-cyan-500/40 bg-cyan-400/10 px-4 py-3 text-sm font-black text-cyan-200 transition hover:bg-cyan-400 hover:text-black" aria-expanded="false" aria-controls="ruleDetail${index}" onclick="togglePanel(this, 'ruleDetail${index}', 'VIEW FULL INFO', 'HIDE INFO')">
+VIEW FULL INFO
+</button>
+<div id="ruleDetail${index}" class="toggle-panel mt-4" hidden>
 <div class="h-1 w-16 bg-cyan-400 rounded-full mb-4"></div>
 <p class="whitespace-pre-line text-zinc-400 text-sm leading-relaxed">${escapeHtml(rule.display_text)}</p>
 ${rule.rule_link ? `
@@ -727,20 +1071,20 @@ computedStatus: scheduleStatusFor(card.items)
 
 function renderMatchRows(items){
 return items.map((item) => `
-<div class="rounded-lg bg-black border border-zinc-800 p-4">
+<div class="schedule-row rounded-lg bg-black border border-zinc-800 p-4">
 <div class="flex items-center justify-between gap-3 text-xs text-zinc-500 font-bold">
 <span>${escapeHtml(item.date)}</span>
 <span>${escapeHtml(item.time)}</span>
 </div>
 <div class="mt-3 flex items-center justify-between gap-3">
 <span class="flex min-w-0 items-center gap-2 font-black">
-<img src="${escapeHtml(getTeamFlag(item, "a"))}" alt="${escapeHtml(item.team_a || "TBD")} flag" onerror="this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
+<img src="${escapeHtml(getTeamFlag(item, "a"))}" alt="${escapeHtml(item.team_a || "TBD")} flag" onerror="this.onerror=null; this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
 <span class="truncate">${escapeHtml(item.team_a || "TBD")}</span>
 </span>
 <span class="text-cyan-300 font-black">VS</span>
 <span class="flex min-w-0 items-center justify-end gap-2 font-black text-right">
 <span class="truncate">${escapeHtml(item.team_b || "TBD")}</span>
-<img src="${escapeHtml(getTeamFlag(item, "b"))}" alt="${escapeHtml(item.team_b || "TBD")} flag" onerror="this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
+<img src="${escapeHtml(getTeamFlag(item, "b"))}" alt="${escapeHtml(item.team_b || "TBD")} flag" onerror="this.onerror=null; this.src='${DEFAULT_FLAG_IMAGE}'" class="schedule-flag h-8 w-8 shrink-0 rounded-full border border-cyan-400/20 object-contain p-1">
 </span>
 </div>
 </div>
@@ -754,14 +1098,17 @@ document.getElementById("scheduleList").innerHTML = scheduleCards.map((card, ind
 const statusColor = card.computedStatus === "LIVE" ? "text-green-300 border-green-500/40 bg-green-500/10" : card.computedStatus === "NEXT MATCH" ? "text-amber-300 border-amber-500/40 bg-amber-500/10" : card.computedStatus === "COMPLETED" ? "text-zinc-500 border-zinc-700 bg-zinc-900" : "text-cyan-300 border-cyan-500/30 bg-cyan-500/10";
 const cardState = card.isFocus ? "border-cyan-400 shadow-lg shadow-cyan-500/10" : "border-zinc-800";
 return `
-<article class="rounded-lg ${cardState} bg-zinc-950 p-5 hover:border-cyan-400 transition">
+<article class="mobile-tight-card rounded-lg ${cardState} bg-zinc-950 p-5 hover:border-cyan-400 transition">
 <div class="flex items-center justify-between gap-3">
 <p class="text-amber-300 text-xs font-black tracking-[0.2em]">MATCH ${String(index + 1).padStart(2, "0")}</p>
 <span class="${statusColor} border px-3 py-1 rounded-full text-[11px] font-black">${escapeHtml(card.computedStatus)}</span>
 </div>
 <h3 class="text-2xl font-black mt-3">${escapeHtml(card.title)}</h3>
 <p class="text-zinc-500 text-sm mt-2">${escapeHtml(card.date)} / ${escapeHtml(card.time)}</p>
-<div class="mt-5 space-y-3">${renderMatchRows(card.items)}</div>
+<button type="button" class="toggle-button mt-4 inline-flex w-full items-center justify-center rounded-lg border border-cyan-500/40 bg-cyan-400/10 px-4 py-3 text-sm font-black text-cyan-200 transition hover:bg-cyan-400 hover:text-black" aria-expanded="false" aria-controls="scheduleDetail${index}" onclick="togglePanel(this, 'scheduleDetail${index}', 'VIEW JADUAL', 'HIDE JADUAL')">
+VIEW JADUAL
+</button>
+<div id="scheduleDetail${index}" class="toggle-panel mt-5 space-y-3" hidden>${renderMatchRows(card.items)}</div>
 </article>
 `;
 }).join("");
@@ -783,12 +1130,14 @@ setText("nextMatchTime", `${match.date || ""} / ${match.time || ""}`);
 setText("nextTeamA", match.team_a || "TBD");
 setText("nextTeamB", match.team_b || "TBD");
 setText("nextMatchStatus", match.computedStatus || "UP NEXT");
-document.getElementById("nextMatchStatus").className = `${statusClass} rounded-full border px-3 py-1 text-[11px] font-black`;
+document.getElementById("nextMatchStatus").className = `${statusClass} next-match-pill rounded-full border px-3 py-1 text-[11px] font-black`;
 
 const flagA = document.getElementById("nextFlagA");
 const flagB = document.getElementById("nextFlagB");
-if(flagA) flagA.src = getTeamFlag(match, "a");
-if(flagB) flagB.src = getTeamFlag(match, "b");
+const nextFlagASrc = getTeamFlag(match, "a");
+const nextFlagBSrc = getTeamFlag(match, "b");
+if(flagA && flagA.getAttribute("src") !== nextFlagASrc) flagA.src = nextFlagASrc;
+if(flagB && flagB.getAttribute("src") !== nextFlagBSrc) flagB.src = nextFlagBSrc;
 }
 
 function refreshSchedulePanels(){
@@ -797,6 +1146,13 @@ renderNextMatch(activeScheduleData);
 }
 
 async function init(){
+renderTournament(fallbackTournament);
+renderRules(fallbackRules);
+activeScheduleData = fallbackSchedule;
+refreshSchedulePanels();
+document.getElementById("rulesSource").textContent = "Loading live rules...";
+document.getElementById("dbStatus").textContent = "Loading live schedule...";
+
 const [tournamentRows, loadedRules, loadedSchedule] = await Promise.all([
 loadCsv(DATABASE.tournament, [fallbackTournament]),
 loadCsv(DATABASE.rules, fallbackRules),

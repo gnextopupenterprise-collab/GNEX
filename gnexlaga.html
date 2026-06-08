@@ -24,7 +24,7 @@
 <button onclick="scrollToPanel('rules')" class="px-7 py-3 rounded-lg border border-zinc-700 hover:border-cyan-400 text-sm font-bold">RULES</button>
 <button onclick="scrollToPanel('join')" class="px-7 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
 </div>
-<div class="md:hidden flex items-center gap-2">
+<div class="mobile-nav-actions md:hidden flex items-center gap-2">
 <a href="tournament.html" class="px-4 py-3 rounded-lg border border-zinc-700 text-xs font-black">TOURNAMENT</a>
 <button onclick="openPanel('register')" class="px-5 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
 </div>
@@ -190,6 +190,9 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <h2 class="text-4xl md:text-5xl font-black mt-2">GNEX Laga Tier</h2>
 </div>
 <p id="tierSource" class="text-zinc-500 text-sm">Live Google Sheet tier.</p>
+</div>
+<div class="tier-search-wrap">
+<input id="tierSearch" class="tier-search-input" type="search" placeholder="Cari team..." autocomplete="off">
 </div>
 <div id="tierList" class="tier-grid">
 <article class="tier-card tier-s-plus">
@@ -370,7 +373,8 @@ const fallbackTier={
 "Tier S":["TEAM 2","TEAM 3","TEAM 4","TEAM 5"],
 "Tier A":["TEAM 6","TEAM 7","TEAM 8","TEAM 9","TEAM 10"],
 "Tier B":["TEAM 11","TEAM 12","TEAM 13","TEAM 14","TEAM 15","TEAM 16"],
-"Tier C":["TEAM 17","TEAM 18","TEAM 19","TEAM 20","TEAM 21","TEAM 22","TEAM 23","TEAM 24"]
+"Tier C":["TEAM 17","TEAM 18","TEAM 19","TEAM 20","TEAM 21","TEAM 22","TEAM 23","TEAM 24"],
+"NO TIER":[]
 };
 
 const fallbackRules=[
@@ -380,6 +384,7 @@ const fallbackRules=[
 ];
 
 const fallbackHistory=[];
+let currentTiers=fallbackTier;
 
 function parseCsv(text){
 const rows=[];
@@ -429,10 +434,37 @@ if(rows.length<1) return {};
 const headers=rows[0].map(header=>header.trim()).filter(Boolean);
 return headers.reduce((tiers,header,columnIndex)=>{
 tiers[header]=rows.slice(1)
-.map(row=>(row[columnIndex]||"").trim())
+.map(row=>parseTierEntry(row[columnIndex]||""))
+.filter(entry=>entry.name)
+.map(entry=>entry)
 .filter(Boolean);
 return tiers;
 },{});
+}
+
+function parseTierEntry(value){
+const raw=String(value||"").trim();
+if(!raw) return {name:"",win:"",lose:"",badge:""};
+const recordMatch=raw.match(/\((\d+)\s*win\s*\/\s*(\d+)\s*lose\)/i);
+const badgeParts=raw.split(">");
+const trailingBadge=raw.match(/([^\w\s()\/]+)\s*$/);
+const beforeBadge=badgeParts[0]||raw;
+const name=beforeBadge.replace(/\([^)]*\)/g,"").trim();
+return {
+name,
+win:recordMatch?recordMatch[1]:"",
+lose:recordMatch?recordMatch[2]:"",
+badge:formatTierBadge(badgeParts.length>1?badgeParts.slice(1).join(">").trim():(trailingBadge?trailingBadge[1]:""))
+};
+}
+
+function formatTierBadge(value){
+const badge=String(value||"").trim();
+if(!badge) return "";
+const compact=badge.replace(/\s+/g,"");
+const unique=[...new Set([...compact])];
+if(unique.length===1&&compact.length>1) return `${unique[0]}${compact.length}x`;
+return badge;
 }
 
 function rowsToRules(rows){
@@ -447,11 +479,29 @@ description:String(row[1]||"").trim()
 }
 
 function rowsToHistory(rows){
-return rows
-.map(row=>String(row[0]||"").trim())
-.filter(Boolean)
-.filter((link,index)=>index>0||!["link gambar","image","gambar","history match"].includes(link.toLowerCase()))
-.map(link=>({image:link}));
+if(rows.length<2) return [];
+const headers=rows[0].map(header=>String(header||"").trim().toLowerCase());
+const index=(names)=>names.map(name=>headers.indexOf(name)).find(i=>i>=0);
+const lagaIndex=index(["laga v?","laga","card","version"]);
+const team1Index=index(["team 1","team1","team a"]);
+const point1Index=index(["point 1","point1","score 1","score1"]);
+const team2Index=index(["team 2","team2","team b"]);
+const point2Index=index(["point 2","point2","score 2","score2"]);
+const link1Index=index(["link 1","link1","logo 1","team 1 logo link"]);
+const link2Index=index(["link 2","link2","logo 2","team 2 logo link"]);
+const tier1Index=index(["tier 1","tier1","team 1 tier"]);
+const tier2Index=index(["tier 2","tier2","team 2 tier"]);
+return rows.slice(1).map(row=>({
+laga:String(row[lagaIndex]||"").trim()||"LAGA",
+team1:String(row[team1Index]||"").trim(),
+point1:String(row[point1Index]||"").trim(),
+team2:String(row[team2Index]||"").trim(),
+point2:String(row[point2Index]||"").trim(),
+link1:String(row[link1Index]||"").trim(),
+link2:String(row[link2Index]||"").trim(),
+tier1:String(row[tier1Index]||"").trim()||"NO TIER",
+tier2:String(row[tier2Index]||"").trim()||"NO TIER"
+})).filter(match=>match.team1&&match.team2);
 }
 
 function matchDate(match){
@@ -536,10 +586,30 @@ ${group.matches.map((match,index)=>`
 function updateNextMatch(matches){
 const now=new Date();
 const sorted=[...matches].sort((a,b)=>matchDate(a)-matchDate(b));
-const upcoming=sorted.filter(match=>matchDate(match)>=now);
-const nextMatches=(upcoming.length?upcoming:sorted).slice(0,3);
+const upcoming=sorted.filter(match=>matchDate(match)>=now&&hasPlayableTeams(match));
+const nextMatches=upcoming.slice(0,3);
 const list=document.getElementById("nextMatchList");
-if(!list||!nextMatches.length) return;
+if(!list) return;
+if(!nextMatches.length){
+document.getElementById("nextMatchBadge").textContent="WAITING";
+list.innerHTML=`
+<div class="next-mini-match next-mini-empty">
+<div class="next-mini-team">
+<img src="images/gnexlaga.png" alt="" class="next-mini-logo">
+<p class="compact-team-name">-</p>
+</div>
+<div class="next-mini-vs">
+<p>VS</p>
+<span>WAITING</span>
+</div>
+<div class="next-mini-team">
+<img src="images/gnexlaga.png" alt="" class="next-mini-logo">
+<p class="compact-team-name">-</p>
+</div>
+</div>
+`;
+return;
+}
 document.getElementById("nextMatchBadge").textContent=formatDateTitle(nextMatches[0].date);
 list.innerHTML=nextMatches.map(match=>`
 <div class="next-mini-match">
@@ -559,16 +629,26 @@ list.innerHTML=nextMatches.map(match=>`
 `).join("");
 }
 
+function hasPlayableTeams(match){
+return !isEmptyTeam(match.team1)&&!isEmptyTeam(match.team2);
+}
+
+function isEmptyTeam(team){
+const value=String(team||"").trim().toLowerCase();
+return !value||value==="tbd"||value==="tdb"||value==="-";
+}
+
 function tierClassName(tierName){
 return "tier-"+tierName.toLowerCase().replace("+","plus").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 
-function renderTier(tiers){
+function renderTier(tiers,query=""){
 const list=document.getElementById("tierList");
 if(!list) return;
-const tierOrder=["Tier S+","Tier S","Tier A","Tier B","Tier C"];
+const tierOrder=["Tier S+","Tier S","Tier A","Tier B","Tier C","NO TIER"];
+const search=query.trim().toLowerCase();
 list.innerHTML=tierOrder.map(tierName=>{
-const teams=tiers[tierName]||[];
+const teams=(tiers[tierName]||[]).filter(team=>!search||team.name.toLowerCase().includes(search));
 return `
 <article class="tier-card ${tierClassName(tierName)}">
 <div class="flex items-center justify-between gap-3">
@@ -579,13 +659,24 @@ return `
 ${teams.length?teams.map((team,index)=>`
 <div class="tier-team">
 <span>${String(index+1).padStart(2,"0")}</span>
-<p>${team}</p>
+<p class="tier-team-name">${team.name}</p>
+<div class="tier-meta">
+${team.win?`<b class="tier-chip tier-win">${team.win}Win</b>`:""}
+${team.lose?`<b class="tier-chip tier-lose">${team.lose}Lose</b>`:""}
+${team.badge?`<b class="tier-chip tier-badge">${team.badge}</b>`:""}
+${!team.win&&!team.lose&&!team.badge?`<b class="tier-chip">NO RECORD</b>`:""}
+</div>
 </div>
 `).join(""):`<p class="tier-empty">Belum ada team.</p>`}
 </div>
 </article>
 `;
 }).join("");
+}
+
+function filterTier(){
+const input=document.getElementById("tierSearch");
+renderTier(currentTiers,input?input.value:"");
 }
 
 function renderRules(rules){
@@ -607,11 +698,55 @@ if(!historyItems.length){
 list.innerHTML=`<article class="history-card"><p class="history-empty">Belum ada history match.</p></article>`;
 return;
 }
-list.innerHTML=historyItems.map((item,index)=>`
-<article class="history-card">
-<div class="history-image-wrap">
-<img src="${driveImageSrc(item.image,1200)}" alt="History match ${index+1}" class="history-image" onerror="this.closest('.history-card').classList.add('is-broken');">
-<p class="history-broken">Image tidak dapat dibuka.</p>
+const groups=historyItems.reduce((collection,match)=>{
+if(!collection[match.laga]) collection[match.laga]=[];
+collection[match.laga].push(match);
+return collection;
+},{});
+const posters=Object.entries(groups).flatMap(([laga,matches])=>{
+const chunks=[];
+for(let index=0;index<matches.length;index+=3){
+chunks.push({laga,matches:matches.slice(index,index+3)});
+}
+return chunks;
+});
+list.innerHTML=posters.map(({laga,matches})=>`
+<article class="history-poster">
+<div class="history-poster-head">
+<div>
+<p class="history-game">FREE FIRE</p>
+<h3>RESULT MATCH</h3>
+</div>
+<span>${laga.toUpperCase()}</span>
+</div>
+<div class="history-result-list">
+${matches.map(match=>`
+<div class="history-result-row">
+<div class="history-result-team">
+<img src="${driveImageSrc(match.link1,256)||"images/gnexlaga.png"}" alt="${match.team1} logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
+<div>
+<span>${match.tier1.toUpperCase()}</span>
+<p>${match.team1}</p>
+</div>
+</div>
+<div class="history-score">
+<strong>${match.point1||"0"}</strong>
+<em>|</em>
+<strong>${match.point2||"0"}</strong>
+</div>
+<div class="history-result-team right">
+<div>
+<span>${match.tier2.toUpperCase()}</span>
+<p>${match.team2}</p>
+</div>
+<img src="${driveImageSrc(match.link2,256)||"images/gnexlaga.png"}" alt="${match.team2} logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
+</div>
+</div>
+`).join("")}
+</div>
+<div class="history-poster-foot">
+<p>REPLAY LIVE YT</p>
+<span>@officialgnex</span>
 </div>
 </article>
 `).join("");
@@ -658,7 +793,8 @@ document.getElementById("tierSource").textContent="GNEX TIER";
 }catch(error){
 document.getElementById("tierSource").textContent="Fallback tier digunakan. Publish/share tab Tier untuk live update.";
 }
-renderTier(tiers);
+currentTiers=tiers;
+renderTier(currentTiers);
 }
 
 async function loadSchedule(){
@@ -681,6 +817,11 @@ loadSchedule();
 loadRules();
 loadTier();
 loadHistory();
+
+const tierSearch=document.getElementById("tierSearch");
+if(tierSearch){
+tierSearch.addEventListener("input",filterTier);
+}
 
 const registerForm=document.getElementById("lagaRegisterForm");
 const registerStatus=document.getElementById("registerStatus");

@@ -1,7 +1,9 @@
 const REGISTRATION_SHEET_NAME = "Pendaftaran";
 const SCHEDULE_SHEET_NAME = "Sheet1";
+const HISTORY_SHEET_NAME = "History match";
+const TIER_SHEET_NAME = "Tier";
 const PAYMENT_FOLDER_NAME = "GNEX LAGA PAYMENT SS";
-const TEAM_LOGO_FOLDER_ID = "";
+const TEAM_LOGO_FOLDER_ID = "1eBRyKAlddLwbvKPK1wm2AIKB0NxggN0K";
 const TEAM_LOGO_FOLDER_NAME = "GNEX LAGA";
 const SPREADSHEET_ID = "1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZYtk0_wjZ9xA";
 const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1msJE-sP71Oo7aQQ4mwtEsLNd2k65DvjZYtk0_wjZ9xA/edit";
@@ -134,6 +136,7 @@ function onEdit(e) {
   const editedSheet = e.range.getSheet();
   if (isScheduleSheet_(editedSheet)) {
     updateScheduleLogoLinksOnEdit_(e);
+    appendHistoryOnEdit_(e);
     return;
   }
 
@@ -186,6 +189,110 @@ function updateScheduleLogoLinksOnEdit_(e) {
     updated += updateScheduleLogoLinksForRow_(sheet, startRow + offset, config);
   }
   if (updated) SpreadsheetApp.getActive().toast("Logo link jadual updated.", "GNEX Laga", 3);
+}
+
+function appendHistoryOnEdit_(e) {
+  if (e.range.getRow() === 1) return;
+
+  const sheet = e.range.getSheet();
+  const headers = getHeaders_(sheet);
+  const historyCol = headers["history"] || headers["history match"];
+  if (!historyCol || e.range.getColumn() !== historyCol) return;
+
+  const isChecked = String(e.value).toUpperCase() === "TRUE";
+  if (!isChecked) return;
+
+  appendScheduleRowToHistory_(sheet, e.range.getRow(), headers);
+}
+
+function appendScheduleRowToHistory_(scheduleSheet, row, scheduleHeaders) {
+  const ss = openSpreadsheet_();
+  const historySheet = getOrCreateSheet_(ss, HISTORY_SHEET_NAME, [
+    "Laga V?",
+    "Team 1",
+    "Point 1",
+    "Team 2",
+    "Point 2",
+    "Link 1",
+    "Link 2",
+    "Tier 1",
+    "Tier 2"
+  ]);
+  const historyHeaders = getHeaders_(historySheet);
+  const scheduleLogoConfig = getScheduleLogoColumnConfig_(scheduleSheet);
+  const tierMap = buildTierMap_(ss);
+
+  const team1Col = scheduleHeaders["team 1"] || scheduleHeaders["team1"] || scheduleHeaders["team a"];
+  const team2Col = scheduleHeaders["team 2"] || scheduleHeaders["team2"] || scheduleHeaders["team b"];
+  const team1 = getCellValue_(scheduleSheet, row, team1Col);
+  const team2 = getCellValue_(scheduleSheet, row, team2Col);
+  if (!team1 || !team2) {
+    SpreadsheetApp.getActive().toast("Team 1/Team 2 kosong. Tak boleh hantar ke History.", "GNEX Laga", 5);
+    return;
+  }
+
+  const link1 = getCellValue_(scheduleSheet, row, scheduleLogoConfig.team1LogoLinkCol);
+  const link2 = getCellValue_(scheduleSheet, row, scheduleLogoConfig.team2LogoLinkCol);
+  const existingRow = findHistoryRow_(historySheet, historyHeaders, team1, team2);
+  const targetRow = existingRow || historySheet.getLastRow() + 1;
+  const rowValues = new Array(Math.max(historySheet.getLastColumn(), 9)).fill("");
+
+  setHistoryValue_(rowValues, historyHeaders, "team 1", team1);
+  setHistoryValue_(rowValues, historyHeaders, "team 2", team2);
+  setHistoryValue_(rowValues, historyHeaders, "link 1", link1);
+  setHistoryValue_(rowValues, historyHeaders, "link 2", link2);
+  setHistoryValue_(rowValues, historyHeaders, "tier 1", tierMap[normalizeTeamKey_(team1)] || "NO TIER");
+  setHistoryValue_(rowValues, historyHeaders, "tier 2", tierMap[normalizeTeamKey_(team2)] || "NO TIER");
+
+  if (!existingRow) {
+    setHistoryValue_(rowValues, historyHeaders, "laga v?", "");
+    setHistoryValue_(rowValues, historyHeaders, "point 1", "");
+    setHistoryValue_(rowValues, historyHeaders, "point 2", "");
+    historySheet.getRange(targetRow, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    const current = historySheet.getRange(targetRow, 1, 1, rowValues.length).getValues()[0];
+    rowValues.forEach((value, index) => {
+      if (value !== "") current[index] = value;
+    });
+    historySheet.getRange(targetRow, 1, 1, current.length).setValues([current]);
+  }
+
+  SpreadsheetApp.getActive().toast("Match dihantar ke History match.", "GNEX Laga", 4);
+}
+
+function setHistoryValue_(rowValues, headers, header, value) {
+  const col = headers[header];
+  if (col) rowValues[col - 1] = value;
+}
+
+function findHistoryRow_(historySheet, headers, team1, team2) {
+  const team1Col = headers["team 1"] || headers["team1"];
+  const team2Col = headers["team 2"] || headers["team2"];
+  if (!team1Col || !team2Col || historySheet.getLastRow() < 2) return 0;
+
+  const values = historySheet.getRange(2, 1, historySheet.getLastRow() - 1, historySheet.getLastColumn()).getValues();
+  const team1Key = normalizeTeamKey_(team1);
+  const team2Key = normalizeTeamKey_(team2);
+  const index = values.findIndex(row => normalizeTeamKey_(row[team1Col - 1]) === team1Key && normalizeTeamKey_(row[team2Col - 1]) === team2Key);
+  return index >= 0 ? index + 2 : 0;
+}
+
+function buildTierMap_(ss) {
+  const sheet = ss.getSheetByName(TIER_SHEET_NAME);
+  const tierMap = {};
+  if (!sheet || sheet.getLastRow() < 2) return tierMap;
+
+  const values = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
+  values[0].forEach((header, columnIndex) => {
+    const tier = String(header || "").trim();
+    if (!tier) return;
+    for (let row = 1; row < values.length; row++) {
+      const team = String(values[row][columnIndex] || "").trim();
+      const cleanTeam = cleanTierTeamName_(team);
+      if (cleanTeam) tierMap[normalizeTeamKey_(cleanTeam)] = tier;
+    }
+  });
+  return tierMap;
 }
 
 function updateScheduleLogoLinksForRow_(sheet, row, config) {
@@ -418,6 +525,17 @@ function isEmptySlot_(value) {
 
 function sameTeam_(a, b) {
   return String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+}
+
+function normalizeTeamKey_(value) {
+  return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function cleanTierTeamName_(value) {
+  return String(value || "")
+    .split(">")[0]
+    .replace(/\([^)]*\)/g, "")
+    .trim();
 }
 
 function normalizeDate_(value) {
