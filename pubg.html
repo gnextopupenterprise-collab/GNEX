@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GNEX PUBG UC topup price list and WhatsApp checkout.">
+<link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
+<link rel="apple-touch-icon" href="images/gnex-home-192.png?v=2">
+<link rel="manifest" href="manifest.webmanifest?v=2">
+<meta name="theme-color" content="#02040a">
+
+<title>GNEX PUBG UC Topup</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+html,
+body{
+width:100%;
+max-width:100%;
+overflow-x:hidden;
+scroll-behavior:smooth;
+}
+
+body{
+background:#02040a;
+color:white;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.page-glow{
+background:
+radial-gradient(circle at 18% 15%, rgba(34, 211, 238, 0.22), transparent 28%),
+radial-gradient(circle at 84% 10%, rgba(245, 158, 11, 0.16), transparent 24%),
+linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98) 55%, rgba(16, 10, 4, 0.98));
+}
+
+.pubg-hero-art{
+background:
+linear-gradient(90deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.76)),
+url("images/pubg-wallpaper.jpg");
+background-size:cover;
+background-position:center 60%;
+}
+
+.package-card{
+background:linear-gradient(180deg, rgba(24, 24, 27, 0.94), rgba(9, 9, 11, 0.96));
+}
+
+.package-card.active{
+border-color:#22d3ee;
+box-shadow:0 0 0 1px rgba(34, 211, 238, 0.45), 0 20px 60px rgba(34, 211, 238, 0.14);
+}
+
+.filter-btn.active{
+background:#22d3ee;
+border-color:#22d3ee;
+color:#000;
+}
+</style>
+</head>
+
+<body class="min-h-screen bg-black text-white">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/80 border-b border-zinc-800/90">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+
+<div class="flex items-center gap-3">
+<button
+type="button"
+onclick="toggleSidebar()"
+aria-label="Open menu"
+class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition">
+<img src="images/logo baru gnex .png" alt="GNEX logo" class="w-8 h-8 object-contain">
+</button>
+
+<div>
+<h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">TOPUP STORE</p>
+</div>
+</div>
+
+<div class="hidden md:flex items-center gap-4">
+<a href="index.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+HOME
+</a>
+
+<a href="tournament.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+TOURNAMENT
+</a>
+
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-cyan-400 text-black font-bold px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">
+WHATSAPP
+</a>
+</div>
+
+</div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside
+id="sidebar"
+class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60] transition-transform duration-500 p-8 -translate-x-full">
+
+<div class="mt-20 mb-12">
+<h2 class="text-4xl font-black text-cyan-400 leading-none">GNEX</h2>
+<p class="text-zinc-500 mt-2">TOPUP STORE</p>
+</div>
+
+<div class="flex flex-col gap-5">
+<a href="index.html" class="text-white hover:text-cyan-400 transition text-lg font-semibold">HOME</a>
+<button type="button" onclick="goSection('packages')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">PRICE LIST</button>
+<button type="button" onclick="goSection('checkout')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">CHECKOUT</button>
+<a href="tournament.html" class="text-white hover:text-cyan-400 transition text-lg font-semibold">TOURNAMENT</a>
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="text-white hover:text-green-400 transition text-lg font-semibold">WHATSAPP</a>
+</div>
+</aside>
+
+<div id="overlay" onclick="closeSidebar()" class="fixed inset-0 bg-black/60 z-50 hidden"></div>
+
+<!-- HERO -->
+<header class="page-glow relative overflow-hidden border-b border-zinc-800 pt-28 md:pt-32">
+<div class="max-w-7xl mx-auto px-6 py-12 md:py-16">
+<div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
+
+<div class="flex flex-col justify-center">
+<p class="text-cyan-400 font-bold tracking-[0.28em] text-xs md:text-sm">
+TOPUP STORE
+</p>
+
+<h1 class="text-4xl sm:text-5xl md:text-7xl font-black leading-[0.95] mt-4">
+PUBG <span class="text-cyan-400">UC TOPUP</span>
+</h1>
+
+<p class="text-zinc-300 mt-6 text-base md:text-lg leading-relaxed max-w-2xl">
+Pilih UC package, masukkan Player ID, kemudian checkout terus melalui WhatsApp GNEX.
+</p>
+
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">UC</p>
+<p class="text-xs text-zinc-500 mt-1">Topup</p>
+</div>
+
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">19</p>
+<p class="text-xs text-zinc-500 mt-1">Packages</p>
+</div>
+
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">MYR</p>
+<p class="text-xs text-zinc-500 mt-1">Price List</p>
+</div>
+
+<div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
+<p class="text-2xl font-black">WA</p>
+<p class="text-xs text-zinc-500 mt-1">Checkout</p>
+</div>
+</div>
+</div>
+
+<div class="pubg-hero-art relative overflow-hidden rounded-xl border border-zinc-800 min-h-[360px]">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent"></div>
+<div class="relative z-10 h-full min-h-[360px] p-6 md:p-8 flex flex-col justify-between">
+<div class="flex items-center justify-between gap-4">
+<img src="images/pubg-logo.png" alt="PUBG logo" class="w-36 h-16 object-contain">
+<span class="bg-amber-300 text-black text-xs font-black px-3 py-1 rounded">UC READY</span>
+</div>
+
+<div class="max-w-md">
+<p class="text-cyan-300 font-black tracking-[0.2em] text-xs">GNEX FAST CHECKOUT</p>
+<h2 class="text-3xl md:text-4xl font-black mt-2">Select. Confirm. Drop In.</h2>
+<p class="text-zinc-300 mt-3 text-sm leading-relaxed">
+Order summary akan ikut UC package dan harga yang dipilih.
+</p>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</header>
+
+<!-- PROCESS -->
+<section class="max-w-7xl mx-auto px-6 py-8">
+<div class="grid sm:grid-cols-4 gap-3">
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">01</p>
+<p class="font-bold mt-2">Select UC</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">02</p>
+<p class="font-bold mt-2">Enter ID</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">03</p>
+<p class="font-bold mt-2">Confirm Price</p>
+</div>
+
+<div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+<p class="text-amber-300 font-black">04</p>
+<p class="font-bold mt-2">WhatsApp Order</p>
+</div>
+</div>
+</section>
+
+<!-- PACKAGES -->
+<main id="packages" class="max-w-7xl mx-auto px-6 pb-16 md:pb-20">
+<div class="grid lg:grid-cols-[1fr_360px] gap-6 items-start">
+
+<section>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+<div>
+<p class="text-cyan-400 text-xs font-bold tracking-[0.24em]">PUBG</p>
+<h2 class="text-3xl md:text-5xl font-black mt-2 leading-tight">UC PRICE LIST</h2>
+</div>
+
+<p class="text-zinc-500 text-sm">Data dari HARGA STOK tab PUBG</p>
+</div>
+
+<div class="flex flex-wrap gap-2 md:gap-3 mb-5">
+<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
+All Packages
+</button>
+<button type="button" onclick="filterPackages('standard', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
+Standard
+</button>
+<button type="button" onclick="filterPackages('combo', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
+Combo
+</button>
+</div>
+
+<div id="packageGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3"></div>
+</section>
+
+<!-- CHECKOUT -->
+<aside id="checkout" class="lg:sticky lg:top-28">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
+<div class="relative h-32 bg-cover bg-center" style="background-image:url('images/pubg-wallpaper.jpg');">
+<div class="absolute inset-0 bg-black/65"></div>
+<div class="relative z-10 p-5 flex items-center justify-between">
+<div>
+<p class="text-cyan-300 text-xs font-bold tracking-[0.2em]">ORDER SUMMARY</p>
+<h3 class="text-2xl font-black mt-1">PUBG</h3>
+</div>
+<img src="images/pubg-logo.png" alt="PUBG logo" class="w-24 h-12 object-contain">
+</div>
+</div>
+
+<div class="p-5">
+<div class="rounded-lg border border-cyan-400/40 bg-black/60 p-4">
+<p class="text-zinc-500 text-xs font-bold">SELECTED PACKAGE</p>
+<p id="selectedPackage" class="text-2xl font-black text-cyan-300 mt-2">60 UC</p>
+<p id="selectedChannel" class="text-zinc-400 text-sm mt-1">57</p>
+<p id="selectedPrice" class="text-amber-300 font-black mt-2">MYR4.25</p>
+</div>
+
+<label class="block text-sm font-bold text-zinc-300 mt-5 mb-2" for="playerId">Player ID</label>
+<input id="playerId" type="text" placeholder="Masukkan ID PUBG" class="w-full bg-black border border-zinc-800 rounded-lg px-4 py-3 outline-none focus:border-cyan-400 transition">
+
+<button type="button" onclick="orderNow()" class="w-full mt-5 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
+CHECKOUT WHATSAPP
+</button>
+
+<p class="text-zinc-500 text-xs mt-3 leading-relaxed">
+Harga dan cara isi ikut list PUBG dalam sheet stok GNEX.
+</p>
+</div>
+</div>
+</aside>
+
+</div>
+</main>
+
+<!-- TRUST STRIP -->
+<section class="max-w-7xl mx-auto px-6 pb-16">
+<div class="grid md:grid-cols-3 gap-4">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">UC Package</h3>
+<p class="text-zinc-500 text-sm mt-2">Pilih jumlah UC yang sesuai sebelum checkout.</p>
+</div>
+
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">Order Detail</h3>
+<p class="text-zinc-500 text-sm mt-2">WhatsApp akan simpan UC, cara isi, harga dan Player ID.</p>
+</div>
+
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+<h3 class="font-black">GNEX Support</h3>
+<p class="text-zinc-500 text-sm mt-2">Admin akan confirm detail order sebelum proses.</p>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-zinc-800 bg-black/80">
+<div class="max-w-7xl mx-auto px-6 py-10">
+<div class="grid md:grid-cols-3 gap-8">
+<div>
+<h2 class="text-3xl font-black text-cyan-400">GNEX</h2>
+<p class="text-zinc-500 mt-3 text-sm leading-relaxed">
+Fast topup service for gamers. Trusted seller with simple WhatsApp checkout.
+</p>
+</div>
+
+<div>
+<h3 class="font-bold mb-3">Menu</h3>
+<div class="flex flex-col gap-2 text-zinc-500 text-sm">
+<a href="index.html" class="hover:text-cyan-400 transition">Home</a>
+<a href="tournament.html" class="hover:text-cyan-400 transition">Tournament</a>
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="hover:text-green-400 transition">WhatsApp</a>
+</div>
+</div>
+
+<div>
+<h3 class="font-bold mb-3">Contact</h3>
+<div class="flex flex-col gap-2 text-zinc-500 text-sm">
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="hover:text-green-400 transition">WhatsApp</a>
+<p>gnextopupenterprise@gmail.com</p>
+<p>Collab</p>
+</div>
+</div>
+</div>
+
+<div class="border-t border-zinc-800 mt-8 pt-6 text-zinc-600 text-xs md:text-sm">
+(c) 2026 GNEX TOPUP STORE. All rights reserved.
+</div>
+</div>
+</footer>
+
+<script>
+const packages = [
+{name:"60 UC", price:"MYR4.25", fill:"57", category:"standard"},
+{name:"120 UC", price:"MYR8.50", fill:"57+57", category:"standard"},
+{name:"325 UC", price:"MYR21.00", fill:"300", category:"standard"},
+{name:"385 UC", price:"MYR25.00", fill:"300+57", category:"standard"},
+{name:"445 UC", price:"MYR30.00", fill:"300+57+57", category:"standard"},
+{name:"660 UC", price:"MYR43.00", fill:"600", category:"standard"},
+{name:"985 UC", price:"MYR64.00", fill:"600+300", category:"standard"},
+{name:"1800 UC", price:"MYR106.00", fill:"1500", category:"standard"},
+{name:"3850 UC", price:"MYR212.00", fill:"3000", category:"standard"},
+{name:"8100 UC", price:"MYR424.79", fill:"6000", category:"standard"},
+{name:"120 UC", price:"MYR10.00", fill:"57+57", category:"combo"},
+{name:"240 UC", price:"MYR20.00", fill:"57+57+57+57", category:"combo"},
+{name:"385 UC", price:"MYR30.00", fill:"300+57", category:"combo"},
+{name:"565 UC", price:"MYR40.00", fill:"300+57+57+57+57", category:"combo"},
+{name:"720 UC", price:"MYR50.00", fill:"600+57", category:"combo"},
+{name:"900 UC", price:"MYR60.00", fill:"600+57+57+57+57", category:"combo"},
+{name:"1045 UC", price:"MYR70.00", fill:"600+300+57", category:"combo"},
+{name:"1285 UC", price:"MYR90.00", fill:"-", category:"combo"},
+{name:"1440 UC", price:"MYR100.00", fill:"-", category:"combo"}
+];
+
+let currentPackage = packages[0];
+let currentFilter = "all";
+
+function toggleSidebar(){
+document.getElementById("sidebar").classList.toggle("-translate-x-full");
+document.getElementById("overlay").classList.toggle("hidden");
+}
+
+function closeSidebar(){
+document.getElementById("sidebar").classList.add("-translate-x-full");
+document.getElementById("overlay").classList.add("hidden");
+}
+
+function goSection(sectionId){
+closeSidebar();
+document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
+}
+
+function packageLabel(pkg){
+if(pkg.category === "standard"){
+return "PUBG";
+}
+
+return "COMBO";
+}
+
+function renderPackages(filter = "all"){
+const packageGrid = document.getElementById("packageGrid");
+const visiblePackages = packages.filter((pkg) => filter === "all" || pkg.category === filter);
+
+packageGrid.innerHTML = visiblePackages.map((pkg, index) => `
+<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}">
+<div class="flex justify-between items-center mb-3 gap-2">
+<span class="text-[9px] bg-zinc-800 px-2 py-1 rounded">${packageLabel(pkg)}</span>
+<span class="text-cyan-400 text-[11px] md:text-xs font-black text-right leading-tight">${pkg.price}</span>
+</div>
+<h3 class="text-xl md:text-[22px] font-black leading-tight">${pkg.name}</h3>
+<p class="text-zinc-500 text-[11px] mt-1.5">Cara isi: ${pkg.fill}</p>
+<button type="button" onclick="selectPackage(${packages.indexOf(pkg)})" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
+</article>
+`).join("");
+
+if(visiblePackages.length === 0){
+packageGrid.innerHTML = `<p class="text-zinc-500">No package found.</p>`;
+}
+}
+
+function filterPackages(category, button){
+currentFilter = category;
+document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("active"));
+button.classList.add("active");
+renderPackages(category);
+}
+
+function selectPackage(index){
+currentPackage = packages[index];
+document.getElementById("selectedPackage").innerText = currentPackage.name;
+document.getElementById("selectedChannel").innerText = `Cara isi: ${currentPackage.fill}`;
+document.getElementById("selectedPrice").innerText = currentPackage.price;
+renderPackages(currentFilter);
+document.getElementById("checkout").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function orderNow(){
+const playerId = document.getElementById("playerId").value.trim() || "Belum isi";
+
+const message =
+`Hello GNEX, saya nak beli PUBG topup:
+
+Package: ${currentPackage.name}
+Cara isi: ${currentPackage.fill}
+Harga: ${currentPackage.price}
+Player ID: ${playerId}`;
+
+const url = `https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
+window.open(url, "_blank");
+}
+
+renderPackages();
+</script>
+
+</body>
+</html>

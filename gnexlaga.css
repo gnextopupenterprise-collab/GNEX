@@ -43,6 +43,12 @@ pointer-events:none;
 background:rgba(0,0,0,.86);
 backdrop-filter:blur(18px);
 }
+#nextMatchBadge{
+max-width:150px;
+white-space:normal;
+text-align:center;
+line-height:1.15;
+}
 .hero-title-logo{display:none}
 .panel{
 background:linear-gradient(145deg,rgba(14,18,30,.92),rgba(0,0,0,.88));
@@ -131,6 +137,70 @@ object-fit:contain;
 background:rgba(0,18,26,.76);
 border:1px solid rgba(34,211,238,.5);
 padding:8px;
+}
+.next-match-list{
+display:grid;
+gap:9px;
+margin-top:16px;
+}
+.next-mini-match{
+display:grid;
+grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);
+align-items:center;
+gap:8px;
+min-height:72px;
+padding:10px;
+background:rgba(0,0,0,.48);
+border:1px solid rgba(63,63,70,.72);
+border-radius:10px;
+}
+.next-mini-team{
+display:grid;
+justify-items:center;
+gap:5px;
+min-width:0;
+text-align:center;
+}
+.next-mini-logo{
+width:36px;
+height:36px;
+border-radius:999px;
+object-fit:contain;
+background:rgba(0,18,26,.76);
+border:1px solid rgba(34,211,238,.45);
+padding:4px;
+}
+.next-mini-vs{
+display:grid;
+justify-items:center;
+gap:2px;
+text-align:center;
+}
+.next-mini-vs p{
+color:#22d3ee;
+font-size:23px;
+line-height:1;
+font-weight:900;
+}
+.next-mini-vs span{
+color:#facc15;
+font-size:10px;
+font-weight:900;
+white-space:nowrap;
+}
+.compact-team-name{
+width:100%;
+max-width:92px;
+min-height:28px;
+display:-webkit-box;
+-webkit-line-clamp:2;
+-webkit-box-orient:vertical;
+overflow:hidden;
+overflow-wrap:anywhere;
+text-align:center;
+font-size:clamp(10px,2.7vw,12px);
+line-height:1.15;
+font-weight:900;
 }
 .rule-card{
 background:linear-gradient(145deg,rgba(10,14,23,.92),rgba(0,0,0,.92));
@@ -425,6 +495,66 @@ padding:12px 10px;
 font-size:13px;
 white-space:nowrap;
 }
+.hero-side{
+gap:10px;
+}
+.hero-side .panel{
+padding:14px!important;
+}
+.hero-side .panel .mt-5{
+margin-top:12px!important;
+}
+.hero-side .panel .grid{
+gap:8px!important;
+}
+.hero-side .stat-box{
+padding:10px!important;
+}
+.hero-side .panel p{
+font-size:11px;
+}
+.hero-side .panel .text-4xl{
+font-size:28px;
+line-height:1;
+}
+.hero-side .panel .text-sm{
+font-size:11px;
+}
+.hero-side .panel .rounded-full{
+font-size:10px;
+padding:4px 9px;
+}
+.quick-actions{
+grid-template-columns:repeat(2,minmax(0,1fr));
+margin-top:18px!important;
+gap:8px!important;
+}
+.secondary-actions{
+grid-template-columns:repeat(2,minmax(0,1fr));
+margin-top:8px!important;
+gap:8px!important;
+}
+.quick-actions .info-card,
+.secondary-actions .electric-card{
+padding:12px!important;
+min-height:74px;
+}
+.quick-actions .info-card p:first-child,
+.secondary-actions .electric-card p:first-child{
+font-size:10px;
+letter-spacing:.16em;
+}
+.quick-actions .info-card .text-2xl,
+.secondary-actions .electric-card .text-xl{
+font-size:18px;
+line-height:1.05;
+margin-top:8px!important;
+}
+.quick-actions .info-card .text-sm{
+font-size:11px;
+margin-top:4px!important;
+line-height:1.2;
+}
 .laga-logo-wrap{min-height:180px}
 .hero-copy+.laga-logo-wrap{display:none}
 .laga-logo-wrap img{
@@ -456,6 +586,19 @@ line-height:1;
 .schedule-vs .text-xs{
 font-size:10px;
 }
+.next-mini-match{
+grid-template-columns:minmax(0,1fr) 46px minmax(0,1fr);
+gap:6px;
+padding:9px 8px;
+}
+.next-mini-logo{
+width:34px;
+height:34px;
+}
+.compact-team-name{
+max-width:86px;
+font-size:11px;
+}
 .tier-grid{grid-template-columns:1fr}
 .tier-card{padding:15px}
 .tier-team{min-height:40px}
@@ -481,5 +624,26 @@ gap:8px;
 .join-actions a{
 padding:12px 10px;
 font-size:12px;
+}
+.join-section{
+padding-top:28px!important;
+padding-bottom:28px!important;
+}
+.join-card{
+padding:16px!important;
+gap:12px!important;
+}
+.join-card .text-2xl{
+font-size:22px;
+line-height:1;
+}
+.join-card p.mt-2{
+font-size:13px;
+line-height:1.35;
+margin-top:6px!important;
+}
+.join-card .join-actions a{
+padding:10px 8px;
+font-size:11px;
 }
 }

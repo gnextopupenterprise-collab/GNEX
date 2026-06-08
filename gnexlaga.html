@@ -24,7 +24,10 @@
 <button onclick="scrollToPanel('rules')" class="px-7 py-3 rounded-lg border border-zinc-700 hover:border-cyan-400 text-sm font-bold">RULES</button>
 <button onclick="scrollToPanel('join')" class="px-7 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
 </div>
-<button onclick="scrollToPanel('join')" class="md:hidden px-5 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
+<div class="md:hidden flex items-center gap-2">
+<a href="tournament.html" class="px-4 py-3 rounded-lg border border-zinc-700 text-xs font-black">TOURNAMENT</a>
+<button onclick="openPanel('register')" class="px-5 py-3 rounded-lg bg-cyan-400 text-black text-sm font-black">JOIN</button>
+</div>
 </div>
 </nav>
 
@@ -41,7 +44,7 @@ GNEX LAGA<br><span class="text-cyan-400">CS</span>
 </div>
 <img src="images/gnexlaga.png" alt="GNEX Laga logo" class="hero-title-logo">
 </div>
-<p class="mt-6 text-zinc-200 max-w-xl leading-7">
+<p class="mt-6 text-xs text-zinc-200 max-w-xl leading-7">
 GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh ditempah terus melalui admin.
 </p>
 <div class="hero-actions mt-8 flex flex-col sm:flex-row gap-3">
@@ -61,7 +64,7 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <img src="images/gnexlaga.png" alt="GNEX Laga logo">
 </div>
 
-<div class="space-y-4">
+<div class="hero-side space-y-4">
 <div class="panel rounded-lg p-5">
 <div class="flex items-center justify-between gap-4">
 <p class="text-zinc-400 text-xs font-black tracking-[.22em]">STATUS</p>
@@ -92,25 +95,16 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <p class="text-zinc-400 text-xs font-black tracking-[.22em]">NEXT MATCH</p>
 <span id="nextMatchBadge" class="rounded-full border border-amber-400/50 text-amber-300 text-[10px] px-3 py-1 font-black">LOADING</span>
 </div>
-<div class="mt-5 flex items-center justify-between gap-4 text-center">
-<div>
-<img src="images/gnexlaga.png" alt="" class="match-logo mx-auto">
-<p id="nextTeamA" class="mt-2 text-sm font-black">TBD</p>
-</div>
-<div>
-<p class="text-cyan-400 text-4xl font-black">VS</p>
-<p id="nextMatchMeta" class="text-zinc-500 text-xs mt-1">Schedule loading</p>
-</div>
-<div>
-<img src="images/gnexlaga.png" alt="" class="match-logo mx-auto">
-<p id="nextTeamB" class="mt-2 text-sm font-black">TBD</p>
+<div id="nextMatchList" class="next-match-list">
+<div class="next-mini-match">
+<p class="text-zinc-500 text-xs font-black">Schedule loading</p>
 </div>
 </div>
 </div>
 </div>
 </div>
 
-<div class="mt-8 grid sm:grid-cols-3 gap-3">
+<div class="quick-actions mt-8 grid sm:grid-cols-3 gap-3">
 <button type="button" onclick="openPanel('schedule')" class="info-card electric-action rounded-lg p-5 text-left">
 <p class="text-cyan-400 text-xs font-black">01</p>
 <p class="text-2xl font-black mt-3">JADUAL</p>
@@ -120,23 +114,21 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 <p class="text-cyan-400 text-xs font-black">02</p>
 <p class="text-2xl font-black mt-3">RULES</p>
 <p class="text-zinc-500 text-sm mt-1">Peraturan tournament.</p>
-</button>
-<button type="button" onclick="scrollToPanel('join')" class="info-card electric-action rounded-lg p-5 text-left">
-<p class="text-cyan-400 text-xs font-black">03</p>
-<p class="text-2xl font-black text-amber-300 mt-3">ADMIN</p>
-<p class="text-zinc-500 text-sm mt-1">GNEX A7</p>
-</button>
+
 </div>
 
-<div class="mt-4 grid sm:grid-cols-2 gap-3">
+<div class="secondary-actions mt-4 grid sm:grid-cols-2 gap-3">
+
 <button type="button" onclick="openPanel('tier')" class="electric-card rounded-lg p-5 bg-black/80 text-left">
 <p class="text-cyan-400 text-xs font-black tracking-[.22em]">LIVE SHEET</p>
 <p class="text-xl font-black mt-2">TIER</p>
 </button>
+
 <button type="button" onclick="openPanel('history')" class="electric-card rounded-lg p-5 bg-black/80 text-left">
 <p class="text-cyan-400 text-xs font-black tracking-[.22em]">LIVE SHEET</p>
 <p class="text-xl font-black mt-2">HISTORY MATCH</p>
 </button>
+
 </div>
 </div>
 </header>
@@ -277,8 +269,8 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 </section>
 
 
-<section id="join" class="max-w-7xl mx-auto px-6 py-12">
-<div class="rounded-lg border border-cyan-400/50 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
+<section id="join" class="join-section max-w-7xl mx-auto px-6 py-12">
+<div class="join-card rounded-lg border border-cyan-400/50 bg-cyan-400 text-black p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5">
 <div>
 <p class="text-2xl md:text-3xl font-black">ADA SOALAN?</p>
 <p class="mt-2 text-black/70 font-bold">Hubungi admin GNEX A7 melalui whatsapp atau join group untuk lebih faham tentang GNEX LAGA CS.</p>
@@ -544,12 +536,27 @@ ${group.matches.map((match,index)=>`
 function updateNextMatch(matches){
 const now=new Date();
 const sorted=[...matches].sort((a,b)=>matchDate(a)-matchDate(b));
-const next=sorted.find(match=>matchDate(match)>=now)||sorted[sorted.length-1];
-if(!next) return;
-document.getElementById("nextTeamA").textContent=next.team1;
-document.getElementById("nextTeamB").textContent=next.team2;
-document.getElementById("nextMatchMeta").textContent=`${formatDateTitle(next.date)} / ${formatTime(next.time)}`;
-document.getElementById("nextMatchBadge").textContent=matchDate(next)<=now?"LATEST":"NEXT MATCH";
+const upcoming=sorted.filter(match=>matchDate(match)>=now);
+const nextMatches=(upcoming.length?upcoming:sorted).slice(0,3);
+const list=document.getElementById("nextMatchList");
+if(!list||!nextMatches.length) return;
+document.getElementById("nextMatchBadge").textContent=formatDateTitle(nextMatches[0].date);
+list.innerHTML=nextMatches.map(match=>`
+<div class="next-mini-match">
+<div class="next-mini-team">
+<img src="${logoSrc(match.team1Logo)}" alt="${match.team1} logo" class="next-mini-logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
+<p class="compact-team-name">${match.team1}</p>
+</div>
+<div class="next-mini-vs">
+<p>VS</p>
+<span>${formatTime(match.time)}</span>
+</div>
+<div class="next-mini-team">
+<img src="${logoSrc(match.team2Logo)}" alt="${match.team2} logo" class="next-mini-logo" onerror="this.onerror=null;this.src='images/gnexlaga.png';">
+<p class="compact-team-name">${match.team2}</p>
+</div>
+</div>
+`).join("");
 }
 
 function tierClassName(tierName){

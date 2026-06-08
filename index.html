@@ -26,6 +26,75 @@ body{
 background:#02040a;
 }
 
+body.modal-open{
+overflow:hidden;
+}
+
+.modal-view{
+position:fixed;
+inset:0;
+z-index:80;
+display:none;
+background:rgba(2,4,10,.82);
+}
+
+.modal-view.is-open{
+display:block;
+}
+
+.modal-backdrop{
+position:absolute;
+inset:0;
+background:rgba(2,4,10,.84);
+backdrop-filter:blur(10px);
+}
+
+.modal-panel{
+position:relative;
+z-index:1;
+height:100vh;
+overflow-y:auto;
+background:linear-gradient(180deg, rgba(2,6,23,.96), rgba(2,4,10,.98));
+border-left:1px solid rgba(34,211,238,.22);
+border-right:1px solid rgba(34,211,238,.22);
+}
+
+.modal-close{
+position:fixed;
+top:16px;
+right:16px;
+z-index:90;
+width:44px;
+height:44px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:10px;
+border:1px solid rgba(34,211,238,.6);
+background:rgba(2,6,23,.94);
+color:white;
+font-weight:900;
+box-shadow:0 0 24px rgba(34,211,238,.16);
+transition:border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.modal-close:hover{
+border-color:rgba(34,211,238,1);
+color:#22d3ee;
+transform:translateY(-1px);
+}
+
+footer a[href*="tiktok.com"] span{
+font-size:0;
+}
+
+footer a[href*="tiktok.com"] span::before{
+content:"T";
+font-size:12px;
+font-weight:900;
+line-height:1;
+}
+
 .hero-glow{
 background:
 radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.22), transparent 28%),
@@ -344,7 +413,7 @@ class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-cent
 HOME
 </button>
 
-<button type="button" onclick="scrollToPriceList()" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+<button type="button" onclick="openPriceListPanel()" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
 GNEX TOPUP
 </button>
 
@@ -387,7 +456,7 @@ class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60
 HOME
 </button>
 
-<button type="button" onclick="goSection('price-list')" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
+<button type="button" onclick="openPriceListPanel()" class="text-left text-white hover:text-cyan-400 transition text-lg font-semibold">
 PRICE LIST
 </button>
 
@@ -492,7 +561,7 @@ hover:-translate-y-1 hover:border-cyan-300 transition">
 </div>
 </a>
 
-<a href="#price-list" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
+<button type="button" onclick="openPriceListPanel()" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 text-left
 hover:-translate-y-1 hover:border-cyan-300 transition">
 <div class="absolute inset-0 opacity-30 bg-[url('images/ml-wallpaper.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
@@ -504,7 +573,7 @@ hover:-translate-y-1 hover:border-cyan-300 transition">
 </div>
 <p class="text-cyan-300 text-xs md:text-sm font-black mt-1 md:mt-3">VIEW PRICE -></p>
 </div>
-</a>
+</button>
 
 <a href="jersey.html" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
 hover:-translate-y-1 hover:border-cyan-300 transition">
@@ -540,7 +609,10 @@ group-hover:scale-105 transition duration-500">
 </header>
 
 <!-- PRICE LIST -->
-<section id="price-list" class="bg-zinc-950/60 border-y border-zinc-900">
+<section id="price-list" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePriceListPanel()"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePriceListPanel()" aria-label="Close price list">X</button>
 <div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
@@ -597,11 +669,11 @@ VIEW PACKAGE
 <img src="images/pubg-logo.png" alt="PUBG logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
 </div>
 <h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">UC</h3>
-<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">PUBG UC akan dibuka selepas harga selesai dikemaskini.</p>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup PUBG UC dengan checkout WhatsApp GNEX.</p>
 </div>
-<button type="button" class="w-full bg-zinc-800 text-zinc-300 font-black py-2.5 md:py-3 rounded-lg cursor-not-allowed">
-COMING SOON
-</button>
+<a href="pubg.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
 </div>
 </article>
 </div>
@@ -634,54 +706,113 @@ Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
 </div>
 </a>
 </div>
+</div>
 </section>
 
 <!-- PAYMENT / TRUST -->
-<section id="payment" class="max-w-7xl mx-auto px-6 py-16">
-<div class="grid lg:grid-cols-[0.85fr_1fr] gap-6 items-stretch">
-<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-<p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">WHY GNEX</p>
-<h2 class="text-3xl font-black mt-2">Fast delivery, trusted seller.</h2>
-<p class="text-zinc-400 mt-4 leading-relaxed">
+<section id="payment" class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-16">
+<div class="grid lg:grid-cols-[0.85fr_1fr] gap-3 md:gap-6 items-stretch">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-4 md:p-6">
+<p class="text-cyan-400 font-bold tracking-[0.18em] md:tracking-[0.2em] text-[10px] md:text-xs">WHY GNEX</p>
+<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-2 leading-tight">Fast delivery, trusted seller.</h2>
+<p class="text-zinc-400 mt-2 md:mt-4 text-xs md:text-base leading-relaxed">
 Simple flow untuk player: pilih game, contact seller, buat payment dan tunggu order diproses.
 </p>
 </div>
 
-<div class="grid sm:grid-cols-3 gap-4">
-<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-<p class="text-amber-300 font-black">01</p>
-<h3 class="font-black mt-3">Send Detail</h3>
-<p class="text-zinc-500 text-sm mt-2">Hantar ID game dan server kepada GNEX.</p>
+<div class="grid grid-cols-3 gap-2 md:gap-4">
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">01</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Send Detail</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Hantar ID game dan server kepada GNEX.</p>
 </div>
 
-<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-<p class="text-amber-300 font-black">02</p>
-<h3 class="font-black mt-3">Payment</h3>
-<p class="text-zinc-500 text-sm mt-2">Seller confirm amount dan payment method.</p>
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">02</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Payment</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Seller confirm amount dan payment method.</p>
 </div>
 
-<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-<p class="text-amber-300 font-black">03</p>
-<h3 class="font-black mt-3">Process</h3>
-<p class="text-zinc-500 text-sm mt-2">Order diproses dan update diberi melalui WhatsApp.</p>
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">03</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Process</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Order diproses dan update diberi melalui WhatsApp.</p>
 </div>
 </div>
 </div>
 
-<div class="mt-8 rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-6 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-5">
+<div class="mt-5 md:mt-8 rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-4 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-5">
 <div>
-<p class="font-black text-2xl">Need help with topup or tournament?</p>
-<p class="text-black/70 mt-1 font-semibold">Contact GNEX terus melalui WhatsApp untuk pertanyaan cepat.</p>
+<p class="font-black text-lg md:text-2xl leading-tight">Need help with topup or tournament?</p>
+<p class="text-black/70 mt-1 text-xs md:text-base font-semibold">Contact GNEX terus melalui WhatsApp untuk pertanyaan cepat.</p>
 </div>
-<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-6 py-3 rounded-lg hover:bg-zinc-900 transition">
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-4 md:px-6 py-2.5 md:py-3 rounded-lg hover:bg-zinc-900 transition text-xs md:text-base">
 CHAT WHATSAPP
 </a>
 </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="border-t border-zinc-800 py-8 text-center text-zinc-500 text-sm">
-(c) 2026 GNEX GAMING / Tournament & Diamond Store
+<footer class="border-t border-zinc-800 bg-zinc-950/70">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+<div class="col-span-2 md:col-span-1">
+<p class="text-cyan-400 font-black tracking-[0.18em] text-[10px] md:text-xs">GNEX</p>
+<p class="text-white font-black text-sm md:text-lg mt-1">GNEX CENTER</p>
+<p class="text-zinc-500 text-[11px] md:text-xs mt-1">Tournament, topup store dan community hub.</p>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Email</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="mailto:gnextopupenterprise@gmail.com" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition" aria-label="Email GNEX Topup">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>
+GNEX TOPUP
+</a>
+<a href="mailto:officialgnex@gmail.com" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition" aria-label="Email Official GNEX">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>
+OFFICIAL GNEX
+</a>
+</div>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Social</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="https://www.tiktok.com/@officialgnex" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition">
+<span class="inline-flex h-5 w-5 items-center justify-center rounded bg-white text-black font-black leading-none">♪</span>
+@officialgnex
+</a>
+<a href="https://www.tiktok.com/@gnex_a7" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition">
+<span class="inline-flex h-5 w-5 items-center justify-center rounded bg-white text-black font-black leading-none">♪</span>
+@gnex_a7
+</a>
+<a href="https://whatsapp.com/channel/0029Va8PWv61noz1ttETrH2x" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+Channel
+</a>
+</div>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Contact</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20buat%20topup" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition" aria-label="WhatsApp GNEX Topup">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+GNEX Topup
+</a>
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20collab.%20Collab%20untuk%20apa%3A%20" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition" aria-label="WhatsApp GNEX Collab">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+Collab
+</a>
+</div>
+</div>
+</div>
+
+<div class="mt-4 md:mt-5 border-t border-zinc-800 pt-3 md:pt-4 text-center text-zinc-600 text-[11px] md:text-sm">
+(c) 2026 GNEX CENTER / Tournament & Diamond Store
+</div>
+</div>
 </footer>
 
 <script>
@@ -711,8 +842,14 @@ closeSidebar();
 document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
 }
 
-function scrollToPriceList(){
-document.getElementById("price-list").scrollIntoView({behavior:"smooth"});
+function openPriceListPanel(){
+closeSidebar();
+const priceList = document.getElementById("price-list");
+if(!priceList) return;
+
+priceList.classList.add("is-open");
+priceList.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
 
 setTimeout(() => {
 const cards = document.querySelectorAll(".game-card");
@@ -725,6 +862,19 @@ card.classList.add("animate-card");
 }, index * 120);
 });
 }, 400);
+}
+
+function closePriceListPanel(){
+const priceList = document.getElementById("price-list");
+if(!priceList) return;
+
+priceList.classList.remove("is-open");
+priceList.setAttribute("aria-hidden", "true");
+document.body.classList.remove("modal-open");
+}
+
+function scrollToPriceList(){
+openPriceListPanel();
 }
 
 const promoSlides = Array.from(document.querySelectorAll(".promo-slide"));
@@ -751,6 +901,12 @@ setInterval(() => {
 setPromoSlide(promoIndex + 1);
 }, 4500);
 }
+
+document.addEventListener("keydown", (event) => {
+if(event.key === "Escape"){
+closePriceListPanel();
+}
+});
 </script>
 
 </body>
