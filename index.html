@@ -13,368 +13,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-html,
-body{
-width:100%;
-max-width:100%;
-overflow-x:hidden;
-scroll-behavior:smooth;
-}
-
-body{
-background:#02040a;
-}
-
-body.modal-open{
-overflow:hidden;
-}
-
-.modal-view{
-position:fixed;
-inset:0;
-z-index:80;
-display:none;
-background:rgba(2,4,10,.82);
-}
-
-.modal-view.is-open{
-display:block;
-}
-
-.modal-backdrop{
-position:absolute;
-inset:0;
-background:rgba(2,4,10,.84);
-backdrop-filter:blur(10px);
-}
-
-.modal-panel{
-position:relative;
-z-index:1;
-height:100vh;
-overflow-y:auto;
-background:linear-gradient(180deg, rgba(2,6,23,.96), rgba(2,4,10,.98));
-border-left:1px solid rgba(34,211,238,.22);
-border-right:1px solid rgba(34,211,238,.22);
-}
-
-.modal-close{
-position:fixed;
-top:16px;
-right:16px;
-z-index:90;
-width:44px;
-height:44px;
-display:flex;
-align-items:center;
-justify-content:center;
-border-radius:10px;
-border:1px solid rgba(34,211,238,.6);
-background:rgba(2,6,23,.94);
-color:white;
-font-weight:900;
-box-shadow:0 0 24px rgba(34,211,238,.16);
-transition:border-color .2s ease, color .2s ease, transform .2s ease;
-}
-
-.modal-close:hover{
-border-color:rgba(34,211,238,1);
-color:#22d3ee;
-transform:translateY(-1px);
-}
-
-footer a[href*="tiktok.com"] span{
-font-size:0;
-}
-
-footer a[href*="tiktok.com"] span::before{
-content:"T";
-font-size:12px;
-font-weight:900;
-line-height:1;
-}
-
-.hero-glow{
-background:
-radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.22), transparent 28%),
-radial-gradient(circle at 82% 8%, rgba(168, 85, 247, 0.16), transparent 26%),
-linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98) 55%, rgba(10, 5, 20, 0.98));
-}
-
-.hero-video{
-position:absolute;
-inset:0;
-width:100%;
-height:100%;
-object-fit:cover;
-opacity:.34;
-filter:saturate(1.25) contrast(1.08);
-}
-
-.hero-red-motion{
-position:absolute;
-inset:0;
-background:
-radial-gradient(circle at var(--x, 72%) var(--y, 28%), rgba(239, 68, 68, .2), transparent 24%),
-radial-gradient(circle at 20% 80%, rgba(34, 211, 238, .14), transparent 30%);
-mix-blend-mode:screen;
-animation:redMotion 9s ease-in-out infinite alternate;
-}
-
-@keyframes redMotion{
-0%{
---x:68%;
---y:24%;
-transform:scale(1);
-}
-
-100%{
---x:86%;
---y:52%;
-transform:scale(1.08);
-}
-}
-
-.promo-carousel{
-position:relative;
-width:min(100%, 680px);
-aspect-ratio:16 / 9;
-overflow:hidden;
-}
-
-.promo-slide{
-position:absolute;
-top:50%;
-left:50%;
-width:100%;
-aspect-ratio: 16 / 9;
-overflow:hidden;
-border-radius:14px;
-border:1px solid rgba(34, 211, 238, .45);
-background:
-linear-gradient(135deg, rgba(34, 211, 238, .22), rgba(0,0,0,.82)),
-linear-gradient(160deg, #06121f, #02040a 58%, #1b0710);
-box-shadow:0 20px 70px rgba(0,0,0,.48);
-transform:translate(-50%, -50%) scale(.72);
-opacity:.28;
-transition:transform .45s ease, opacity .45s ease, filter .45s ease;
-filter:blur(.5px);
-}
-
-.promo-slide.is-active{
-z-index:4;
-opacity:1;
-transform:translate(-50%, -50%) scale(1);
-filter:blur(0);
-}
-
-.promo-slide.is-left{
-z-index:2;
-opacity:.5;
-transform:translate(calc(-50% - 265px), -50%) scale(.78) rotate(-4deg);
-}
-
-.promo-slide.is-right{
-z-index:2;
-opacity:.5;
-transform:translate(calc(-50% + 265px), -50%) scale(.78) rotate(4deg);
-}
-
-.promo-slide.is-hidden{
-z-index:1;
-opacity:.18;
-transform:translate(calc(-50% + 440px), -50%) scale(.64) rotate(8deg);
-}
-
-.promo-slide-inner{
-position:absolute;
-inset:0;
-z-index:1;
-display:flex;
-flex-direction:column;
-justify-content:space-between;
-padding:18px;
-background:linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.9));
-}
-
-.promo-slide-image{
-position:absolute;
-inset:0;
-width:100%;
-height:100%;
-object-fit:cover;
-object-position:center;
-}
-
-.promo-dot{
-width:8px;
-height:8px;
-border-radius:999px;
-background:rgba(255,255,255,.28);
-transition:width .25s ease, background .25s ease;
-}
-
-.promo-dot.is-active{
-width:22px;
-background:#22d3ee;
-}
-
-.electric-card{
-isolation:isolate;
-}
-
-.electric-card::before{
-content:"";
-position:absolute;
-inset:0;
-z-index:20;
-padding:1px;
-border-radius:inherit;
-pointer-events:none;
-background:
-linear-gradient(110deg, transparent 0 18%, rgba(34,211,238,.95) 28%, rgba(255,255,255,.9) 34%, rgba(34,211,238,.65) 42%, transparent 54%),
-linear-gradient(90deg, rgba(34,211,238,.55), rgba(56,189,248,.08), rgba(34,211,238,.75));
-background-size:220% 100%, 100% 100%;
--webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
--webkit-mask-composite:xor;
-mask-composite:exclude;
-animation:electricBorder 2.2s linear infinite;
-box-shadow:0 0 18px rgba(34,211,238,.35);
-}
-
-.electric-card::after{
-content:"";
-position:absolute;
-inset:-1px;
-z-index:1;
-border-radius:inherit;
-pointer-events:none;
-opacity:.55;
-background:
-radial-gradient(circle at 18% 0%, rgba(34,211,238,.16), transparent 32%),
-radial-gradient(circle at 86% 100%, rgba(34,211,238,.12), transparent 34%);
-}
-
-.tournament-logo-stack{
-position:absolute;
-right:16px;
-top:16px;
-z-index:12;
-display:flex;
-align-items:center;
-gap:8px;
-}
-
-.tournament-logo-stack img{
---logo-scale:1;
-width:32px;
-height:32px;
-object-fit:contain;
-object-position:center;
-transform:scale(var(--logo-scale));
-transition:transform .35s ease, filter .35s ease;
-}
-
-.tournament-logo-stack .cs-logo{
---logo-scale:.74;
-}
-
-.tournament-logo-stack .gtml-logo{
---logo-scale:1.18;
-}
-
-.group:hover .tournament-logo-stack img{
-transform:translateY(-2px) scale(calc(var(--logo-scale) * 1.06));
-
-}
-
-@keyframes electricBorder{
-0%{
-background-position:220% 0, 0 0;
-filter:hue-rotate(0deg);
-}
-
-100%{
-background-position:-80% 0, 0 0;
-filter:hue-rotate(18deg);
-}
-}
-
-@media (min-width:768px){
-.tournament-logo-stack{
-top:auto;
-right:16px;
-bottom:16px;
-gap:9px;
-}
-
-.tournament-logo-stack img{
-width:30px;
-height:30px;
-}
-}
-
-@media (max-width:640px){
-.promo-carousel{
-width:min(100%, 250px);
-height:auto;
-}
-
-.promo-slide{
-width:100%;
-}
-
-.promo-slide.is-left{
-transform:translate(calc(-50% - 150px), -50%) scale(.72) rotate(-5deg);
-}
-
-.promo-slide.is-right{
-transform:translate(calc(-50% + 150px), -50%) scale(.72) rotate(5deg);
-}
-
-.promo-slide.is-hidden{
-transform:translate(calc(-50% + 280px), -50%) scale(.56) rotate(8deg);
-}
-
-.tournament-logo-stack{
-right:12px;
-top:12px;
-gap:6px;
-}
-
-.tournament-logo-stack img{
-width:44px;
-height:44px;
-}
-}
-
-.card-glass{
-background:linear-gradient(180deg, rgba(24, 24, 27, 0.88), rgba(9, 9, 11, 0.92));
-border:1px solid rgba(63, 63, 70, 0.8);
-box-shadow:0 24px 80px rgba(0, 0, 0, 0.35);
-}
-
-.cyan-line{
-background:linear-gradient(90deg, rgba(34, 211, 238, 0), rgba(34, 211, 238, 0.9), rgba(34, 211, 238, 0));
-}
-
-@keyframes popCard{
-0%{
-transform:translateY(32px) scale(0.96);
-opacity:0;
-}
-
-100%{
-transform:translateY(0) scale(1);
-opacity:1;
-}
-}
-
-.animate-card{
-animation:popCard 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-</style>
+<link rel="stylesheet" href="index.css">
 </head>
 
 <!-- Google tag (gtag.js) -->
@@ -489,7 +128,7 @@ WHATSAPP
 <div class="relative">
 <div id="promoCarousel" class="promo-carousel mx-auto">
 <button type="button" class="promo-slide is-active" onclick="setPromoSlide(0)" aria-label="Promo 1">
-  <img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
+  <img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
@@ -500,7 +139,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-right" onclick="setPromoSlide(1)" aria-label="Promo 2">
-<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
+<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
@@ -511,7 +150,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-hidden" onclick="setPromoSlide(2)" aria-label="Promo 3">
-<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup"> 
+<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup"> 
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
@@ -522,7 +161,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-left" onclick="setPromoSlide(3)" aria-label="Promo 4">
-<img class="promo-slide-image" src="image-iklan/cover banner gnex.jpg" alt="Iklan GNEX Topup">
+<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
@@ -541,23 +180,18 @@ WHATSAPP
 </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 mt-6 md:mt-8">
-<a href="tournament.html" class="group block aspect-[16/9] min-h-[150px] md:min-h-[170px] overflow-hidden rounded-xl transition hover:-translate-y-1" aria-label="Open tournament page">
-<img src="Card design/CARD ESPORT TOURNAMENT.png" alt="GNEX Esport Tournament" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 md:gap-3 mt-6 md:mt-8 ">
+<a href="tournament.html" class="tournament-card-button" aria-label="Open tournament page">
+<img src="Card design/ESPORT TOURNAMENT CARD.png.png" alt="GNEX Esport Tournament" class="tournament-card-bg">
+<img src="Card design/KELLY.png" alt="" class="tournament-card-character is-kelly" aria-hidden="true">
+<img src="Card design/GRANGER.png" alt="" class="tournament-card-character is-granger" aria-hidden="true">
 </a>
 
-<button type="button" onclick="openPriceListPanel()" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 text-left
-hover:-translate-y-1 hover:border-cyan-300 transition">
-<div class="absolute inset-0 opacity-30 bg-[url('images/ml-wallpaper.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/20"></div>
-<div class="relative z-10 h-full flex flex-col justify-between">
-<div>
-<p class="text-cyan-300 text-xs font-black tracking-[0.22em]">02</p>
-<h2 class="text-xl md:text-2xl font-black mt-1 md:mt-3">GNEX TOPUP</h2>
-<p class="hidden sm:block text-zinc-400 text-xs md:text-sm mt-1 md:mt-3">Diamond, UC dan topup game pilihan player.</p>
-</div>
-<p class="text-cyan-300 text-xs md:text-sm font-black mt-1 md:mt-3">VIEW PRICE -></p>
-</div>
+<button type="button" onclick="openPriceListPanel()" class="topup-card-button" aria-label="Open GNEX Topup price list">
+<img src="Card design/TOPUP GAMING CARD.png" alt="GNEX Topup Gaming" class="topup-card-bg">
+<img src="Card design/LOGO FF DIAMOND.png" alt="" class="topup-card-item" aria-hidden="true">
+<img src="Card design/LOGO PUBG UC.png" alt="" class="topup-card-item is-pubg" aria-hidden="true">
+<img src="Card design/LOGO WEEKLYMEMBERSHIP (1).png" alt="" class="topup-card-item is-weekly" aria-hidden="true">
 </button>
 
 <a href="jersey.html" class="electric-card group relative min-h-[58px] md:min-h-[170px] overflow-hidden rounded-xl border border-cyan-400/40 bg-zinc-950 p-4 md:p-5 
