@@ -10,6 +10,12 @@ body{
 background:#02040a;
 }
 
+@media (max-width:767px){
+body{
+padding-bottom:92px;
+}
+}
+
 body.modal-open{
 overflow:hidden;
 }
@@ -43,6 +49,33 @@ border-left:1px solid rgba(34,211,238,.22);
 border-right:1px solid rgba(34,211,238,.22);
 }
 
+@media (max-width:767px){
+.modal-panel{
+height:calc(100dvh - 81px);
+padding-bottom:104px;
+}
+
+.modal-view{
+top:81px;
+z-index:45;
+background:#02040a;
+}
+
+.modal-backdrop{
+display:none;
+}
+
+.modal-close{
+display:none;
+}
+
+.modal-panel > .max-w-7xl{
+padding-top:28px;
+padding-left:18px;
+padding-right:18px;
+}
+}
+
 .modal-close{
 position:fixed;
 top:16px;
@@ -66,6 +99,155 @@ transition:border-color .2s ease, color .2s ease, transform .2s ease;
 border-color:rgba(34,211,238,1);
 color:#22d3ee;
 transform:translateY(-1px);
+}
+
+.mobile-inline-search{
+width:min(44vw, 178px);
+height:42px;
+display:flex;
+align-items:center;
+gap:8px;
+border:1px solid rgba(63,63,70,.9);
+border-radius:12px;
+background:rgba(0,0,0,.42);
+padding:0 11px;
+box-shadow:0 0 18px rgba(34,211,238,.08);
+transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+@media (min-width:768px){
+.mobile-inline-search{
+display:none !important;
+}
+}
+
+.mobile-inline-search:focus-within{
+border-color:rgba(34,211,238,.8);
+background:rgba(2,6,23,.78);
+box-shadow:0 0 22px rgba(34,211,238,.16);
+}
+
+.mobile-inline-search-icon{
+flex:0 0 auto;
+width:18px;
+height:18px;
+color:#67f1fd;
+}
+
+.mobile-inline-search-input{
+min-width:0;
+width:100%;
+height:100%;
+border:0;
+outline:0;
+background:transparent;
+color:white;
+font-size:13px;
+font-weight:800;
+}
+
+.mobile-inline-search-input::placeholder{
+color:rgba(212,212,216,.58);
+}
+
+.footer-simple-title{
+color:white;
+font-size:12px;
+font-weight:900;
+letter-spacing:.12em;
+text-transform:uppercase;
+}
+
+.footer-simple-list{
+display:flex;
+flex-direction:column;
+gap:7px;
+margin-top:10px;
+font-size:12px;
+font-weight:800;
+}
+
+.footer-simple-list a{
+color:#a1a1aa;
+transition:color .2s ease;
+}
+
+.footer-simple-list a:hover{
+color:#67f1fd;
+}
+
+.bottom-app-nav{
+position:fixed;
+left:50%;
+bottom:14px;
+z-index:95;
+display:none;
+width:min(calc(100% - 28px), 430px);
+height:70px;
+transform:translateX(-50%);
+align-items:center;
+justify-content:space-around;
+gap:4px;
+padding:8px;
+border:1px solid rgba(34,211,238,.26);
+border-radius:22px;
+background:linear-gradient(180deg, rgba(8,13,24,.96), rgba(2,4,10,.98));
+box-shadow:0 18px 46px rgba(0,0,0,.48), 0 0 26px rgba(34,211,238,.16);
+backdrop-filter:blur(14px);
+}
+
+.bottom-nav-item{
+position:relative;
+width:25%;
+height:54px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:4px;
+border:0;
+border-radius:16px;
+background:transparent;
+color:#a1a1aa;
+font-size:10px;
+font-weight:900;
+line-height:1;
+transition:color .2s ease, transform .2s ease;
+}
+
+.bottom-nav-item svg{
+width:22px;
+height:22px;
+}
+
+.bottom-nav-item.is-active{
+color:#02040a;
+transform:translateY(-14px);
+}
+
+.bottom-nav-item.is-active::before{
+content:"";
+position:absolute;
+inset:1px 50% auto auto;
+top:0;
+left:50%;
+z-index:-1;
+width:48px;
+height:48px;
+border-radius:999px;
+background:linear-gradient(180deg, #67f1fd, #22d3ee);
+box-shadow:0 8px 18px rgba(34,211,238,.38), 0 0 0 8px rgba(2,4,10,.94);
+transform:translateX(-50%);
+}
+
+.bottom-nav-item.is-active span{
+display:none;
+}
+
+@media (max-width:767px){
+.bottom-app-nav{
+display:flex;
+}
 }
 
 footer a[href*="tiktok.com"] span{
@@ -204,6 +386,44 @@ width:22px;
 background:#22d3ee;
 }
 
+.promo-nav-button{
+position:absolute;
+top:50%;
+z-index:8;
+width:30px;
+height:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:999px;
+border:1px solid rgba(34,211,238,.56);
+background:rgba(2,6,23,.72);
+color:#67f1fd;
+box-shadow:0 8px 20px rgba(0,0,0,.32);
+transform:translateY(-50%);
+transition:background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.promo-nav-button:hover{
+border-color:rgba(103,241,253,.95);
+background:rgba(34,211,238,.16);
+color:white;
+transform:translateY(-50%) scale(1.06);
+}
+
+.promo-nav-button svg{
+width:16px;
+height:16px;
+}
+
+.promo-nav-button.is-prev{
+left:10px;
+}
+
+.promo-nav-button.is-next{
+right:10px;
+}
+
 .electric-card{
 isolation:isolate;
 }
@@ -293,32 +513,46 @@ filter:brightness(1.08);
 
 .tournament-card-button::before,
 .topup-card-button::before,
-.jersey-card-button::before{
+.jersey-card-button::before,
+.gnex-esport-card-button::before{
 content:"";
 position:absolute;
 inset:0;
 z-index:4;
+padding:1px;
 border-radius:inherit;
-background:linear-gradient(110deg, transparent 0 18%, #67f1fd 30%, rgba(255,255,255,.92) 36%, #67f1fd 44%, transparent 58%);
-background-size:240% 100%;
-animation:cardCyanLine 2.8s linear infinite;
+background:linear-gradient(110deg, transparent 0 18%, rgba(103,241,253,.72) 30%, rgba(255,255,255,.55) 36%, rgba(103,241,253,.58) 44%, transparent 58%);
+background-size:320% 100%;
+animation:cardCyanLine 1.8s linear infinite;
 pointer-events:none;
-mix-blend-mode:screen;
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
+box-shadow:0 0 8px rgba(103,241,253,.24);
 }
 
 .tournament-card-button::before{
--webkit-mask:url("Card design/CUT SIZE ESPORTS TOUR CARD.png") center / 100% 100% no-repeat;
-mask:url("Card design/CUT SIZE ESPORTS TOUR CARD.png") center / 100% 100% no-repeat;
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
 }
 
 .topup-card-button::before{
--webkit-mask:none;
-mask:none;
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
 }
 
 .jersey-card-button::before{
--webkit-mask:none;
-mask:none;
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
+}
+
+.gnex-esport-card-button::before{
+-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+-webkit-mask-composite:xor;
+mask-composite:exclude;
 }
 
 .tournament-card-bg{
@@ -342,7 +576,7 @@ z-index:2;
 object-fit:contain;
 opacity:0;
 filter:drop-shadow(0 18px 22px rgba(0,0,0,.42)) drop-shadow(0 0 18px rgba(56,189,248,.4));
-animation:tournamentCharacterSwap 8s cubic-bezier(.2,.8,.2,1) infinite;
+animation:tournamentCharacterSwap 9s cubic-bezier(.2,.8,.2,1) infinite;
 pointer-events:none;
 }
 
@@ -358,7 +592,15 @@ left:9%;
 bottom:3%;
 width:37%;
 max-height:86%;
-animation-delay:4s;
+animation-delay:3s;
+}
+
+.tournament-card-character.is-kelly-repeat{
+left:8%;
+bottom:1%;
+width:40%;
+max-height:87%;
+animation-delay:6s;
 }
 
 
@@ -377,11 +619,11 @@ animation-delay:4s;
   background:linear-gradient(
     105deg,
     transparent 0 38%,
-    rgba(103,241,253,.35) 48%,
+    rgba(103,241,253,.1) 48%,
     transparent 58%
   );
   transform:translateX(-115%);
-  animation:tournamentLightSweep 4.8s ease-in-out infinite;
+  animation:tournamentLightSweep 4s ease-in-out infinite;
   pointer-events:none;
   mix-blend-mode:screen;
 
@@ -395,13 +637,13 @@ opacity:0;
 transform:translateX(-22%) translateY(8%) scale(.88) rotate(-4deg);
 }
 
-10%,
-42%{
+8%,
+27%{
 opacity:1;
 transform:translateX(0) translateY(0) scale(1) rotate(0deg);
 }
 
-50%,
+35%,
 100%{
 opacity:0;
 transform:translateX(18%) translateY(4%) scale(.92) rotate(3deg);
@@ -428,17 +670,17 @@ opacity:0;
 
 @keyframes cardCyanLine{
 0%{
-background-position:220% 0;
-opacity:.35;
+background-position:180% 0;
+opacity:.38;
 }
 
 50%{
-opacity:1;
+opacity:.72;
 }
 
 100%{
-background-position:-120% 0;
-opacity:.35;
+background-position:-180% 0;
+opacity:.38;
 }
 }
 
@@ -563,12 +805,10 @@ min-width:32px;
 height:auto;
 object-fit:contain;
 filter:drop-shadow(0 8px 12px rgba(0,0,0,.48)) drop-shadow(0 0 12px rgba(34,211,238,.34));
-transition:transform .35s ease, filter .35s ease;
 pointer-events:none;
 }
 
 .jersey-card-button:hover .jersey-card-logo{
-transform:translateY(-2px) scale(1.06);
 filter:drop-shadow(0 10px 14px rgba(0,0,0,.52)) drop-shadow(0 0 16px rgba(34,211,238,.46));
 }
 
@@ -578,7 +818,7 @@ z-index:2;
 object-fit:contain;
 opacity:0;
 filter:drop-shadow(0 14px 20px rgba(0,0,0,.42)) drop-shadow(0 0 16px rgba(34,211,238,.28));
-animation:jerseyItemSwap 8s cubic-bezier(.2,.8,.2,1) infinite;
+animation:jerseyItemSwap 9s cubic-bezier(.2,.8,.2,1) infinite;
 pointer-events:none;
 }
 
@@ -594,7 +834,15 @@ left:15%;
 bottom:-12%;
 width:26%;
 max-height:120%;
-animation-delay:4s;
+animation-delay:3s;
+}
+
+.jersey-card-item.is-front-repeat{
+left:12%;
+bottom:-11%;
+width:28%;
+max-height:118%;
+animation-delay:6s;
 }
 
 .jersey-card-button::after{
@@ -619,16 +867,330 @@ opacity:0;
 transform:translateX(-18%) translateY(5%) scale(.9) rotate(-3deg);
 }
 
-10%,
-42%{
+8%,
+27%{
 opacity:1;
 transform:translateX(0) translateY(0) scale(1) rotate(0deg);
 }
 
-50%,
+35%,
 100%{
 opacity:0;
 transform:translateX(16%) translateY(4%) scale(.92) rotate(3deg);
+}
+}
+
+.gnex-esport-card-button{
+position:relative;
+display:block;
+width:100%;
+aspect-ratio:3264 / 1077;
+height:auto;
+background-color: antiquewhite;
+min-height:0;
+overflow:hidden;
+border-radius:12px;
+background:transparent;
+align-self:center;
+transition:transform .25s ease, filter .25s ease;
+}
+
+.gnex-esport-card-button:hover{
+transform:translateY(-4px);
+filter:brightness(1.08);
+}
+
+.gnex-esport-card-bg{
+position:absolute;
+left:0;
+top:-34.9%;
+width:100%;
+height:170.5%;
+object-fit:cover;
+object-position:center center;
+pointer-events:none;
+}
+
+.gnex-esport-card-bg{
+  position: relative;
+  z-index: 1;
+  transition: transform .55s ease;
+}
+
+.gnex-esport-card-button:hover .gnex-esport-card-bg{
+transform:scale(1.03);
+}
+
+.gnex-esport-card-logo{
+position:absolute;
+left:15%;
+top:2%;
+z-index:3;
+width:17%;
+max-width:90px;
+min-width:90px;
+height:auto;
+object-fit:contain;
+filter:drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 16px rgba(34,211,238,.38));
+animation:gnexEsportLogoEnter 9s cubic-bezier(.2,.8,.2,1) infinite;
+pointer-events:none;
+}
+
+.gnex-esport-card-logo.is-repeat{
+opacity:0;
+animation:cardLogoSlot 9s cubic-bezier(.2,.8,.2,1) infinite;
+animation-delay:6s;
+}
+
+@media (max-width:640px){
+  .gnex-esport-card-logo{
+
+    left:14%;
+    top:2%;
+    width:31%;
+    max-width:none;
+    min-width:0;
+  }
+
+  .gnex-esport-card-logo.is-repeat{
+
+    left:14%;
+    top:2%;
+    width:31%;
+    max-width:none;
+    min-width:0;
+  }
+}
+
+.gnex-esport-card-kelly{
+position:absolute;
+left:14%;
+bottom:0;
+top:2%;
+z-index:3;
+width:33%;
+max-height:92%;
+object-fit:contain;
+opacity:0;
+filter:drop-shadow(0 18px 22px rgba(0,0,0,.42)) drop-shadow(0 0 18px rgba(56,189,248,.4));
+animation:gnexEsportKellyEnter 9s cubic-bezier(.2,.8,.2,1) infinite;
+animation-delay:3s;
+pointer-events:none;
+}
+
+.gnex-esport-card-button::after{
+content:"";
+position:absolute;
+inset:0;
+z-index:3;
+background:linear-gradient(105deg, transparent 0 40%, rgba(103,241,253,.28) 49%, transparent 59%);
+transform:translateX(-115%);
+animation:tournamentLightSweep 7s ease-in-out infinite;
+pointer-events:none;
+mix-blend-mode:screen;
+}
+
+.tournament-card-button::after,
+.gnex-esport-card-button::after{
+display:none;
+}
+
+.tournament-card-button,
+.topup-card-button,
+.jersey-card-button,
+.gnex-esport-card-button{
+filter:
+drop-shadow(1px 0 0 #67F1FD)
+drop-shadow(-1px 0 0 #67F1FD)
+drop-shadow(0 1px 0 #67F1FD)
+drop-shadow(0 -1px 0 #67F1FD)
+drop-shadow(0 0 4px rgba(103, 241, 253, .32));
+}
+
+.tournament-card-button:hover,
+.topup-card-button:hover,
+.jersey-card-button:hover,
+.gnex-esport-card-button:hover{
+transform:translateY(-4px) scale(1.01);
+filter:
+brightness(1.08)
+drop-shadow(1px 0 0 #67F1FD)
+drop-shadow(-1px 0 0 #67F1FD)
+drop-shadow(0 1px 0 #67F1FD)
+drop-shadow(0 -1px 0 #67F1FD)
+drop-shadow(0 0 4px rgba(103, 241, 253, .32));
+}
+
+.tour-transition-active{
+overflow:hidden;
+}
+
+.tour-transition-stage{
+position:fixed;
+inset:0;
+z-index:9999;
+background:rgba(0,0,0,.08);
+pointer-events:none;
+overflow:hidden;
+transition:background .5s ease;
+}
+
+.tour-transition-stage.is-opening-view{
+background:radial-gradient(circle at center, rgba(103,241,253,.1), rgba(0,0,0,.28) 58%, rgba(0,0,0,.46));
+}
+
+.tour-transition-stage.is-title-view{
+background:radial-gradient(circle at center, rgba(34,211,238,.08), rgba(0,0,0,.78) 52%, #000 100%);
+}
+
+.tour-transition-clone{
+position:fixed !important;
+display:block;
+margin:0 !important;
+z-index:2;
+overflow:hidden;
+box-shadow:0 0 12px rgba(103,241,253,.24);
+will-change:left, top, width, height, transform, opacity;
+}
+
+.tour-transition-clone.tournament-card-button{
+z-index:4;
+}
+
+.tour-transition-clone.is-opening-view{
+z-index:5;
+box-shadow:0 0 0 1px rgba(103,241,253,.42), 0 0 34px rgba(103,241,253,.24);
+backface-visibility:hidden;
+}
+
+.tour-transition-clone.is-opening-view .tournament-card-bg{
+top:0;
+height:100%;
+object-fit:cover;
+}
+
+.tour-title-view{
+position:absolute;
+inset:0;
+z-index:8;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:12px;
+opacity:0;
+animation:tourTitleFade .26s ease forwards;
+}
+
+.tour-title-kicker{
+color:#67f1fd;
+font-size:clamp(12px, 1.1vw, 16px);
+font-weight:900;
+letter-spacing:.34em;
+text-transform:uppercase;
+opacity:.86;
+}
+
+.tour-title-type{
+width:max-content;
+max-width:max-content;
+overflow:hidden;
+white-space:nowrap;
+color:white;
+font-size:clamp(58px, 8vw, 132px);
+font-weight:1000;
+line-height:.9;
+letter-spacing:.02em;
+text-shadow:0 0 18px rgba(103,241,253,.26), 0 0 42px rgba(34,211,238,.14);
+border-right:4px solid #67f1fd;
+clip-path:inset(0 100% 0 0);
+animation:tourTitleType .86s steps(10,end) .18s forwards, tourTitleCaret .7s step-end infinite;
+}
+
+@keyframes tourTitleFade{
+to{
+opacity:1;
+}
+}
+
+@keyframes tourTitleType{
+from{
+clip-path:inset(0 100% 0 0);
+}
+
+to{
+clip-path:inset(0 0 0 0);
+}
+}
+
+@keyframes tourTitleCaret{
+50%{
+border-color:transparent;
+}
+}
+
+.is-transition-source-hidden{
+visibility:hidden !important;
+}
+
+.gnex-esport-card-button{
+transform:scale(1.008);
+}
+
+@keyframes gnexEsportLogoEnter{
+0%{
+opacity:0;
+transform:translateX(-28%) scale(.82) rotate(-8deg);
+}
+
+8%,
+27%{
+opacity:1;
+transform:translateX(0) scale(1) rotate(0deg);
+}
+
+35%,
+100%{
+opacity:0;
+transform:translateX(10%) scale(.92) rotate(4deg);
+}
+}
+
+@keyframes gnexEsportKellyEnter{
+0%{
+opacity:0;
+transform:translateX(-22%) translateY(8%) scale(.88) rotate(-4deg);
+}
+
+8%,
+27%{
+opacity:1;
+transform:translateX(0) translateY(0) scale(1) rotate(0deg);
+}
+
+35%,
+100%{
+opacity:0;
+transform:translateX(18%) translateY(4%) scale(.92) rotate(3deg);
+}
+}
+
+@keyframes cardLogoSlot{
+0%{
+opacity:0;
+transform:translateX(-24%) scale(.82) rotate(-8deg);
+}
+
+8%,
+27%{
+opacity:1;
+transform:translateX(0) scale(1) rotate(0deg);
+}
+
+35%,
+100%{
+opacity:0;
+transform:translateX(10%) scale(.92) rotate(4deg);
 }
 }
 
@@ -679,7 +1241,8 @@ filter:hue-rotate(18deg);
 @media (min-width:768px){
 .tournament-card-button,
 .topup-card-button,
-.jersey-card-button{
+.jersey-card-button,
+.gnex-esport-card-button{
 height:auto;
 aspect-ratio:3264 / 1077;
 align-self:center;
@@ -722,6 +1285,12 @@ aspect-ratio:3264 / 1077;
 
 
 @media (max-width:640px){
+.card-button-grid{
+width:95%;
+margin-left:auto;
+margin-right:auto;
+}
+
 .promo-carousel{
 width:100%;
 height:auto;
