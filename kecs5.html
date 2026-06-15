@@ -657,13 +657,24 @@ let activeScheduleData = [];
 let scheduleRefreshTimer = null;
 const DEFAULT_RULE_IMAGE = "images/King Elite CS Logo Metalic.png";
 const DEFAULT_FLAG_IMAGE = "gambarplayerkecs/logoflag/image.png";
-const FLAG_FOLDER = "gambarplayerkecs/logoflag";
+const FLAG_FOLDER = "flag";
 const ADMIN_WHATSAPP_URL = "https://wa.me/60108275117?text=Hello%20GNEX%2C%20saya%20nak%20join%20King%20Elite%20CS%20Season%205";
 const modalPanelIds = ["schedule", "rules"];
 
-const FLAG_NAME_MAP = {
-// Kalau nama file tak sama dengan nama negeri dalam Sheet, tambah sini.
-// contoh: "negeri sembilan": "gambarplayerkecs/logoflag/ns.png"
+const FLAG_FILE_MAP = {
+JOHOR: "Johor.png",
+KEDAH: "Kedah.png",
+KELANTAN: "Kelantan.png",
+MELAKA: "Melaka.png",
+"NEGERI SEMBILAN": "Negeri Sembilan.png",
+PAHANG: "Pahang.png",
+PERAK: "Perak.png",
+PERLIS: "Perlis.png",
+"PULAU PINANG": "Pulau Pinang.png",
+SABAH: "Sabah.png",
+SARAWAK: "Sarawak.png",
+SELANGOR: "Selangor (1).png",
+TERENGGANU: "Terengganu.png"
 };
 
 // Tukar src gambar rule dekat sini nanti.
@@ -868,14 +879,11 @@ const element = document.getElementById(id);
 if(element) element.textContent = value;
 }
 
-function slugifyFlagName(value){
+function normalizeFlagCode(value){
 return String(value || "")
 .trim()
-.toLowerCase()
-.replace(/['"]/g, "")
-.replace(/&/g, "and")
-.replace(/[^a-z0-9]+/g, "-")
-.replace(/^-+|-+$/g, "");
+.replace(/\s+/g, " ")
+.toUpperCase();
 }
 
 function resolveFlagSource(value, fallbackName){
@@ -883,15 +891,15 @@ const raw = String(value || "").trim();
 const name = raw || String(fallbackName || "").trim();
 if(!name || /^tbd$/i.test(name)) return DEFAULT_FLAG_IMAGE;
 if(/^https?:\/\//i.test(name) || /\.(png|jpe?g|webp|gif)$/i.test(name) || name.includes("/")) return name;
-const key = name.toLowerCase();
-if(FLAG_NAME_MAP[key]) return FLAG_NAME_MAP[key];
-return `${FLAG_FOLDER}/${slugifyFlagName(name)}.png`;
+const key = normalizeFlagCode(name);
+const fileName = FLAG_FILE_MAP[key] || `${key}.png`;
+return `${FLAG_FOLDER}/${fileName}`;
 }
 
 function getTeamFlag(item, side){
 const direct = side === "a"
-? (item.team_a_flag || item.flag_a || item.logo_a || item.negeri_a || item.state_a || item.team_a_state)
-: (item.team_b_flag || item.flag_b || item.logo_b || item.negeri_b || item.state_b || item.team_b_state);
+? (item.team_a_flag || item.flag_a || item.logo_a || item.negeri_a || item.state_a || item.team_a_state || item.flag)
+: (item.team_b_flag || item.flag_b || item.logo_b || item.negeri_b || item.state_b || item.team_b_state || item.flag);
 const teamName = side === "a" ? item.team_a : item.team_b;
 return resolveFlagSource(direct, teamName);
 }
