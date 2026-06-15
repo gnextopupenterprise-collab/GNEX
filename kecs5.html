@@ -898,8 +898,8 @@ return `${FLAG_FOLDER}/${fileName}`;
 
 function getTeamFlag(item, side){
 const direct = side === "a"
-? (item.team_a_flag || item.flag_a || item.logo_a || item.negeri_a || item.state_a || item.team_a_state || item.flag)
-: (item.team_b_flag || item.flag_b || item.logo_b || item.negeri_b || item.state_b || item.team_b_state || item.flag);
+? (item.team_a_flag || item.flag_a || item["flag a"] || item.logo_a || item.negeri_a || item["negeri a"] || item.state_a || item["state a"] || item.team_a_state || item.flag)
+: (item.team_b_flag || item.flag_b || item["flag b"] || item.logo_b || item.negeri_b || item["negeri b"] || item.state_b || item["state b"] || item.team_b_state || item.flag);
 const teamName = side === "a" ? item.team_a : item.team_b;
 return resolveFlagSource(direct, teamName);
 }

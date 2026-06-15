@@ -192,18 +192,18 @@ cursor:pointer;
 display:none !important;
 }
 
-.package-card > div:first-child{
+.package-card > div:first-of-type{
 order:2;
 width:100%;
 justify-content:center !important;
 margin:3px 0 0 !important;
 }
 
-.package-card > div:first-child span:first-child{
+.package-card > div:first-of-type span:first-child{
 display:none !important;
 }
 
-.package-card > div:first-child span:last-child{
+.package-card > div:first-of-type span:last-child{
 font-size:7px !important;
 padding:0 !important;
 background:transparent !important;
@@ -422,20 +422,14 @@ Order summary akan update automatik bila package dipilih.
 </div>
 
 <div class="flex flex-wrap gap-2 md:gap-3 mb-5">
-<button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
-All Packages
+<button type="button" onclick="filterPackages('bank', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
+QR Transfer
 </button>
-<button type="button" onclick="filterPackages('digi', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
-DIGI PIN
+<button type="button" onclick="filterPackages('tng', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
+TNG Pin
 </button>
-<button type="button" onclick="filterPackages('popular', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
-Popular
-</button>
-<button type="button" onclick="filterPackages('budget', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
-Budget
-</button>
-<button type="button" onclick="filterPackages('best', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
-Best Value
+<button type="button" onclick="filterPackages('telco', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
+DIGI/CELCOM
 </button>
 </div>
 
@@ -531,7 +525,7 @@ Best Value
 <button type="button" onclick="selectPackage(this,'520 Diamonds','RM20.00','RM20.00','NOT AVAILABLE','NOT AVAILABLE')" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 
-<article class="package-card active relative border border-cyan-400 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-300" data-category="popular best">
+<article class="package-card relative border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="popular best">
 <span class="absolute -top-px right-4 bg-amber-300 text-black text-[10px] font-black px-2 py-1 rounded-b">BEST VALUE</span>
 <div class="flex justify-between items-center gap-2 mb-3">
 <span class="text-[9px] bg-zinc-800 px-2 py-1 rounded leading-none">FREE FIRE</span>
@@ -752,8 +746,8 @@ Best Value
 <div class="p-5">
 <div id="selectedPackageBox" class="rounded-lg border border-cyan-400/40 bg-black/60 p-4 transition">
 <p class="text-zinc-500 text-xs font-bold">SELECTED PACKAGE</p>
-<p id="selectedPackage" class="text-3xl font-black text-cyan-300 mt-2">545 Diamonds</p>
-<p id="selectedPrice" class="text-amber-300 font-black mt-2">RM21.00</p>
+<p id="selectedPackage" class="text-3xl font-black text-cyan-300 mt-2">Pilih Package</p>
+<p id="selectedPrice" class="text-amber-300 font-black mt-2">Belum pilih</p>
 <p id="paymentWarning" class="hidden text-red-400 text-xs font-bold mt-2 leading-relaxed">Payment ini tidak available untuk package ini. Sila tukar payment method.</p>
 </div>
 
@@ -934,13 +928,7 @@ Fast topup service for gamers. Trusted seller with simple WhatsApp checkout.
 </footer>
 
 <script>
-let currentPackage = {
-name:"545 Diamonds",
-tng:"RM21.00",
-bank:"RM21.00",
-digi:"RM25.00",
-celcom:"RM25.00"
-};
+let currentPackage = null;
 
 function toggleSidebar(){
 document.getElementById("sidebar").classList.toggle("-translate-x-full");
@@ -981,8 +969,18 @@ function isPriceAvailable(price){
 return String(price).toUpperCase() !== "NOT AVAILABLE";
 }
 
+function compactPrice(price){
+return String(price || "").replace(/\.00\b/g, "");
+}
+
+function telcoPriceLabel(data){
+const prices = [data.digi, data.celcom].filter(isPriceAvailable).map(compactPrice);
+const uniquePrices = [...new Set(prices)];
+return uniquePrices.join(" / ");
+}
+
 function updateCardPriceDisplay(card, mode){
-const priceLabel = card.querySelector("div:first-child span:last-child");
+const priceLabel = card.querySelector("div:first-of-type span:last-child");
 if(!priceLabel){
 return;
 }
@@ -991,9 +989,24 @@ if(!card.dataset.defaultPrice){
 card.dataset.defaultPrice = priceLabel.innerText;
 }
 
-if(mode === "digi"){
 const data = getPackageDataFromCard(card);
-priceLabel.innerText = data ? data.digi : card.dataset.defaultPrice;
+if(!data){
+priceLabel.innerText = card.dataset.defaultPrice;
+return;
+}
+
+if(mode === "bank"){
+priceLabel.innerText = compactPrice(data.bank);
+return;
+}
+
+if(mode === "tng"){
+priceLabel.innerText = compactPrice(data.tng);
+return;
+}
+
+if(mode === "telco"){
+priceLabel.innerText = telcoPriceLabel(data);
 return;
 }
 
@@ -1005,17 +1018,32 @@ document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("
 button.classList.add("active");
 
 const paymentMethod = document.getElementById("paymentMethod");
-if(category === "digi"){
+if(category === "bank"){
+paymentMethod.value = "ONLINE BANKING";
+}
+
+if(category === "tng"){
+paymentMethod.value = "Touch N Go";
+}
+
+if(category === "telco"){
 paymentMethod.value = "DIGI PIN";
 }
 
 document.querySelectorAll(".package-card").forEach((card) => {
-const cardCategory = card.dataset.category || "";
 const data = getPackageDataFromCard(card);
-let shouldShow = category === "all" || cardCategory.includes(category);
+let shouldShow = Boolean(data);
 
-if(category === "digi"){
-shouldShow = Boolean(data && isPriceAvailable(data.digi));
+if(category === "bank"){
+shouldShow = Boolean(data && isPriceAvailable(data.bank));
+}
+
+if(category === "tng"){
+shouldShow = Boolean(data && isPriceAvailable(data.tng));
+}
+
+if(category === "telco"){
+shouldShow = Boolean(data && (isPriceAvailable(data.digi) || isPriceAvailable(data.celcom)));
 }
 
 updateCardPriceDisplay(card, category);
@@ -1048,6 +1076,10 @@ document.getElementById("checkout").scrollIntoView({behavior:"smooth", block:"ce
 }
 
 function updateSelectedPrice(){
+if(!currentPackage){
+return {price:"Belum pilih", isUnavailable:false};
+}
+
 const payment = document.getElementById("paymentMethod").value;
 let price = currentPackage.tng;
 
@@ -1093,6 +1125,11 @@ return {price, isUnavailable};
 }
 
 function orderNow(){
+if(!currentPackage){
+document.getElementById("packages").scrollIntoView({behavior:"smooth", block:"start"});
+return;
+}
+
 const playerId = document.getElementById("playerId").value.trim() || "Belum isi";
 const payment = document.getElementById("paymentMethod").value;
 const priceState = updateSelectedPrice();
@@ -1133,6 +1170,11 @@ selectButton.click();
 }
 });
 });
+
+const defaultFilterButton = document.querySelector(".filter-btn.active");
+if(defaultFilterButton){
+filterPackages("bank", defaultFilterButton);
+}
 </script>
 
 <script src="mobile-nav.js"></script>

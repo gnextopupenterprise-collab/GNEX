@@ -398,9 +398,9 @@ Combo
 <div class="p-5">
 <div class="rounded-lg border border-cyan-400/40 bg-black/60 p-4">
 <p class="text-zinc-500 text-xs font-bold">SELECTED PACKAGE</p>
-<p id="selectedPackage" class="text-2xl font-black text-cyan-300 mt-2">60 UC</p>
-<p id="selectedChannel" class="text-zinc-400 text-sm mt-1">57</p>
-<p id="selectedPrice" class="text-amber-300 font-black mt-2">MYR4.25</p>
+<p id="selectedPackage" class="text-2xl font-black text-cyan-300 mt-2">Pilih Package</p>
+<p id="selectedChannel" class="text-zinc-400 text-sm mt-1">Belum pilih</p>
+<p id="selectedPrice" class="text-amber-300 font-black mt-2">Belum pilih</p>
 </div>
 
 <label class="block text-sm font-bold text-zinc-300 mt-5 mb-2" for="playerId">Player ID</label>
@@ -499,7 +499,7 @@ const packages = [
 {name:"1440 UC", price:"MYR100.00", fill:"-", category:"combo"}
 ];
 
-let currentPackage = packages[0];
+let currentPackage = null;
 let currentFilter = "all";
 
 function toggleSidebar(){
@@ -567,6 +567,11 @@ document.getElementById("checkout").scrollIntoView({behavior:"smooth", block:"ce
 }
 
 function orderNow(){
+if(!currentPackage){
+document.getElementById("packages").scrollIntoView({behavior:"smooth", block:"start"});
+return;
+}
+
 const playerId = document.getElementById("playerId").value.trim() || "Belum isi";
 
 const message =
