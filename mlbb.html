@@ -57,6 +57,170 @@ background:#22d3ee;
 border-color:#22d3ee;
 color:#000;
 }
+
+@media (max-width:767px){
+.topup-hero-inner{
+gap:20px;
+}
+
+.hero-stats-grid{
+order:2;
+display:flex !important;
+flex-wrap:nowrap;
+gap:8px;
+margin-top:10px !important;
+}
+
+.hero-stats-grid > div{
+flex:1 1 0;
+padding:8px 6px !important;
+border-radius:8px;
+min-width:0;
+text-align:center;
+}
+
+.hero-stats-grid p:first-child{
+font-size:16px !important;
+line-height:1;
+}
+
+.hero-stats-grid p:last-child{
+font-size:7px !important;
+margin-top:4px !important;
+line-height:1.1;
+}
+
+.ranking-hero-button{
+order:1;
+width:100%;
+margin-top:18px;
+padding:10px 12px !important;
+border-radius:8px;
+}
+
+.ranking-hero-button p:first-child{
+font-size:21px !important;
+line-height:1;
+}
+
+.ranking-hero-button p:last-child{
+font-size:10px !important;
+margin-top:4px !important;
+}
+
+.ml-hero-art{
+min-height:170px !important;
+}
+
+.ml-hero-art > .relative{
+min-height:170px !important;
+padding:14px !important;
+}
+
+.ml-hero-art img{
+width:90px !important;
+height:38px !important;
+}
+
+.ml-hero-art span{
+font-size:9px !important;
+padding:5px 8px !important;
+border-radius:6px !important;
+}
+
+.ml-hero-art .max-w-md p:first-child{
+font-size:9px !important;
+letter-spacing:.16em !important;
+}
+
+.ml-hero-art h2{
+font-size:20px !important;
+margin-top:6px !important;
+line-height:1 !important;
+}
+
+.ml-hero-art .max-w-md p:last-child{
+font-size:11px !important;
+line-height:1.35 !important;
+margin-top:7px !important;
+}
+
+.process-grid{
+grid-template-columns:repeat(4, minmax(0, 1fr));
+gap:6px;
+}
+
+.process-grid > div{
+padding:8px 5px !important;
+min-width:0;
+text-align:center;
+}
+
+.process-grid p:first-child{
+font-size:11px;
+}
+
+.process-grid p:last-child{
+font-size:9px;
+line-height:1.15;
+margin-top:4px !important;
+word-break:normal;
+}
+
+#packageGrid{
+display:flex !important;
+flex-wrap:wrap;
+gap:8px !important;
+}
+
+.package-card{
+flex:0 0 calc(25% - 6px);
+max-width:calc(25% - 6px);
+padding:7px 3px !important;
+border-radius:7px;
+min-height:56px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+cursor:pointer;
+}
+
+.package-card > div:first-child{
+order:2;
+width:100%;
+justify-content:center !important;
+margin:3px 0 0 !important;
+}
+
+.package-card > div:first-child span:first-child{
+display:none !important;
+}
+
+.package-card > div:first-child span:last-child{
+font-size:7px !important;
+padding:0 !important;
+background:transparent !important;
+color:#67e8f9 !important;
+line-height:1 !important;
+}
+
+.package-card h3{
+font-size:11px !important;
+line-height:1.05 !important;
+max-width:100%;
+word-break:break-word;
+}
+
+.package-card p{
+display:none !important;
+}
+
+.package-card button{
+display:none !important;
+}
+}
 </style>
 </head>
 
@@ -143,7 +307,7 @@ class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60
 <!-- HERO -->
 <header class="page-glow relative overflow-hidden border-b border-zinc-800 pt-28 md:pt-32">
 <div class="max-w-7xl mx-auto px-6 py-12 md:py-16">
-<div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
+<div class="topup-hero-inner grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
 
 <div class="flex flex-col justify-center">
 <p class="text-cyan-400 font-bold tracking-[0.28em] text-xs md:text-sm">
@@ -158,7 +322,7 @@ MOBILE LEGENDS <span class="text-cyan-400">DIAMOND TOPUP</span>
 Pilih channel harga: QR Transfer, TNG Pin atau DIGI/CELCOM. Masukkan ID dan checkout terus melalui WhatsApp. Support untuk server Malaysia sahaja 
 </p>
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+<div class="hero-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
 <div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
 <p class="text-2xl font-black">50+</p>
 <p class="text-xs text-zinc-500 mt-1">Packages</p>
@@ -183,7 +347,7 @@ Pilih channel harga: QR Transfer, TNG Pin atau DIGI/CELCOM. Masukkan ID dan chec
 <button 
   type="button"
   onclick="openRankingModal()"
-  class="border border-zinc-800 bg-black/45 rounded-lg p-4 text-left hover:border-cyan-400 hover:bg-black/70 transition">
+  class="ranking-hero-button border border-zinc-800 bg-black/45 rounded-lg p-4 text-left hover:border-cyan-400 hover:bg-black/70 transition">
   <p class="text-2xl font-black">RANKING</p>
   <p class="text-xs text-zinc-500 mt-1">Customer</p>
 </button>
@@ -213,7 +377,7 @@ Order summary akan ikut package dan channel yang dipilih.
 
 <!-- PROCESS -->
 <section class="max-w-7xl mx-auto px-6 py-8">
-<div class="grid sm:grid-cols-4 gap-3">
+<div class="process-grid grid grid-cols-2 sm:grid-cols-4 gap-3">
 <div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
 <p class="text-amber-300 font-black">01</p>
 <p class="font-bold mt-2">Choose Channel</p>
@@ -541,19 +705,23 @@ return "TELCO";
 return "SPECIAL";
 }
 
+function cardPackageName(name){
+return name.replace(/\s*Diamond\b/i, "");
+}
+
 function renderPackages(filter = "all"){
 const packageGrid = document.getElementById("packageGrid");
 const visiblePackages = packages.filter((pkg) => filter === "all" || pkg.category === filter);
 
 packageGrid.innerHTML = visiblePackages.map((pkg, index) => `
-<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}">
+<article class="package-card ${pkg === currentPackage ? "active" : ""} border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-index="${packages.indexOf(pkg)}" role="button" tabindex="0" onclick="selectPackage(${packages.indexOf(pkg)})" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault(); selectPackage(${packages.indexOf(pkg)});}">
 <div class="flex justify-between items-center mb-3 gap-2">
 <span class="text-[9px] bg-zinc-800 px-2 py-1 rounded">${packageLabel(pkg)}</span>
 <span class="text-cyan-400 text-[11px] md:text-xs font-black text-right leading-tight">${pkg.price}</span>
 </div>
-<h3 class="text-xl md:text-[22px] font-black leading-tight">${pkg.name}</h3>
+<h3 class="text-xl md:text-[22px] font-black leading-tight">${cardPackageName(pkg.name)}</h3>
 <p class="text-zinc-500 text-[11px] mt-1.5">${pkg.channel}</p>
-<button type="button" onclick="selectPackage(${packages.indexOf(pkg)})" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
+<button type="button" onclick="event.stopPropagation(); selectPackage(${packages.indexOf(pkg)})" class="w-full mt-4 bg-cyan-400 text-black font-black py-2.5 rounded-lg hover:bg-cyan-300 transition text-xs md:text-sm">SELECT</button>
 </article>
 `).join("");
 
@@ -598,5 +766,6 @@ window.open(url, "_blank");
 renderPackages();
 </script>
 
+<script src="mobile-nav.js"></script>
 </body>
 </html>

@@ -233,7 +233,7 @@ WHATSAPP
 <div class="modal-backdrop" onclick="closePriceListPanel()"></div>
 <div class="modal-panel">
 <button type="button" class="modal-close" onclick="closePriceListPanel()" aria-label="Close price list">X</button>
-<div class="max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="price-list-shell max-w-7xl mx-auto px-6 py-16 md:py-20">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
 <div>
 <p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">TOPUP STORE</p>
@@ -242,7 +242,7 @@ WHATSAPP
 <p class="text-zinc-500 text-sm">Fast Delivery / Trusted Seller / Easy Payment</p>
 </div>
 
-<div class="grid md:grid-cols-3 gap-4 md:gap-6">
+<div class="price-card-grid grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
 <article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
 <img src="images/ff-wallpaper.jpg" alt="Free Fire topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500">
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
@@ -296,9 +296,27 @@ VIEW PACKAGE
 </a>
 </div>
 </article>
+
+<article class="game-card roblox-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition">
+<div class="absolute inset-0 roblox-card-bg"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">RBX</span>
+<span class="text-zinc-100 font-black tracking-[0.18em] text-xs md:text-sm">ROBLOX</span>
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Robux</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Roblox topup akan dibuka tidak lama lagi.</p>
+</div>
+<a href="#" onclick="return false" aria-disabled="true" class="w-full text-center bg-cyan-400 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20 pointer-events-none opacity-80">
+COMING SOON
+</a>
+</div>
+</article>
 </div>
 
-<a href="jersey.html" class="group mt-6 grid lg:grid-cols-[1fr_0.85fr] overflow-hidden rounded-lg border border-cyan-500/50 bg-black hover:border-cyan-300 transition">
+<a href="jersey.html" class="price-jersey-card group mt-6 grid lg:grid-cols-[1fr_0.85fr] overflow-hidden rounded-lg border border-cyan-500/50 bg-black hover:border-cyan-300 transition">
 <div class="relative min-h-[280px] p-6 md:p-8 flex flex-col justify-between">
 <div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.jpg')] bg-cover bg-center"></div>
 <div class="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25"></div>
@@ -693,5 +711,6 @@ closePriceListPanel();
 });
 </script>
 
+<script src="mobile-nav.js"></script>
 </body>
 </html>

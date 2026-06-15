@@ -58,6 +58,174 @@ background:#22d3ee;
 border-color:#22d3ee;
 color:#000;
 }
+
+@media (max-width:767px){
+.topup-hero-inner{
+gap:20px;
+}
+
+.hero-stats-grid{
+order:2;
+display:flex !important;
+flex-wrap:nowrap;
+gap:8px;
+margin-top:10px !important;
+}
+
+.hero-stats-grid > div{
+flex:1 1 0;
+padding:8px 6px !important;
+border-radius:8px;
+min-width:0;
+text-align:center;
+}
+
+.hero-stats-grid p:first-child{
+font-size:16px !important;
+line-height:1;
+}
+
+.hero-stats-grid p:last-child{
+font-size:7px !important;
+margin-top:4px !important;
+line-height:1.1;
+}
+
+.ranking-hero-button{
+order:1;
+width:100%;
+margin-top:18px;
+padding:10px 12px !important;
+border-radius:8px;
+}
+
+.ranking-hero-button p:first-child{
+font-size:21px !important;
+line-height:1;
+}
+
+.ranking-hero-button p:last-child{
+font-size:10px !important;
+margin-top:4px !important;
+}
+
+.ff-hero-art{
+min-height:170px !important;
+}
+
+.ff-hero-art > .relative{
+min-height:170px !important;
+padding:14px !important;
+}
+
+.ff-hero-art img{
+width:82px !important;
+height:38px !important;
+}
+
+.ff-hero-art span{
+font-size:9px !important;
+padding:5px 8px !important;
+border-radius:6px !important;
+}
+
+.ff-hero-art .max-w-md p:first-child{
+font-size:9px !important;
+letter-spacing:.16em !important;
+}
+
+.ff-hero-art h2{
+font-size:20px !important;
+margin-top:6px !important;
+line-height:1 !important;
+}
+
+.ff-hero-art .max-w-md p:last-child{
+font-size:11px !important;
+line-height:1.35 !important;
+margin-top:7px !important;
+}
+
+.process-grid{
+grid-template-columns:repeat(4, minmax(0, 1fr));
+gap:6px;
+}
+
+.process-grid > div{
+padding:8px 5px !important;
+min-width:0;
+text-align:center;
+}
+
+.process-grid p:first-child{
+font-size:11px;
+}
+
+.process-grid p:last-child{
+font-size:9px;
+line-height:1.15;
+margin-top:4px !important;
+word-break:normal;
+}
+
+.package-grid{
+display:flex !important;
+flex-wrap:wrap;
+gap:8px !important;
+}
+
+.package-card{
+flex:0 0 calc(25% - 6px);
+max-width:calc(25% - 6px);
+padding:7px 3px !important;
+border-radius:7px;
+min-height:56px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+cursor:pointer;
+}
+
+.package-card > span.absolute{
+display:none !important;
+}
+
+.package-card > div:first-child{
+order:2;
+width:100%;
+justify-content:center !important;
+margin:3px 0 0 !important;
+}
+
+.package-card > div:first-child span:first-child{
+display:none !important;
+}
+
+.package-card > div:first-child span:last-child{
+font-size:7px !important;
+padding:0 !important;
+background:transparent !important;
+color:#67e8f9 !important;
+line-height:1 !important;
+}
+
+.package-card h3{
+font-size:13px !important;
+line-height:1 !important;
+max-width:100%;
+word-break:break-word;
+}
+
+.package-card p{
+display:none !important;
+}
+
+.package-card button{
+display:none !important;
+}
+}
 </style>
 </head>
 
@@ -139,7 +307,7 @@ class="fixed top-0 left-0 w-72 h-full bg-black/95 border-r border-zinc-800 z-[60
 <!-- HERO -->
 <header class="page-glow relative overflow-hidden border-b border-zinc-800 pt-28 md:pt-32">
 <div class="max-w-7xl mx-auto px-6 py-12 md:py-16">
-<div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
+<div class="topup-hero-inner grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
 
 <div class="flex flex-col justify-center">
 <p class="text-cyan-400 font-bold tracking-[0.28em] text-xs md:text-sm">
@@ -154,7 +322,7 @@ FREE FIRE <span class="text-cyan-400">DIAMOND TOPUP</span>
 Fast delivery / trusted seller. Pilih package, masukkan ID player, kemudian checkout melalui WhatsApp.
 </p>
 
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+<div class="hero-stats-grid grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
 <div class="border border-zinc-800 bg-black/45 rounded-lg p-4">
 <p class="text-2xl font-black">12H</p>
 <p class="text-xs text-zinc-500 mt-1">Support</p>
@@ -179,7 +347,7 @@ Fast delivery / trusted seller. Pilih package, masukkan ID player, kemudian chec
 <button 
   type="button"
   onclick="openRankingModal()"
-  class="border border-zinc-800 bg-black/45 rounded-lg p-4 text-left hover:border-cyan-400 hover:bg-black/70 transition">
+  class="ranking-hero-button border border-zinc-800 bg-black/45 rounded-lg p-4 text-left hover:border-cyan-400 hover:bg-black/70 transition">
   <p class="text-2xl font-black">RANKING</p>
   <p class="text-xs text-zinc-500 mt-1">Customer</p>
 </button>
@@ -216,7 +384,7 @@ Order summary akan update automatik bila package dipilih.
 
 <!-- PROCESS -->
 <section class="max-w-7xl mx-auto px-6 py-8">
-<div class="grid sm:grid-cols-4 gap-3">
+<div class="process-grid grid grid-cols-2 sm:grid-cols-4 gap-3">
 <div class="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
 <p class="text-amber-300 font-black">01</p>
 <p class="font-bold mt-2">Enter ID</p>
@@ -257,6 +425,9 @@ Order summary akan update automatik bila package dipilih.
 <button type="button" onclick="filterPackages('all', this)" class="filter-btn active border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold transition">
 All Packages
 </button>
+<button type="button" onclick="filterPackages('digi', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
+DIGI PIN
+</button>
 <button type="button" onclick="filterPackages('popular', this)" class="filter-btn border border-zinc-700 px-3 py-2 md:px-4 rounded-lg text-xs md:text-sm font-bold hover:border-cyan-400 transition">
 Popular
 </button>
@@ -268,7 +439,7 @@ Best Value
 </button>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+<div class="package-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
 
 <article class="package-card border border-zinc-800 rounded-lg p-3 md:p-3.5 transition hover:border-cyan-400" data-category="budget">
 <div class="flex justify-between items-center gap-2 mb-3">
@@ -579,10 +750,11 @@ Best Value
 </div>
 
 <div class="p-5">
-<div class="rounded-lg border border-cyan-400/40 bg-black/60 p-4">
+<div id="selectedPackageBox" class="rounded-lg border border-cyan-400/40 bg-black/60 p-4 transition">
 <p class="text-zinc-500 text-xs font-bold">SELECTED PACKAGE</p>
 <p id="selectedPackage" class="text-3xl font-black text-cyan-300 mt-2">545 Diamonds</p>
 <p id="selectedPrice" class="text-amber-300 font-black mt-2">RM21.00</p>
+<p id="paymentWarning" class="hidden text-red-400 text-xs font-bold mt-2 leading-relaxed">Payment ini tidak available untuk package ini. Sila tukar payment method.</p>
 </div>
 
 <label class="block text-sm font-bold text-zinc-300 mt-5 mb-2" for="playerId">Player ID</label>
@@ -618,7 +790,7 @@ Best Value
 </div>
 </div>
 
-<button type="button" onclick="orderNow()" class="w-full mt-5 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
+<button id="checkoutButton" type="button" onclick="orderNow()" class="w-full mt-5 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
 CHECKOUT WHATSAPP
 </button>
 
@@ -785,15 +957,72 @@ closeSidebar();
 document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
 }
 
+function getPackageDataFromCard(card){
+const selectButton = card.querySelector("button");
+if(!selectButton){
+return null;
+}
+
+const match = selectButton.getAttribute("onclick").match(/selectPackage\(this,'([^']*)','([^']*)','([^']*)','([^']*)','([^']*)'\)/);
+if(!match){
+return null;
+}
+
+return {
+name:match[1],
+tng:match[2],
+bank:match[3],
+digi:match[4],
+celcom:match[5]
+};
+}
+
+function isPriceAvailable(price){
+return String(price).toUpperCase() !== "NOT AVAILABLE";
+}
+
+function updateCardPriceDisplay(card, mode){
+const priceLabel = card.querySelector("div:first-child span:last-child");
+if(!priceLabel){
+return;
+}
+
+if(!card.dataset.defaultPrice){
+card.dataset.defaultPrice = priceLabel.innerText;
+}
+
+if(mode === "digi"){
+const data = getPackageDataFromCard(card);
+priceLabel.innerText = data ? data.digi : card.dataset.defaultPrice;
+return;
+}
+
+priceLabel.innerText = card.dataset.defaultPrice;
+}
+
 function filterPackages(category, button){
 document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("active"));
 button.classList.add("active");
 
+const paymentMethod = document.getElementById("paymentMethod");
+if(category === "digi"){
+paymentMethod.value = "DIGI PIN";
+}
+
 document.querySelectorAll(".package-card").forEach((card) => {
 const cardCategory = card.dataset.category || "";
-const shouldShow = category === "all" || cardCategory.includes(category);
+const data = getPackageDataFromCard(card);
+let shouldShow = category === "all" || cardCategory.includes(category);
+
+if(category === "digi"){
+shouldShow = Boolean(data && isPriceAvailable(data.digi));
+}
+
+updateCardPriceDisplay(card, category);
 card.classList.toggle("hidden", !shouldShow);
 });
+
+updateSelectedPrice();
 }
 
 function selectPackage(button, name, tngPrice, bankPrice, digiPrice, celcomPrice){
@@ -834,14 +1063,44 @@ if(payment === "CELCOM PIN"){
 price = currentPackage.celcom;
 }
 
-document.getElementById("selectedPrice").innerText = price;
-return price;
+const isUnavailable = String(price).toUpperCase() === "NOT AVAILABLE";
+const selectedPrice = document.getElementById("selectedPrice");
+const selectedPackageBox = document.getElementById("selectedPackageBox");
+const paymentWarning = document.getElementById("paymentWarning");
+const checkoutButton = document.getElementById("checkoutButton");
+const paymentMethod = document.getElementById("paymentMethod");
+
+selectedPrice.innerText = price;
+selectedPrice.classList.toggle("text-red-400", isUnavailable);
+selectedPrice.classList.toggle("text-amber-300", !isUnavailable);
+selectedPackageBox.classList.toggle("border-red-500", isUnavailable);
+selectedPackageBox.classList.toggle("border-cyan-400/40", !isUnavailable);
+selectedPackageBox.classList.toggle("bg-red-950/25", isUnavailable);
+paymentWarning.classList.toggle("hidden", !isUnavailable);
+paymentMethod.classList.toggle("border-red-500", isUnavailable);
+paymentMethod.classList.toggle("focus:border-red-400", isUnavailable);
+paymentMethod.classList.toggle("focus:border-cyan-400", !isUnavailable);
+checkoutButton.disabled = isUnavailable;
+checkoutButton.classList.toggle("bg-zinc-700", isUnavailable);
+checkoutButton.classList.toggle("text-zinc-400", isUnavailable);
+checkoutButton.classList.toggle("cursor-not-allowed", isUnavailable);
+checkoutButton.classList.toggle("hover:bg-zinc-700", isUnavailable);
+checkoutButton.classList.toggle("bg-green-500", !isUnavailable);
+checkoutButton.classList.toggle("hover:bg-green-400", !isUnavailable);
+checkoutButton.innerText = isUnavailable ? "TUKAR PAYMENT METHOD" : "CHECKOUT WHATSAPP";
+
+return {price, isUnavailable};
 }
 
 function orderNow(){
 const playerId = document.getElementById("playerId").value.trim() || "Belum isi";
 const payment = document.getElementById("paymentMethod").value;
-const price = updateSelectedPrice();
+const priceState = updateSelectedPrice();
+
+if(priceState.isUnavailable){
+document.getElementById("paymentMethod").scrollIntoView({behavior:"smooth", block:"center"});
+return;
+}
 
 const message =
 `Hello GNEX, saya nak beli Free Fire topup:
@@ -849,12 +1108,33 @@ const message =
 Package: ${currentPackage.name}
 Player ID: ${playerId}
 Payment: ${payment}
-Harga: ${price}`;
+Harga: ${priceState.price}`;
 
 const url = `https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
 window.open(url, "_blank");
 }
+
+document.querySelectorAll(".package-card").forEach((card) => {
+const selectButton = card.querySelector("button");
+if(!selectButton) return;
+
+card.setAttribute("role", "button");
+card.setAttribute("tabindex", "0");
+
+card.addEventListener("click", (event) => {
+if(event.target.closest("button")) return;
+selectButton.click();
+});
+
+card.addEventListener("keydown", (event) => {
+if(event.key === "Enter" || event.key === " "){
+event.preventDefault();
+selectButton.click();
+}
+});
+});
 </script>
 
+<script src="mobile-nav.js"></script>
 </body>
 </html>
