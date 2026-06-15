@@ -113,17 +113,38 @@ display:none !important;
 position:relative;
 }
 
+@media (min-width:768px){
+.modal-panel > .price-list-shell{
+padding-top:48px !important;
+}
+
+.price-card-grid{
+display:grid !important;
+grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+gap:24px !important;
+}
+
+.game-card{
+width:100% !important;
+max-width:100% !important;
+min-width:0 !important;
+box-sizing:border-box;
+overflow:hidden !important;
+}
+}
+
 .price-card-grid{
 align-items:stretch;
+gap:24px !important;
 }
 
 .game-card{
 isolation:isolate;
-min-height:auto !important;
-aspect-ratio:3264 / 1450;
+min-height:195px !important;
+aspect-ratio:auto;
 border-radius:10px !important;
 border:1px solid rgba(34,211,238,.42) !important;
-padding:22px !important;
+padding:18px !important;
 background:
 linear-gradient(135deg, rgba(4,11,23,.98), rgba(3,7,18,.94) 54%, rgba(0,0,0,.98)) !important;
 box-shadow:0 18px 34px rgba(0,0,0,.32);
@@ -186,7 +207,8 @@ linear-gradient(0deg, rgba(0,0,0,.94), transparent 66%) !important;
 }
 
 .game-card .relative.z-10{
-gap:18px;
+gap:12px;
+min-height:169px;
 }
 
 .game-card span{
@@ -197,7 +219,7 @@ box-shadow:none;
 }
 
 .game-card h3{
-font-size:clamp(25px, 2vw, 34px) !important;
+font-size:clamp(24px, 1.7vw, 30px) !important;
 line-height:.95 !important;
 text-shadow:none;
 }
@@ -213,7 +235,10 @@ overflow:hidden;
 display:flex !important;
 align-items:center;
 justify-content:center;
-min-height:36px;
+width:100% !important;
+max-width:100% !important;
+box-sizing:border-box;
+min-height:32px;
 line-height:1.05 !important;
 border-radius:6px !important;
 background:linear-gradient(90deg, #22d3ee, #67f1fd) !important;
@@ -267,7 +292,9 @@ border-radius:8px !important;
 }
 
 .game-card .relative.z-10{
-gap:8px;
+justify-content:flex-start !important;
+gap:6px;
+min-height:auto;
 }
 
 .game-card span{
@@ -281,7 +308,7 @@ height:28px !important;
 }
 
 .game-card h3{
-margin-top:18px !important;
+margin-top:13px !important;
 font-size:21px !important;
 line-height:1 !important;
 }
@@ -290,11 +317,12 @@ line-height:1 !important;
 max-width:100%;
 font-size:9px !important;
 line-height:1.25 !important;
-margin-top:7px !important;
+margin-top:5px !important;
 }
 
 .game-card a{
-min-height:31px;
+min-height:29px;
+margin-top:12px !important;
 padding-top:0 !important;
 padding-bottom:0 !important;
 font-size:10px !important;
