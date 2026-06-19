@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GNEX MLBB Scrim system untuk daftar team, create scrim, request join, private deal room, room ID, result dan point history.">
+<link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
+<meta name="theme-color" content="#02040a">
+<title>GNEX MLBB Scrim</title>
+<link rel="stylesheet" href="scrim.css?v=1011">
+</head>
+<body class="is-loading">
+<section class="auth-gate" id="authGate">
+  <nav class="auth-gate-nav">
+    <a class="brand" href="index.html" aria-label="Back to GNEX Center">
+      <img src="images/logo baru gnex .webp" alt="GNEX">
+      <div>
+        <h1>GNEX</h1>
+        <p>SCRIM CENTER</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-link">HOME</a>
+      <a href="tournament.html" class="nav-link">TOURNAMENT</a>
+      <button class="nav-link primary" type="button" data-auth-tab="login">JOIN</button>
+    </div>
+  </nav>
+
+  <div class="auth-card">
+    <div class="auth-welcome">
+      <a class="auth-logo" href="index.html" aria-label="Back to GNEX Center">
+        <img src="images/logo baru gnex .webp" alt="GNEX">
+        <span>GNEX SCRIM</span>
+      </a>
+      <div>
+        <h1>Welcome Back!</h1>
+        <p>Login team dulu untuk access MLBB Scrim Room, request join dan private deal room.</p>
+      </div>
+      <button class="btn ghost" type="button" data-auth-tab="login">SIGN IN</button>
+    </div>
+
+    <div class="auth-form-side">
+      <h2 id="authGateTitle">Login Team</h2>
+      <p class="auth-helper"></p>
+      <div class="auth-tabs" role="tablist">
+        <button class="tab is-active" type="button" data-auth-tab="login">Login</button>
+        <button class="tab register-closed" type="button" disabled aria-disabled="true" title="Registration belum dibuka">Register Closed</button>
+      </div>
+      <form class="form-grid" id="authForm">
+        <input type="hidden" name="action" id="authAction" value="login">
+        <div class="field">
+          <label for="teamName">Nama team</label>
+          <input id="teamName" name="team_name" autocomplete="username" placeholder="Contoh: GNEX Alpha" required>
+        </div>
+        <div class="field">
+          <label for="teamPassword">Password team</label>
+          <input id="teamPassword" name="password" type="password" autocomplete="current-password" minlength="4" required>
+        </div>
+        <button class="btn primary block" type="submit" id="authSubmit">Login Team</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="scrim-app" id="scrimApp" hidden>
+<nav class="scrim-nav">
+  <a class="brand" href="index.html" aria-label="Back to GNEX Center">
+    <img src="images/logo baru gnex .webp" alt="GNEX">
+    <div>
+      <h1>GNEX</h1>
+      <p>SCRIM CENTER</p>
+    </div>
+  </a>
+  <div class="nav-actions">
+    <a href="index.html" class="nav-link">HOME</a>
+    <a href="tournament.html" class="nav-link">TOURNAMENT</a>
+    <button class="profile-nav-button" type="button" id="profileBtn" aria-expanded="false">
+      <span class="profile-name" id="profileTeamName">TEAM</span>
+      <span class="profile-badge hidden" id="profileBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<section class="profile-overlay" id="profileOverlay" aria-hidden="true" hidden>
+  <button class="profile-backdrop" id="profileBackdrop" type="button" aria-label="Close profile"></button>
+  <article class="profile-card">
+    <div class="profile-card-head">
+      <div class="profile-title-block">
+        <p class="section-kicker">TEAM PROFILE</p>
+        <div class="profile-title-row">
+          <h2 id="profileCardName">TEAM</h2>
+          <span class="profile-rank-badge" id="profileRankBadge">RANK -</span>
+        </div>
+        <p id="profileCardMeta">Logged in team</p>
+      </div>
+      <div class="profile-head-actions">
+        <button class="btn panel-toggle profile-action edit" type="button"><span aria-hidden="true"></span>EDIT PROFILE</button>
+        <button class="btn red panel-toggle profile-action logout" id="logoutBtn" type="button"><span aria-hidden="true"></span>LOGOUT</button>
+        <button class="btn panel-toggle profile-action close" type="button" id="closeProfileBtn"><span aria-hidden="true"></span>CLOSE</button>
+      </div>
+    </div>
+
+    <section class="profile-roster-section">
+      <div class="panel-title">
+        <div>
+          <h3>Team Overview</h3>
+          <p>Prestasi semasa team dalam scrim.</p>
+        </div>
+      </div>
+      <div class="roster-team-stats">
+        <div><span class="stat-icon game" aria-hidden="true"></span><span>Total Game</span><strong id="rosterGames">0</strong></div>
+        <div><span class="stat-icon win" aria-hidden="true"></span><span>Total Win</span><strong id="rosterWins">0</strong></div>
+        <div><span class="stat-icon lose" aria-hidden="true"></span><span>Total Lose</span><strong id="rosterLosses">0</strong></div>
+        <div><span class="stat-icon history" aria-hidden="true"></span><span>History</span><strong id="rosterRank">-</strong></div>
+      </div>
+    </section>
+
+    <div class="profile-flow">
+      <section class="profile-section profile-wide-card">
+        <div class="panel-title">
+          <div>
+            <h3>Request & Result Review</h3>
+            <p>Request masuk, update point dan result confirmation.</p>
+          </div>
+        </div>
+        <div id="requestList"></div>
+        <div class="profile-result-hint" id="profileResultHint"></div>
+      </section>
+
+      <section class="profile-section profile-wide-card">
+        <div class="panel-title">
+          <div>
+            <h3>Private Deal Room</h3>
+            <p>Room ID dan active deal untuk host dan opponent.</p>
+          </div>
+        </div>
+        <div id="dealRooms"></div>
+      </section>
+    </div>
+  </article>
+</section>
+
+<section class="ranking-overlay" id="rankingOverlay" aria-hidden="true" hidden>
+  <button class="ranking-backdrop" id="rankingBackdrop" type="button" aria-label="Close ranking"></button>
+  <article class="ranking-full-card">
+    <div class="profile-card-head">
+      <div>
+        <p class="section-kicker">SCRIM LEADERBOARD</p>
+        <h2>Team Ranking</h2>
+        <p>Ranking rasmi berdasarkan point, win dan lose.</p>
+      </div>
+      <button class="btn panel-toggle" type="button" id="closeRankingBtn">BACK</button>
+    </div>
+    <section class="ranking-podium" id="rankingTopCards" aria-label="Top 3 team"></section>
+    <section class="ranking-table" aria-label="Semua ranking team">
+      <div class="ranking-table-head">
+        <span>RANK</span><span>TEAM</span><span>POINT</span><span>WIN</span><span>LOSE</span>
+      </div>
+      <div id="rankList"></div>
+    </section>
+  </article>
+</section>
+
+<section class="result-overlay" id="resultOverlay" aria-hidden="true" hidden>
+  <button class="result-backdrop" id="resultBackdrop" type="button" aria-label="Close result review"></button>
+  <article class="result-review-card">
+    <div class="profile-card-head">
+      <div>
+        <p class="section-kicker">RESULT REVIEW</p>
+        <h2>Update Result</h2>
+        <p>Confirm score dari host atau report kalau score salah.</p>
+      </div>
+      <button class="btn panel-toggle" type="button" id="closeResultBtn">BACK</button>
+    </div>
+    <div id="resultReviewContent"></div>
+  </article>
+</section>
+
+<header class="scrim-hero">
+  <div class="hero-inner">
+    <section class="hero-copy">
+      <p class="hero-kicker">OFFICIAL SCRIM SYSTEM</p>
+      <h2>MLBB<br><span>SCRIM ROOM</span></h2>
+      <p class="hero-text">Create lobby, request join, accept opponent, share Room ID privately dan update result dalam satu page.</p>
+      <div class="hero-buttons">
+        <a href="#scrimBoard" class="btn primary">JOIN SCRIM</a>
+        <button class="btn" type="button" id="toggleCreateBtn" aria-expanded="false" onclick="toggleCreatePanel(event)">CREATE SCRIM</button>
+        <button class="btn result-nav-button" type="button" id="updateResultBtn">
+          UPDATE RESULT
+          <span class="button-badge hidden" id="resultBadge">0</span>
+        </button>
+        <button class="btn ghost" type="button" id="toggleInfoBtn" aria-expanded="false">HIDE INFO</button>
+      </div>
+    </section>
+
+    <figure class="scrim-logo-card" aria-label="GTML logo sementara">
+      <img src="images/gtmllogo.png" alt="GTML">
+    </figure>
+
+    <aside class="hero-side">
+      <section class="hero-mini-card hero-action-card">
+        <div class="mini-head">
+          <p>STATUS</p>
+          <span class="chip open">LIVE</span>
+        </div>
+        <div class="hero-action-stack">
+          <button class="hero-action-button" type="button" id="viewAllScrimBtn">VIEW ALL SCRIM</button>
+          <button class="hero-action-button" type="button" id="viewRankingBtn">VIEW RANKING</button>
+          <button class="hero-action-button" type="button" id="viewGtmlSlotBtn">GTML SLOT INFO</button>
+        </div>
+      </section>
+
+      <section class="hero-mini-card hero-deal-card" id="heroDealCard">
+        <div id="heroDealContent">
+          <p class="mini-title">PRIVATE DEAL</p>
+          <div class="versus-row">
+            <strong>HOST</strong>
+            <span>VS</span>
+            <strong>OPPONENT</strong>
+          </div>
+          <p>Room ID hanya keluar untuk dua team selepas confirmed.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="info-drawer" id="infoDrawer" aria-hidden="true">
+    <div class="info-card">
+      <p>NORMAL SCRIM</p>
+      <strong>Win +1 / Lose -1</strong>
+    </div>
+    <div class="info-card">
+      <p>TABRAK TEAM ATAS</p>
+      <strong>Challenger: Win +2 / Lose -1</strong>
+    </div>
+    <div class="info-card">
+      <p>DEFEND RANK</p>
+      <strong>Defender: Win +1 / Lose -2</strong>
+    </div>
+    <div class="info-card penalty-info-card">
+      <p>PENALTY</p>
+      <strong>No show -2 / Last minute cancel -1</strong>
+      <span>Reject lebih 2 kali: -1 / Fake result: -3</span>
+    </div>
+  </section>
+
+  <section class="scrim-progress">
+    <div><span>01</span><strong>LOGIN</strong><p>Team Account</p></div>
+    <div><span>02</span><strong>REQUEST</strong><p>Join Scrim</p></div>
+    <div><span>03</span><strong>ROOM</strong><p>Private ID</p></div>
+    <div><span>04</span><strong>RESULT</strong><p>Point History</p></div>
+  </section>
+</header>
+
+<main class="workspace" id="scrimWorkspace">
+  <section class="workspace-grid">
+    <aside class="stack">
+      <section class="panel panel-pad collapsible-card" id="createPanel" aria-hidden="true" hidden>
+        <div class="panel-title">
+          <div>
+            <h2>Create Scrim</h2>
+            <p>Scrim baru akan muncul di board.</p>
+          </div>
+        </div>
+        <form class="form-grid" id="createForm">
+          <input type="hidden" name="action" value="create_scrim">
+          <div class="field">
+            <label for="scrimTitle">Nama scrim</label>
+            <input id="scrimTitle" name="title" placeholder="Ranked custom BO3" required>
+          </div>
+          <div class="field">
+            <label for="scrimTime">Tarikh dan masa</label>
+            <input id="scrimTime" name="date_time" type="datetime-local" required>
+          </div>
+          <div class="field">
+            <label for="scrimFormat">Format</label>
+            <select id="scrimFormat" name="format">
+              <option>BO1</option>
+              <option selected>BO3</option>
+              <option>BO5</option>
+              <option>Training</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="scrimPointMode">Sistem point</label>
+            <select id="scrimPointMode" name="point_mode">
+              <option value="normal" selected>Normal Scrim</option>
+              <option value="challenge">Tabrak Team Atas</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="scrimNotes">Nota</label>
+            <textarea id="scrimNotes" name="notes" placeholder="Tier, rules, ban hero, punctual time"></textarea>
+          </div>
+          <button class="btn gold block" type="submit">Post Scrim</button>
+        </form>
+      </section>
+    </aside>
+
+    <section class="panel panel-pad board-panel" id="scrimBoard">
+      <div class="panel-title">
+        <div>
+          <p class="section-kicker">PARTICIPANT</p>
+          <h2>Open Scrims</h2>
+        </div>
+        <div class="filters">
+          <button class="filter is-active" type="button" data-filter="all">All</button>
+          <button class="filter" type="button" data-filter="open">Open</button>
+          <button class="filter" type="button" data-filter="deal">Deal</button>
+        </div>
+      </div>
+      <div class="scrim-list" id="scrimList"></div>
+    </section>
+  </section>
+</main>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="scrim.js?v=33"></script>
+<script src="mobile-nav.js"></script>
+</body>
+</html>

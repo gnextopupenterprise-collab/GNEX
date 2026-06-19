@@ -52,7 +52,7 @@ filter:drop-shadow(0 18px 28px rgba(0,0,0,.62)) contrast(1.08) saturate(1.08);
 <nav class="fixed top-0 left-0 z-50 w-full border-b border-zinc-800 bg-black/80 backdrop-blur-xl">
 <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
 <a href="index.html" class="flex items-center gap-3">
-<img src="images/logo baru gnex .png" class="h-12 w-12 rounded-full border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20" alt="GNEX">
+<img src="images/logo baru gnex .png" class="h-12 w-12 border border-cyan-400 p-2 shadow-lg shadow-cyan-500/20" alt="GNEX">
 <div>
 <h1 class="text-2xl font-black leading-none text-cyan-400">GNEX</h1>
 <p class="mt-1 text-xs tracking-wide text-zinc-500">TOURNAMENT</p>
@@ -91,8 +91,8 @@ filter:drop-shadow(0 18px 28px rgba(0,0,0,.62)) contrast(1.08) saturate(1.08);
 <div class="flex min-w-0 items-center gap-4">
 <img src="gambarplayerkecs/AQIF.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-aqif h-20 w-20 rounded-full border-2 border-amber-300 object-cover" alt="AQIF">
 <div class="min-w-0">
-<h3 class="text-2xl font-black">AQIF</h3>
-<p class="text-sm text-zinc-500">Solo ranking leader</p>
+<h3 class="text-1xl font-black">AQIF</h3>
+<p class="text-sm text-zinc-500"></p>
 </div>
 </div>
 <div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-amber-300/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
@@ -111,7 +111,7 @@ filter:drop-shadow(0 18px 28px rgba(0,0,0,.62)) contrast(1.08) saturate(1.08);
 <div class="mt-4 flex items-start justify-between gap-4">
 <div class="flex min-w-0 items-center gap-4">
 <img src="gambarplayerkecs/XSYAMZ.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-xsyamz h-20 w-20 rounded-full border-2 border-cyan-400 object-cover" alt="XSYAMZ">
-<div class="min-w-0"><h3 class="text-2xl font-black">XSYAMZ</h3><p class="text-sm text-zinc-500">Chasing top spot</p></div>
+<div class="min-w-0"><h3 class="text-1xl font-black">XSYAMZ</h3><p class="text-sm text-zinc-500"></p></div>
 </div>
 <div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-cyan-400/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
 <img src="gambarplayerkecs/XSYAMZ.png" class="player-poster h-full w-full object-contain object-bottom" alt="XSYAMZ">
@@ -129,7 +129,7 @@ filter:drop-shadow(0 18px 28px rgba(0,0,0,.62)) contrast(1.08) saturate(1.08);
 <div class="mt-4 flex items-start justify-between gap-4">
 <div class="flex min-w-0 items-center gap-4">
 <img src="gambarplayerkecs/MASDO.png" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar avatar-masdo h-20 w-20 rounded-full border-2 border-zinc-400 object-cover" alt="MASDO">
-<div class="min-w-0"><h3 class="text-2xl font-black">MASDO</h3><p class="text-sm text-zinc-500">Consistent player</p></div>
+<div class="min-w-0"><h3 class="text-2xl font-black">MASDO</h3><p class="text-sm text-zinc-500"></p></div>
 </div>
 <div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border border-zinc-400/40 sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">
 <img src="gambarplayerkecs/MASDO.png" class="player-poster h-full w-full object-contain object-bottom" alt="MASDO">
@@ -223,8 +223,7 @@ return `
 <div class="flex min-w-0 items-center gap-4">
 <img src="${image}" onerror="this.src='images/logo-gnex-esport-64x64.png'" class="player-avatar h-20 w-20 rounded-full border-2 ${rank === "1" ? "border-amber-300" : rank === "2" ? "border-cyan-400" : "border-zinc-400"} object-cover object-top" alt="${player.player_name}">
 <div class="min-w-0">
-<h3 class="text-2xl font-black">${player.player_name}</h3>
-<p class="text-sm text-zinc-500">${rank === "1" ? "Solo ranking leader" : rank === "2" ? "Chasing top spot" : "Consistent player"}</p>
+<h3 class="text-1xl font-black">${player.player_name}</h3>
 </div>
 </div>
 <div class="player-frame h-40 w-28 shrink-0 overflow-hidden rounded-xl border ${color.line} sm:h-44 sm:w-32 md:h-40 md:w-28 lg:h-44 lg:w-32">

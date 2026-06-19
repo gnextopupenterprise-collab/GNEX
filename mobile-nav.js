@@ -23,7 +23,9 @@
     "kecs5.html",
     "gnexlaga.html",
     "gml.html",
-    "warzone.html"
+    "warzone.html",
+    "scrim.html",
+    "scrim-mlbb.php"
   ]);
 
   const activeNav = topupPages.has(page)
