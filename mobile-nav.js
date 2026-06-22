@@ -5,7 +5,7 @@
     return;
   }
 
-  const cssHref = "mobile-nav.css";
+  const cssHref = "mobile-nav.css?v=2";
   const hasCss = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
     .some((link) => link.getAttribute("href") === cssHref);
 
@@ -42,7 +42,7 @@
   nav.className = "bottom-app-nav";
   nav.setAttribute("aria-label", "Mobile app navigation");
   nav.innerHTML = `
-<a href="index.html" class="bottom-nav-item${activeClass("home")}" data-nav="home" aria-label="Home">
+<a href="https://gnexcenter.com/" class="bottom-nav-item${activeClass("home")}" data-nav="home" aria-label="Home">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="m3 10.8 9-7 9 7"></path>
 <path d="M5 10v10h14V10"></path>
@@ -51,7 +51,7 @@
 <span>Home</span>
 </a>
 
-<a href="index.html#price-list" class="bottom-nav-item${activeClass("topup")}" data-nav="topup" aria-label="GNEX Topup">
+<a href="https://gnexcenter.com/#price-list" class="bottom-nav-item${activeClass("topup")}" data-nav="topup" aria-label="GNEX Topup">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <rect x="4" y="5" width="16" height="14" rx="3"></rect>
 <path d="M8 9h8"></path>
@@ -61,7 +61,7 @@
 <span>Topup</span>
 </a>
 
-<a href="tournament.html" class="bottom-nav-item${activeClass("tournament")}" data-nav="tournament" aria-label="Tournament">
+<a href="https://gnexcenter.com/tournament.html" class="bottom-nav-item${activeClass("tournament")}" data-nav="tournament" aria-label="Tournament">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="M8 21h8"></path>
 <path d="M12 17v4"></path>

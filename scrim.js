@@ -700,9 +700,10 @@ function render(){
 
 $('#authForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
-    await postForm(event.currentTarget);
-    event.currentTarget.reset();
+    await postForm(form);
+    form.reset();
   } catch (error) {
     showToast(error.message);
   }
@@ -710,9 +711,10 @@ $('#authForm').addEventListener('submit', async (event) => {
 
 $('#createForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   try {
-    await postForm(event.currentTarget);
-    event.currentTarget.reset();
+    await postForm(form);
+    form.reset();
     setCollapsible('#createPanel', false);
     $('#toggleCreateBtn')?.setAttribute('aria-expanded', 'false');
   } catch (error) {

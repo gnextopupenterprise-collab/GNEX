@@ -355,7 +355,7 @@ function fetch_state(PDO $pdo): array
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    $registrationOpen = false;
+    $registrationOpen = true;
 
     try {
         if ($action === 'register' && !$registrationOpen) {
@@ -380,16 +380,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($existingTeam) {
-                    $stmt = $pdo->prepare('UPDATE teams SET password_hash = ?, password_code = ? WHERE id = ?');
-                    $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $password, $existingTeam['id']]);
+                    $stmt = $pdo->prepare('UPDATE teams SET password_hash = ?, password_code = NULL WHERE id = ?');
+                    $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $existingTeam['id']]);
                     $_SESSION['team_id'] = (int) $existingTeam['id'];
                     $stmt = $pdo->prepare('INSERT IGNORE INTO team_stats (team_id) VALUES (?)');
                     $stmt->execute([$_SESSION['team_id']]);
                     json_response(fetch_state($pdo) + ['message' => 'Password team lama berjaya diset.']);
                 }
 
-                $stmt = $pdo->prepare('INSERT INTO teams (team_name, password_hash, password_code) VALUES (?, ?, ?)');
-                $stmt->execute([$name, password_hash($password, PASSWORD_DEFAULT), $password]);
+                $stmt = $pdo->prepare('INSERT INTO teams (team_name, password_hash) VALUES (?, ?)');
+                $stmt->execute([$name, password_hash($password, PASSWORD_DEFAULT)]);
                 $_SESSION['team_id'] = (int) $pdo->lastInsertId();
                 $stmt = $pdo->prepare('INSERT IGNORE INTO team_stats (team_id) VALUES (?)');
                 $stmt->execute([$_SESSION['team_id']]);
@@ -407,8 +407,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($legacyMatches && empty($team['password_hash'])) {
-                $stmt = $pdo->prepare('UPDATE teams SET password_hash = ? WHERE id = ?');
+                $stmt = $pdo->prepare('UPDATE teams SET password_hash = ?, password_code = NULL WHERE id = ?');
                 $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $team['id']]);
+            } elseif (!empty($team['password_code'])) {
+                $stmt = $pdo->prepare('UPDATE teams SET password_code = NULL WHERE id = ?');
+                $stmt->execute([$team['id']]);
             }
 
             $_SESSION['team_id'] = (int) $team['id'];

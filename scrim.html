@@ -8,11 +8,12 @@
 <meta name="theme-color" content="#02040a">
 <title>GNEX MLBB Scrim</title>
 <link rel="stylesheet" href="scrim.css?v=1011">
+<link rel="stylesheet" href="mobile-nav.css?v=2">
 </head>
 <body class="is-loading">
 <section class="auth-gate" id="authGate">
   <nav class="auth-gate-nav">
-    <a class="brand" href="index.html" aria-label="Back to GNEX Center">
+    <a class="brand" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
       <img src="images/logo baru gnex .webp" alt="GNEX">
       <div>
         <h1>GNEX</h1>
@@ -20,15 +21,15 @@
       </div>
     </a>
     <div class="nav-actions">
-      <a href="index.html" class="nav-link">HOME</a>
-      <a href="tournament.html" class="nav-link">TOURNAMENT</a>
+      <a href="https://gnexcenter.com/" class="nav-link">HOME</a>
+      <a href="https://gnexcenter.com/tournament.html" class="nav-link">TOURNAMENT</a>
       <button class="nav-link primary" type="button" data-auth-tab="login">JOIN</button>
     </div>
   </nav>
 
   <div class="auth-card">
     <div class="auth-welcome">
-      <a class="auth-logo" href="index.html" aria-label="Back to GNEX Center">
+      <a class="auth-logo" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
         <img src="images/logo baru gnex .webp" alt="GNEX">
         <span>GNEX SCRIM</span>
       </a>
@@ -44,7 +45,7 @@
       <p class="auth-helper"></p>
       <div class="auth-tabs" role="tablist">
         <button class="tab is-active" type="button" data-auth-tab="login">Login</button>
-        <button class="tab register-closed" type="button" disabled aria-disabled="true" title="Registration belum dibuka">Register Closed</button>
+        <button class="tab" type="button" data-auth-tab="register">Register</button>
       </div>
       <form class="form-grid" id="authForm">
         <input type="hidden" name="action" id="authAction" value="login">
@@ -64,7 +65,7 @@
 
 <div class="scrim-app" id="scrimApp" hidden>
 <nav class="scrim-nav">
-  <a class="brand" href="index.html" aria-label="Back to GNEX Center">
+  <a class="brand" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
     <img src="images/logo baru gnex .webp" alt="GNEX">
     <div>
       <h1>GNEX</h1>
@@ -72,8 +73,8 @@
     </div>
   </a>
   <div class="nav-actions">
-    <a href="index.html" class="nav-link">HOME</a>
-    <a href="tournament.html" class="nav-link">TOURNAMENT</a>
+    <a href="https://gnexcenter.com/" class="nav-link">HOME</a>
+    <a href="https://gnexcenter.com/tournament.html" class="nav-link">TOURNAMENT</a>
     <button class="profile-nav-button" type="button" id="profileBtn" aria-expanded="false">
       <span class="profile-name" id="profileTeamName">TEAM</span>
       <span class="profile-badge hidden" id="profileBadge">0</span>
@@ -317,7 +318,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="scrim.js?v=33"></script>
-<script src="mobile-nav.js"></script>
+<script src="scrim.js?v=34"></script>
+<script src="mobile-nav.js?v=3"></script>
 </body>
 </html>
