@@ -2281,9 +2281,25 @@ textarea,
   .scrim-nav{
     position:static;
     align-items:center;
+    gap:8px;
+    padding:12px;
   }
-  .nav-actions{
+  .auth-gate-nav .nav-actions{
     display:none;
+  }
+  .scrim-nav .nav-actions{
+    display:flex;
+    margin-left:auto;
+  }
+  .scrim-nav .nav-actions .nav-link{
+    display:none;
+  }
+  .scrim-nav .brand img{
+    width:44px;
+    height:44px;
+  }
+  .scrim-nav .brand h1{
+    font-size:23px;
   }
   .nav-link{
     padding:0 11px;
@@ -2291,7 +2307,7 @@ textarea,
   }
   .profile-nav-button{
     padding:0 12px;
-    max-width:132px;
+    max-width:120px;
   }
   .profile-name{
     overflow:hidden;
