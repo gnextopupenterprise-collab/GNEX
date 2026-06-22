@@ -43,10 +43,20 @@ function showToast(message){
   showToast.timer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
 }
 
+async function readApiResponse(response){
+  const raw = await response.text();
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    const status = response.status ? ` (${response.status})` : '';
+    throw new Error(`API server error${status}. Semak PHP dan database hosting.`);
+  }
+}
+
 async function postForm(formOrData){
   const body = formOrData instanceof FormData ? formOrData : new FormData(formOrData);
   const response = await fetch(API_URL, {method:'POST', body});
-  const payload = await response.json();
+  const payload = await readApiResponse(response);
   if (!payload.ok) {
     throw new Error(payload.message || 'Request gagal.');
   }
@@ -903,7 +913,7 @@ document.addEventListener('click', async (event) => {
 
 async function loadState(){
   const response = await fetch(API_URL + '?state=1');
-  const payload = await response.json();
+  const payload = await readApiResponse(response);
   if (!payload.ok) {
     throw new Error(payload.message || 'Gagal load scrim data.');
   }
