@@ -83,7 +83,7 @@ async function enableWebPushNotifications(){
     return;
   }
 
-  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=2');
+  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=3');
   const existing = await registration.pushManager.getSubscription();
   const subscription = existing || await registration.pushManager.subscribe({
     userVisibleOnly:true,
@@ -93,21 +93,17 @@ async function enableWebPushNotifications(){
   data.set('action', 'save_push_subscription');
   data.set('subscription', JSON.stringify(subscription));
   await postForm(data);
-  await registration.showNotification('GNEX Scrim', {
-    body:'Chat notification aktif. Mesej baru akan masuk walaupun web ditutup.',
-    tag:'scrim-chat-test',
-    icon:'images/logo-gnex-esport-64x64.png',
-    badge:'images/logo-gnex-esport-64x64.png',
-    data:{url:'scrim.html'}
-  });
+  const testData = new FormData();
+  testData.set('action', 'test_push');
+  await postForm(testData);
 }
 
 async function showScrimNotification(title, body, tag = 'scrim-chat'){
   if (!canUseBrowserNotifications() || Notification.permission !== 'granted') return;
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=2')
+    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=3')
       || await navigator.serviceWorker.getRegistration()
-      || await navigator.serviceWorker.register('scrim-sw.js?v=2');
+      || await navigator.serviceWorker.register('scrim-sw.js?v=3');
     await registration.showNotification(title, {
       body,
       tag,
@@ -132,7 +128,7 @@ function notifyIncomingChat(message){
   const title = `GNEX Scrim: ${message.sender_name || 'Team'}`;
   const body = String(message.message || '').slice(0, 120);
   showScrimNotification(title, body, `scrim-chat-${message.scrim_id}`).catch(console.warn);
-  showToast(`Chat baru dari ${message.sender_name || 'team lawan'}.`);
+  showToast(`Chat baru dari ${message.sender_name || 'team lawan'}. Phone push dihantar jika device subscribed.`);
 }
 
 function syncIncomingMessages(nextState, shouldNotify = true){

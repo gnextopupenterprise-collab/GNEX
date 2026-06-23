@@ -355,10 +355,11 @@ function vapid_jwt(array $pushConfig, string $endpoint): ?string
     return $input . '.' . base64url_encode(der_to_jose($signature));
 }
 
-function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): void
+function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): array
 {
+    $summary = ['attempted' => 0, 'sent' => 0, 'failed' => 0, 'statuses' => []];
     if ($teamId <= 0 || empty($pushConfig['public_key']) || empty($pushConfig['private_key_pem']) || !function_exists('curl_init')) {
-        return;
+        return $summary;
     }
 
     $stmt = $pdo->prepare('SELECT id, endpoint FROM push_subscriptions WHERE team_id = ?');
@@ -366,9 +367,12 @@ function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): void
     $subscriptions = $stmt->fetchAll();
 
     foreach ($subscriptions as $subscription) {
+        $summary['attempted']++;
         $endpoint = (string) $subscription['endpoint'];
         $jwt = vapid_jwt($pushConfig, $endpoint);
         if (!$jwt) {
+            $summary['failed']++;
+            $summary['statuses'][] = 'jwt_failed';
             continue;
         }
 
@@ -389,14 +393,24 @@ function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): void
             ],
         ]);
         curl_exec($curl);
+        $error = curl_error($curl);
         $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
+        $summary['statuses'][] = $error !== '' ? $error : $status;
+
+        if ($status >= 200 && $status < 300) {
+            $summary['sent']++;
+        } else {
+            $summary['failed']++;
+        }
 
         if (in_array($status, [404, 410], true)) {
             $delete = $pdo->prepare('DELETE FROM push_subscriptions WHERE id = ?');
             $delete->execute([$subscription['id']]);
         }
     }
+
+    return $summary;
 }
 
 function fetch_state(PDO $pdo): array
@@ -504,6 +518,18 @@ function fetch_state(PDO $pdo): array
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['push_latest'])) {
     $team = require_team($pdo);
+    $isTest = isset($_GET['test']);
+    if ($isTest) {
+        json_response([
+            'ok' => true,
+            'notification' => [
+                'title' => 'GNEX Scrim',
+                'body' => 'Phone notification aktif untuk team ' . $team['name'] . '.',
+                'url' => 'scrim.html',
+                'tag' => 'scrim-chat-test',
+            ],
+        ]);
+    }
     $stmt = $pdo->prepare("
         SELECT m.id, m.scrim_id, m.sender_team_id, m.message, m.created_at,
             t.team_name AS sender_name,
@@ -682,6 +708,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$team['id'], $endpointHash, $endpoint, $p256dh, $auth, $userAgent]);
 
             json_response(fetch_state($pdo) + ['message' => 'Phone notification aktif untuk team ini.']);
+        }
+
+        if ($action === 'test_push') {
+            $pushSummary = send_empty_web_push($pdo, $pushConfig, (int) $team['id']);
+            $message = $pushSummary['sent'] > 0
+                ? 'Test push dihantar ke device subscribed.'
+                : 'Test push belum berjaya. Pastikan tekan CHAT NOTI dari phone/browser penerima.';
+            json_response(fetch_state($pdo) + [
+                'message' => $message,
+                'push_summary' => $pushSummary,
+            ]);
         }
 
         if ($action === 'request_join') {

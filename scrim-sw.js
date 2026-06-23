@@ -36,7 +36,7 @@ async function showLatestScrimChat(){
     const payload = await response.json();
     const data = payload.notification || {
       title:'GNEX Scrim',
-      body:'Chat baru masuk.',
+      body:'Phone notification aktif. Chat baru akan masuk di sini.',
       url:'scrim.html',
       tag:'scrim-chat'
     };
@@ -49,7 +49,7 @@ async function showLatestScrimChat(){
     });
   } catch (error) {
     await self.registration.showNotification('GNEX Scrim', {
-      body:'Chat baru masuk.',
+      body:'Phone notification aktif. Chat baru akan masuk di sini.',
       tag:'scrim-chat',
       icon:'images/logo-gnex-esport-64x64.png',
       data:{url:'scrim.html'}
