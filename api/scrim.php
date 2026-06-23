@@ -2,16 +2,18 @@
 declare(strict_types=1);
 
 $rootDir = dirname(__DIR__);
-$dataDir = $rootDir . DIRECTORY_SEPARATOR . 'data';
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0775, true);
-}
+set_exception_handler(static function (Throwable $error): void {
+    error_log($error->__toString());
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode([
+        'ok' => false,
+        'message' => 'Server error: ' . $error->getMessage(),
+    ]);
+});
 
-$sessionDir = $dataDir . DIRECTORY_SEPARATOR . 'sessions';
-if (!is_dir($sessionDir)) {
-    mkdir($sessionDir, 0775, true);
-}
-session_save_path($sessionDir);
 session_start();
 
 $dbConfig = require $rootDir . DIRECTORY_SEPARATOR . 'scrim-db-config.php';
@@ -52,15 +54,14 @@ function column_exists(PDO $pdo, string $table, string $column): bool
     return (int) $stmt->fetchColumn() > 0;
 }
 
-$pdo->exec("
-CREATE TABLE IF NOT EXISTS teams (
+$schemaStatements = [
+    "CREATE TABLE IF NOT EXISTS teams (
     id INT AUTO_INCREMENT PRIMARY KEY,
     team_name VARCHAR(80) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS team_stats (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS team_stats (
     team_id INT PRIMARY KEY,
     total_scrim INT NOT NULL DEFAULT 0,
     total_win INT NOT NULL DEFAULT 0,
@@ -68,9 +69,8 @@ CREATE TABLE IF NOT EXISTS team_stats (
     total_point INT NOT NULL DEFAULT 0,
     tier VARCHAR(30) NOT NULL DEFAULT 'UNRANKED',
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS scrims (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS scrims (
     id INT AUTO_INCREMENT PRIMARY KEY,
     creator_team_id INT NOT NULL,
     opponent_team_id INT NULL,
@@ -93,9 +93,8 @@ CREATE TABLE IF NOT EXISTS scrims (
     FOREIGN KEY (creator_team_id) REFERENCES teams(id),
     FOREIGN KEY (opponent_team_id) REFERENCES teams(id),
     FOREIGN KEY (winner_team_id) REFERENCES teams(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS scrim_requests (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS scrim_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     scrim_id INT NOT NULL,
     requester_team_id INT NOT NULL,
@@ -106,9 +105,8 @@ CREATE TABLE IF NOT EXISTS scrim_requests (
     UNIQUE(scrim_id, requester_team_id),
     FOREIGN KEY (scrim_id) REFERENCES scrims(id) ON DELETE CASCADE,
     FOREIGN KEY (requester_team_id) REFERENCES teams(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS result_reports (
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS result_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     scrim_id INT NOT NULL,
     reporter_team_id INT NOT NULL,
@@ -120,8 +118,12 @@ CREATE TABLE IF NOT EXISTS result_reports (
     reviewed_at DATETIME NULL,
     FOREIGN KEY (scrim_id) REFERENCES scrims(id) ON DELETE CASCADE,
     FOREIGN KEY (reporter_team_id) REFERENCES teams(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-");
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+];
+
+foreach ($schemaStatements as $schemaStatement) {
+    $pdo->exec($schemaStatement);
+}
 
 if (!column_exists($pdo, 'teams', 'password_hash')) {
     $pdo->exec('ALTER TABLE teams ADD COLUMN password_hash VARCHAR(255) NULL');

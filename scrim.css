@@ -2236,6 +2236,22 @@ textarea,
   .board-panel{grid-column:1 / -1;order:-1}
   .side-right{grid-column:auto}
   .profile-grid{grid-template-columns:1fr}
+  .profile-flow{
+    grid-template-columns:1fr;
+  }
+  .profile-wide-card,
+  .profile-wide-card:first-child,
+  .profile-wide-card:last-child{
+    width:100%;
+    min-width:0;
+  }
+  .profile-wide-card #requestList,
+  .profile-wide-card #dealRooms,
+  .profile-wide-card .request-row,
+  .profile-wide-card .deal-room{
+    min-width:0;
+    width:100%;
+  }
   .player-card{flex-basis:calc((100% - 32px) / 3)}
   .ranking-full-grid{grid-template-columns:1fr}
   .scrim-card-main{grid-template-columns:60px minmax(190px,1fr) minmax(150px,.8fr) auto}
@@ -2373,6 +2389,12 @@ textarea,
   .roster-scroll-hint{left:34px;right:34px}
   .roster-team-stats{
     grid-template-columns:1fr;
+  }
+  .profile-flow{
+    grid-template-columns:1fr;
+  }
+  .profile-wide-card{
+    min-width:0;
   }
   .profile-head-actions{
     flex-wrap:wrap;

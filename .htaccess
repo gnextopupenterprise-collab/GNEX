@@ -4,10 +4,10 @@
   # HTML should stay fresh so page edits appear quickly.
   ExpiresByType text/html "access plus 0 seconds"
 
-  # Static assets can be cached because their URLs can be versioned.
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType text/javascript "access plus 1 month"
+  # Keep CSS/JS fresh while scrim system is still being tested.
+  ExpiresByType text/css "access plus 0 seconds"
+  ExpiresByType application/javascript "access plus 0 seconds"
+  ExpiresByType text/javascript "access plus 0 seconds"
 
   ExpiresByType image/jpeg "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
@@ -27,7 +27,7 @@
   </FilesMatch>
 
   <FilesMatch "\.(?:css|js)$">
-    Header set Cache-Control "public, max-age=2592000"
+    Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 
   <FilesMatch "\.(?:html)$">
