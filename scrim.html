@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="GNEX MLBB Scrim system untuk daftar team, create scrim, request join, private deal room, room ID, result dan point history.">
 <link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
+<link rel="manifest" href="manifest.webmanifest?v=4">
 <meta name="theme-color" content="#02040a">
 <title>GNEX MLBB Scrim</title>
-<link rel="stylesheet" href="scrim.css?v=1014">
+<link rel="stylesheet" href="scrim.css?v=1017">
 <link rel="stylesheet" href="mobile-nav.css?v=2">
 </head>
 <body class="is-loading">
@@ -95,11 +96,24 @@
         <p id="profileCardMeta">Logged in team</p>
       </div>
       <div class="profile-head-actions">
-        <button class="btn panel-toggle profile-action edit" type="button"><span aria-hidden="true"></span>EDIT PROFILE</button>
+        <button class="btn panel-toggle profile-action edit" type="button" id="editProfileBtn" aria-expanded="false"><span aria-hidden="true"></span>EDIT PROFILE</button>
+        <button class="btn panel-toggle profile-action" type="button" id="enableNotifyBtn"><span aria-hidden="true"></span>CHAT NOTI</button>
         <button class="btn red panel-toggle profile-action logout" id="logoutBtn" type="button"><span aria-hidden="true"></span>LOGOUT</button>
         <button class="btn panel-toggle profile-action close" type="button" id="closeProfileBtn"><span aria-hidden="true"></span>CLOSE</button>
       </div>
     </div>
+
+    <section class="profile-edit-panel" id="profileEditPanel" hidden>
+      <form class="form-grid profile-form" id="profileForm">
+        <input type="hidden" name="action" value="update_profile">
+        <div class="field">
+          <label for="profilePhone">Nombor telefon</label>
+          <input id="profilePhone" name="phone_number" type="tel" autocomplete="tel" placeholder="Contoh: +60123456789">
+        </div>
+        <p class="profile-private-note">Nombor ini private dan hanya display dalam profile team sendiri.</p>
+        <button class="btn gold block" type="submit">Update Profile</button>
+      </form>
+    </section>
 
     <section class="profile-roster-section">
       <div class="panel-title">
@@ -269,9 +283,16 @@
             <label for="scrimTitle">Nama scrim</label>
             <input id="scrimTitle" name="title" placeholder="Ranked custom BO3" required>
           </div>
-          <div class="field">
-            <label for="scrimTime">Tarikh dan masa</label>
-            <input id="scrimTime" name="date_time" type="datetime-local" required>
+          <input id="scrimDateTime" name="date_time" type="hidden">
+          <div class="date-time-row">
+            <div class="field">
+              <label for="scrimDate">Tarikh</label>
+              <input id="scrimDate" name="scrim_date" type="date" required>
+            </div>
+            <div class="field">
+              <label for="scrimClock">Masa</label>
+              <input id="scrimClock" name="scrim_time" type="time" required>
+            </div>
           </div>
           <div class="field">
             <label for="scrimFormat">Format</label>
@@ -318,7 +339,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="scrim.js?v=36"></script>
+<script src="scrim.js?v=42"></script>
 <script src="mobile-nav.js?v=3"></script>
 </body>
 </html>

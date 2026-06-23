@@ -17,6 +17,8 @@ set_exception_handler(static function (Throwable $error): void {
 session_start();
 
 $dbConfig = require $rootDir . DIRECTORY_SEPARATOR . 'scrim-db-config.php';
+$pushConfigPath = $rootDir . DIRECTORY_SEPARATOR . 'scrim-push-config.php';
+$pushConfig = is_file($pushConfigPath) ? require $pushConfigPath : [];
 $dbHost = $dbConfig['host'];
 $dbName = $dbConfig['database'];
 $dbUser = $dbConfig['username'];
@@ -58,6 +60,7 @@ $schemaStatements = [
     "CREATE TABLE IF NOT EXISTS teams (
     id INT AUTO_INCREMENT PRIMARY KEY,
     team_name VARCHAR(80) NOT NULL UNIQUE,
+    phone_number VARCHAR(30) NULL,
     password_hash VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
@@ -119,6 +122,29 @@ $schemaStatements = [
     FOREIGN KEY (scrim_id) REFERENCES scrims(id) ON DELETE CASCADE,
     FOREIGN KEY (reporter_team_id) REFERENCES teams(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS scrim_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    scrim_id INT NOT NULL,
+    sender_team_id INT NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (scrim_id) REFERENCES scrims(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    INDEX idx_scrim_messages_room (scrim_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS push_subscriptions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    team_id INT NOT NULL,
+    endpoint_hash CHAR(64) NOT NULL UNIQUE,
+    endpoint TEXT NOT NULL,
+    p256dh VARCHAR(255) NULL,
+    auth VARCHAR(255) NULL,
+    user_agent VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    INDEX idx_push_team (team_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 ];
 
 foreach ($schemaStatements as $schemaStatement) {
@@ -127,6 +153,10 @@ foreach ($schemaStatements as $schemaStatement) {
 
 if (!column_exists($pdo, 'teams', 'password_hash')) {
     $pdo->exec('ALTER TABLE teams ADD COLUMN password_hash VARCHAR(255) NULL');
+}
+
+if (!column_exists($pdo, 'teams', 'phone_number')) {
+    $pdo->exec('ALTER TABLE teams ADD COLUMN phone_number VARCHAR(30) NULL AFTER team_name');
 }
 
 if (!column_exists($pdo, 'teams', 'password_code')) {
@@ -251,7 +281,7 @@ function current_team(PDO $pdo): ?array
         return null;
     }
 
-    $stmt = $pdo->prepare('SELECT id, team_name AS name, created_at FROM teams WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT id, team_name AS name, phone_number, created_at FROM teams WHERE id = ?');
     $stmt->execute([$_SESSION['team_id']]);
     return $stmt->fetch() ?: null;
 }
@@ -271,10 +301,108 @@ function clean_text(string $value, int $max = 120): string
     return mb_substr($value, 0, $max);
 }
 
+function clean_phone(string $value): string
+{
+    $value = trim($value);
+    $value = preg_replace('/[^0-9+\-\s()]/', '', $value) ?? '';
+    return clean_text($value, 30);
+}
+
+function base64url_encode(string $value): string
+{
+    return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+}
+
+function der_to_jose(string $derSignature): string
+{
+    $offset = 3;
+    $rLength = ord($derSignature[$offset]);
+    $r = substr($derSignature, $offset + 1, $rLength);
+    $offset += $rLength + 2;
+    $sLength = ord($derSignature[$offset]);
+    $s = substr($derSignature, $offset + 1, $sLength);
+    $r = str_pad(ltrim($r, "\x00"), 32, "\x00", STR_PAD_LEFT);
+    $s = str_pad(ltrim($s, "\x00"), 32, "\x00", STR_PAD_LEFT);
+    return $r . $s;
+}
+
+function vapid_jwt(array $pushConfig, string $endpoint): ?string
+{
+    if (empty($pushConfig['private_key_pem']) || empty($pushConfig['subject'])) {
+        return null;
+    }
+
+    $parts = parse_url($endpoint);
+    if (empty($parts['scheme']) || empty($parts['host'])) {
+        return null;
+    }
+
+    $audience = $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+    $header = base64url_encode(json_encode(['typ' => 'JWT', 'alg' => 'ES256']) ?: '{}');
+    $payload = base64url_encode(json_encode([
+        'aud' => $audience,
+        'exp' => time() + 43200,
+        'sub' => $pushConfig['subject'],
+    ]) ?: '{}');
+    $input = $header . '.' . $payload;
+
+    $signature = '';
+    $signed = openssl_sign($input, $signature, $pushConfig['private_key_pem'], OPENSSL_ALGO_SHA256);
+    if (!$signed) {
+        return null;
+    }
+
+    return $input . '.' . base64url_encode(der_to_jose($signature));
+}
+
+function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): void
+{
+    if ($teamId <= 0 || empty($pushConfig['public_key']) || empty($pushConfig['private_key_pem']) || !function_exists('curl_init')) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('SELECT id, endpoint FROM push_subscriptions WHERE team_id = ?');
+    $stmt->execute([$teamId]);
+    $subscriptions = $stmt->fetchAll();
+
+    foreach ($subscriptions as $subscription) {
+        $endpoint = (string) $subscription['endpoint'];
+        $jwt = vapid_jwt($pushConfig, $endpoint);
+        if (!$jwt) {
+            continue;
+        }
+
+        $curl = curl_init($endpoint);
+        curl_setopt_array($curl, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => '',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => false,
+            CURLOPT_TIMEOUT => 8,
+            CURLOPT_HTTPHEADER => [
+                'TTL: 120',
+                'Urgency: high',
+                'Content-Length: 0',
+                'Authorization: vapid t=' . $jwt . ', k=' . $pushConfig['public_key'],
+            ],
+        ]);
+        curl_exec($curl);
+        $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+
+        if (in_array($status, [404, 410], true)) {
+            $delete = $pdo->prepare('DELETE FROM push_subscriptions WHERE id = ?');
+            $delete->execute([$subscription['id']]);
+        }
+    }
+}
+
 function fetch_state(PDO $pdo): array
 {
+    global $pushConfig;
     $team = current_team($pdo);
     $teamId = $team['id'] ?? 0;
+    $messages = [];
 
     $scrims = $pdo->query("
         SELECT s.*,
@@ -345,6 +473,21 @@ function fetch_state(PDO $pdo): array
         }
     }
 
+    if ($teamId) {
+        $stmt = $pdo->prepare("
+            SELECT m.id, m.scrim_id, m.sender_team_id, m.message, m.created_at,
+                t.team_name AS sender_name
+            FROM scrim_messages m
+            JOIN scrims s ON s.id = m.scrim_id
+            JOIN teams t ON t.id = m.sender_team_id
+            WHERE s.status IN ('pending', 'confirmed')
+                AND (s.creator_team_id = ? OR s.opponent_team_id = ?)
+            ORDER BY m.created_at ASC, m.id ASC
+        ");
+        $stmt->execute([$teamId, $teamId]);
+        $messages = $stmt->fetchAll();
+    }
+
     return [
         'ok' => true,
         'team' => $team,
@@ -352,7 +495,37 @@ function fetch_state(PDO $pdo): array
         'requests' => $requests,
         'stats' => $stats,
         'history' => $history,
+        'messages' => $messages,
+        'push_public_key' => $pushConfig['public_key'] ?? null,
     ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['push_latest'])) {
+    $team = require_team($pdo);
+    $stmt = $pdo->prepare("
+        SELECT m.id, m.scrim_id, m.sender_team_id, m.message, m.created_at,
+            t.team_name AS sender_name,
+            s.title AS scrim_title
+        FROM scrim_messages m
+        JOIN scrims s ON s.id = m.scrim_id
+        JOIN teams t ON t.id = m.sender_team_id
+        WHERE s.status IN ('pending', 'confirmed')
+            AND (s.creator_team_id = ? OR s.opponent_team_id = ?)
+            AND m.sender_team_id != ?
+        ORDER BY m.created_at DESC, m.id DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$team['id'], $team['id'], $team['id']]);
+    $message = $stmt->fetch();
+    json_response([
+        'ok' => true,
+        'notification' => $message ? [
+            'title' => 'GNEX Scrim: ' . $message['sender_name'],
+            'body' => $message['message'],
+            'url' => 'scrim.html',
+            'tag' => 'scrim-chat-' . $message['scrim_id'],
+        ] : null,
+    ]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -472,6 +645,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             json_response(fetch_state($pdo) + ['message' => 'Scrim baru sudah dipaparkan.']);
         }
 
+        if ($action === 'update_profile') {
+            $phoneNumber = clean_phone((string) ($_POST['phone_number'] ?? ''));
+            $stmt = $pdo->prepare('UPDATE teams SET phone_number = ? WHERE id = ?');
+            $stmt->execute([$phoneNumber !== '' ? $phoneNumber : null, $team['id']]);
+
+            json_response(fetch_state($pdo) + ['message' => 'Profile team dikemaskini.']);
+        }
+
+        if ($action === 'save_push_subscription') {
+            $subscriptionJson = (string) ($_POST['subscription'] ?? '');
+            $subscription = json_decode($subscriptionJson, true);
+            $endpoint = clean_text((string) ($subscription['endpoint'] ?? ''), 2048);
+            $keys = is_array($subscription['keys'] ?? null) ? $subscription['keys'] : [];
+            $p256dh = clean_text((string) ($keys['p256dh'] ?? ''), 255);
+            $auth = clean_text((string) ($keys['auth'] ?? ''), 255);
+
+            if ($endpoint === '') {
+                json_response(['ok' => false, 'message' => 'Push subscription tidak sah.'], 422);
+            }
+
+            $endpointHash = hash('sha256', $endpoint);
+            $userAgent = clean_text((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 255);
+            $stmt = $pdo->prepare('
+                INSERT INTO push_subscriptions (team_id, endpoint_hash, endpoint, p256dh, auth, user_agent, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE
+                    team_id = VALUES(team_id),
+                    p256dh = VALUES(p256dh),
+                    auth = VALUES(auth),
+                    user_agent = VALUES(user_agent),
+                    updated_at = CURRENT_TIMESTAMP
+            ');
+            $stmt->execute([$team['id'], $endpointHash, $endpoint, $p256dh, $auth, $userAgent]);
+
+            json_response(fetch_state($pdo) + ['message' => 'Phone notification aktif untuk team ini.']);
+        }
+
         if ($action === 'request_join') {
             $scrimId = (int) ($_POST['scrim_id'] ?? 0);
             $message = clean_text((string) ($_POST['message'] ?? ''), 160);
@@ -547,6 +757,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             json_response(fetch_state($pdo) + ['message' => 'Room ID disimpan. Scrim confirmed.']);
+        }
+
+        if ($action === 'send_message') {
+            $scrimId = (int) ($_POST['scrim_id'] ?? 0);
+            $message = clean_text((string) ($_POST['message'] ?? ''), 500);
+
+            if ($message === '') {
+                json_response(['ok' => false, 'message' => 'Tulis mesej dulu.'], 422);
+            }
+
+            $stmt = $pdo->prepare('
+                SELECT id, creator_team_id, opponent_team_id
+                FROM scrims
+                WHERE id = ?
+                    AND status IN ("pending", "confirmed")
+                    AND (creator_team_id = ? OR opponent_team_id = ?)
+            ');
+            $stmt->execute([$scrimId, $team['id'], $team['id']]);
+            $scrim = $stmt->fetch();
+            if (!$scrim) {
+                json_response(['ok' => false, 'message' => 'Chat hanya untuk team dalam private deal room ini.'], 403);
+            }
+
+            $stmt = $pdo->prepare('INSERT INTO scrim_messages (scrim_id, sender_team_id, message) VALUES (?, ?, ?)');
+            $stmt->execute([$scrimId, $team['id'], $message]);
+            $receiverTeamId = (int) $scrim['creator_team_id'] === (int) $team['id']
+                ? (int) $scrim['opponent_team_id']
+                : (int) $scrim['creator_team_id'];
+            try {
+                send_empty_web_push($pdo, $pushConfig, $receiverTeamId);
+            } catch (Throwable $pushError) {
+                error_log('Push send failed: ' . $pushError->getMessage());
+            }
+
+            json_response(fetch_state($pdo) + ['message' => 'Mesej dihantar.']);
         }
 
         if ($action === 'update_result') {

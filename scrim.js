@@ -2,8 +2,12 @@
 if (location.port === '5500') {
   location.replace('http://localhost/Training%20coding%203%20(website%20gnex)/scrim.html');
 }
-let state = {ok:false, team:null, scrims:[], requests:[], stats:[], history:[]};
+let state = {ok:false, team:null, scrims:[], requests:[], stats:[], history:[], messages:[]};
 let activeFilter = 'all';
+let seenMessageIds = new Set();
+let statePollTimer = null;
+let isPollingState = false;
+const STATE_POLL_MS = 3500;
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -43,6 +47,87 @@ function showToast(message){
   showToast.timer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
 }
 
+function canUseBrowserNotifications(){
+  return 'Notification' in window && (location.protocol === 'https:' || location.hostname === 'localhost');
+}
+
+function canUseWebPush(){
+  return canUseBrowserNotifications() && 'serviceWorker' in navigator && 'PushManager' in window;
+}
+
+function urlBase64ToUint8Array(value){
+  const padding = '='.repeat((4 - value.length % 4) % 4);
+  const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = window.atob(base64);
+  const output = new Uint8Array(raw.length);
+  for (let index = 0; index < raw.length; index += 1) {
+    output[index] = raw.charCodeAt(index);
+  }
+  return output;
+}
+
+async function enableWebPushNotifications(){
+  if (!canUseWebPush()) {
+    showToast('Push noti perlu HTTPS dan browser support.');
+    return;
+  }
+  if (!state.push_public_key) {
+    showToast('Push key belum setup di server.');
+    return;
+  }
+  const permission = Notification.permission === 'granted'
+    ? 'granted'
+    : await Notification.requestPermission();
+  if (permission !== 'granted') {
+    showToast('Notification tidak diaktifkan.');
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=1');
+  const existing = await registration.pushManager.getSubscription();
+  const subscription = existing || await registration.pushManager.subscribe({
+    userVisibleOnly:true,
+    applicationServerKey:urlBase64ToUint8Array(state.push_public_key)
+  });
+  const data = new FormData();
+  data.set('action', 'save_push_subscription');
+  data.set('subscription', JSON.stringify(subscription));
+  await postForm(data);
+}
+
+function notifyIncomingChat(message){
+  const title = `GNEX Scrim: ${message.sender_name || 'Team'}`;
+  const body = String(message.message || '').slice(0, 120);
+  if (canUseBrowserNotifications() && Notification.permission === 'granted') {
+    const notification = new Notification(title, {
+      body,
+      tag:`scrim-chat-${message.scrim_id}`,
+      icon:'images/logo-gnex-esport-64x64.png'
+    });
+    notification.onclick = () => {
+      window.focus();
+      toggleProfile(true);
+    };
+  }
+  showToast(`Chat baru dari ${message.sender_name || 'team lawan'}.`);
+}
+
+function syncIncomingMessages(nextState, shouldNotify = true){
+  const teamId = Number(nextState.team?.id || 0);
+  const freshMessages = [];
+  (nextState.messages || []).forEach((message) => {
+    const messageId = Number(message.id || 0);
+    if (!messageId || seenMessageIds.has(messageId)) return;
+    seenMessageIds.add(messageId);
+    if (teamId && Number(message.sender_team_id) !== teamId) {
+      freshMessages.push(message);
+    }
+  });
+  if (shouldNotify && freshMessages.length) {
+    notifyIncomingChat(freshMessages[freshMessages.length - 1]);
+  }
+}
+
 async function readApiResponse(response){
   const raw = await response.text();
   try {
@@ -61,11 +146,22 @@ async function postForm(formOrData){
     throw new Error(payload.message || 'Request gagal.');
   }
   if (payload.scrims) {
+    syncIncomingMessages(payload, Boolean(state.team));
     state = payload;
     render();
   }
   showToast(payload.message || 'Berjaya.');
   return payload;
+}
+
+async function sendChatForm(form){
+  const input = $('input[name="message"]', form);
+  if (!input || !input.value.trim()) {
+    showToast('Tulis mesej dulu.');
+    input?.focus();
+    return;
+  }
+  await postForm(form);
 }
 
 function currentTeamId(){
@@ -81,6 +177,36 @@ function canControl(scrim){
   return teamId && [Number(scrim.creator_team_id), Number(scrim.opponent_team_id || 0)].includes(teamId);
 }
 
+function messagesFor(scrimId){
+  return (state.messages || []).filter((message) => Number(message.scrim_id) === Number(scrimId));
+}
+
+function collectChatDrafts(){
+  const drafts = {};
+  $$('.chat-form').forEach((form) => {
+    const scrimId = $('input[name="scrim_id"]', form)?.value;
+    const input = $('input[name="message"]', form);
+    if (scrimId && input && input.value) {
+      drafts[scrimId] = input.value;
+    }
+  });
+  return drafts;
+}
+
+function restoreChatDrafts(drafts){
+  Object.entries(drafts).forEach(([scrimId, value]) => {
+    const form = $$('.chat-form').find((item) => $('input[name="scrim_id"]', item)?.value === scrimId);
+    const input = form ? $('input[name="message"]', form) : null;
+    if (input) input.value = value;
+  });
+}
+
+function renderPreservingChatDrafts(){
+  const drafts = collectChatDrafts();
+  render();
+  restoreChatDrafts(drafts);
+}
+
 function formatScrimDate(value){
   const date = new Date(value);
   if (!value || Number.isNaN(date.getTime())) return {date:'-', time:'-'};
@@ -88,6 +214,20 @@ function formatScrimDate(value){
     date:date.toLocaleDateString('ms-MY', {day:'2-digit', month:'long', year:'numeric'}).toUpperCase(),
     time:date.toLocaleTimeString('ms-MY', {hour:'2-digit', minute:'2-digit'}).toUpperCase()
   };
+}
+
+function scrimDateObject(value){
+  if (!value) return null;
+  const normalized = String(value).trim().replace(' ', 'T');
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isOpenBoardScrim(scrim){
+  const matchDate = scrimDateObject(scrim.date_time);
+  return scrim.status === 'open'
+    && !Number(scrim.opponent_team_id || 0)
+    && (!matchDate || matchDate.getTime() >= Date.now());
 }
 
 function pendingResultDeals(){
@@ -128,6 +268,7 @@ function renderSession(){
   const profileTeamName = $('#profileTeamName');
   const profileCardName = $('#profileCardName');
   const profileCardMeta = $('#profileCardMeta');
+  const profilePhone = $('#profilePhone');
   const profileRankBadge = $('#profileRankBadge');
   const profileResultHint = $('#profileResultHint');
   const rosterGames = $('#rosterGames');
@@ -151,7 +292,13 @@ function renderSession(){
   if (state.team) {
     if (profileTeamName) profileTeamName.textContent = state.team.name;
     if (profileCardName) profileCardName.textContent = state.team.name;
-    if (profileCardMeta) profileCardMeta.textContent = `Logged in as team ID #${state.team.id}`;
+    if (profileCardMeta) {
+      const phoneText = state.team.phone_number ? ` | Phone: ${state.team.phone_number}` : ' | Phone belum set';
+      profileCardMeta.textContent = `Logged in as team ID #${state.team.id}${phoneText}`;
+    }
+    if (profilePhone && document.activeElement !== profilePhone) {
+      profilePhone.value = state.team.phone_number || '';
+    }
     if (profileBadge) {
       profileBadge.textContent = pendingRequests.length;
       profileBadge.classList.toggle('hidden', pendingRequests.length === 0);
@@ -173,6 +320,8 @@ function renderSession(){
   } else {
     if (profileTeamName) profileTeamName.textContent = 'TEAM';
     if (profileCardName) profileCardName.textContent = 'TEAM';
+    if (profileCardMeta) profileCardMeta.textContent = 'Logged in team';
+    if (profilePhone) profilePhone.value = '';
     if (profileRankBadge) profileRankBadge.textContent = 'RANK -';
     if (profileBadge) profileBadge.classList.add('hidden');
     if (rosterGames) rosterGames.textContent = '0';
@@ -442,16 +591,13 @@ function scrollRoster(direction){
 function renderScrims(){
   const list = $('#scrimList');
   const teamId = currentTeamId();
-  let scrims = state.scrims;
-  if (activeFilter === 'open') {
-    scrims = scrims.filter((scrim) => scrim.status === 'open');
-  }
+  let scrims = state.scrims.filter(isOpenBoardScrim);
   if (activeFilter === 'deal') {
-    scrims = scrims.filter((scrim) => ['pending','confirmed','completed'].includes(scrim.status));
+    scrims = [];
   }
 
   if (!scrims.length) {
-    list.innerHTML = '<p class="empty">Belum ada scrim untuk filter ini.</p>';
+    list.innerHTML = '<p class="empty">Tiada open scrim aktif sekarang.</p>';
     return;
   }
 
@@ -567,6 +713,7 @@ function renderDealRooms(){
     const resultRejected = scrim.result_status === 'rejected';
     const roomPanelId = `roomPanel-${scrim.id}`;
     const roomFormId = `roomForm-${scrim.id}`;
+    const chatMessages = messagesFor(scrim.id);
     const winnerOptions = [
       [scrim.creator_team_id, scrim.creator_name],
       [scrim.opponent_team_id, scrim.opponent_name]
@@ -605,6 +752,38 @@ function renderDealRooms(){
             <div class="secret"><span>Room ID</span><strong>${escapeHtml(scrim.room_id)}</strong></div>
           </div>
         ` : ''}
+
+        <section class="deal-chat" aria-label="Private Deal Room chat">
+          <div class="deal-chat-head">
+            <div>
+              <strong>Private Deal Room</strong>
+              <p>Chat host dan opponent untuk Room ID, masa, rules atau apa-apa update.</p>
+            </div>
+            <span class="chip confirmed">team 1 + team 2</span>
+          </div>
+          <div class="deal-chat-log">
+            ${chatMessages.length ? chatMessages.map((message) => {
+              const isMine = Number(message.sender_team_id) === currentTeamId();
+              return `
+                <div class="chat-bubble ${isMine ? 'mine' : 'theirs'}">
+                  <span>${escapeHtml(message.sender_name || 'Team')}</span>
+                  <p>${escapeHtml(message.message)}</p>
+                  <small>${formatDate(message.created_at)}</small>
+                </div>
+              `;
+            }).join('') : '<p class="empty">Belum ada chat. Tanya Room ID, confirm masa atau bincang rules di sini.</p>'}
+          </div>
+          <div class="quick-chat-actions">
+            <button class="quick-chat" type="button" data-action="quick_chat" data-id="${scrim.id}" data-message="Room ID berapa ya?">Room ID?</button>
+            <button class="quick-chat" type="button" data-action="quick_chat" data-id="${scrim.id}" data-message="Confirm scrim ikut masa ini ya.">Confirm masa</button>
+          </div>
+          <form class="deal-chat-form chat-form">
+            <input type="hidden" name="action" value="send_message">
+            <input type="hidden" name="scrim_id" value="${scrim.id}">
+            <input name="message" autocomplete="off" placeholder="Tulis mesej..." required>
+            <button class="btn primary" type="button" data-action="send_chat">Send</button>
+          </form>
+        </section>
 
         ${scrim.status === 'confirmed' ? `
           ${resultPending ? `
@@ -722,6 +901,16 @@ $('#authForm').addEventListener('submit', async (event) => {
 $('#createForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
+  const dateInput = $('#scrimDate', form);
+  const timeInput = $('#scrimClock', form);
+  const dateTimeInput = $('#scrimDateTime', form);
+  if (dateInput && timeInput && dateTimeInput) {
+    if (!dateInput.value || !timeInput.value) {
+      showToast('Pilih tarikh dan masa scrim.');
+      return;
+    }
+    dateTimeInput.value = `${dateInput.value}T${timeInput.value}`;
+  }
   try {
     await postForm(form);
     form.reset();
@@ -733,12 +922,20 @@ $('#createForm').addEventListener('submit', async (event) => {
 });
 
 document.addEventListener('submit', async (event) => {
-  if (!event.target.matches('.room-form,.result-form,.report-form')) return;
+  if (!event.target.matches('.room-form,.result-form,.report-form,.chat-form,.profile-form')) return;
   event.preventDefault();
   try {
+    if (event.target.matches('.chat-form')) {
+      await sendChatForm(event.target);
+      return;
+    }
     await postForm(event.target);
     if (event.target.matches('.report-form')) {
       toggleResultReview(false);
+    }
+    if (event.target.matches('.profile-form')) {
+      setCollapsible('#profileEditPanel', false);
+      $('#editProfileBtn')?.setAttribute('aria-expanded', 'false');
     }
   } catch (error) {
     showToast(error.message);
@@ -804,6 +1001,20 @@ document.addEventListener('click', async (event) => {
 
   if (button.id === 'profileBtn') {
     toggleProfile();
+    return;
+  }
+
+  if (button.id === 'editProfileBtn') {
+    toggleCollapsible('#profileEditPanel', button);
+    return;
+  }
+
+  if (button.id === 'enableNotifyBtn') {
+    try {
+      await enableWebPushNotifications();
+    } catch (error) {
+      showToast(error.message || 'Push notification gagal setup.');
+    }
     return;
   }
 
@@ -898,6 +1109,23 @@ document.addEventListener('click', async (event) => {
       return;
     }
 
+    if (button.dataset.action === 'quick_chat') {
+      const data = new FormData();
+      data.set('action', 'send_message');
+      data.set('scrim_id', button.dataset.id);
+      data.set('message', button.dataset.message || 'Room ID berapa ya?');
+      await postForm(data);
+      return;
+    }
+
+    if (button.dataset.action === 'send_chat') {
+      const form = button.closest('.chat-form');
+      if (form) {
+        await sendChatForm(form);
+      }
+      return;
+    }
+
     if (button.dataset.action === 'confirm_result') {
       const data = new FormData();
       data.set('action', 'confirm_result');
@@ -920,10 +1148,32 @@ async function loadState(){
   return payload;
 }
 
+async function pollState(){
+  if (isPollingState || !state.team) return;
+  isPollingState = true;
+  try {
+    const payload = await loadState();
+    syncIncomingMessages(payload);
+    state = payload;
+    renderPreservingChatDrafts();
+  } catch (error) {
+    console.warn(error);
+  } finally {
+    isPollingState = false;
+  }
+}
+
+function startStatePolling(){
+  window.clearInterval(statePollTimer);
+  statePollTimer = window.setInterval(pollState, STATE_POLL_MS);
+}
+
 async function boot(){
   try {
     state = await loadState();
+    syncIncomingMessages(state, false);
     render();
+    startStatePolling();
   } catch (error) {
     showToast(error.message);
     render();
