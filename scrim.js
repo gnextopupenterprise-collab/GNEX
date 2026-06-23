@@ -83,7 +83,7 @@ async function enableWebPushNotifications(){
     return;
   }
 
-  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=1');
+  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=2');
   const existing = await registration.pushManager.getSubscription();
   const subscription = existing || await registration.pushManager.subscribe({
     userVisibleOnly:true,
@@ -93,22 +93,45 @@ async function enableWebPushNotifications(){
   data.set('action', 'save_push_subscription');
   data.set('subscription', JSON.stringify(subscription));
   await postForm(data);
+  await registration.showNotification('GNEX Scrim', {
+    body:'Chat notification aktif. Mesej baru akan masuk walaupun web ditutup.',
+    tag:'scrim-chat-test',
+    icon:'images/logo-gnex-esport-64x64.png',
+    badge:'images/logo-gnex-esport-64x64.png',
+    data:{url:'scrim.html'}
+  });
+}
+
+async function showScrimNotification(title, body, tag = 'scrim-chat'){
+  if (!canUseBrowserNotifications() || Notification.permission !== 'granted') return;
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=2')
+      || await navigator.serviceWorker.getRegistration()
+      || await navigator.serviceWorker.register('scrim-sw.js?v=2');
+    await registration.showNotification(title, {
+      body,
+      tag,
+      icon:'images/logo-gnex-esport-64x64.png',
+      badge:'images/logo-gnex-esport-64x64.png',
+      data:{url:'scrim.html'}
+    });
+    return;
+  }
+  const notification = new Notification(title, {
+    body,
+    tag,
+    icon:'images/logo-gnex-esport-64x64.png'
+  });
+  notification.onclick = () => {
+    window.focus();
+    toggleProfile(true);
+  };
 }
 
 function notifyIncomingChat(message){
   const title = `GNEX Scrim: ${message.sender_name || 'Team'}`;
   const body = String(message.message || '').slice(0, 120);
-  if (canUseBrowserNotifications() && Notification.permission === 'granted') {
-    const notification = new Notification(title, {
-      body,
-      tag:`scrim-chat-${message.scrim_id}`,
-      icon:'images/logo-gnex-esport-64x64.png'
-    });
-    notification.onclick = () => {
-      window.focus();
-      toggleProfile(true);
-    };
-  }
+  showScrimNotification(title, body, `scrim-chat-${message.scrim_id}`).catch(console.warn);
   showToast(`Chat baru dari ${message.sender_name || 'team lawan'}.`);
 }
 
@@ -193,6 +216,25 @@ function collectChatDrafts(){
   return drafts;
 }
 
+function collectScrollState(){
+  const profileCard = $('.profile-card');
+  const chatLogs = {};
+  $$('.chat-form').forEach((form) => {
+    const scrimId = $('input[name="scrim_id"]', form)?.value;
+    const log = form.closest('.deal-chat')?.querySelector('.deal-chat-log');
+    if (scrimId && log) {
+      chatLogs[scrimId] = {
+        top:log.scrollTop,
+        bottom:log.scrollHeight - log.scrollTop - log.clientHeight
+      };
+    }
+  });
+  return {
+    profileTop:profileCard ? profileCard.scrollTop : 0,
+    chatLogs
+  };
+}
+
 function restoreChatDrafts(drafts){
   Object.entries(drafts).forEach(([scrimId, value]) => {
     const form = $$('.chat-form').find((item) => $('input[name="scrim_id"]', item)?.value === scrimId);
@@ -201,10 +243,29 @@ function restoreChatDrafts(drafts){
   });
 }
 
+function restoreScrollState(scrollState){
+  const profileCard = $('.profile-card');
+  if (profileCard) {
+    profileCard.scrollTop = scrollState.profileTop || 0;
+  }
+  Object.entries(scrollState.chatLogs || {}).forEach(([scrimId, value]) => {
+    const form = $$('.chat-form').find((item) => $('input[name="scrim_id"]', item)?.value === scrimId);
+    const log = form?.closest('.deal-chat')?.querySelector('.deal-chat-log');
+    if (!log) return;
+    if (value.bottom < 40) {
+      log.scrollTop = log.scrollHeight;
+      return;
+    }
+    log.scrollTop = value.top;
+  });
+}
+
 function renderPreservingChatDrafts(){
   const drafts = collectChatDrafts();
+  const scrollState = collectScrollState();
   render();
   restoreChatDrafts(drafts);
+  restoreScrollState(scrollState);
 }
 
 function formatScrimDate(value){

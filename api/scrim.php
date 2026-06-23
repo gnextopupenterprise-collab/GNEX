@@ -383,7 +383,9 @@ function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): void
                 'TTL: 120',
                 'Urgency: high',
                 'Content-Length: 0',
+                'Content-Type: application/octet-stream',
                 'Authorization: vapid t=' . $jwt . ', k=' . $pushConfig['public_key'],
+                'Crypto-Key: p256ecdsa=' . $pushConfig['public_key'],
             ],
         ]);
         curl_exec($curl);
