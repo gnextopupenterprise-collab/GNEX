@@ -1778,6 +1778,103 @@ textarea,
     #000;
 }
 
+.admin-app-view{
+  min-height:calc(100vh - 80px);
+  padding:34px max(18px, calc((100vw - 1280px) / 2)) 130px;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.96), rgba(1,6,14,.98)),
+    #000;
+}
+
+.admin-shell{
+  display:grid;
+  gap:16px;
+}
+
+.admin-head,
+.admin-card{
+  border:1px solid rgba(34,211,238,.34);
+  border-radius:10px;
+  background:linear-gradient(145deg, rgba(5,15,28,.95), rgba(0,0,0,.98));
+  box-shadow:0 18px 54px rgba(0,0,0,.35);
+}
+
+.admin-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:20px;
+}
+
+.admin-head h2{
+  margin:4px 0 0;
+  font-size:32px;
+  line-height:1;
+}
+
+.admin-head p:last-child{
+  margin:8px 0 0;
+  color:#8d98aa;
+  font-size:13px;
+}
+
+.admin-grid{
+  display:grid;
+  grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr);
+  gap:16px;
+}
+
+.admin-card{
+  padding:18px;
+}
+
+.admin-team-list,
+.admin-scrim-list{
+  display:grid;
+  gap:10px;
+}
+
+.admin-team-row,
+.admin-scrim-row{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;
+  background:rgba(0,0,0,.32);
+  padding:12px;
+}
+
+.admin-team-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+
+.admin-team-row strong,
+.admin-scrim-row strong{
+  display:block;
+  color:#fff;
+  font-size:15px;
+}
+
+.admin-team-row span,
+.admin-team-row small,
+.admin-scrim-row span,
+.admin-scrim-row small{
+  display:block;
+  margin-top:4px;
+  color:#9aa4b5;
+  font-size:12px;
+  font-weight:800;
+}
+
+.admin-scrim-edit{
+  display:grid;
+  grid-template-columns:1.1fr .9fr .55fr auto auto;
+  gap:8px;
+  align-items:end;
+  margin-top:10px;
+}
+
 .deal-shell{
   min-height:640px;
   display:flex;
@@ -2046,15 +2143,24 @@ body.has-bottom-app-nav .workspace{
 body.scrim-view-home #scrimWorkspace,
 body.scrim-view-home #dealView,
 body.scrim-view-home #reviewView,
+body.scrim-view-home #adminView,
 body.scrim-view-deal #homeView,
 body.scrim-view-deal #scrimWorkspace,
 body.scrim-view-deal #reviewView,
+body.scrim-view-deal #adminView,
 body.scrim-view-all #homeView,
 body.scrim-view-all #dealView,
 body.scrim-view-all #reviewView,
+body.scrim-view-all #adminView,
 body.scrim-view-review #homeView,
 body.scrim-view-review #dealView,
-body.scrim-view-review #scrimWorkspace{
+body.scrim-view-review #scrimWorkspace,
+body.scrim-view-review #adminView,
+body.scrim-view-admin #homeView,
+body.scrim-view-admin #dealView,
+body.scrim-view-admin #reviewView,
+body.scrim-view-admin #scrimWorkspace,
+body.scrim-view-admin .bottom-app-nav{
   display:none;
 }
 
@@ -3140,6 +3246,23 @@ body.has-bottom-app-nav .toast{
   }
   .review-content{
     padding:10px;
+  }
+  .admin-app-view{
+    padding:8px 10px var(--scrim-bottom-nav-space);
+  }
+  .admin-head{
+    align-items:stretch;
+    flex-direction:column;
+    padding:14px;
+  }
+  .admin-grid{
+    grid-template-columns:1fr;
+  }
+  .admin-card{
+    padding:12px;
+  }
+  .admin-scrim-edit{
+    grid-template-columns:1fr;
   }
   .deal-shell{
     height:100%;

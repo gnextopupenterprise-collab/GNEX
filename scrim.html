@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest?v=4">
 <meta name="theme-color" content="#02040a">
 <title>GNEX MLBB Scrim</title>
-<link rel="stylesheet" href="scrim.css?v=1046">
+<link rel="stylesheet" href="scrim.css?v=1047">
 <link rel="stylesheet" href="mobile-nav.css?v=4">
 </head>
 <body class="is-loading scrim-view-home">
@@ -47,6 +47,7 @@
       <div class="auth-tabs" role="tablist">
         <button class="tab is-active" type="button" data-auth-tab="login">Login</button>
         <button class="tab" type="button" data-auth-tab="register">Register</button>
+        <button class="tab" type="button" data-auth-tab="admin">Admin</button>
       </div>
       <form class="form-grid" id="authForm">
         <input type="hidden" name="action" id="authAction" value="login">
@@ -90,6 +91,97 @@
     </button>
   </div>
 </nav>
+
+<section class="admin-app-view" id="adminView" hidden>
+  <div class="admin-shell">
+    <div class="admin-head">
+      <div>
+        <p class="section-kicker">ADMIN CONTROL</p>
+        <h2>Scrim Admin</h2>
+        <p>Manage scrim, team profile dan create match terus untuk dua team.</p>
+      </div>
+      <button class="btn red panel-toggle" type="button" id="adminLogoutBtn">LOGOUT ADMIN</button>
+    </div>
+
+    <div class="admin-grid">
+      <section class="admin-card">
+        <div class="panel-title">
+          <div>
+            <h3>Create Match</h3>
+            <p>Pilih dua team dan terus confirm scrim.</p>
+          </div>
+        </div>
+        <form class="form-grid" id="adminCreateMatchForm">
+          <input type="hidden" name="action" value="admin_create_match">
+          <div class="field">
+            <label>Team 1 / Host</label>
+            <select name="team_one_id" id="adminTeamOne" required></select>
+          </div>
+          <div class="field">
+            <label>Team 2 / Opponent</label>
+            <select name="team_two_id" id="adminTeamTwo" required></select>
+          </div>
+          <div class="field">
+            <label>Nama scrim</label>
+            <input name="title" placeholder="Contoh: Admin Match" required>
+          </div>
+          <div class="date-time-row">
+            <div class="field">
+              <label>Tarikh</label>
+              <input name="scrim_date" type="date" required>
+            </div>
+            <div class="field">
+              <label>Masa</label>
+              <input name="scrim_time" type="time" required>
+            </div>
+          </div>
+          <input name="date_time" type="hidden">
+          <div class="field">
+            <label>Format</label>
+            <select name="format">
+              <option>BO1</option>
+              <option selected>BO3</option>
+              <option>BO5</option>
+              <option>Training</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sistem point</label>
+            <select name="point_mode">
+              <option value="normal" selected>Normal Scrim</option>
+              <option value="challenge">Tabrak Team Atas</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nota</label>
+            <textarea name="notes" placeholder="Rules, lobby, arahan admin"></textarea>
+          </div>
+          <button class="btn primary block" type="submit">Create Confirmed Scrim</button>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <div class="panel-title">
+          <div>
+            <h3>Team Profiles</h3>
+            <p>Semak captain dan nombor telefon private.</p>
+          </div>
+        </div>
+        <div class="admin-team-list" id="adminTeamList"></div>
+      </section>
+    </div>
+
+    <section class="admin-card">
+      <div class="panel-title">
+        <div>
+          <h3>Scrim Manager</h3>
+          <p>Edit tarikh/masa atau delete scrim.</p>
+        </div>
+      </div>
+      <div class="admin-scrim-list" id="adminScrimList"></div>
+    </section>
+  </div>
+</section>
 
 <section class="profile-overlay" id="profileOverlay" aria-hidden="true" hidden>
   <button class="profile-backdrop" id="profileBackdrop" type="button" aria-label="Close profile"></button>
@@ -369,7 +461,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="scrim.js?v=75"></script>
+<script src="scrim.js?v=77"></script>
 <script src="mobile-nav.js?v=8"></script>
 </body>
 </html>

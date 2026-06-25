@@ -20,6 +20,8 @@ session_start();
 $dbConfig = require $rootDir . DIRECTORY_SEPARATOR . 'scrim-db-config.php';
 $pushConfigPath = $rootDir . DIRECTORY_SEPARATOR . 'scrim-push-config.php';
 $pushConfig = is_file($pushConfigPath) ? require $pushConfigPath : [];
+$adminUsername = trim((string) ($dbConfig['admin_username'] ?? ''));
+$adminPassword = (string) ($dbConfig['admin_password'] ?? '');
 $dbHost = $dbConfig['host'];
 $dbName = $dbConfig['database'];
 $dbUser = $dbConfig['username'];
@@ -148,6 +150,12 @@ $schemaStatements = [
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
     INDEX idx_push_team (team_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+    "CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(80) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 ];
 
 foreach ($schemaStatements as $schemaStatement) {
@@ -274,7 +282,20 @@ $pdo->exec("
 
 $pdo->exec('INSERT IGNORE INTO team_stats (team_id) SELECT id FROM teams');
 
-function json_response(array $payload, int $status = 200): never
+if ($adminUsername !== '' && $adminPassword !== '') {
+    $stmt = $pdo->prepare('SELECT id, password_hash FROM admin_users WHERE username = ?');
+    $stmt->execute([$adminUsername]);
+    $adminSeed = $stmt->fetch();
+    if (!$adminSeed) {
+        $stmt = $pdo->prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)');
+        $stmt->execute([$adminUsername, password_hash($adminPassword, PASSWORD_DEFAULT)]);
+    } elseif (!password_verify($adminPassword, (string) $adminSeed['password_hash'])) {
+        $stmt = $pdo->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?');
+        $stmt->execute([password_hash($adminPassword, PASSWORD_DEFAULT), $adminSeed['id']]);
+    }
+}
+
+function json_response(array $payload, int $status = 200)
 {
     http_response_code($status);
     header('Content-Type: application/json');
@@ -291,6 +312,26 @@ function current_team(PDO $pdo): ?array
     $stmt = $pdo->prepare('SELECT id, team_name AS name, captain_name, phone_number, created_at FROM teams WHERE id = ?');
     $stmt->execute([$_SESSION['team_id']]);
     return $stmt->fetch() ?: null;
+}
+
+function current_admin(PDO $pdo): ?array
+{
+    if (empty($_SESSION['admin_id'])) {
+        return null;
+    }
+
+    $stmt = $pdo->prepare('SELECT id, username FROM admin_users WHERE id = ?');
+    $stmt->execute([$_SESSION['admin_id']]);
+    return $stmt->fetch() ?: null;
+}
+
+function require_admin(PDO $pdo): array
+{
+    $admin = current_admin($pdo);
+    if (!$admin) {
+        json_response(['ok' => false, 'message' => 'Sila login admin dulu.'], 401);
+    }
+    return $admin;
 }
 
 function require_team(PDO $pdo): array
@@ -587,6 +628,7 @@ function fetch_state(PDO $pdo): array
     global $pushConfig;
     auto_complete_expired_no_shows($pdo);
     $team = current_team($pdo);
+    $admin = current_admin($pdo);
     $teamId = $team['id'] ?? 0;
     $messages = [];
 
@@ -626,7 +668,10 @@ function fetch_state(PDO $pdo): array
 
     $stats = $pdo->query("
         SELECT
+            t.id,
             t.team_name AS name,
+            t.captain_name,
+            t.phone_number,
             COALESCE(ts.total_win, 0) AS wins,
             COALESCE(ts.total_lose, 0) AS losses,
             COALESCE(ts.total_scrim, 0) AS played,
@@ -652,7 +697,7 @@ function fetch_state(PDO $pdo): array
     ")->fetchAll();
 
     foreach ($scrims as &$scrim) {
-        $scrim['can_view_room'] = $teamId && $scrim['status'] !== 'open' && in_array($teamId, [(int) $scrim['creator_team_id'], (int) ($scrim['opponent_team_id'] ?? 0)], true);
+        $scrim['can_view_room'] = $admin || ($teamId && $scrim['status'] !== 'open' && in_array($teamId, [(int) $scrim['creator_team_id'], (int) ($scrim['opponent_team_id'] ?? 0)], true));
         if (!$scrim['can_view_room']) {
             $scrim['room_id'] = null;
             $scrim['room_password'] = null;
@@ -677,6 +722,7 @@ function fetch_state(PDO $pdo): array
     return [
         'ok' => true,
         'team' => $team,
+        'admin' => $admin,
         'scrims' => $scrims,
         'requests' => $requests,
         'stats' => $stats,
@@ -797,9 +843,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             json_response(fetch_state($pdo) + ['message' => 'Login berjaya.']);
         }
 
+        if ($action === 'admin_login') {
+            $username = clean_text((string) ($_POST['team_name'] ?? ''), 80);
+            $password = (string) ($_POST['password'] ?? '');
+            if ($username === '' || $password === '') {
+                json_response(['ok' => false, 'message' => 'Username dan password admin wajib diisi.'], 422);
+            }
+
+            $stmt = $pdo->prepare('SELECT * FROM admin_users WHERE username = ?');
+            $stmt->execute([$username]);
+            $admin = $stmt->fetch();
+            if (!$admin || !password_verify($password, (string) $admin['password_hash'])) {
+                json_response(['ok' => false, 'message' => 'Login admin salah.'], 401);
+            }
+
+            unset($_SESSION['team_id']);
+            $_SESSION['admin_id'] = (int) $admin['id'];
+            json_response(fetch_state($pdo) + ['message' => 'Admin login berjaya.']);
+        }
+
         if ($action === 'logout') {
             session_destroy();
             json_response(['ok' => true, 'message' => 'Logout berjaya.']);
+        }
+
+        if (substr((string) $action, 0, 6) === 'admin_') {
+            require_admin($pdo);
+
+            if ($action === 'admin_delete_scrim') {
+                $scrimId = (int) ($_POST['scrim_id'] ?? 0);
+                $stmt = $pdo->prepare('DELETE FROM scrims WHERE id = ?');
+                $stmt->execute([$scrimId]);
+                json_response(fetch_state($pdo) + ['message' => $stmt->rowCount() ? 'Scrim dipadam oleh admin.' : 'Scrim tidak dijumpai.']);
+            }
+
+            if ($action === 'admin_update_scrim') {
+                $scrimId = (int) ($_POST['scrim_id'] ?? 0);
+                $title = clean_text((string) ($_POST['title'] ?? ''), 80);
+                $dateTime = str_replace('T', ' ', clean_text((string) ($_POST['date_time'] ?? ''), 40));
+                $format = clean_text((string) ($_POST['format'] ?? 'BO3'), 12);
+                $notes = clean_text((string) ($_POST['notes'] ?? ''), 180);
+
+                $parsedDate = date_create($dateTime);
+                if ($scrimId <= 0 || $title === '' || !$parsedDate) {
+                    json_response(['ok' => false, 'message' => 'Data edit scrim tidak lengkap.'], 422);
+                }
+
+                $stmt = $pdo->prepare('
+                    UPDATE scrims
+                    SET title = ?, date_time = ?, format = ?, notes = ?
+                    WHERE id = ?
+                ');
+                $stmt->execute([$title, $parsedDate->format('Y-m-d H:i:s'), $format, $notes, $scrimId]);
+                json_response(fetch_state($pdo) + ['message' => 'Scrim dikemaskini oleh admin.']);
+            }
+
+            if ($action === 'admin_create_match') {
+                $teamOneId = (int) ($_POST['team_one_id'] ?? 0);
+                $teamTwoId = (int) ($_POST['team_two_id'] ?? 0);
+                $title = clean_text((string) ($_POST['title'] ?? ''), 80);
+                $dateTime = str_replace('T', ' ', clean_text((string) ($_POST['date_time'] ?? ''), 40));
+                $format = clean_text((string) ($_POST['format'] ?? 'BO3'), 12);
+                $pointMode = ($_POST['point_mode'] ?? 'normal') === 'challenge' ? 'challenge' : 'normal';
+                $notes = clean_text((string) ($_POST['notes'] ?? ''), 180);
+                $parsedDate = date_create($dateTime);
+
+                if ($teamOneId <= 0 || $teamTwoId <= 0 || $teamOneId === $teamTwoId || $title === '' || !$parsedDate) {
+                    json_response(['ok' => false, 'message' => 'Pilih 2 team berbeza, tajuk dan masa scrim.'], 422);
+                }
+
+                $stmt = $pdo->prepare('SELECT COUNT(*) FROM teams WHERE id IN (?, ?)');
+                $stmt->execute([$teamOneId, $teamTwoId]);
+                if ((int) $stmt->fetchColumn() !== 2) {
+                    json_response(['ok' => false, 'message' => 'Team pilihan tidak sah.'], 422);
+                }
+
+                $challengerId = $pointMode === 'challenge' ? $teamTwoId : null;
+                $defenderId = $pointMode === 'challenge' ? $teamOneId : null;
+                $stmt = $pdo->prepare('
+                    INSERT INTO scrims
+                        (creator_team_id, opponent_team_id, title, date_time, format, notes, point_mode, challenger_team_id, defender_team_id, status)
+                    VALUES
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?, "confirmed")
+                ');
+                $stmt->execute([
+                    $teamOneId,
+                    $teamTwoId,
+                    $title,
+                    $parsedDate->format('Y-m-d H:i:s'),
+                    $format,
+                    $notes,
+                    $pointMode,
+                    $challengerId,
+                    $defenderId,
+                ]);
+                json_response(fetch_state($pdo) + ['message' => 'Admin berjaya create confirmed scrim untuk 2 team.']);
+            }
+
+            json_response(['ok' => false, 'message' => 'Admin action tidak dikenali.'], 400);
         }
 
         $team = require_team($pdo);

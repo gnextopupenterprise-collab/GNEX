@@ -2,7 +2,7 @@
 if (location.port === '5500') {
   location.replace('http://localhost/Training%20coding%203%20(website%20gnex)/scrim.html');
 }
-let state = {ok:false, team:null, scrims:[], requests:[], stats:[], history:[], messages:[]};
+let state = {ok:false, team:null, admin:null, scrims:[], requests:[], stats:[], history:[], messages:[]};
 let activeFilter = 'all';
 let activeView = 'home';
 let activeDealId = 0;
@@ -61,6 +61,24 @@ function formatDate(value){
     year:'numeric'
   });
   return `${datePart}, ${formatMalaysiaTime(date)}`;
+}
+
+function inputDateTimeValue(value){
+  const date = malaysiaDate(value);
+  if (!date) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone:MALAYSIA_TIME_ZONE,
+    year:'numeric',
+    month:'2-digit',
+    day:'2-digit',
+    hour:'2-digit',
+    minute:'2-digit',
+    hour12:false
+  }).formatToParts(date).reduce((output, part) => {
+    output[part.type] = part.value;
+    return output;
+  }, {});
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
 }
 
 function showToast(message){
@@ -230,6 +248,10 @@ async function sendChatForm(form){
 
 function currentTeamId(){
   return state.team ? Number(state.team.id) : 0;
+}
+
+function isAdmin(){
+  return Boolean(state.admin);
 }
 
 function hasTeamPhone(){
@@ -691,12 +713,16 @@ function renderHeroDeal(){
 
 function renderAccess(){
   const scrimApp = $('#scrimApp');
-  const isAuthed = Boolean(state.team);
+  const isAuthed = Boolean(state.team || state.admin);
   document.body.classList.toggle('is-authed', isAuthed);
   document.body.classList.toggle('is-guest', !isAuthed);
+  document.body.classList.toggle('is-admin', isAdmin());
   document.body.classList.remove('is-loading');
   if (scrimApp) {
     scrimApp.hidden = !isAuthed;
+  }
+  if (isAdmin() && activeView !== 'admin') {
+    setAppView('admin');
   }
 }
 
@@ -727,9 +753,14 @@ function toggleCreatePanel(event){
     openPhoneRequiredPanel();
     return;
   }
+  if (activeView !== 'all') {
+    setAppView('all');
+  }
   const visible = toggleCollapsible('#createPanel', $('#toggleCreateBtn'));
   if (visible) {
-    $('#createPanel')?.scrollIntoView({behavior:'smooth', block:'start'});
+    window.requestAnimationFrame(() => {
+      $('#createPanel')?.scrollIntoView({behavior:'smooth', block:'start'});
+    });
   }
 }
 
@@ -1071,19 +1102,24 @@ function renderDealRooms(){
 }
 
 function setAppView(view){
-  activeView = ['home','deal','all','review'].includes(view) ? view : 'home';
+  activeView = ['home','deal','all','review','admin'].includes(view) ? view : 'home';
   const dealView = $('#dealView');
   const reviewView = $('#reviewView');
+  const adminView = $('#adminView');
   if (dealView) {
     dealView.hidden = activeView !== 'deal';
   }
   if (reviewView) {
     reviewView.hidden = activeView !== 'review';
   }
+  if (adminView) {
+    adminView.hidden = activeView !== 'admin';
+  }
   document.body.classList.toggle('scrim-view-home', activeView === 'home');
   document.body.classList.toggle('scrim-view-deal', activeView === 'deal');
   document.body.classList.toggle('scrim-view-all', activeView === 'all');
   document.body.classList.toggle('scrim-view-review', activeView === 'review');
+  document.body.classList.toggle('scrim-view-admin', activeView === 'admin');
   $$('.bottom-app-nav .bottom-nav-item').forEach((item) => {
     item.classList.toggle('is-active',
       item.dataset.nav === activeView
@@ -1248,6 +1284,70 @@ function renderRanking(){
   `).join('');
 }
 
+function renderAdminPanel(){
+  const adminView = $('#adminView');
+  if (!adminView) return;
+  const teams = [...(state.stats || [])].sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const teamOptions = '<option value="">Pilih team</option>' + teams.map((team) => `
+    <option value="${Number(team.id)}">${escapeHtml(team.name)}</option>
+  `).join('');
+  ['#adminTeamOne', '#adminTeamTwo'].forEach((selector) => {
+    const select = $(selector);
+    if (select && !select.matches(':focus')) {
+      const currentValue = select.value;
+      select.innerHTML = teamOptions;
+      select.value = currentValue;
+    }
+  });
+
+  const teamList = $('#adminTeamList');
+  if (teamList) {
+    teamList.innerHTML = teams.length ? teams.map((team) => `
+      <article class="admin-team-row">
+        <div>
+          <strong>${escapeHtml(team.name)}</strong>
+          <span>Captain: ${escapeHtml(team.captain_name || 'Belum set')}</span>
+          <span>Phone: ${escapeHtml(team.phone_number || 'Belum set')}</span>
+        </div>
+        <small>#${Number(team.id)} | ${Number(team.points || 0)} pts</small>
+      </article>
+    `).join('') : '<p class="empty">Belum ada team.</p>';
+  }
+
+  const scrimList = $('#adminScrimList');
+  if (scrimList) {
+    const scrims = [...(state.scrims || [])].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+    scrimList.innerHTML = scrims.length ? scrims.map((scrim) => `
+      <article class="admin-scrim-row">
+        <strong>#${Number(scrim.id)} ${escapeHtml(scrim.title)}</strong>
+        <span>${escapeHtml(scrim.creator_name || '-')} VS ${escapeHtml(scrim.opponent_name || 'TBD')} | ${escapeHtml(scrim.status || '-')}</span>
+        <small>${formatDate(scrim.date_time)} | ${escapeHtml(scrim.format || '-')}</small>
+        <form class="admin-scrim-edit" data-admin-edit-scrim>
+          <input type="hidden" name="action" value="admin_update_scrim">
+          <input type="hidden" name="scrim_id" value="${Number(scrim.id)}">
+          <div class="field">
+            <label>Nama</label>
+            <input name="title" value="${escapeHtml(scrim.title || '')}" required>
+          </div>
+          <div class="field">
+            <label>Masa</label>
+            <input name="date_time" type="datetime-local" value="${escapeHtml(inputDateTimeValue(scrim.date_time))}" required>
+          </div>
+          <div class="field">
+            <label>Format</label>
+            <select name="format">
+              ${['BO1','BO3','BO5','Training'].map((format) => `<option ${String(scrim.format) === format ? 'selected' : ''}>${format}</option>`).join('')}
+            </select>
+          </div>
+          <input name="notes" value="${escapeHtml(scrim.notes || '')}" placeholder="Nota">
+          <button class="btn primary" type="submit">Save</button>
+          <button class="btn red" type="button" data-action="admin_delete_scrim" data-id="${Number(scrim.id)}">Delete</button>
+        </form>
+      </article>
+    `).join('') : '<p class="empty">Belum ada scrim.</p>';
+  }
+}
+
 function render(){
   syncTopNavHeight();
   renderAccess();
@@ -1259,6 +1359,7 @@ function render(){
   renderDealRooms();
   renderDealApp();
   renderRanking();
+  renderAdminPanel();
 }
 
 $('#authForm').addEventListener('submit', async (event) => {
@@ -1304,14 +1405,27 @@ $('#createForm').addEventListener('submit', async (event) => {
 });
 
 document.addEventListener('submit', async (event) => {
-  if (!event.target.matches('.room-form,.result-form,.report-form,.chat-form,.profile-form')) return;
+  if (!event.target.matches('.room-form,.result-form,.report-form,.chat-form,.profile-form,#adminCreateMatchForm,[data-admin-edit-scrim]')) return;
   event.preventDefault();
   try {
     if (event.target.matches('.chat-form')) {
       await sendChatForm(event.target);
       return;
     }
+    if (event.target.matches('#adminCreateMatchForm')) {
+      const dateInput = $('input[name="scrim_date"]', event.target);
+      const timeInput = $('input[name="scrim_time"]', event.target);
+      const dateTimeInput = $('input[name="date_time"]', event.target);
+      if (!dateInput?.value || !timeInput?.value || !dateTimeInput) {
+        showToast('Pilih tarikh dan masa scrim.');
+        return;
+      }
+      dateTimeInput.value = `${dateInput.value}T${timeInput.value}`;
+    }
     await postForm(event.target);
+    if (event.target.matches('#adminCreateMatchForm')) {
+      event.target.reset();
+    }
     if (event.target.matches('.report-form')) {
       toggleResultReview(false);
     }
@@ -1361,8 +1475,8 @@ document.addEventListener('click', async (event) => {
   if (button.dataset.authTab) {
     const authMode = button.dataset.authTab;
     $$('.tab').forEach((tab) => tab.classList.toggle('is-active', tab.dataset.authTab === authMode));
-    $('#authAction').value = authMode;
-    $('#authSubmit').textContent = authMode === 'register' ? 'Register Team' : 'Login Team';
+    $('#authAction').value = authMode === 'admin' ? 'admin_login' : authMode;
+    $('#authSubmit').textContent = authMode === 'register' ? 'Register Team' : (authMode === 'admin' ? 'Login Admin' : 'Login Team');
     $$('.auth-register-field').forEach((field) => {
       field.hidden = authMode !== 'register';
       $$('input', field).forEach((input) => {
@@ -1371,7 +1485,17 @@ document.addEventListener('click', async (event) => {
     });
     const gateTitle = $('#authGateTitle');
     if (gateTitle) {
-      gateTitle.textContent = authMode === 'register' ? 'Create Account' : 'Login Team';
+      gateTitle.textContent = authMode === 'register' ? 'Create Account' : (authMode === 'admin' ? 'Admin Login' : 'Login Team');
+    }
+    const teamNameLabel = document.querySelector('label[for="teamName"]');
+    const teamNameInput = $('#teamName');
+    const passwordInput = $('#teamPassword');
+    if (teamNameLabel) teamNameLabel.textContent = authMode === 'admin' ? 'Username admin' : 'Nama team';
+    if (teamNameInput) teamNameInput.placeholder = authMode === 'admin' ? 'Contoh: gnexadmin' : 'Contoh: GNEX Alpha';
+    if (passwordInput) passwordInput.autocomplete = authMode === 'admin' ? 'current-password' : 'current-password';
+    const helper = $('.auth-helper');
+    if (helper) {
+      helper.textContent = authMode === 'admin' ? 'Login khas admin untuk manage scrim dan team.' : '';
     }
     return;
   }
@@ -1388,6 +1512,14 @@ document.addEventListener('click', async (event) => {
     const isVisible = infoDrawer.classList.toggle('is-visible');
     infoDrawer.setAttribute('aria-hidden', String(!isVisible));
     button.setAttribute('aria-expanded', String(isVisible));
+    return;
+  }
+
+  if (button.id === 'adminLogoutBtn') {
+    const data = new FormData();
+    data.set('action', 'logout');
+    await postForm(data);
+    window.location.reload();
     return;
   }
 
@@ -1421,6 +1553,16 @@ document.addEventListener('click', async (event) => {
     activeDealId = Number(button.dataset.id || 0);
     pendingDealScrollToBottom = true;
     renderDealApp();
+    return;
+  }
+
+  if (button.dataset.action === 'admin_delete_scrim') {
+    const confirmed = window.confirm('Confirm delete scrim ini? Chat dan request berkaitan akan dipadam.');
+    if (!confirmed) return;
+    const data = new FormData();
+    data.set('action', 'admin_delete_scrim');
+    data.set('scrim_id', button.dataset.id);
+    await postForm(data);
     return;
   }
 
