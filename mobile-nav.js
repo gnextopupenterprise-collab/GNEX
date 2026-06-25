@@ -5,7 +5,7 @@
     return;
   }
 
-  const cssHref = "mobile-nav.css?v=4";
+  const cssHref = "mobile-nav.css?v=5";
   const hasCss = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
     .some((link) => link.getAttribute("href") === cssHref);
 

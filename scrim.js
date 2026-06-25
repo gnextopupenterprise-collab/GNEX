@@ -7,8 +7,10 @@ let activeFilter = 'all';
 let activeView = 'home';
 let activeDealId = 0;
 let pendingDealScrollToBottom = false;
+let openScrimDetailIds = new Set();
 let seenMessageIds = new Set();
 let unreadChatCount = 0;
+let unreadChatByScrim = {};
 let statePollTimer = null;
 let isPollingState = false;
 const STATE_POLL_MS = 3500;
@@ -79,6 +81,11 @@ function inputDateTimeValue(value){
     return output;
   }, {});
   return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function malaysiaInputDateTime(dateValue, timeValue){
+  if (!dateValue || !timeValue) return '';
+  return `${dateValue}T${timeValue}:00+08:00`;
 }
 
 function showToast(message){
@@ -177,6 +184,10 @@ function dealIsOpen(){
   return activeView === 'deal';
 }
 
+function activeDealIsOpen(scrimId){
+  return dealIsOpen() && Number(activeDealId || 0) === Number(scrimId || 0);
+}
+
 function syncIncomingMessages(nextState, shouldNotify = true){
   const teamId = Number(nextState.team?.id || 0);
   const freshMessages = [];
@@ -189,8 +200,14 @@ function syncIncomingMessages(nextState, shouldNotify = true){
     }
   });
   if (shouldNotify && freshMessages.length) {
-    if (!dealIsOpen()) {
-      unreadChatCount += freshMessages.length;
+    freshMessages.forEach((message) => {
+      const scrimId = Number(message.scrim_id || 0);
+      if (!scrimId || activeDealIsOpen(scrimId)) return;
+      unreadChatByScrim[scrimId] = Number(unreadChatByScrim[scrimId] || 0) + 1;
+    });
+    unreadChatCount = Object.values(unreadChatByScrim).reduce((total, count) => total + Number(count || 0), 0);
+    if (dealIsOpen()) {
+      renderDealApp();
     }
     notifyIncomingChat(freshMessages[freshMessages.length - 1]);
   }
@@ -858,6 +875,7 @@ function renderScrims(){
     const requestNote = existingRequest ? `<span class="chip ${statusClass(existingRequest.status)}">Request ${escapeHtml(existingRequest.status)}</span>` : '';
     const schedule = formatScrimDate(scrim.date_time);
     const detailId = `scrimDetail${scrim.id}`;
+    const isDetailOpen = openScrimDetailIds.has(detailId);
     const actionLabel = needsPhone ? 'UPDATE PHONE' : 'REQUEST JOIN';
 
     return `
@@ -875,13 +893,13 @@ function renderScrims(){
           </div>
           <span class="chip scrim-status ${statusClass(scrim.status)}">${escapeHtml(scrim.status)}</span>
           <div class="scrim-card-actions">
-            <button class="btn scrim-detail-button" type="button" data-toggle-panel="${detailId}" aria-expanded="false">DETAIL</button>
+            <button class="btn scrim-detail-button" type="button" data-toggle-panel="${detailId}" aria-expanded="${String(isDetailOpen)}">DETAIL</button>
             ${canRequest
               ? `<button class="btn primary scrim-join-button" type="button" data-action="${needsPhone ? 'phone_required' : 'request'}" data-id="${scrim.id}">${actionLabel}</button>`
               : (isCreator && scrim.status === 'open' ? '<span class="scrim-action-state open">WAITING</span>' : '')}
           </div>
         </div>
-        <div class="scrim-card-detail" id="${detailId}" hidden>
+        <div class="scrim-card-detail" id="${detailId}" ${isDetailOpen ? '' : 'hidden'}>
           <div class="scrim-detail-item">
             <span>OPPONENT</span>
             <strong>${escapeHtml(opponentName)}</strong>
@@ -1128,7 +1146,6 @@ function setAppView(view){
     );
   });
   if (activeView === 'deal') {
-    unreadChatCount = 0;
     renderDealApp();
     window.scrollTo({top:0, behavior:'smooth'});
   }
@@ -1168,6 +1185,7 @@ function renderDealApp(){
           const contactName = dealContactName(scrim);
           const chatMessages = messagesFor(scrim.id);
           const lastMessage = chatMessages[chatMessages.length - 1];
+          const unreadCount = Number(unreadChatByScrim[Number(scrim.id)] || 0);
           return `
             <button class="deal-contact-item" type="button" data-action="open_deal_chat" data-id="${scrim.id}">
               <span class="deal-contact-avatar">${escapeHtml(dealInitials(contactName))}</span>
@@ -1177,6 +1195,7 @@ function renderDealApp(){
                 <span>${lastMessage ? escapeHtml(lastMessage.message) : 'Belum ada chat.'}</span>
               </span>
               <span class="deal-contact-meta">
+                ${unreadCount ? `<strong class="deal-contact-badge">${unreadCount}</strong>` : ''}
                 <span>${escapeHtml(scrim.status)}</span>
                 ${scrim.result_status ? `<span class="chip ${statusClass(scrim.result_status)}">${escapeHtml(scrim.result_status)}</span>` : ''}
               </span>
@@ -1388,7 +1407,7 @@ $('#createForm').addEventListener('submit', async (event) => {
       showToast('Pilih tarikh dan masa scrim.');
       return;
     }
-    dateTimeInput.value = `${dateInput.value}T${timeInput.value}`;
+    dateTimeInput.value = malaysiaInputDateTime(dateInput.value, timeInput.value);
   }
   try {
     await postForm(form);
@@ -1420,7 +1439,7 @@ document.addEventListener('submit', async (event) => {
         showToast('Pilih tarikh dan masa scrim.');
         return;
       }
-      dateTimeInput.value = `${dateInput.value}T${timeInput.value}`;
+      dateTimeInput.value = malaysiaInputDateTime(dateInput.value, timeInput.value);
     }
     await postForm(event.target);
     if (event.target.matches('#adminCreateMatchForm')) {
@@ -1551,6 +1570,8 @@ document.addEventListener('click', async (event) => {
 
   if (button.dataset.action === 'open_deal_chat') {
     activeDealId = Number(button.dataset.id || 0);
+    delete unreadChatByScrim[activeDealId];
+    unreadChatCount = Object.values(unreadChatByScrim).reduce((total, count) => total + Number(count || 0), 0);
     pendingDealScrollToBottom = true;
     renderDealApp();
     return;
@@ -1679,6 +1700,11 @@ document.addEventListener('click', async (event) => {
     const panel = document.getElementById(button.dataset.togglePanel);
     if (panel) {
       panel.hidden = !panel.hidden;
+      if (panel.hidden) {
+        openScrimDetailIds.delete(button.dataset.togglePanel);
+      } else {
+        openScrimDetailIds.add(button.dataset.togglePanel);
+      }
       button.setAttribute('aria-expanded', String(!panel.hidden));
     }
     return;

@@ -967,7 +967,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_no_pending_request_conflict($pdo, (int) $team['id'], $parsedDate->format('Y-m-d H:i:s'));
 
             $columns = ['creator_team_id', 'title', 'date_time', 'format', 'notes', 'point_mode'];
-            $values = [$team['id'], $title, $dateTime, $format, $notes, $pointMode];
+            $values = [$team['id'], $title, $parsedDate->format('Y-m-d H:i:s'), $format, $notes, $pointMode];
 
             if (column_exists($pdo, 'scrims', 'game_name')) {
                 $columns[] = 'game_name';
