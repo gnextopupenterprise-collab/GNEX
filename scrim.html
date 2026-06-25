@@ -2,16 +2,16 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GNEX MLBB Scrim system untuk daftar team, create scrim, request join, private deal room, room ID, result dan point history.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="GNEX MLBB Scrim system untuk daftar team, create scrim, request join, scrim deal room, room ID, result dan point history.">
 <link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
 <link rel="manifest" href="manifest.webmanifest?v=4">
 <meta name="theme-color" content="#02040a">
 <title>GNEX MLBB Scrim</title>
-<link rel="stylesheet" href="scrim.css?v=1017">
-<link rel="stylesheet" href="mobile-nav.css?v=2">
+<link rel="stylesheet" href="scrim.css?v=1046">
+<link rel="stylesheet" href="mobile-nav.css?v=4">
 </head>
-<body class="is-loading">
+<body class="is-loading scrim-view-home">
 <section class="auth-gate" id="authGate">
   <nav class="auth-gate-nav">
     <a class="brand" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
@@ -36,7 +36,7 @@
       </a>
       <div>
         <h1>Welcome Back!</h1>
-        <p>Login team dulu untuk access MLBB Scrim Room, request join dan private deal room.</p>
+        <p>Login team dulu untuk access MLBB Scrim Room, request join dan scrim deal room.</p>
       </div>
       <button class="btn ghost" type="button" data-auth-tab="login">SIGN IN</button>
     </div>
@@ -53,6 +53,14 @@
         <div class="field">
           <label for="teamName">Nama team</label>
           <input id="teamName" name="team_name" autocomplete="username" placeholder="Contoh: GNEX Alpha" required>
+        </div>
+        <div class="field auth-register-field" hidden>
+          <label for="captainName">Nama captain</label>
+          <input id="captainName" name="captain_name" autocomplete="name" placeholder="Contoh: Ahmad">
+        </div>
+        <div class="field auth-register-field" hidden>
+          <label for="registerPhone">Nombor telefon captain</label>
+          <input id="registerPhone" name="phone_number" type="tel" autocomplete="tel" placeholder="Contoh: +60123456789">
         </div>
         <div class="field">
           <label for="teamPassword">Password team</label>
@@ -93,19 +101,25 @@
           <h2 id="profileCardName">TEAM</h2>
           <span class="profile-rank-badge" id="profileRankBadge">RANK -</span>
         </div>
-        <p id="profileCardMeta">Logged in team</p>
       </div>
       <div class="profile-head-actions">
-        <button class="btn panel-toggle profile-action edit" type="button" id="editProfileBtn" aria-expanded="false"><span aria-hidden="true"></span>EDIT PROFILE</button>
-        <button class="btn panel-toggle profile-action" type="button" id="enableNotifyBtn"><span aria-hidden="true"></span>CHAT NOTI</button>
-        <button class="btn red panel-toggle profile-action logout" id="logoutBtn" type="button"><span aria-hidden="true"></span>LOGOUT</button>
-        <button class="btn panel-toggle profile-action close" type="button" id="closeProfileBtn"><span aria-hidden="true"></span>CLOSE</button>
+        <button class="btn panel-toggle profile-action notify off" type="button" id="enableNotifyBtn"><span aria-hidden="true"></span>NOTI OFF</button>
+        <button class="btn panel-toggle profile-action close profile-close-top" type="button" id="closeProfileBtn"><span aria-hidden="true"></span>CLOSE</button>
       </div>
     </div>
+
+    <section class="profile-info-card">
+      <div class="profile-info-text" id="profileCardMeta">Logged in team</div>
+      <button class="btn panel-toggle profile-action edit profile-edit-small" type="button" id="editProfileBtn" aria-expanded="false"><span aria-hidden="true"></span>EDIT PROFILE</button>
+    </section>
 
     <section class="profile-edit-panel" id="profileEditPanel" hidden>
       <form class="form-grid profile-form" id="profileForm">
         <input type="hidden" name="action" value="update_profile">
+        <div class="field">
+          <label for="profileCaptain">Nama captain</label>
+          <input id="profileCaptain" name="captain_name" autocomplete="name" placeholder="Contoh: Ahmad">
+        </div>
         <div class="field">
           <label for="profilePhone">Nombor telefon</label>
           <input id="profilePhone" name="phone_number" type="tel" autocomplete="tel" placeholder="Contoh: +60123456789">
@@ -126,32 +140,10 @@
         <div><span class="stat-icon game" aria-hidden="true"></span><span>Total Game</span><strong id="rosterGames">0</strong></div>
         <div><span class="stat-icon win" aria-hidden="true"></span><span>Total Win</span><strong id="rosterWins">0</strong></div>
         <div><span class="stat-icon lose" aria-hidden="true"></span><span>Total Lose</span><strong id="rosterLosses">0</strong></div>
-        <div><span class="stat-icon history" aria-hidden="true"></span><span>History</span><strong id="rosterRank">-</strong></div>
+        <div><span class="stat-icon history" aria-hidden="true"></span><span>Ranking</span><strong id="rosterRank">-</strong></div>
       </div>
     </section>
-
-    <div class="profile-flow">
-      <section class="profile-section profile-wide-card">
-        <div class="panel-title">
-          <div>
-            <h3>Request & Result Review</h3>
-            <p>Request masuk, update point dan result confirmation.</p>
-          </div>
-        </div>
-        <div id="requestList"></div>
-        <div class="profile-result-hint" id="profileResultHint"></div>
-      </section>
-
-      <section class="profile-section profile-wide-card">
-        <div class="panel-title">
-          <div>
-            <h3>Private Deal Room</h3>
-            <p>Room ID dan active deal untuk host dan opponent.</p>
-          </div>
-        </div>
-        <div id="dealRooms"></div>
-      </section>
-    </div>
+    <button class="btn red panel-toggle profile-action logout profile-logout-sticky" id="logoutBtn" type="button"><span aria-hidden="true"></span>LOGOUT</button>
   </article>
 </section>
 
@@ -191,14 +183,14 @@
   </article>
 </section>
 
-<header class="scrim-hero">
+<header class="scrim-hero" id="homeView">
   <div class="hero-inner">
     <section class="hero-copy">
       <p class="hero-kicker">OFFICIAL SCRIM SYSTEM</p>
       <h2>MLBB<br><span>SCRIM ROOM</span></h2>
       <p class="hero-text">Create lobby, request join, accept opponent, share Room ID privately dan update result dalam satu page.</p>
       <div class="hero-buttons">
-        <a href="#scrimBoard" class="btn primary">JOIN SCRIM</a>
+        <button class="btn primary" type="button" id="heroAllScrimBtn">JOIN SCRIM</button>
         <button class="btn" type="button" id="toggleCreateBtn" aria-expanded="false" onclick="toggleCreatePanel(event)">CREATE SCRIM</button>
         <button class="btn result-nav-button" type="button" id="updateResultBtn">
           UPDATE RESULT
@@ -227,7 +219,7 @@
 
       <section class="hero-mini-card hero-deal-card" id="heroDealCard">
         <div id="heroDealContent">
-          <p class="mini-title">PRIVATE DEAL</p>
+          <p class="mini-title">SCRIM DEAL</p>
           <div class="versus-row">
             <strong>HOST</strong>
             <span>VS</span>
@@ -266,6 +258,44 @@
     <div><span>04</span><strong>RESULT</strong><p>Point History</p></div>
   </section>
 </header>
+
+<section class="deal-app-view" id="dealView" hidden>
+  <div class="deal-shell">
+    <div class="deal-view-head">
+      <div>
+        <p class="section-kicker">SCRIM DEAL</p>
+        <h2>Scrim Deal</h2>
+        <p>Room chat aktif untuk setiap scrim yang sudah accepted. Update id room jika scrim chat error</p>
+      </div>
+      <button class="btn panel-toggle" type="button" id="dealBackListBtn" hidden>BACK</button>
+    </div>
+    <div id="dealViewContent"></div>
+  </div>
+</section>
+
+<section class="review-app-view" id="reviewView" hidden>
+  <div class="review-shell">
+    <div class="review-view-head">
+      <div>
+        <p class="section-kicker">REQUEST REVIEW</p>
+        <h2>Request & Result</h2>
+        <p>Accept request masuk, confirm result dan update point dari satu tempat.</p>
+      </div>
+    </div>
+    <div class="review-content">
+      <section class="profile-section profile-wide-card">
+        <div class="panel-title">
+          <div>
+            <h3>Request & Result Review</h3>
+            <p>Request masuk, update point dan result confirmation.</p>
+          </div>
+        </div>
+        <div id="requestList"></div>
+        <div class="profile-result-hint" id="profileResultHint"></div>
+      </section>
+    </div>
+  </div>
+</section>
 
 <main class="workspace" id="scrimWorkspace">
   <section class="workspace-grid">
@@ -339,7 +369,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="scrim.js?v=44"></script>
-<script src="mobile-nav.js?v=3"></script>
+<script src="scrim.js?v=75"></script>
+<script src="mobile-nav.js?v=8"></script>
 </body>
 </html>

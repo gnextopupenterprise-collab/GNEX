@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 $rootDir = dirname(__DIR__);
+date_default_timezone_set('Asia/Kuala_Lumpur');
 set_exception_handler(static function (Throwable $error): void {
     error_log($error->__toString());
     if (!headers_sent()) {
@@ -42,6 +43,7 @@ try {
 }
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+$pdo->exec("SET time_zone = '+08:00'");
 
 function column_exists(PDO $pdo, string $table, string $column): bool
 {
@@ -60,6 +62,7 @@ $schemaStatements = [
     "CREATE TABLE IF NOT EXISTS teams (
     id INT AUTO_INCREMENT PRIMARY KEY,
     team_name VARCHAR(80) NOT NULL UNIQUE,
+    captain_name VARCHAR(80) NULL,
     phone_number VARCHAR(30) NULL,
     password_hash VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -155,8 +158,12 @@ if (!column_exists($pdo, 'teams', 'password_hash')) {
     $pdo->exec('ALTER TABLE teams ADD COLUMN password_hash VARCHAR(255) NULL');
 }
 
+if (!column_exists($pdo, 'teams', 'captain_name')) {
+    $pdo->exec('ALTER TABLE teams ADD COLUMN captain_name VARCHAR(80) NULL AFTER team_name');
+}
+
 if (!column_exists($pdo, 'teams', 'phone_number')) {
-    $pdo->exec('ALTER TABLE teams ADD COLUMN phone_number VARCHAR(30) NULL AFTER team_name');
+    $pdo->exec('ALTER TABLE teams ADD COLUMN phone_number VARCHAR(30) NULL AFTER captain_name');
 }
 
 if (!column_exists($pdo, 'teams', 'password_code')) {
@@ -281,7 +288,7 @@ function current_team(PDO $pdo): ?array
         return null;
     }
 
-    $stmt = $pdo->prepare('SELECT id, team_name AS name, phone_number, created_at FROM teams WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT id, team_name AS name, captain_name, phone_number, created_at FROM teams WHERE id = ?');
     $stmt->execute([$_SESSION['team_id']]);
     return $stmt->fetch() ?: null;
 }
@@ -306,6 +313,168 @@ function clean_phone(string $value): string
     $value = trim($value);
     $value = preg_replace('/[^0-9+\-\s()]/', '', $value) ?? '';
     return clean_text($value, 30);
+}
+
+function team_has_phone(?array $team): bool
+{
+    return trim((string) ($team['phone_number'] ?? '')) !== '';
+}
+
+function team_is_scrim_ready(?array $team): bool
+{
+    return team_has_phone($team) && trim((string) ($team['captain_name'] ?? '')) !== '';
+}
+
+function require_scrim_ready(array $team): void
+{
+    if (!team_is_scrim_ready($team)) {
+        json_response([
+            'ok' => false,
+            'message' => 'Wajib update nama captain dan nombor telefon dalam Edit Profile sebelum create atau join scrim.',
+            'needs_phone' => true,
+        ], 403);
+    }
+}
+
+function require_no_open_host_scrim(PDO $pdo, int $teamId): void
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM scrims WHERE creator_team_id = ? AND status = "open"');
+    $stmt->execute([$teamId]);
+    if ((int) $stmt->fetchColumn() > 0) {
+        json_response(['ok' => false, 'message' => 'Team ini sudah ada 1 open scrim aktif. Tunggu request diterima atau selesaikan dulu sebelum create scrim baru.'], 409);
+    }
+}
+
+function require_no_schedule_conflict(PDO $pdo, int $teamId, string $dateTime, ?int $excludeScrimId = null): void
+{
+    $sql = '
+        SELECT title, date_time
+        FROM scrims
+        WHERE status IN ("open", "pending", "confirmed")
+            AND (creator_team_id = ? OR opponent_team_id = ?)
+            AND ABS(TIMESTAMPDIFF(MINUTE, date_time, ?)) < 120
+    ';
+    $params = [$teamId, $teamId, $dateTime];
+    if ($excludeScrimId !== null) {
+        $sql .= ' AND id != ?';
+        $params[] = $excludeScrimId;
+    }
+    $sql .= ' ORDER BY date_time ASC LIMIT 1';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $conflict = $stmt->fetch();
+    if ($conflict) {
+        json_response([
+            'ok' => false,
+            'message' => 'Jadual clash dengan scrim aktif lain dalam window 2 jam: ' . $conflict['title'] . ' (' . $conflict['date_time'] . ').',
+        ], 409);
+    }
+}
+
+function require_no_pending_request_conflict(PDO $pdo, int $teamId, string $dateTime, ?int $excludeScrimId = null): void
+{
+    $sql = '
+        SELECT s.title, s.date_time
+        FROM scrim_requests r
+        JOIN scrims s ON s.id = r.scrim_id
+        WHERE r.requester_team_id = ?
+            AND r.status = "pending"
+            AND s.status = "open"
+            AND ABS(TIMESTAMPDIFF(MINUTE, s.date_time, ?)) < 120
+    ';
+    $params = [$teamId, $dateTime];
+    if ($excludeScrimId !== null) {
+        $sql .= ' AND s.id != ?';
+        $params[] = $excludeScrimId;
+    }
+    $sql .= ' ORDER BY s.date_time ASC LIMIT 1';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $conflict = $stmt->fetch();
+    if ($conflict) {
+        json_response([
+            'ok' => false,
+            'message' => 'Jadual clash dengan pending request lain dalam window 2 jam: ' . $conflict['title'] . ' (' . $conflict['date_time'] . ').',
+        ], 409);
+    }
+}
+
+function prune_scrim_messages(PDO $pdo, int $scrimId, int $keep = 10): void
+{
+    $stmt = $pdo->prepare('
+        SELECT id
+        FROM scrim_messages
+        WHERE scrim_id = ?
+        ORDER BY created_at DESC, id DESC
+        LIMIT 18446744073709551615 OFFSET ' . (int) $keep
+    );
+    $stmt->execute([$scrimId]);
+    $oldMessageIds = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    if (!$oldMessageIds) {
+        return;
+    }
+
+    $placeholders = implode(', ', array_fill(0, count($oldMessageIds), '?'));
+    $delete = $pdo->prepare('DELETE FROM scrim_messages WHERE scrim_id = ? AND id IN (' . $placeholders . ')');
+    $delete->execute(array_merge([$scrimId], $oldMessageIds));
+}
+
+function complete_no_show_scrim(PDO $pdo, array $scrim, int $winnerId): bool
+{
+    if (!in_array($winnerId, [(int) $scrim['creator_team_id'], (int) $scrim['opponent_team_id']], true)) {
+        return false;
+    }
+
+    $loserId = $winnerId === (int) $scrim['creator_team_id']
+        ? (int) $scrim['opponent_team_id']
+        : (int) $scrim['creator_team_id'];
+
+    $pdo->beginTransaction();
+    $stmt = $pdo->prepare('
+        UPDATE scrims
+        SET winner_team_id = ?,
+            result_score = "Forfeit",
+            result_status = "no_show_accepted",
+            result_reviewed_at = CURRENT_TIMESTAMP,
+            winner_point_delta = 1,
+            loser_point_delta = -2,
+            status = "completed",
+            completed_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND status = "confirmed" AND result_status = "no_show_pending"
+    ');
+    $stmt->execute([$winnerId, $scrim['id']]);
+
+    if ($stmt->rowCount() === 0) {
+        $pdo->rollBack();
+        return false;
+    }
+
+    $stmt = $pdo->prepare('INSERT IGNORE INTO team_stats (team_id) VALUES (?), (?)');
+    $stmt->execute([$winnerId, $loserId]);
+
+    $stmt = $pdo->prepare('UPDATE team_stats SET total_scrim = total_scrim + 1, total_win = total_win + 1, total_point = total_point + 1 WHERE team_id = ?');
+    $stmt->execute([$winnerId]);
+
+    $stmt = $pdo->prepare('UPDATE team_stats SET total_scrim = total_scrim + 1, total_lose = total_lose + 1, total_point = total_point - 2 WHERE team_id = ?');
+    $stmt->execute([$loserId]);
+    $pdo->commit();
+    return true;
+}
+
+function auto_complete_expired_no_shows(PDO $pdo): void
+{
+    $stmt = $pdo->query('
+        SELECT *
+        FROM scrims
+        WHERE status = "confirmed"
+            AND result_status = "no_show_pending"
+            AND result_submitted_at IS NOT NULL
+            AND result_submitted_at <= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE)
+        LIMIT 10
+    ');
+    foreach ($stmt->fetchAll() as $scrim) {
+        complete_no_show_scrim($pdo, $scrim, (int) $scrim['pending_winner_team_id']);
+    }
 }
 
 function base64url_encode(string $value): string
@@ -416,6 +585,7 @@ function send_empty_web_push(PDO $pdo, array $pushConfig, int $teamId): array
 function fetch_state(PDO $pdo): array
 {
     global $pushConfig;
+    auto_complete_expired_no_shows($pdo);
     $team = current_team($pdo);
     $teamId = $team['id'] ?? 0;
     $messages = [];
@@ -568,12 +738,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'register' || $action === 'login') {
             $name = clean_text((string) ($_POST['team_name'] ?? ''), 40);
             $password = (string) ($_POST['password'] ?? '');
+            $captainName = clean_text((string) ($_POST['captain_name'] ?? ''), 80);
+            $phoneNumber = clean_phone((string) ($_POST['phone_number'] ?? ''));
 
             if ($name === '' || strlen($password) < 4) {
                 json_response(['ok' => false, 'message' => 'Nama team wajib diisi dan password minimum 4 aksara.'], 422);
             }
 
             if ($action === 'register') {
+                if ($captainName === '' || $phoneNumber === '') {
+                    json_response(['ok' => false, 'message' => 'Register wajib isi nama captain dan nombor telefon.'], 422);
+                }
+
                 $stmt = $pdo->prepare('SELECT id, password_hash FROM teams WHERE team_name = ?');
                 $stmt->execute([$name]);
                 $existingTeam = $stmt->fetch();
@@ -583,16 +759,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($existingTeam) {
-                    $stmt = $pdo->prepare('UPDATE teams SET password_hash = ?, password_code = NULL WHERE id = ?');
-                    $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $existingTeam['id']]);
+                    $stmt = $pdo->prepare('UPDATE teams SET captain_name = ?, phone_number = ?, password_hash = ?, password_code = NULL WHERE id = ?');
+                    $stmt->execute([$captainName, $phoneNumber, password_hash($password, PASSWORD_DEFAULT), $existingTeam['id']]);
                     $_SESSION['team_id'] = (int) $existingTeam['id'];
                     $stmt = $pdo->prepare('INSERT IGNORE INTO team_stats (team_id) VALUES (?)');
                     $stmt->execute([$_SESSION['team_id']]);
                     json_response(fetch_state($pdo) + ['message' => 'Password team lama berjaya diset.']);
                 }
 
-                $stmt = $pdo->prepare('INSERT INTO teams (team_name, password_hash) VALUES (?, ?)');
-                $stmt->execute([$name, password_hash($password, PASSWORD_DEFAULT)]);
+                $stmt = $pdo->prepare('INSERT INTO teams (team_name, captain_name, phone_number, password_hash) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$name, $captainName, $phoneNumber, password_hash($password, PASSWORD_DEFAULT)]);
                 $_SESSION['team_id'] = (int) $pdo->lastInsertId();
                 $stmt = $pdo->prepare('INSERT IGNORE INTO team_stats (team_id) VALUES (?)');
                 $stmt->execute([$_SESSION['team_id']]);
@@ -629,6 +805,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $team = require_team($pdo);
 
         if ($action === 'create_scrim') {
+            require_scrim_ready($team);
+            require_no_open_host_scrim($pdo, (int) $team['id']);
+
             $title = clean_text((string) ($_POST['title'] ?? ''), 80);
             $dateTime = str_replace('T', ' ', clean_text((string) ($_POST['date_time'] ?? ''), 40));
             $format = clean_text((string) ($_POST['format'] ?? 'BO3'), 12);
@@ -643,6 +822,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$parsedDate) {
                 json_response(['ok' => false, 'message' => 'Format tarikh scrim tidak sah.'], 422);
             }
+            require_no_schedule_conflict($pdo, (int) $team['id'], $parsedDate->format('Y-m-d H:i:s'));
+            require_no_pending_request_conflict($pdo, (int) $team['id'], $parsedDate->format('Y-m-d H:i:s'));
 
             $columns = ['creator_team_id', 'title', 'date_time', 'format', 'notes', 'point_mode'];
             $values = [$team['id'], $title, $dateTime, $format, $notes, $pointMode];
@@ -674,9 +855,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'update_profile') {
+            $captainName = clean_text((string) ($_POST['captain_name'] ?? ''), 80);
             $phoneNumber = clean_phone((string) ($_POST['phone_number'] ?? ''));
-            $stmt = $pdo->prepare('UPDATE teams SET phone_number = ? WHERE id = ?');
-            $stmt->execute([$phoneNumber !== '' ? $phoneNumber : null, $team['id']]);
+            $stmt = $pdo->prepare('UPDATE teams SET captain_name = ?, phone_number = ? WHERE id = ?');
+            $stmt->execute([$captainName !== '' ? $captainName : null, $phoneNumber !== '' ? $phoneNumber : null, $team['id']]);
 
             json_response(fetch_state($pdo) + ['message' => 'Profile team dikemaskini.']);
         }
@@ -722,6 +904,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'request_join') {
+            require_scrim_ready($team);
+
             $scrimId = (int) ($_POST['scrim_id'] ?? 0);
             $message = clean_text((string) ($_POST['message'] ?? ''), 160);
 
@@ -731,6 +915,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$scrim || (int) $scrim['creator_team_id'] === (int) $team['id']) {
                 json_response(['ok' => false, 'message' => 'Scrim ini tidak boleh direquest.'], 403);
             }
+            require_no_schedule_conflict($pdo, (int) $team['id'], (string) $scrim['date_time'], $scrimId);
+            require_no_pending_request_conflict($pdo, (int) $team['id'], (string) $scrim['date_time'], $scrimId);
 
             $stmt = $pdo->prepare('INSERT IGNORE INTO scrim_requests (scrim_id, requester_team_id, message) VALUES (?, ?, ?)');
             $stmt->execute([$scrimId, $team['id'], $message]);
@@ -821,6 +1007,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare('INSERT INTO scrim_messages (scrim_id, sender_team_id, message) VALUES (?, ?, ?)');
             $stmt->execute([$scrimId, $team['id'], $message]);
+            prune_scrim_messages($pdo, $scrimId, 10);
             $receiverTeamId = (int) $scrim['creator_team_id'] === (int) $team['id']
                 ? (int) $scrim['opponent_team_id']
                 : (int) $scrim['creator_team_id'];
@@ -871,6 +1058,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             json_response(fetch_state($pdo) + ['message' => 'Result dihantar kepada opponent untuk confirm.']);
+        }
+
+        if ($action === 'report_no_show') {
+            $scrimId = (int) ($_POST['scrim_id'] ?? 0);
+            $stmt = $pdo->prepare('SELECT * FROM scrims WHERE id = ? AND status = "confirmed" AND date_time <= CURRENT_TIMESTAMP');
+            $stmt->execute([$scrimId]);
+            $scrim = $stmt->fetch();
+
+            if (!$scrim || !in_array((int) $team['id'], [(int) $scrim['creator_team_id'], (int) $scrim['opponent_team_id']], true)) {
+                json_response(['ok' => false, 'message' => 'No-show hanya boleh direport oleh team dalam confirmed scrim selepas masa match bermula.'], 403);
+            }
+
+            if (in_array((string) ($scrim['result_status'] ?? ''), ['pending', 'reported', 'no_show_pending'], true)) {
+                json_response(['ok' => false, 'message' => 'Result/report untuk scrim ini masih pending.'], 409);
+            }
+
+            $stmt = $pdo->prepare('
+                UPDATE scrims
+                SET pending_winner_team_id = ?,
+                    pending_result_score = "Forfeit",
+                    result_status = "no_show_pending",
+                    result_submitted_by = ?,
+                    result_submitted_at = CURRENT_TIMESTAMP,
+                    result_reviewed_at = NULL
+                WHERE id = ? AND status = "confirmed"
+            ');
+            $stmt->execute([$team['id'], $team['id'], $scrimId]);
+
+            json_response(fetch_state($pdo) + ['message' => 'No-show report dihantar. Lawan ada 15 minit untuk dispute sebelum auto-complete.']);
+        }
+
+        if ($action === 'respond_no_show') {
+            $scrimId = (int) ($_POST['scrim_id'] ?? 0);
+            $decision = $_POST['decision'] === 'accept' ? 'accept' : 'dispute';
+            $stmt = $pdo->prepare('SELECT * FROM scrims WHERE id = ? AND status = "confirmed" AND result_status = "no_show_pending"');
+            $stmt->execute([$scrimId]);
+            $scrim = $stmt->fetch();
+
+            if (!$scrim || !in_array((int) $team['id'], [(int) $scrim['creator_team_id'], (int) $scrim['opponent_team_id']], true)) {
+                json_response(['ok' => false, 'message' => 'No-show report ini tidak sah.'], 403);
+            }
+
+            if ((int) $scrim['pending_winner_team_id'] === (int) $team['id']) {
+                json_response(['ok' => false, 'message' => 'Team yang report no-show tidak boleh confirm/dispute sendiri.'], 403);
+            }
+
+            if ($decision === 'dispute') {
+                $stmt = $pdo->prepare('UPDATE scrims SET result_status = "reported", result_reviewed_at = CURRENT_TIMESTAMP WHERE id = ? AND status = "confirmed" AND result_status = "no_show_pending"');
+                $stmt->execute([$scrimId]);
+                json_response(fetch_state($pdo) + ['message' => 'No-show disputed. Menunggu admin review.']);
+            }
+
+            $completed = complete_no_show_scrim($pdo, $scrim, (int) $scrim['pending_winner_team_id']);
+            json_response(fetch_state($pdo) + ['message' => $completed ? 'No-show disahkan. Point penalty dimasukkan.' : 'No-show sudah diproses.']);
         }
 
         if ($action === 'confirm_result') {

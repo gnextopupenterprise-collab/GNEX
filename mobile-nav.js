@@ -5,7 +5,7 @@
     return;
   }
 
-  const cssHref = "mobile-nav.css?v=2";
+  const cssHref = "mobile-nav.css?v=4";
   const hasCss = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
     .some((link) => link.getAttribute("href") === cssHref);
 
@@ -27,6 +27,7 @@
     "scrim.html",
     "scrim-mlbb.php"
   ]);
+  const isScrimPage = page === "scrim.html" || page === "scrim-mlbb.php";
 
   const activeNav = topupPages.has(page)
     ? "topup"
@@ -51,17 +52,17 @@
 <span>Home</span>
 </a>
 
-<a href="https://gnexcenter.com/#price-list" class="bottom-nav-item${activeClass("topup")}" data-nav="topup" aria-label="GNEX Topup">
+<a href="${isScrimPage ? '#deal' : 'https://gnexcenter.com/#price-list'}" class="bottom-nav-item${activeClass("topup")}" data-nav="${isScrimPage ? 'deal' : 'topup'}" aria-label="${isScrimPage ? 'Deal Chat' : 'GNEX Topup'}">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-<rect x="4" y="5" width="16" height="14" rx="3"></rect>
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
 <path d="M8 9h8"></path>
-<path d="M8 13h5"></path>
-<path d="M16 16h.01"></path>
+<path d="M8 12.5h5"></path>
 </svg>
-<span>Topup</span>
+${isScrimPage ? '<strong class="bottom-nav-badge hidden" id="dealNavBadge">0</strong>' : ''}
+<span>${isScrimPage ? 'Deal' : 'Topup'}</span>
 </a>
 
-<a href="https://gnexcenter.com/tournament.html" class="bottom-nav-item${activeClass("tournament")}" data-nav="tournament" aria-label="Tournament">
+<a href="${isScrimPage ? '#scrim-home' : 'https://gnexcenter.com/tournament.html'}" class="bottom-nav-item${activeClass("tournament")}" data-nav="${isScrimPage ? 'scrim-home' : 'tournament'}" aria-label="${isScrimPage ? 'Scrim Home' : 'Tournament'}">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="M8 21h8"></path>
 <path d="M12 17v4"></path>
@@ -69,18 +70,33 @@
 <path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
 <path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
 </svg>
-<span>Tour</span>
+<span>${isScrimPage ? 'Scrim' : 'Tour'}</span>
 </a>
 
-<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bottom-nav-item" data-nav="support" aria-label="Support">
+<a href="${isScrimPage ? '#all-scrim' : 'https://wa.me/601115421017'}" ${isScrimPage ? '' : 'target="_blank" rel="noopener"'} class="bottom-nav-item" data-nav="${isScrimPage ? 'all-scrim' : 'support'}" aria-label="${isScrimPage ? 'All Scrim' : 'Support'}">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M4 12a8 8 0 0 1 16 0"></path>
-<path d="M4 12v4a2 2 0 0 0 2 2h1v-6H4Z"></path>
-<path d="M20 12v4a2 2 0 0 1-2 2h-1v-6h3Z"></path>
-<path d="M9 20h3"></path>
+<path d="M5 6h14"></path>
+<path d="M5 12h14"></path>
+<path d="M5 18h14"></path>
+<path d="M8 3v18"></path>
 </svg>
-<span>Support</span>
+<span>${isScrimPage ? 'All Scrim' : 'Support'}</span>
 </a>
+
+${isScrimPage ? `
+<a href="#review" class="bottom-nav-item" data-nav="review" aria-label="Request Review">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 6h13"></path>
+<path d="M8 12h13"></path>
+<path d="M8 18h13"></path>
+<path d="M3 6h.01"></path>
+<path d="M3 12h.01"></path>
+<path d="M3 18h.01"></path>
+</svg>
+<strong class="bottom-nav-badge hidden" id="reviewNavBadge">0</strong>
+<span>Review</span>
+</a>
+` : ''}
 `;
 
   document.body.classList.add("has-bottom-app-nav");

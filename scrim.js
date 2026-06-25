@@ -4,7 +4,11 @@ if (location.port === '5500') {
 }
 let state = {ok:false, team:null, scrims:[], requests:[], stats:[], history:[], messages:[]};
 let activeFilter = 'all';
+let activeView = 'home';
+let activeDealId = 0;
+let pendingDealScrollToBottom = false;
 let seenMessageIds = new Set();
+let unreadChatCount = 0;
 let statePollTimer = null;
 let isPollingState = false;
 const STATE_POLL_MS = 3500;
@@ -23,20 +27,40 @@ function escapeHtml(value){
 }
 
 function statusClass(status){
-  return ['open','pending','confirmed','completed','rejected','reported'].includes(status) ? status : '';
+  return ['open','pending','confirmed','completed','rejected','reported','no_show_pending','no_show_accepted'].includes(status) ? status : '';
+}
+
+const MALAYSIA_TIME_ZONE = 'Asia/Kuala_Lumpur';
+
+function malaysiaDate(value){
+  if (!value) return null;
+  const text = String(value).trim();
+  const hasTimezone = /(?:z|[+-]\d{2}:?\d{2})$/i.test(text);
+  const normalized = text.includes('T') ? text : text.replace(' ', 'T');
+  const date = new Date(hasTimezone ? normalized : `${normalized}+08:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatMalaysiaTime(date){
+  return date.toLocaleTimeString('en-MY', {
+    timeZone:MALAYSIA_TIME_ZONE,
+    hour:'2-digit',
+    minute:'2-digit',
+    hour12:true
+  }).replace(/\s/g, '').toUpperCase();
 }
 
 function formatDate(value){
   if (!value) return '-';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return escapeHtml(value);
-  return date.toLocaleString('ms-MY', {
+  const date = malaysiaDate(value);
+  if (!date) return escapeHtml(value);
+  const datePart = date.toLocaleDateString('ms-MY', {
+    timeZone:MALAYSIA_TIME_ZONE,
     day:'2-digit',
     month:'short',
-    year:'numeric',
-    hour:'2-digit',
-    minute:'2-digit'
+    year:'numeric'
   });
+  return `${datePart}, ${formatMalaysiaTime(date)}`;
 }
 
 function showToast(message){
@@ -131,6 +155,10 @@ function notifyIncomingChat(message){
   showToast(`Chat baru dari ${message.sender_name || 'team lawan'}. Phone push dihantar jika device subscribed.`);
 }
 
+function dealIsOpen(){
+  return activeView === 'deal';
+}
+
 function syncIncomingMessages(nextState, shouldNotify = true){
   const teamId = Number(nextState.team?.id || 0);
   const freshMessages = [];
@@ -143,6 +171,9 @@ function syncIncomingMessages(nextState, shouldNotify = true){
     }
   });
   if (shouldNotify && freshMessages.length) {
+    if (!dealIsOpen()) {
+      unreadChatCount += freshMessages.length;
+    }
     notifyIncomingChat(freshMessages[freshMessages.length - 1]);
   }
 }
@@ -157,17 +188,26 @@ async function readApiResponse(response){
   }
 }
 
-async function postForm(formOrData){
+async function postForm(formOrData, options = {}){
   const body = formOrData instanceof FormData ? formOrData : new FormData(formOrData);
   const response = await fetch(API_URL, {method:'POST', body});
   const payload = await readApiResponse(response);
   if (!payload.ok) {
-    throw new Error(payload.message || 'Request gagal.');
+    const error = new Error(payload.message || 'Request gagal.');
+    error.needsPhone = Boolean(payload.needs_phone);
+    throw error;
   }
   if (payload.scrims) {
     syncIncomingMessages(payload, Boolean(state.team));
     state = payload;
-    render();
+    if (options.preserveChatScroll) {
+      renderPreservingChatDrafts(options);
+      if (options.scrollChatToBottom) {
+        scrollChatToBottom(options.scrollChatToBottom);
+      }
+    } else {
+      render();
+    }
   }
   showToast(payload.message || 'Berjaya.');
   return payload;
@@ -175,16 +215,38 @@ async function postForm(formOrData){
 
 async function sendChatForm(form){
   const input = $('input[name="message"]', form);
+  const scrimId = $('input[name="scrim_id"]', form)?.value;
   if (!input || !input.value.trim()) {
     showToast('Tulis mesej dulu.');
     input?.focus();
     return;
   }
-  await postForm(form);
+  await postForm(form, {preserveChatScroll:true, scrollChatToBottom:scrimId, clearChatDraft:scrimId});
+  const nextForm = $$('.chat-form').find((item) => $('input[name="scrim_id"]', item)?.value === String(scrimId));
+  const nextInput = nextForm ? $('input[name="message"]', nextForm) : input;
+  if (nextInput) nextInput.value = '';
+  input?.blur();
 }
 
 function currentTeamId(){
   return state.team ? Number(state.team.id) : 0;
+}
+
+function hasTeamPhone(){
+  return Boolean(String(state.team?.phone_number || '').trim());
+}
+
+function isScrimReady(){
+  return hasTeamPhone() && Boolean(String(state.team?.captain_name || '').trim());
+}
+
+function openPhoneRequiredPanel(){
+  toggleProfile(true);
+  setCollapsible('#profileEditPanel', true);
+  $('#editProfileBtn')?.setAttribute('aria-expanded', 'true');
+  const target = state.team?.captain_name ? $('#profilePhone') : $('#profileCaptain');
+  target?.focus();
+  showToast('Update nama captain dan nombor telefon dulu sebelum create atau join scrim.');
 }
 
 function requestFor(scrim){
@@ -198,6 +260,20 @@ function canControl(scrim){
 
 function messagesFor(scrimId){
   return (state.messages || []).filter((message) => Number(message.scrim_id) === Number(scrimId));
+}
+
+function activeDeals(){
+  return state.scrims.filter((scrim) => canControl(scrim) && ['pending','confirmed'].includes(scrim.status));
+}
+
+function dealContactName(scrim){
+  return currentTeamId() === Number(scrim.creator_team_id)
+    ? (scrim.opponent_name || 'Opponent')
+    : scrim.creator_name;
+}
+
+function dealInitials(name){
+  return String(name || 'T').trim().split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase();
 }
 
 function collectChatDrafts(){
@@ -217,7 +293,7 @@ function collectScrollState(){
   const chatLogs = {};
   $$('.chat-form').forEach((form) => {
     const scrimId = $('input[name="scrim_id"]', form)?.value;
-    const log = form.closest('.deal-chat')?.querySelector('.deal-chat-log');
+    const log = form.closest('.deal-chat, .deal-chat-screen')?.querySelector('.deal-chat-log, .deal-chat-full-log');
     if (scrimId && log) {
       chatLogs[scrimId] = {
         top:log.scrollTop,
@@ -245,8 +321,7 @@ function restoreScrollState(scrollState){
     profileCard.scrollTop = scrollState.profileTop || 0;
   }
   Object.entries(scrollState.chatLogs || {}).forEach(([scrimId, value]) => {
-    const form = $$('.chat-form').find((item) => $('input[name="scrim_id"]', item)?.value === scrimId);
-    const log = form?.closest('.deal-chat')?.querySelector('.deal-chat-log');
+    const log = chatLogForScrim(scrimId);
     if (!log) return;
     if (value.bottom < 40) {
       log.scrollTop = log.scrollHeight;
@@ -256,8 +331,57 @@ function restoreScrollState(scrollState){
   });
 }
 
-function renderPreservingChatDrafts(){
+function chatLogForScrim(scrimId){
+  const id = String(scrimId);
+  const forms = $$('.chat-form').filter((item) => $('input[name="scrim_id"]', item)?.value === id);
+  const dealView = $('#dealView');
+  const dealForm = forms.find((form) => dealView && !dealView.hidden && dealView.contains(form));
+  const form = dealForm || forms.find((item) => item.offsetParent !== null) || forms[0];
+  return form?.closest('.deal-chat, .deal-chat-screen')?.querySelector('.deal-chat-log, .deal-chat-full-log') || null;
+}
+
+function scrollChatToBottom(scrimId){
+  const log = chatLogForScrim(scrimId);
+  if (log) {
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+function activeChatInput(){
+  const element = document.activeElement;
+  return element?.matches?.('.chat-form input[name="message"]') ? element : null;
+}
+
+function syncTopNavHeight(){
+  const nav = $('.scrim-nav');
+  if (!nav) return;
+  const baseHeight = Math.ceil(nav.getBoundingClientRect().height || nav.offsetHeight || 69);
+  const compactPhone = window.matchMedia('(max-width: 430px) and (max-height: 940px)').matches;
+  document.documentElement.style.setProperty('--scrim-top-nav-height', `${baseHeight}px`);
+  document.documentElement.style.setProperty('--scrim-content-top-offset', `${baseHeight + (compactPhone ? 28 : 0)}px`);
+}
+
+function syncKeyboardViewport(){
+  document.body.classList.toggle('chat-keyboard-open', Boolean(activeChatInput()));
+}
+
+function forceDealViewportTop(){
+  if (activeView !== 'deal') return;
+  window.scrollTo({top:0, left:0, behavior:'auto'});
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
+function settleDealViewportAfterKeyboard(){
+  syncKeyboardViewport();
+  forceDealViewportTop();
+}
+
+function renderPreservingChatDrafts(options = {}){
   const drafts = collectChatDrafts();
+  if (options.clearChatDraft) {
+    delete drafts[String(options.clearChatDraft)];
+  }
   const scrollState = collectScrollState();
   render();
   restoreChatDrafts(drafts);
@@ -265,19 +389,16 @@ function renderPreservingChatDrafts(){
 }
 
 function formatScrimDate(value){
-  const date = new Date(value);
-  if (!value || Number.isNaN(date.getTime())) return {date:'-', time:'-'};
+  const date = malaysiaDate(value);
+  if (!date) return {date:'-', time:'-'};
   return {
-    date:date.toLocaleDateString('ms-MY', {day:'2-digit', month:'long', year:'numeric'}).toUpperCase(),
-    time:date.toLocaleTimeString('ms-MY', {hour:'2-digit', minute:'2-digit'}).toUpperCase()
+    date:date.toLocaleDateString('ms-MY', {timeZone:MALAYSIA_TIME_ZONE, day:'2-digit', month:'long', year:'numeric'}).toUpperCase(),
+    time:formatMalaysiaTime(date)
   };
 }
 
 function scrimDateObject(value){
-  if (!value) return null;
-  const normalized = String(value).trim().replace(' ', 'T');
-  const date = new Date(normalized);
-  return Number.isNaN(date.getTime()) ? null : date;
+  return malaysiaDate(value);
 }
 
 function isOpenBoardScrim(scrim){
@@ -299,7 +420,7 @@ function hostResultDeals(){
   return state.scrims.filter((scrim) => {
     const isHost = Number(scrim.creator_team_id) === teamId;
     const isConfirmed = scrim.status === 'confirmed';
-    const canSubmit = !['pending','reported'].includes(String(scrim.result_status || ''));
+    const canSubmit = !['pending','reported','no_show_pending'].includes(String(scrim.result_status || ''));
     return isHost && isConfirmed && canSubmit;
   });
 }
@@ -325,11 +446,13 @@ function renderSession(){
   const profileTeamName = $('#profileTeamName');
   const profileCardName = $('#profileCardName');
   const profileCardMeta = $('#profileCardMeta');
+  const profileCaptain = $('#profileCaptain');
   const profilePhone = $('#profilePhone');
   const profileRankBadge = $('#profileRankBadge');
   const profileResultHint = $('#profileResultHint');
   const rosterGames = $('#rosterGames');
   const profileBadge = $('#profileBadge');
+  const notifyButton = $('#enableNotifyBtn');
   const rosterWins = $('#rosterWins');
   const rosterLosses = $('#rosterLosses');
   const rosterRank = $('#rosterRank');
@@ -339,6 +462,9 @@ function renderSession(){
   const pendingResults = pendingResultDeals();
   const hostResults = hostResultDeals();
   const resultBadge = $('#resultBadge');
+  const dealNavBadge = $('#dealNavBadge');
+  const reviewNavBadge = $('#reviewNavBadge');
+  const reviewActionCount = pendingRequests.length + pendingResults.length + hostResults.length;
 
   if (resultBadge) {
     const resultCount = pendingResults.length + hostResults.length;
@@ -346,19 +472,45 @@ function renderSession(){
     resultBadge.classList.toggle('hidden', resultCount === 0);
   }
 
+  if (reviewNavBadge) {
+    reviewNavBadge.textContent = reviewActionCount;
+    reviewNavBadge.classList.toggle('hidden', reviewActionCount === 0);
+  }
+
+  if (dealNavBadge) {
+    dealNavBadge.textContent = unreadChatCount;
+    dealNavBadge.classList.toggle('hidden', unreadChatCount === 0);
+  }
+
+  if (notifyButton) {
+    const enabled = canUseBrowserNotifications() && Notification.permission === 'granted';
+    notifyButton.classList.toggle('on', enabled);
+    notifyButton.classList.toggle('off', !enabled);
+    notifyButton.innerHTML = `<span aria-hidden="true"></span>${enabled ? 'NOTI ON' : 'NOTI OFF'}`;
+  }
+
   if (state.team) {
     if (profileTeamName) profileTeamName.textContent = state.team.name;
     if (profileCardName) profileCardName.textContent = state.team.name;
     if (profileCardMeta) {
-      const phoneText = state.team.phone_number ? ` | Phone: ${state.team.phone_number}` : ' | Phone belum set';
-      profileCardMeta.textContent = `Logged in as team ID #${state.team.id}${phoneText}`;
+      const captainText = state.team.captain_name || 'Belum set';
+      const phoneText = state.team.phone_number || 'Belum set';
+      profileCardMeta.innerHTML = `
+        <div><span>Team ID</span><strong>#${escapeHtml(state.team.id)}</strong></div>
+        <div><span>Captain</span><strong>${escapeHtml(captainText)}</strong></div>
+        <div><span>Phone</span><strong>${escapeHtml(phoneText)}</strong></div>
+      `;
+    }
+    if (profileCaptain && document.activeElement !== profileCaptain) {
+      profileCaptain.value = state.team.captain_name || '';
     }
     if (profilePhone && document.activeElement !== profilePhone) {
       profilePhone.value = state.team.phone_number || '';
     }
     if (profileBadge) {
-      profileBadge.textContent = pendingRequests.length;
-      profileBadge.classList.toggle('hidden', pendingRequests.length === 0);
+      const profileBadgeCount = pendingRequests.length;
+      profileBadge.textContent = profileBadgeCount;
+      profileBadge.classList.toggle('hidden', profileBadgeCount === 0);
     }
     const statIndex = state.stats.findIndex((item) => item.name === state.team.name);
     const teamStats = statIndex >= 0 ? state.stats[statIndex] : null;
@@ -372,12 +524,15 @@ function renderSession(){
       const resultCount = pendingResults.length + hostResults.length;
       profileResultHint.innerHTML = resultCount
         ? `<button class="btn primary block" type="button" id="openProfileResultBtn">${resultCount} update point action</button>`
-        : '<p class="empty">Tiada result pending untuk confirm.</p>';
+        : (isScrimReady()
+          ? '<p class="empty">Tiada result pending untuk confirm.</p>'
+          : '<button class="btn gold block" type="button" id="profilePhoneRequiredBtn">Update Captain & Phone</button>');
     }
   } else {
     if (profileTeamName) profileTeamName.textContent = 'TEAM';
     if (profileCardName) profileCardName.textContent = 'TEAM';
     if (profileCardMeta) profileCardMeta.textContent = 'Logged in team';
+    if (profileCaptain) profileCaptain.value = '';
     if (profilePhone) profilePhone.value = '';
     if (profileRankBadge) profileRankBadge.textContent = 'RANK -';
     if (profileBadge) profileBadge.classList.add('hidden');
@@ -503,10 +658,10 @@ function renderHeroDeal(){
 
   if (!deal) {
     box.innerHTML = `
-      <p class="mini-title">PRIVATE DEAL</p>
+      <p class="mini-title">SCRIM DEAL</p>
       <div class="hero-empty-deal">
         <h3>Anda belum menyertai scrim</h3>
-        <p>Join open scrim dulu untuk buka private deal room.</p>
+        <p>Join open scrim dulu untuk buka scrim deal room.</p>
         <button class="btn primary block" type="button" id="heroJoinScrimBtn">Join Scrim</button>
       </div>
     `;
@@ -519,7 +674,7 @@ function renderHeroDeal(){
     : (deal.status === 'confirmed' && deal.room_id ? 'Display Room ID' : 'Open Deal Room');
 
   box.innerHTML = `
-    <p class="mini-title">PRIVATE DEAL</p>
+    <p class="mini-title">SCRIM DEAL</p>
     <div class="versus-row hero-deal-versus">
       <strong>${escapeHtml(deal.creator_name)}</strong>
       <span>VS</span>
@@ -568,6 +723,10 @@ function toggleCreatePanel(event){
   if (event) {
     event.stopPropagation();
   }
+  if (state.team && !isScrimReady()) {
+    openPhoneRequiredPanel();
+    return;
+  }
   const visible = toggleCollapsible('#createPanel', $('#toggleCreateBtn'));
   if (visible) {
     $('#createPanel')?.scrollIntoView({behavior:'smooth', block:'start'});
@@ -585,6 +744,7 @@ function toggleProfile(isVisible){
   overlay.classList.toggle('is-visible', nextState);
   overlay.setAttribute('aria-hidden', String(!nextState));
   button?.setAttribute('aria-expanded', String(nextState));
+  renderSession();
 }
 
 function toggleRanking(isVisible){
@@ -662,11 +822,12 @@ function renderScrims(){
     const isCreator = teamId === Number(scrim.creator_team_id);
     const existingRequest = requestFor(scrim);
     const canRequest = state.team && scrim.status === 'open' && !isCreator && !existingRequest;
+    const needsPhone = canRequest && !isScrimReady();
     const opponentName = scrim.opponent_name || 'Menunggu opponent';
     const requestNote = existingRequest ? `<span class="chip ${statusClass(existingRequest.status)}">Request ${escapeHtml(existingRequest.status)}</span>` : '';
     const schedule = formatScrimDate(scrim.date_time);
     const detailId = `scrimDetail${scrim.id}`;
-    const actionLabel = 'REQUEST JOIN';
+    const actionLabel = needsPhone ? 'UPDATE PHONE' : 'REQUEST JOIN';
 
     return `
       <article class="scrim-card scrim-card-${statusClass(scrim.status)}">
@@ -685,7 +846,7 @@ function renderScrims(){
           <div class="scrim-card-actions">
             <button class="btn scrim-detail-button" type="button" data-toggle-panel="${detailId}" aria-expanded="false">DETAIL</button>
             ${canRequest
-              ? `<button class="btn primary scrim-join-button" type="button" data-action="request" data-id="${scrim.id}">${actionLabel}</button>`
+              ? `<button class="btn primary scrim-join-button" type="button" data-action="${needsPhone ? 'phone_required' : 'request'}" data-id="${scrim.id}">${actionLabel}</button>`
               : (isCreator && scrim.status === 'open' ? '<span class="scrim-action-state open">WAITING</span>' : '')}
           </div>
         </div>
@@ -704,6 +865,7 @@ function renderScrims(){
           </div>
           <div class="scrim-detail-item scrim-detail-flags">
             ${requestNote}
+            ${needsPhone ? '<span class="chip pending">Phone required</span>' : ''}
             ${isCreator && scrim.status === 'open' ? '<span class="chip open">Waiting request</span>' : ''}
             ${canControl(scrim) && scrim.status !== 'open' ? '<span class="chip confirmed">Private deal active</span>' : ''}
             ${scrim.status === 'completed' ? `<span class="chip completed">Winner: ${escapeHtml(scrim.winner_name || '-')}</span>` : ''}
@@ -749,6 +911,7 @@ function renderRequests(){
 
 function renderDealRooms(){
   const list = $('#dealRooms');
+  if (!list) return;
   const deals = state.scrims.filter((scrim) => canControl(scrim) && ['pending','confirmed'].includes(scrim.status));
 
   if (!state.team) {
@@ -757,7 +920,7 @@ function renderDealRooms(){
   }
 
   if (!deals.length) {
-    list.innerHTML = '<p class="empty">Tiada private deal aktif.</p>';
+    list.innerHTML = '<p class="empty">Tiada scrim deal aktif.</p>';
     return;
   }
 
@@ -768,6 +931,13 @@ function renderDealRooms(){
     const resultPending = scrim.result_status === 'pending';
     const resultReported = scrim.result_status === 'reported';
     const resultRejected = scrim.result_status === 'rejected';
+    const noShowPending = scrim.result_status === 'no_show_pending';
+    const resultLocked = resultPending || resultReported || noShowPending;
+    const matchDate = scrimDateObject(scrim.date_time);
+    const canReportNoShow = scrim.status === 'confirmed'
+      && matchDate
+      && matchDate.getTime() <= Date.now()
+      && !resultLocked;
     const roomPanelId = `roomPanel-${scrim.id}`;
     const roomFormId = `roomForm-${scrim.id}`;
     const chatMessages = messagesFor(scrim.id);
@@ -810,10 +980,10 @@ function renderDealRooms(){
           </div>
         ` : ''}
 
-        <section class="deal-chat" aria-label="Private Deal Room chat">
+        <section class="deal-chat" aria-label="Scrim Deal Room chat">
           <div class="deal-chat-head">
             <div>
-              <strong>Private Deal Room</strong>
+              <strong>Scrim Deal Room</strong>
               <p>Chat host dan opponent untuk Room ID, masa, rules atau apa-apa update.</p>
             </div>
             <span class="chip confirmed">team 1 + team 2</span>
@@ -859,9 +1029,27 @@ function renderDealRooms(){
 
           ${resultReported ? '<p class="empty" style="margin-top:12px">Result telah direport. Menunggu admin review.</p>' : ''}
 
+          ${noShowPending ? `
+            <div class="result-confirm-box">
+              <p>No-show report pending:</p>
+              <div class="secret"><span>Winner jika disahkan</span><strong>${escapeHtml(scrim.pending_winner_name || '-')}</strong></div>
+              <div class="secret"><span>Penalty</span><strong>Forfeit / Lose -2</strong></div>
+              ${Number(scrim.pending_winner_team_id || 0) !== currentTeamId() ? `
+                <div class="inline-actions" style="margin-top:12px">
+                  <button class="btn green" type="button" data-action="respond_no_show" data-decision="accept" data-id="${scrim.id}">Confirm No Show</button>
+                  <button class="btn red" type="button" data-action="respond_no_show" data-decision="dispute" data-id="${scrim.id}">Dispute</button>
+                </div>
+              ` : '<p style="margin-top:10px">Menunggu lawan confirm/dispute. Auto-complete selepas 15 minit.</p>'}
+            </div>
+          ` : ''}
+
           ${resultRejected && isCreator ? '<p class="empty" style="margin-top:12px">Opponent reject result sebelum ini. Submit semula score yang betul.</p>' : ''}
 
-          ${isCreator && !resultPending && !resultReported ? `
+          ${canReportNoShow ? `
+            <button class="btn red block" type="button" data-action="report_no_show" data-id="${scrim.id}" style="margin-top:12px">Report No Show</button>
+          ` : ''}
+
+          ${isCreator && !resultLocked && !resultReported ? `
           <form class="form-grid result-form" style="margin-top:12px">
             <input type="hidden" name="action" value="update_result">
             <input type="hidden" name="scrim_id" value="${scrim.id}">
@@ -880,6 +1068,133 @@ function renderDealRooms(){
       </article>
     `;
   }).join('');
+}
+
+function setAppView(view){
+  activeView = ['home','deal','all','review'].includes(view) ? view : 'home';
+  const dealView = $('#dealView');
+  const reviewView = $('#reviewView');
+  if (dealView) {
+    dealView.hidden = activeView !== 'deal';
+  }
+  if (reviewView) {
+    reviewView.hidden = activeView !== 'review';
+  }
+  document.body.classList.toggle('scrim-view-home', activeView === 'home');
+  document.body.classList.toggle('scrim-view-deal', activeView === 'deal');
+  document.body.classList.toggle('scrim-view-all', activeView === 'all');
+  document.body.classList.toggle('scrim-view-review', activeView === 'review');
+  $$('.bottom-app-nav .bottom-nav-item').forEach((item) => {
+    item.classList.toggle('is-active',
+      item.dataset.nav === activeView
+      || (activeView === 'home' && item.dataset.nav === 'scrim-home')
+      || (activeView === 'all' && item.dataset.nav === 'all-scrim')
+    );
+  });
+  if (activeView === 'deal') {
+    unreadChatCount = 0;
+    renderDealApp();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  if (activeView === 'all') {
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  if (activeView === 'review') {
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+}
+
+function renderDealApp(){
+  const box = $('#dealViewContent');
+  const backBtn = $('#dealBackListBtn');
+  const dealView = $('#dealView');
+  if (!box) return;
+  const deals = activeDeals();
+  const selectedDeal = deals.find((deal) => Number(deal.id) === Number(activeDealId));
+  dealView?.classList.toggle('is-chat-open', Boolean(selectedDeal));
+
+  if (!state.team) {
+    if (backBtn) backBtn.hidden = true;
+    box.innerHTML = '<p class="empty" style="padding:22px">Login untuk akses deal chat.</p>';
+    return;
+  }
+
+  if (!selectedDeal) {
+    activeDealId = 0;
+    if (backBtn) backBtn.hidden = true;
+    if (!deals.length) {
+      box.innerHTML = '<p class="empty" style="padding:22px">Tiada scrim deal aktif.</p>';
+      return;
+    }
+    box.innerHTML = `
+      <div class="deal-contact-list">
+        ${deals.map((scrim) => {
+          const contactName = dealContactName(scrim);
+          const chatMessages = messagesFor(scrim.id);
+          const lastMessage = chatMessages[chatMessages.length - 1];
+          return `
+            <button class="deal-contact-item" type="button" data-action="open_deal_chat" data-id="${scrim.id}">
+              <span class="deal-contact-avatar">${escapeHtml(dealInitials(contactName))}</span>
+              <span class="deal-contact-main">
+                <strong>${escapeHtml(contactName)}</strong>
+                <span>${escapeHtml(scrim.title)} - ${formatDate(scrim.date_time)}</span>
+                <span>${lastMessage ? escapeHtml(lastMessage.message) : 'Belum ada chat.'}</span>
+              </span>
+              <span class="deal-contact-meta">
+                <span>${escapeHtml(scrim.status)}</span>
+                ${scrim.result_status ? `<span class="chip ${statusClass(scrim.result_status)}">${escapeHtml(scrim.result_status)}</span>` : ''}
+              </span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `;
+    return;
+  }
+
+  if (backBtn) backBtn.hidden = false;
+  const contactName = dealContactName(selectedDeal);
+  const chatMessages = messagesFor(selectedDeal.id);
+
+  box.innerHTML = `
+    <section class="deal-chat-screen">
+      <div class="deal-chat-screen-head">
+        <span class="deal-contact-avatar">${escapeHtml(dealInitials(contactName))}</span>
+        <div>
+          <h3>${escapeHtml(contactName)}</h3>
+          <p>${escapeHtml(selectedDeal.title)} - ${formatDate(selectedDeal.date_time)}</p>
+        </div>
+        <button class="btn panel-toggle deal-chat-back" type="button" data-action="back_deal_list">BACK</button>
+      </div>
+      <div class="deal-chat-full-log">
+        ${chatMessages.length ? chatMessages.map((message) => {
+          const isMine = Number(message.sender_team_id) === currentTeamId();
+          return `
+            <div class="chat-bubble ${isMine ? 'mine' : 'theirs'}">
+              <span>${escapeHtml(message.sender_name || 'Team')}</span>
+              <p>${escapeHtml(message.message)}</p>
+              <small>${formatDate(message.created_at)}</small>
+            </div>
+          `;
+        }).join('') : '<p class="empty">Belum ada chat. Deal player, confirm masa atau bincang rules di sini.</p>'}
+      </div>
+      <form class="deal-chat-composer chat-form">
+        <input type="hidden" name="action" value="send_message">
+        <input type="hidden" name="scrim_id" value="${selectedDeal.id}">
+        <input name="message" autocomplete="off" placeholder="Tulis mesej..." required>
+        <button class="btn primary chat-send-button" type="button" data-action="send_chat" aria-label="Send message">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
+        </button>
+      </form>
+    </section>
+  `;
+  if (pendingDealScrollToBottom) {
+    pendingDealScrollToBottom = false;
+    window.requestAnimationFrame(() => scrollChatToBottom(selectedDeal.id));
+  }
 }
 
 function renderRanking(){
@@ -934,6 +1249,7 @@ function renderRanking(){
 }
 
 function render(){
+  syncTopNavHeight();
   renderAccess();
   renderSession();
   renderResultReview();
@@ -941,6 +1257,7 @@ function render(){
   renderScrims();
   renderRequests();
   renderDealRooms();
+  renderDealApp();
   renderRanking();
 }
 
@@ -951,6 +1268,10 @@ $('#authForm').addEventListener('submit', async (event) => {
     await postForm(form);
     form.reset();
   } catch (error) {
+    if (error.needsPhone) {
+      openPhoneRequiredPanel();
+      return;
+    }
     showToast(error.message);
   }
 });
@@ -974,6 +1295,10 @@ $('#createForm').addEventListener('submit', async (event) => {
     setCollapsible('#createPanel', false);
     $('#toggleCreateBtn')?.setAttribute('aria-expanded', 'false');
   } catch (error) {
+    if (error.needsPhone) {
+      openPhoneRequiredPanel();
+      return;
+    }
     showToast(error.message);
   }
 });
@@ -999,8 +1324,38 @@ document.addEventListener('submit', async (event) => {
   }
 });
 
+document.addEventListener('focusout', (event) => {
+  if (!event.target.matches('.chat-form input[name="message"]')) return;
+  [80, 220, 420, 700].forEach((delay) => {
+    window.setTimeout(() => {
+      settleDealViewportAfterKeyboard();
+      if (delay === 220 && !activeChatInput()) {
+        renderPreservingChatDrafts();
+        settleDealViewportAfterKeyboard();
+      }
+    }, delay);
+  });
+});
+
+document.addEventListener('focusin', (event) => {
+  if (!event.target.matches('.chat-form input[name="message"]')) return;
+  syncKeyboardViewport();
+});
+
+document.addEventListener('pointerdown', (event) => {
+  if (!document.body.classList.contains('chat-keyboard-open')) return;
+  if (!event.target.closest('.deal-chat-full-log')) return;
+  activeChatInput()?.blur();
+}, {passive:true});
+
+document.addEventListener('touchmove', (event) => {
+  if (!document.body.classList.contains('chat-keyboard-open')) return;
+  if (!event.target.closest('.deal-chat-full-log')) return;
+  activeChatInput()?.blur();
+}, {passive:true});
+
 document.addEventListener('click', async (event) => {
-  const button = event.target.closest('button');
+  const button = event.target.closest('button, a');
   if (!button) return;
 
   if (button.dataset.authTab) {
@@ -1008,6 +1363,12 @@ document.addEventListener('click', async (event) => {
     $$('.tab').forEach((tab) => tab.classList.toggle('is-active', tab.dataset.authTab === authMode));
     $('#authAction').value = authMode;
     $('#authSubmit').textContent = authMode === 'register' ? 'Register Team' : 'Login Team';
+    $$('.auth-register-field').forEach((field) => {
+      field.hidden = authMode !== 'register';
+      $$('input', field).forEach((input) => {
+        input.required = authMode === 'register';
+      });
+    });
     const gateTitle = $('#authGateTitle');
     if (gateTitle) {
       gateTitle.textContent = authMode === 'register' ? 'Create Account' : 'Login Team';
@@ -1030,6 +1391,45 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
+  if (button.dataset.nav === 'deal') {
+    event.preventDefault();
+    setAppView('deal');
+    return;
+  }
+
+  if (button.dataset.nav === 'all-scrim') {
+    event.preventDefault();
+    setAppView('all');
+    return;
+  }
+
+  if (button.dataset.nav === 'review') {
+    event.preventDefault();
+    setAppView('review');
+    return;
+  }
+
+  if (button.dataset.nav === 'scrim-home') {
+    event.preventDefault();
+    activeDealId = 0;
+    setAppView('home');
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
+  if (button.dataset.action === 'open_deal_chat') {
+    activeDealId = Number(button.dataset.id || 0);
+    pendingDealScrollToBottom = true;
+    renderDealApp();
+    return;
+  }
+
+  if (button.id === 'dealBackListBtn' || button.dataset.action === 'back_deal_list') {
+    activeDealId = 0;
+    renderDealApp();
+    return;
+  }
+
   if (button.id === 'toggleCreateBtn' || button.id === 'navCreateBtn') {
     toggleCreatePanel();
     return;
@@ -1043,6 +1443,11 @@ document.addEventListener('click', async (event) => {
   if (button.id === 'openProfileResultBtn') {
     toggleProfile(false);
     toggleResultReview(true);
+    return;
+  }
+
+  if (button.id === 'profilePhoneRequiredBtn') {
+    openPhoneRequiredPanel();
     return;
   }
 
@@ -1080,18 +1485,18 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
-  if (button.id === 'viewAllScrimBtn') {
-    $('#scrimBoard')?.scrollIntoView({behavior:'smooth', block:'start'});
+  if (button.id === 'viewAllScrimBtn' || button.id === 'heroAllScrimBtn') {
+    setAppView('all');
     return;
   }
 
   if (button.id === 'heroJoinScrimBtn') {
-    $('#scrimBoard')?.scrollIntoView({behavior:'smooth', block:'start'});
+    setAppView('all');
     return;
   }
 
   if (button.id === 'heroOpenDealBtn') {
-    toggleProfile(true);
+    setAppView('deal');
     return;
   }
 
@@ -1118,7 +1523,7 @@ document.addEventListener('click', async (event) => {
 
   if (button.id === 'resultJoinScrimBtn') {
     toggleResultReview(false);
-    $('#scrimBoard')?.scrollIntoView({behavior:'smooth', block:'start'});
+    setAppView('all');
     return;
   }
 
@@ -1148,6 +1553,10 @@ document.addEventListener('click', async (event) => {
     }
 
     if (button.dataset.action === 'request') {
+      if (!isScrimReady()) {
+        openPhoneRequiredPanel();
+        return;
+      }
       const message = prompt('Message untuk host scrim?') || '';
       const data = new FormData();
       data.set('action', 'request_join');
@@ -1166,11 +1575,35 @@ document.addEventListener('click', async (event) => {
       return;
     }
 
+    if (button.dataset.action === 'phone_required') {
+      openPhoneRequiredPanel();
+      return;
+    }
+
     if (button.dataset.action === 'quick_chat') {
       const data = new FormData();
       data.set('action', 'send_message');
       data.set('scrim_id', button.dataset.id);
       data.set('message', button.dataset.message || 'Room ID berapa ya?');
+      await postForm(data, {preserveChatScroll:true, scrollChatToBottom:button.dataset.id});
+      return;
+    }
+
+    if (button.dataset.action === 'report_no_show') {
+      const confirmed = window.confirm('Confirm report no-show untuk scrim ini? Lawan akan ada 15 minit untuk dispute.');
+      if (!confirmed) return;
+      const data = new FormData();
+      data.set('action', 'report_no_show');
+      data.set('scrim_id', button.dataset.id);
+      await postForm(data);
+      return;
+    }
+
+    if (button.dataset.action === 'respond_no_show') {
+      const data = new FormData();
+      data.set('action', 'respond_no_show');
+      data.set('scrim_id', button.dataset.id);
+      data.set('decision', button.dataset.decision);
       await postForm(data);
       return;
     }
@@ -1192,6 +1625,10 @@ document.addEventListener('click', async (event) => {
       toggleResultReview(false);
     }
   } catch (error) {
+    if (error.needsPhone) {
+      openPhoneRequiredPanel();
+      return;
+    }
     showToast(error.message);
   }
 });
@@ -1211,8 +1648,11 @@ async function pollState(){
   try {
     const payload = await loadState();
     syncIncomingMessages(payload);
+    const shouldHoldChatFocus = Boolean(activeChatInput());
     state = payload;
-    renderPreservingChatDrafts();
+    if (!shouldHoldChatFocus) {
+      renderPreservingChatDrafts();
+    }
   } catch (error) {
     console.warn(error);
   } finally {
@@ -1227,6 +1667,8 @@ function startStatePolling(){
 
 async function boot(){
   try {
+    syncTopNavHeight();
+    syncKeyboardViewport();
     state = await loadState();
     syncIncomingMessages(state, false);
     render();
@@ -1238,6 +1680,10 @@ async function boot(){
 }
 
 boot();
+
+window.addEventListener('resize', syncTopNavHeight);
+window.addEventListener('load', syncTopNavHeight);
+window.addEventListener('orientationchange', () => window.setTimeout(syncTopNavHeight, 160));
 
 const playerRoster = $('#playerRoster');
 if (playerRoster) {
