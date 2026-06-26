@@ -1,4 +1,6 @@
 (function(){
+  registerGnexAssetCache();
+
   const page = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
 
   if (document.querySelector(".bottom-app-nav")) {
@@ -101,4 +103,59 @@ ${isScrimPage ? `
 
   document.body.classList.add("has-bottom-app-nav");
   document.body.appendChild(nav);
+
+  function registerGnexAssetCache(){
+    if (!("serviceWorker" in navigator)) return;
+    if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) return;
+
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("scrim-sw.js?v=5")
+        .then((registration) => {
+          if (registration.waiting) {
+            registration.waiting.postMessage("GNEX_SKIP_WAITING");
+          }
+          warmGnexAssetCache(registration);
+        })
+        .catch(() => {});
+    });
+  }
+
+  function warmGnexAssetCache(registration){
+    navigator.serviceWorker.ready
+      .then((readyRegistration) => {
+        const worker = readyRegistration.active || registration.active || registration.waiting;
+        if (!worker) return;
+
+        const urls = collectGnexImageUrls();
+        if (urls.length) {
+          worker.postMessage({type:"GNEX_WARM_ASSETS", urls});
+        }
+      })
+      .catch(() => {});
+  }
+
+  function collectGnexImageUrls(){
+    const urls = new Set();
+
+    document.querySelectorAll("img").forEach((image) => {
+      if (image.currentSrc) urls.add(image.currentSrc);
+      if (image.src) urls.add(image.src);
+    });
+
+    document.querySelectorAll("link[rel~='icon'], link[rel='apple-touch-icon']").forEach((link) => {
+      if (link.href) urls.add(link.href);
+    });
+
+    document.querySelectorAll("*").forEach((element) => {
+      const background = window.getComputedStyle(element).backgroundImage;
+      if (!background || background === "none") return;
+
+      background.replace(/url\(["']?([^"')]+)["']?\)/g, (match, url) => {
+        urls.add(new URL(url, window.location.href).href);
+        return match;
+      });
+    });
+
+    return Array.from(urls);
+  }
 })();

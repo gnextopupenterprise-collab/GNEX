@@ -68,6 +68,13 @@ async function loadRankingCustomer(){
       return getNumberOnly(b.rm) - getNumberOnly(a.rm);
     });
 
+    rankingCustomers = rankingCustomers.map((item, index) => {
+      return {
+        ...item,
+        rank: index + 1
+      };
+    });
+
     renderRankingTable();
 
   }catch(error){
@@ -106,11 +113,11 @@ function renderRankingTable(){
     return;
   }
 
-  rankingTable.innerHTML = data.map((item, index) => {
+  rankingTable.innerHTML = data.map(item => {
     return `
       <tr class="border-b border-zinc-800 hover:bg-cyan-400/5 transition">
         <td class="p-2 md:p-3 text-amber-300 font-black text-[10px] md:text-sm">
-          ${index + 1}
+          ${item.rank}
         </td>
 
         <td class="p-2 md:p-3 font-bold text-[10px] md:text-sm break-words">

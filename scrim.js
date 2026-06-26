@@ -132,7 +132,7 @@ async function enableWebPushNotifications(){
     return;
   }
 
-  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=3');
+  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=5');
   const existing = await registration.pushManager.getSubscription();
   const subscription = existing || await registration.pushManager.subscribe({
     userVisibleOnly:true,
@@ -150,9 +150,9 @@ async function enableWebPushNotifications(){
 async function showScrimNotification(title, body, tag = 'scrim-chat'){
   if (!canUseBrowserNotifications() || Notification.permission !== 'granted') return;
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=3')
+    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=5')
       || await navigator.serviceWorker.getRegistration()
-      || await navigator.serviceWorker.register('scrim-sw.js?v=3');
+      || await navigator.serviceWorker.register('scrim-sw.js?v=5');
     await registration.showNotification(title, {
       body,
       tag,
