@@ -45,24 +45,52 @@ class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-cent
 </div>
 </div>
 
-<div class="hidden md:flex items-center gap-4">
-<button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+<div class="hidden md:flex items-center gap-3 min-w-0 flex-1 justify-end">
+<button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="inline-flex items-center gap-2 bg-cyan-400 text-black px-4 py-2 rounded-lg hover:bg-cyan-300 transition text-sm font-black shadow-lg shadow-cyan-500/15">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="m3 10.8 9-7 9 7"></path>
+<path d="M5 10v10h14V10"></path>
+<path d="M9 20v-6h6v6"></path>
+</svg>
 HOME
 </button>
 
-<button type="button" onclick="openPriceListPanel()" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+<button type="button" onclick="openPriceListPanel()" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="5" width="16" height="14" rx="3"></rect>
+<path d="M8 9h8"></path>
+<path d="M8 13h5"></path>
+<path d="M16 16h.01"></path>
+</svg>
 GNEX TOPUP
 </button>
 
-<a href="tournament.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+<a href="tournament.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 21h8"></path>
+<path d="M12 17v4"></path>
+<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
+<path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
+<path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
+</svg>
 TOURNAMENT
 </a>
 
-<a href="https://gnexscrim.gamer.gd/scrim.html" class="border border-zinc-700 px-5 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 transition text-sm">
+<a href="https://gnexscrim.gamer.gd/scrim.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
 MLBB SCRIM
 </a>
 
-<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-cyan-400 text-black font-bold px-5 py-2 rounded-lg hover:bg-cyan-300 transition text-sm">
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-green-500/50 text-green-300 px-4 py-2 rounded-lg hover:bg-green-500 hover:text-black transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
 WHATSAPP
 </a>
 </div>
@@ -178,12 +206,12 @@ WHATSAPP
 <img src="card jersey/ALOYA FRONT JERSEY V1.png" alt="" class="jersey-card-item is-front-repeat" aria-hidden="true">
 </a>
 
-<a href="##" class="gnex-esport-card-button" aria-label="Open GNEX Esport section">
+<button type="button" onclick="openGnexEsportImage()" class="gnex-esport-card-button" aria-label="Open GNEX Guild open member poster">
 <img src="card gnex esport/20260611_212528.png" alt="GNEX Esport" class="gnex-esport-card-bg">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-kelly" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo is-repeat" aria-hidden="true">
-</a>
+</button>
 </div>
 </div>
 </header>
@@ -346,6 +374,15 @@ Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
 </div>
 </a>
 </div>
+</div>
+</section>
+
+<!-- GNEX ESPORT IMAGE -->
+<section id="gnexEsportImageModal" class="image-lightbox" aria-hidden="true">
+<button type="button" class="image-lightbox-backdrop" onclick="closeGnexEsportImage()" aria-label="Close GNEX Guild poster"></button>
+<div class="image-lightbox-panel">
+<button type="button" class="image-lightbox-close" onclick="closeGnexEsportImage()" aria-label="Close image">X</button>
+<img src="card gnex esport/gnex-guild-open-member.jpeg" alt="GNEX Guild Open Member syarat-syarat" class="image-lightbox-img">
 </div>
 </section>
 
@@ -569,6 +606,28 @@ function scrollToPriceList(){
 openPriceListPanel();
 }
 
+function openGnexEsportImage(){
+const modal = document.getElementById("gnexEsportImageModal");
+if(!modal) return;
+
+modal.classList.add("is-open");
+modal.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
+}
+
+function closeGnexEsportImage(){
+const modal = document.getElementById("gnexEsportImageModal");
+if(!modal) return;
+
+modal.classList.remove("is-open");
+modal.setAttribute("aria-hidden", "true");
+
+const priceList = document.getElementById("price-list");
+if(!priceList || !priceList.classList.contains("is-open")){
+document.body.classList.remove("modal-open");
+}
+}
+
 const promoSlides = Array.from(document.querySelectorAll(".promo-slide"));
 const promoDots = Array.from(document.querySelectorAll(".promo-dot"));
 const promoPositions = ["is-active", "is-right", "is-hidden", "is-left"];
@@ -708,6 +767,7 @@ openPriceListPanel();
 
 document.addEventListener("keydown", (event) => {
 if(event.key === "Escape"){
+closeGnexEsportImage();
 closePriceListPanel();
 }
 });

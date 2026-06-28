@@ -45,7 +45,8 @@ const CORE_ASSETS = [
   'Card design/ESPORT TOURNAMENT CARD.png.png',
   'Card design/TOPUP GAMING CARD.png',
   'card jersey/JERSEY MERCHANDISE CARD (1).png',
-  'card gnex esport/20260611_212528.png'
+  'card gnex esport/20260611_212528.png',
+  'card gnex esport/gnex-guild-open-member.jpeg'
 ];
 
 self.addEventListener('fetch', (event) => {

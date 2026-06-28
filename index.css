@@ -1179,6 +1179,91 @@ pointer-events:none;
 transform:scale(1.03);
 }
 
+.image-lightbox{
+position:fixed;
+inset:0;
+z-index:1200;
+display:none;
+align-items:center;
+justify-content:center;
+padding:18px;
+background:rgba(0,0,0,.84);
+backdrop-filter:blur(14px);
+}
+
+.image-lightbox.is-open{
+display:flex;
+}
+
+.image-lightbox-backdrop{
+position:absolute;
+inset:0;
+border:0;
+background:transparent;
+cursor:pointer;
+}
+
+.image-lightbox-panel{
+position:relative;
+z-index:1;
+width:min(94vw, 860px);
+max-height:calc(100vh - 48px);
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.image-lightbox-img{
+display:block;
+width:100%;
+max-height:calc(100vh - 48px);
+object-fit:contain;
+border-radius:10px;
+border:1px solid rgba(34,211,238,.42);
+box-shadow:0 28px 90px rgba(0,0,0,.72), 0 0 36px rgba(34,211,238,.16);
+background:#02040a;
+}
+
+.image-lightbox-close{
+position:absolute;
+top:-14px;
+right:-14px;
+z-index:2;
+width:42px;
+height:42px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:10px;
+border:1px solid rgba(34,211,238,.66);
+background:rgba(2,6,23,.96);
+color:#fff;
+font-weight:900;
+box-shadow:0 12px 32px rgba(0,0,0,.45);
+transition:transform .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.image-lightbox-close:hover{
+transform:translateY(-1px);
+border-color:#22d3ee;
+color:#22d3ee;
+}
+
+@media (max-width:640px){
+.image-lightbox{
+padding:10px;
+}
+
+.image-lightbox-panel{
+width:96vw;
+}
+
+.image-lightbox-close{
+top:8px;
+right:8px;
+}
+}
+
 .gnex-esport-card-logo{
 position:absolute;
 left:15%;

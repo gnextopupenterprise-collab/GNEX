@@ -330,70 +330,6 @@ display:flex;
 }
 }
 
-.tournament-nav-search{
-min-width:min(420px, 44vw);
-display:flex;
-align-items:center;
-gap:10px;
-border:1px solid rgba(34,211,238,.34);
-border-radius:999px;
-background:rgba(2,6,23,.82);
-padding:8px 14px;
-box-shadow:inset 0 0 18px rgba(34,211,238,.06);
-}
-
-.tournament-nav-search:focus-within{
-border-color:rgba(34,211,238,.86);
-box-shadow:0 0 0 3px rgba(34,211,238,.12), inset 0 0 18px rgba(34,211,238,.08);
-}
-
-.tournament-nav-search svg{
-width:19px;
-height:19px;
-color:#22d3ee;
-flex:0 0 auto;
-}
-
-.tournament-nav-search input{
-width:100%;
-border:0;
-outline:0;
-background:transparent;
-color:#fff;
-font-size:14px;
-font-weight:800;
-}
-
-.tournament-nav-search input::placeholder{
-color:#71717a;
-}
-
-@media (max-width:767px){
-.tournament-nav-search{
-min-width:0;
-flex:0 1 160px;
-max-width:160px;
-height:34px;
-gap:7px;
-padding:5px 9px;
-}
-.tournament-nav-search svg{
-width:16px;
-height:16px;
-}
-.tournament-nav-search input{
-font-size:16px;
-}
-}
-
-@media (max-width:390px){
-.tournament-nav-search{
-flex-basis:140px;
-max-width:140px;
-}
-}
-
-
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
@@ -420,16 +356,52 @@ max-width:140px;
 </div>
 </div>
 
-<div class="flex items-center gap-3 md:gap-4 min-w-0 flex-1 justify-end">
-<form class="tournament-nav-search" role="search" onsubmit="handleTournamentSearch(event)">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-<circle cx="11" cy="11" r="7"></circle>
-<path d="m20 20-3.6-3.6"></path>
+<div class="hidden md:flex items-center gap-3 min-w-0 flex-1 justify-end">
+<a href="index.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="m3 10.8 9-7 9 7"></path>
+<path d="M5 10v10h14V10"></path>
+<path d="M9 20v-6h6v6"></path>
 </svg>
-<input id="tournament-search-input" type="search" placeholder="Search" autocomplete="off" aria-label="Search GNEX">
-</form>
+HOME
+</a>
 
-<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="hidden md:inline-flex border border-green-500/50 text-green-300 px-5 py-2 rounded-lg hover:bg-green-500 hover:text-black transition text-sm font-bold">
+<a href="index.html?topup=1" class="inline-flex items-center gap-2 border border-cyan-500/60 text-cyan-300 px-4 py-2 rounded-lg hover:bg-cyan-400 hover:text-black transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="5" width="16" height="14" rx="3"></rect>
+<path d="M8 9h8"></path>
+<path d="M8 13h5"></path>
+<path d="M16 16h.01"></path>
+</svg>
+GNEX TOPUP
+</a>
+
+<a href="tournament.html" aria-current="page" class="inline-flex items-center gap-2 bg-cyan-400 text-black px-4 py-2 rounded-lg hover:bg-cyan-300 transition text-sm font-black shadow-lg shadow-cyan-500/15">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 21h8"></path>
+<path d="M12 17v4"></path>
+<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
+<path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
+<path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
+</svg>
+TOURNAMENT
+</a>
+
+<a href="https://gnexscrim.gamer.gd/scrim.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
+MLBB SCRIM
+</a>
+
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-green-500/50 text-green-300 px-4 py-2 rounded-lg hover:bg-green-500 hover:text-black transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
 WHATSAPP
 </a>
 </div>
@@ -500,9 +472,9 @@ Info tournament, jadual match, prize pool, leaderboard dan update terbaru GNEX d
 </p>
 
 <div class="hidden sm:flex flex-col sm:flex-row gap-4 mt-8">
-<a href="#ongoing" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
+<button type="button" onclick="focusChooseEvent()" class="text-center bg-cyan-400 text-black font-black px-7 py-4 rounded-lg hover:bg-cyan-300 transition shadow-lg shadow-cyan-500/25">
 JOIN TOURNAMENT
-</a>
+</button>
 
 <button type="button" onclick="document.getElementById('schedule').scrollIntoView({behavior:'smooth'})" class="border border-zinc-600 px-7 py-4 rounded-lg hover:border-cyan-400 hover:bg-zinc-900 transition font-bold">
 VIEW SCHEDULE
@@ -535,20 +507,20 @@ SEASON HISTORY
 </div>
 
 <div class="grid gap-2 md:gap-3">
-<a href="gtmls7.html" class="group relative overflow-hidden rounded-lg border border-cyan-400/40 bg-black/80 p-3 md:p-4 hover:border-cyan-300 transition">
-<div class="absolute inset-0 opacity-20 bg-[url('images/BG-GUSION.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
+<a href="https://gnexscrim.gamer.gd/scrim.html" class="group relative overflow-hidden rounded-lg border border-cyan-400/40 bg-black/80 p-3 md:p-4 hover:border-cyan-300 transition">
+<div class="absolute inset-0 opacity-20 bg-[url('images/ml-wallpaper.jpg')] bg-cover bg-center group-hover:scale-105 transition duration-500"></div>
 <div class="relative z-10 flex items-center justify-between gap-3">
 <div class="min-w-0">
 <div class="flex items-center gap-2">
-<span class="bg-red-400 text-black text-[10px] md:text-xs font-black px-2 py-1 rounded">END</span>
+<span class="bg-green-400 text-black text-[10px] md:text-xs font-black px-2 py-1 rounded">LIVE</span>
 <span class="text-cyan-300 text-[10px] md:text-xs font-black">MLBB</span>
 </div>
-<h3 class="text-base md:text-xl font-black mt-2 leading-tight">GNEX TOURNAMENT MLBB S7</h3>
-<p class="text-zinc-500 text-xs md:text-sm mt-1">1 May - 3 June 2026</p>
+<h3 class="text-base md:text-xl font-black mt-2 leading-tight">MLBB SCRIM ROOM</h3>
+<p class="text-zinc-500 text-xs md:text-sm mt-1">Create scrim, request join dan deal room</p>
 </div>
 <div class="text-right shrink-0">
-<p class="text-amber-300 text-lg md:text-2xl font-black">RM300</p>
-<p class="text-zinc-500 text-[10px] md:text-xs">Prize Pool</p>
+<p class="text-amber-300 text-lg md:text-2xl font-black">OPEN</p>
+<p class="text-zinc-500 text-[10px] md:text-xs">Scrim</p>
 </div>
 </div>
 </a>
@@ -572,7 +544,7 @@ SEASON HISTORY
 </a>
 </div>
 
-<div class="hero-event-carousel mt-5 border-t border-zinc-800/80 pt-4 overflow-hidden">
+<div id="chooseEvent" class="hero-event-carousel mt-5 border-t border-zinc-800/80 pt-4 overflow-hidden scroll-mt-28">
 <div>
 <p class="text-[10px] md:text-xs text-cyan-400 font-bold tracking-[0.22em]">CHOOSE EVENT</p>
 <p class="text-zinc-500 text-xs mt-1">Tap atau scroll logo</p>
@@ -623,13 +595,13 @@ SEASON HISTORY
 <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
 <div class="relative z-10 h-full flex flex-col justify-between gap-5">
 <div class="flex items-center justify-between gap-2">
-<span class="bg-green-400 text-black text-[10px] font-black px-2 py-1 rounded">LIVE</span>
+<span class="bg-red-400 text-black text-[10px] font-black px-2 py-1 rounded">END</span>
 <span class="text-amber-300 text-sm font-black">RM300</span>
 </div>
 <div>
 <p class="text-cyan-300 text-[10px] font-black tracking-[0.18em]">MLBB</p>
 <h3 class="text-xl font-black mt-1 leading-tight">GTML SEASON 7</h3>
-<p class="text-zinc-500 text-xs mt-2">Mobile Legends tournament.</p>
+<p class="text-zinc-500 text-xs mt-2">Archived Mobile Legends tournament.</p>
 </div>
 <p class="text-cyan-300 text-xs font-black">VIEW DETAILS -&gt;</p>
 </div>
@@ -721,7 +693,17 @@ SEASON HISTORY
 <p class="text-zinc-500 text-sm">Past event record</p>
 </div>
 
-<div class="grid md:grid-cols-3 gap-5">
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+<a href="gtmls7.html" class="rounded-xl border border-cyan-500/40 bg-zinc-950 p-5 hover:border-cyan-300 hover:bg-cyan-950/20 transition">
+<p class="text-cyan-400 font-bold">GTML S7</p>
+<h3 class="text-xl font-black mt-2">Mobile Legends</h3>
+<p class="text-zinc-500 mt-2">GNEX Tournament MLBB S7</p>
+<div class="flex items-center justify-between gap-3 mt-5">
+<span class="inline-flex bg-zinc-900 border border-zinc-700 px-3 py-1 rounded text-xs text-zinc-400">Archived</span>
+<span class="text-cyan-300 text-xs font-black">VIEW -&gt;</span>
+</div>
+</a>
+
 <div class="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
 <p class="text-cyan-400 font-bold">SEASON 6</p>
 <h3 class="text-xl font-black mt-2">Mobile Legends</h3>
@@ -763,64 +745,12 @@ REGISTER VIA WHATSAPP
 </footer>
 
 <script>
-const tournamentSearchRoutes = [
-{
-keywords:["tour","tournament","scrim","laga","cs","gtml"],
-url:"tournament.html"
-},
-{
-keywords:["diamond","diamond ff","diamond ml","diamond epep","topup","topup epep","topup mlbb","topup pubg"],
-url:"index.html?topup=1"
+window.focusChooseEvent = function(){
+const chooseEvent = document.getElementById("chooseEvent") || document.getElementById("ongoing");
+if(chooseEvent){
+chooseEvent.scrollIntoView({behavior:"smooth", block:"center"});
 }
-];
-
-function normalizeSearchKeyword(value){
-return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-function findSearchRoute(query){
-const normalized = normalizeSearchKeyword(query);
-if(!normalized) return null;
-let bestMatch = null;
-tournamentSearchRoutes.forEach((route) => {
-route.keywords.forEach((keyword) => {
-const target = normalizeSearchKeyword(keyword);
-const directMatch = normalized.includes(target) || target.includes(normalized);
-const wordMatch = normalized.split(" ").some((word) => word.length > 1 && (target.includes(word) || word.includes(target)));
-if((directMatch || wordMatch) && (!bestMatch || target.length > bestMatch.score)){
-bestMatch = {url:route.url, score:target.length};
-}
-});
-});
-return bestMatch;
-}
-
-function handleTournamentSearch(event){
-event.preventDefault();
-const input = document.getElementById("tournament-search-input");
-const match = findSearchRoute(input ? input.value : "");
-if(match){
-window.location.href = match.url;
-return;
-}
-if(input){
-input.value = "";
-input.placeholder = "Try: tournament, scrim, diamond, topup";
-input.focus();
-}
-}
-
-document.addEventListener("input", (event) => {
-if(event.target?.id !== "tournament-search-input") return;
-const normalized = normalizeSearchKeyword(event.target.value);
-const match = findSearchRoute(normalized);
-window.clearTimeout(handleTournamentSearch.timer);
-if(match && normalized.length >= 3){
-handleTournamentSearch.timer = window.setTimeout(() => {
-window.location.href = match.url;
-}, 520);
-}
-});
+};
 
 const logoCarousel = document.getElementById("tournamentLogoCarousel");
 if(logoCarousel){
@@ -828,6 +758,7 @@ const logoItems = Array.from(logoCarousel.querySelectorAll(".logo-carousel-item"
 const logoPositions = ["is-center", "is-right", "is-far-right", "is-far-left", "is-left"];
 let activeLogoIndex = 0;
 let logoTouchStartX = 0;
+let logoAutoSpinTimer = null;
 
 function renderLogoCarousel(){
 logoItems.forEach((item, index) => {
@@ -842,6 +773,34 @@ activeLogoIndex = (activeLogoIndex + direction + logoItems.length) % logoItems.l
 renderLogoCarousel();
 }
 
+function stopLogoAutoSpin(){
+if(logoAutoSpinTimer){
+window.clearInterval(logoAutoSpinTimer);
+logoAutoSpinTimer = null;
+}
+}
+
+function startLogoAutoSpin(){
+stopLogoAutoSpin();
+let steps = 0;
+const totalSteps = logoItems.length;
+logoAutoSpinTimer = window.setInterval(() => {
+moveLogoCarousel(1);
+steps += 1;
+if(steps >= totalSteps){
+stopLogoAutoSpin();
+}
+}, 260);
+}
+
+window.focusChooseEvent = function(){
+const chooseEvent = document.getElementById("chooseEvent");
+if(chooseEvent){
+chooseEvent.scrollIntoView({behavior:"smooth", block:"center"});
+}
+startLogoAutoSpin();
+};
+
 logoItems.forEach((item, index) => {
 item.addEventListener("click", (event) => {
 if(item.getAttribute("href") === "#" || index !== activeLogoIndex){
@@ -854,6 +813,7 @@ renderLogoCarousel();
 
 logoCarousel.addEventListener("wheel", (event) => {
 event.preventDefault();
+stopLogoAutoSpin();
 moveLogoCarousel(event.deltaY > 0 || event.deltaX > 0 ? 1 : -1);
 }, {passive:false});
 
@@ -864,6 +824,7 @@ logoTouchStartX = event.touches[0].clientX;
 logoCarousel.addEventListener("touchend", (event) => {
 const diff = event.changedTouches[0].clientX - logoTouchStartX;
 if(Math.abs(diff) > 35){
+stopLogoAutoSpin();
 moveLogoCarousel(diff < 0 ? 1 : -1);
 }
 });
