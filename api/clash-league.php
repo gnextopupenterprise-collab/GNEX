@@ -59,6 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'setTeamStatus') {
     set_team_status($pdo, $dbConfig);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'updateTeamInfo') {
+    update_team_info($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'removeTeam') {
+    remove_team($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'login') {
     login_user($pdo, $dbConfig);
 }
@@ -71,6 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'logout') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'sendMessage') {
     send_message($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submitResult') {
+    submit_result($pdo, $rootDir);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveRules') {
@@ -173,6 +185,26 @@ function ensure_schema(PDO $pdo): void
             updated_at DATETIME NULL,
             FOREIGN KEY (team_a_id) REFERENCES cl_teams(id) ON DELETE SET NULL,
             FOREIGN KEY (team_b_id) REFERENCES cl_teams(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_match_results (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            match_id INT NOT NULL,
+            team_id INT NOT NULL,
+            team_a_point INT NOT NULL,
+            team_b_point INT NOT NULL,
+            screenshot_url VARCHAR(500) NULL,
+            screenshot_path VARCHAR(255) NULL,
+            status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+            admin_note VARCHAR(255) NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NULL,
+            UNIQUE KEY uniq_cl_match_result_team (match_id, team_id),
+            FOREIGN KEY (match_id) REFERENCES cl_matches(id) ON DELETE CASCADE,
+            FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+            INDEX idx_cl_match_results_status (status, created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
 
@@ -298,6 +330,50 @@ function save_logo(array $file, string $teamName, string $rootDir): array
     }
 
     $relativePath = 'uploads/clash-league/logos/' . $fileName;
+    return [$relativePath, public_upload_url($relativePath)];
+}
+
+function save_result_screenshot(array $file, string $teamName, int $matchId, string $rootDir): array
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        throw new RuntimeException('Screenshot result wajib upload.');
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Screenshot result gagal upload.');
+    }
+
+    if ((int) ($file['size'] ?? 0) > 4 * 1024 * 1024) {
+        throw new RuntimeException('Screenshot maksimum 4MB sahaja.');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $mime = mime_content_type($tmpName) ?: '';
+    $extensions = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/webp' => 'webp',
+    ];
+
+    if (!isset($extensions[$mime])) {
+        throw new RuntimeException('Screenshot wajib format PNG, JPG atau WEBP.');
+    }
+
+    $uploadDir = $rootDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'clash-league' . DIRECTORY_SEPARATOR . 'results';
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        throw new RuntimeException('Folder upload result gagal dibuat.');
+    }
+
+    $safeName = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $teamName) ?? 'team');
+    $safeName = trim($safeName, '-') ?: 'team';
+    $fileName = $safeName . '-match-' . $matchId . '-' . date('YmdHis') . '-' . bin2hex(random_bytes(3)) . '.' . $extensions[$mime];
+    $target = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
+
+    if (!move_uploaded_file($tmpName, $target)) {
+        throw new RuntimeException('Screenshot result gagal disimpan.');
+    }
+
+    $relativePath = 'uploads/clash-league/results/' . $fileName;
     return [$relativePath, public_upload_url($relativePath)];
 }
 
@@ -559,6 +635,8 @@ function get_team_matches(PDO $pdo, ?array $team, ?array $admin = null): array
     foreach ($stmt->fetchAll() as $match) {
         $matches[] = [
             'id' => (int) $match['id'],
+            'team_a_id' => $match['team_a_id'] === null ? 0 : (int) $match['team_a_id'],
+            'team_b_id' => $match['team_b_id'] === null ? 0 : (int) $match['team_b_id'],
             'match_name' => (string) $match['match_name'],
             'match_time' => (string) ($match['match_time'] ?? ''),
             'status' => (string) $match['status'],
@@ -568,10 +646,79 @@ function get_team_matches(PDO $pdo, ?array $team, ?array $admin = null): array
             'team_b_logo' => (string) ($match['team_b_logo'] ?? ''),
             'team_a_point' => $match['team_a_point'],
             'team_b_point' => $match['team_b_point'],
+            'my_result_submitted' => $team ? team_result_exists($pdo, (int) $match['id'], (int) $team['id']) : false,
         ];
     }
 
     return $matches;
+}
+
+function team_result_exists(PDO $pdo, int $matchId, int $teamId): bool
+{
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM cl_match_results WHERE match_id = ? AND team_id = ?');
+    $stmt->execute([$matchId, $teamId]);
+    return (int) $stmt->fetchColumn() > 0;
+}
+
+function get_match_results(PDO $pdo, ?array $team, ?array $admin): array
+{
+    if (!$team && !$admin) {
+        return [];
+    }
+
+    if ($admin) {
+        $stmt = $pdo->query('
+            SELECT r.*, m.match_name, m.match_time,
+                   ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
+                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
+                   submitter.team_name AS submitter_name, submitter.logo_url AS submitter_logo
+            FROM cl_match_results r
+            JOIN cl_matches m ON m.id = r.match_id
+            LEFT JOIN cl_teams ta ON ta.id = m.team_a_id
+            LEFT JOIN cl_teams tb ON tb.id = m.team_b_id
+            LEFT JOIN cl_teams submitter ON submitter.id = r.team_id
+            ORDER BY r.created_at DESC, r.id DESC
+        ');
+    } else {
+        $stmt = $pdo->prepare('
+            SELECT r.*, m.match_name, m.match_time,
+                   ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
+                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
+                   submitter.team_name AS submitter_name, submitter.logo_url AS submitter_logo
+            FROM cl_match_results r
+            JOIN cl_matches m ON m.id = r.match_id
+            LEFT JOIN cl_teams ta ON ta.id = m.team_a_id
+            LEFT JOIN cl_teams tb ON tb.id = m.team_b_id
+            LEFT JOIN cl_teams submitter ON submitter.id = r.team_id
+            WHERE r.team_id = ?
+            ORDER BY r.created_at DESC, r.id DESC
+        ');
+        $stmt->execute([(int) $team['id']]);
+    }
+
+    $results = [];
+    foreach ($stmt->fetchAll() as $result) {
+        $results[] = [
+            'id' => (int) $result['id'],
+            'match_id' => (int) $result['match_id'],
+            'team_id' => (int) $result['team_id'],
+            'submitter_name' => (string) ($result['submitter_name'] ?? 'Team'),
+            'submitter_logo' => (string) ($result['submitter_logo'] ?? ''),
+            'match_name' => (string) $result['match_name'],
+            'match_time' => (string) ($result['match_time'] ?? ''),
+            'team_a_name' => (string) ($result['team_a_name'] ?? 'Team A'),
+            'team_a_logo' => (string) ($result['team_a_logo'] ?? ''),
+            'team_b_name' => (string) ($result['team_b_name'] ?? 'Team B'),
+            'team_b_logo' => (string) ($result['team_b_logo'] ?? ''),
+            'team_a_point' => (int) $result['team_a_point'],
+            'team_b_point' => (int) $result['team_b_point'],
+            'screenshot_url' => (string) ($result['screenshot_url'] ?? ''),
+            'status' => (string) $result['status'],
+            'created_at' => (string) $result['created_at'],
+        ];
+    }
+
+    return $results;
 }
 
 function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin): array
@@ -582,10 +729,12 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin): array
 
     if ($admin) {
         $stmt = $pdo->query('
-            SELECT r.id, r.room_type, r.team_a_id, r.team_b_id, r.status,
+        SELECT r.id, r.room_type, r.team_a_id, r.team_b_id, r.status,
                    ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
                    tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
-                   (SELECT message FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message
+                   (SELECT message FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message,
+                   (SELECT id FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message_id,
+                   (SELECT sender_type FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_sender_type
             FROM cl_rooms r
             LEFT JOIN cl_teams ta ON ta.id = r.team_a_id
             LEFT JOIN cl_teams tb ON tb.id = r.team_b_id
@@ -604,7 +753,9 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin): array
             SELECT r.id, r.room_type, r.team_a_id, r.team_b_id, r.status,
                    ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
                    tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
-                   (SELECT message FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message
+                   (SELECT message FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message,
+                   (SELECT id FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message_id,
+                   (SELECT sender_type FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_sender_type
             FROM cl_rooms r
             LEFT JOIN cl_teams ta ON ta.id = r.team_a_id
             LEFT JOIN cl_teams tb ON tb.id = r.team_b_id
@@ -618,16 +769,21 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin): array
     foreach ($stmt->fetchAll() as $room) {
         $isAdminRoom = $room['room_type'] === 'admin';
         $teamName = (string) ($room['team_a_name'] ?? 'Team');
+        $teamLogo = (string) ($room['team_a_logo'] ?? '');
         $title = $isAdminRoom ? ($admin ? $teamName : 'ADMIN') : ($teamName . ' vs ' . (string) ($room['team_b_name'] ?? 'TBD'));
         $avatar = $isAdminRoom ? ($admin ? make_initials($teamName) : 'AD') : 'VS';
         $rooms[] = [
             'id' => (int) $room['id'],
             'room_type' => (string) $room['room_type'],
+            'team_id' => (int) ($room['team_a_id'] ?? 0),
             'title' => $title,
             'subtitle' => $isAdminRoom ? ($admin ? 'Chat ke admin' : $teamName) : 'Clash League Deal',
             'avatar' => $avatar,
+            'avatar_logo' => $isAdminRoom && $admin ? $teamLogo : '',
             'status' => (string) $room['status'],
             'last_message' => (string) ($room['last_message'] ?? 'Belum ada chat.'),
+            'last_message_id' => (int) ($room['last_message_id'] ?? 0),
+            'last_sender_type' => (string) ($room['last_sender_type'] ?? ''),
         ];
     }
 
@@ -680,6 +836,7 @@ function get_state(PDO $pdo): array
         'admin' => $admin,
         'teams' => get_public_teams($pdo),
         'matches' => get_team_matches($pdo, $team, $admin),
+        'results' => get_match_results($pdo, $team, $admin),
         'rooms' => $rooms,
         'messages' => get_messages($pdo, $rooms),
         'rules_text' => get_rules_text($pdo),
@@ -716,7 +873,72 @@ function set_team_status(PDO $pdo, array $dbConfig): void
     $stmt = $pdo->prepare('UPDATE cl_teams SET status = ?, slot_no = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
     $stmt->execute([$status, $slotNo, $teamId]);
 
-    json_response(['ok' => true]);
+    json_response(get_state($pdo) + ['message' => 'Status team berjaya update.']);
+}
+
+function update_team_info(PDO $pdo): void
+{
+    $admin = current_admin($pdo);
+    if (!$admin) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan untuk edit team.'], 401);
+    }
+
+    $teamId = (int) ($_POST['team_id'] ?? 0);
+    if ($teamId <= 0) {
+        json_response(['ok' => false, 'message' => 'Team tidak valid.'], 422);
+    }
+
+    $teamName = clean_text($_POST['team_name'] ?? '', 100);
+    $phone = clean_text($_POST['phone'] ?? '', 40);
+    $coachName = clean_text($_POST['coach_name'] ?? '', 100);
+    $managerName = clean_text($_POST['manager_name'] ?? '', 100);
+    $logoUrl = trim((string) ($_POST['logo_url'] ?? ''));
+    $slotRaw = trim((string) ($_POST['slot_no'] ?? ''));
+    $slotNo = $slotRaw === '' ? null : max(1, (int) $slotRaw);
+
+    if ($teamName === '' || $phone === '') {
+        json_response(['ok' => false, 'message' => 'Nama team dan phone wajib isi.'], 422);
+    }
+
+    $stmt = $pdo->prepare('
+        UPDATE cl_teams
+        SET team_name = ?, logo_url = ?, phone = ?, coach_name = ?, manager_name = ?, slot_no = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND status != "removed"
+    ');
+    $stmt->execute([$teamName, $logoUrl, $phone, $coachName, $managerName, $slotNo, $teamId]);
+
+    $stmt = $pdo->prepare('DELETE FROM cl_players WHERE team_id = ?');
+    $stmt->execute([$teamId]);
+
+    $stmt = $pdo->prepare('INSERT INTO cl_players (team_id, player_slot, ign, player_id) VALUES (?, ?, ?, ?)');
+    for ($slot = 1; $slot <= 6; $slot++) {
+        $ign = clean_text($_POST['p' . $slot . '_ign'] ?? '', 100);
+        $playerId = clean_text($_POST['p' . $slot . '_id'] ?? '', 80);
+        if ($ign === '' && $playerId === '') {
+            continue;
+        }
+        $stmt->execute([$teamId, $slot, $ign, $playerId]);
+    }
+
+    json_response(get_state($pdo) + ['message' => 'Maklumat team berjaya update.']);
+}
+
+function remove_team(PDO $pdo): void
+{
+    $admin = current_admin($pdo);
+    if (!$admin) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan untuk remove team.'], 401);
+    }
+
+    $teamId = (int) ($_POST['team_id'] ?? 0);
+    if ($teamId <= 0) {
+        json_response(['ok' => false, 'message' => 'Team tidak valid.'], 422);
+    }
+
+    $stmt = $pdo->prepare('UPDATE cl_teams SET status = "removed", slot_no = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    $stmt->execute([$teamId]);
+
+    json_response(get_state($pdo) + ['message' => 'Team berjaya remove.']);
 }
 
 function login_user(PDO $pdo, array $dbConfig): void
@@ -792,6 +1014,51 @@ function send_message(PDO $pdo): void
     $stmt->execute([$roomId]);
 
     json_response(get_state($pdo) + ['message' => 'Mesej dihantar.']);
+}
+
+function submit_result(PDO $pdo, string $rootDir): void
+{
+    $team = require_team($pdo);
+    $matchId = (int) ($_POST['match_id'] ?? 0);
+    $teamAPoint = (int) ($_POST['team_a_point'] ?? -1);
+    $teamBPoint = (int) ($_POST['team_b_point'] ?? -1);
+
+    if ($matchId <= 0 || $teamAPoint < 0 || $teamBPoint < 0) {
+        json_response(['ok' => false, 'message' => 'Pilih match dan isi point yang betul.'], 422);
+    }
+
+    if ($teamAPoint > 99 || $teamBPoint > 99) {
+        json_response(['ok' => false, 'message' => 'Point terlalu besar. Check semula result.'], 422);
+    }
+
+    $stmt = $pdo->prepare('
+        SELECT id, team_a_id, team_b_id
+        FROM cl_matches
+        WHERE id = ? AND status != "hidden" AND (team_a_id = ? OR team_b_id = ?)
+        LIMIT 1
+    ');
+    $stmt->execute([$matchId, $team['id'], $team['id']]);
+    $match = $stmt->fetch();
+    if (!$match) {
+        json_response(['ok' => false, 'message' => 'Match ini bukan jadual team anda.'], 403);
+    }
+
+    [$screenshotPath, $screenshotUrl] = save_result_screenshot($_FILES['result_screenshot'] ?? [], (string) $team['team_name'], $matchId, $rootDir);
+
+    $stmt = $pdo->prepare('
+        INSERT INTO cl_match_results (match_id, team_id, team_a_point, team_b_point, screenshot_url, screenshot_path, status, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, "pending", CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE
+            team_a_point = VALUES(team_a_point),
+            team_b_point = VALUES(team_b_point),
+            screenshot_url = VALUES(screenshot_url),
+            screenshot_path = VALUES(screenshot_path),
+            status = "pending",
+            updated_at = CURRENT_TIMESTAMP
+    ');
+    $stmt->execute([$matchId, $team['id'], $teamAPoint, $teamBPoint, $screenshotUrl, $screenshotPath]);
+
+    json_response(get_state($pdo) + ['message' => 'Point dan screenshot result berjaya dihantar. Admin akan semak.']);
 }
 
 function save_rules(PDO $pdo): void

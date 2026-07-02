@@ -65,6 +65,24 @@ CREATE TABLE IF NOT EXISTS cl_matches (
   FOREIGN KEY (team_b_id) REFERENCES cl_teams(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS cl_match_results (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  match_id INT NOT NULL,
+  team_id INT NOT NULL,
+  team_a_point INT NOT NULL,
+  team_b_point INT NOT NULL,
+  screenshot_url VARCHAR(500) NULL,
+  screenshot_path VARCHAR(255) NULL,
+  status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  admin_note VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  UNIQUE KEY uniq_cl_match_result_team (match_id, team_id),
+  FOREIGN KEY (match_id) REFERENCES cl_matches(id) ON DELETE CASCADE,
+  FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+  INDEX idx_cl_match_results_status (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS cl_admin_users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
