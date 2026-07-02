@@ -195,6 +195,12 @@ z-index:3;
 transform:translateX(285px) scale(.62) rotateZ(22deg) rotateY(-38deg);
 }
 
+.logo-carousel-item.is-hidden{
+opacity:0;
+z-index:1;
+transform:translateX(0) scale(.45);
+}
+
 @media (max-width:640px){
 .logo-carousel{
 height:190px;
@@ -566,6 +572,9 @@ SEASON HISTORY
 <a href="gnexlaga.html" class="logo-carousel-item" aria-label="GNEX Laga CS">
 <img src="images/gnexlaga.png" alt="GNEX Laga CS logo">
 </a>
+<a href="clash-league.html" class="logo-carousel-item" aria-label="Clash League">
+<img src="images/clash-league.png" alt="Clash League logo">
+</a>
 </div>
 </div>
 </div>
@@ -638,6 +647,23 @@ SEASON HISTORY
 <p class="text-zinc-500 text-xs mt-2">Site rasmi GNEX Laga CS.</p>
 </div>
 <p class="text-cyan-300 text-xs font-black">VIEW SITE -&gt;</p>
+</div>
+</a>
+
+<a href="clash-league.html" class="compact-tour-card group rounded-lg border border-cyan-400/40 p-4 hover:border-cyan-300 transition">
+<img src="images/clash-league.png" alt="" class="absolute right-[-24px] bottom-[-30px] w-44 opacity-20 group-hover:opacity-35 transition">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-cyan-950/50"></div>
+<div class="relative z-10 h-full flex flex-col justify-between gap-5">
+<div class="flex items-center justify-between gap-2">
+<span class="bg-cyan-300 text-black text-[10px] font-black px-2 py-1 rounded">OPEN SLOT</span>
+<span class="text-amber-300 text-sm font-black">RM300</span>
+</div>
+<div>
+<p class="text-cyan-300 text-[10px] font-black tracking-[0.18em]">FREE FIRE</p>
+<h3 class="text-xl font-black mt-1 leading-tight">CLASH LEAGUE</h3>
+<p class="text-zinc-500 text-xs mt-2">GNEX x Horizon Clash Squad tournament.</p>
+</div>
+<p class="text-cyan-300 text-xs font-black">OPEN LEAGUE -&gt;</p>
 </div>
 </a>
 
@@ -755,7 +781,7 @@ chooseEvent.scrollIntoView({behavior:"smooth", block:"center"});
 const logoCarousel = document.getElementById("tournamentLogoCarousel");
 if(logoCarousel){
 const logoItems = Array.from(logoCarousel.querySelectorAll(".logo-carousel-item"));
-const logoPositions = ["is-center", "is-right", "is-far-right", "is-far-left", "is-left"];
+const logoPositions = ["is-center", "is-right", "is-far-right", "is-hidden", "is-far-left", "is-left"];
 let activeLogoIndex = 0;
 let logoTouchStartX = 0;
 let logoAutoSpinTimer = null;

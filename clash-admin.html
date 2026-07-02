@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clash League Admin</title>
+<link rel="stylesheet" href="clash-league.css?v=20260701-php-api">
+<style>
+body{min-height:100vh;padding:24px;background:#02040a;color:#fff}
+.admin-wrap{width:min(1100px,100%);margin:0 auto;display:grid;gap:18px}
+.admin-bar,.admin-card{border:1px solid rgba(34,211,238,.28);border-radius:8px;background:linear-gradient(145deg,rgba(14,18,30,.92),rgba(0,0,0,.88));padding:18px}
+.admin-bar{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:end}
+.admin-bar h1{margin:0;font-size:clamp(28px,5vw,54px);text-transform:uppercase}
+.admin-bar input{min-height:48px;border:1px solid rgba(148,163,184,.24);border-radius:8px;background:#03060b;color:#fff;padding:0 14px;font-weight:800}
+.admin-list{display:grid;gap:12px}
+.admin-team{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;border:1px solid rgba(63,63,70,.72);border-radius:8px;padding:14px;background:linear-gradient(135deg,rgba(0,35,48,.68),rgba(0,0,0,.78))}
+.admin-team img,.admin-logo{width:64px;height:64px;border-radius:999px;object-fit:cover;border:1px solid rgba(34,211,238,.55);display:grid;place-items:center;color:#69e9ff;font-weight:900}
+.admin-team h2{margin:0;text-transform:uppercase}
+.admin-team p{margin:5px 0 0;color:#aebbd0;font-weight:800}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:end}
+.admin-status{font-weight:900;color:#69e9ff}
+@media(max-width:760px){.admin-bar,.admin-team{grid-template-columns:1fr}.admin-actions{justify-content:start}}
+</style>
+</head>
+<body>
+<main class="admin-wrap">
+  <section class="admin-bar">
+    <div>
+      <p class="section-tag">Clash League</p>
+      <h1>Admin Slot</h1>
+    </div>
+    <input type="password" placeholder="Admin password" data-admin-password>
+    <button class="btn primary" type="button" data-load>Load Team</button>
+  </section>
+
+  <section class="admin-card">
+    <p class="admin-status" data-status>Masukkan admin password dan load team.</p>
+    <div class="admin-list" data-list></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const API_URL = "api/clash-league.php";
+  const password = document.querySelector("[data-admin-password]");
+  const status = document.querySelector("[data-status]");
+  const list = document.querySelector("[data-list]");
+  const loadButton = document.querySelector("[data-load]");
+
+  function setStatus(message){ status.textContent = message; }
+  function escapeHtml(value){
+    return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+    }[char]));
+  }
+
+  async function loadTeams(){
+    const adminPassword = password.value.trim();
+    if (!adminPassword) {
+      setStatus("Isi admin password dulu.");
+      return;
+    }
+
+    setStatus("Loading registration...");
+    const response = await fetch(`${API_URL}?action=registrations&admin_password=${encodeURIComponent(adminPassword)}&v=${Date.now()}`, {cache:"no-store"});
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.message || "Gagal load registration.");
+      return;
+    }
+
+    setStatus(`${data.teams.length} team dalam database.`);
+    list.innerHTML = data.teams.map((team) => {
+      const logo = team.logo_url
+        ? `<img src="${escapeHtml(team.logo_url)}" alt="${escapeHtml(team.team_name)}">`
+        : `<span class="admin-logo">${escapeHtml(String(team.team_name || "TM").slice(0,2).toUpperCase())}</span>`;
+
+      return `
+        <article class="admin-team">
+          ${logo}
+          <div>
+            <h2>${escapeHtml(team.team_name)}</h2>
+            <p>Status: ${escapeHtml(team.status)} ${team.slot_no ? `| Slot ${escapeHtml(team.slot_no)}` : ""}</p>
+            <p>Phone: ${escapeHtml(team.phone || "-")} | Coach: ${escapeHtml(team.coach_name || "-")} | Manager: ${escapeHtml(team.manager_name || "-")}</p>
+          </div>
+          <div class="admin-actions">
+            <button class="btn primary" type="button" data-action="accepted" data-id="${team.id}">Accept</button>
+            <button class="btn secondary" type="button" data-action="rejected" data-id="${team.id}">Reject</button>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  async function setTeamStatus(teamId, nextStatus){
+    const form = new FormData();
+    form.set("action", "setTeamStatus");
+    form.set("admin_password", password.value.trim());
+    form.set("team_id", teamId);
+    form.set("status", nextStatus);
+
+    setStatus("Updating status...");
+    const response = await fetch(API_URL, {method:"POST", body:form, cache:"no-store"});
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.message || "Gagal update status.");
+      return;
+    }
+    await loadTeams();
+  }
+
+  loadButton.addEventListener("click", loadTeams);
+  list.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-action]");
+    if (!button) return;
+    setTeamStatus(button.dataset.id, button.dataset.action);
+  });
+})();
+</script>
+</body>
+</html>
