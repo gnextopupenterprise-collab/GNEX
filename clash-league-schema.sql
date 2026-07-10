@@ -96,3 +96,37 @@ CREATE TABLE IF NOT EXISTS cl_settings (
   setting_value TEXT NULL,
   updated_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cl_push_subscriptions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_type ENUM('team','admin') NOT NULL DEFAULT 'team',
+  team_id INT NULL,
+  admin_id INT NULL,
+  endpoint_hash CHAR(64) NOT NULL UNIQUE,
+  endpoint TEXT NOT NULL,
+  p256dh VARCHAR(255) NULL,
+  auth VARCHAR(255) NULL,
+  user_agent VARCHAR(255) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+  INDEX idx_cl_push_team (team_id),
+  INDEX idx_cl_push_admin (admin_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cl_push_events (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_type ENUM('team','admin') NOT NULL DEFAULT 'team',
+  team_id INT NULL,
+  admin_id INT NULL,
+  title VARCHAR(120) NOT NULL,
+  body VARCHAR(500) NOT NULL,
+  url VARCHAR(255) NOT NULL DEFAULT 'clash-league.html',
+  tag VARCHAR(80) NOT NULL DEFAULT 'clash-league',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+  INDEX idx_cl_push_events_team (team_id, id),
+  INDEX idx_cl_push_events_admin (admin_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
