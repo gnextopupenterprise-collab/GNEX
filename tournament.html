@@ -38,6 +38,47 @@ body.modal-open{
 overflow:hidden;
 }
 
+.collab-note{
+position:relative;
+overflow:hidden;
+background:
+linear-gradient(115deg, rgba(8,47,73,.96), rgba(7,18,35,.98) 55%, rgba(49,20,75,.92));
+box-shadow:0 12px 35px rgba(6,182,212,.12);
+}
+
+.collab-note::after{
+content:"";
+position:absolute;
+right:-35px;
+top:-55px;
+width:170px;
+height:170px;
+border:1px solid rgba(103,232,249,.22);
+transform:rotate(45deg);
+box-shadow:0 0 45px rgba(34,211,238,.1);
+}
+
+.collab-feature{
+background:linear-gradient(145deg, rgba(15,23,42,.9), rgba(3,7,18,.96));
+border:1px solid rgba(63,63,70,.85);
+}
+
+.collab-field{
+width:100%;
+border:1px solid rgba(63,63,70,.95);
+border-radius:.65rem;
+background:rgba(2,6,23,.9);
+padding:.8rem .9rem;
+color:#fff;
+outline:none;
+transition:border-color .2s ease, box-shadow .2s ease;
+}
+
+.collab-field:focus{
+border-color:#22d3ee;
+box-shadow:0 0 0 3px rgba(34,211,238,.12);
+}
+
 .hero-bg{
 background:
 radial-gradient(circle at 16% 14%, rgba(34, 211, 238, 0.24), transparent 28%),
@@ -500,6 +541,20 @@ SEASON HISTORY
 </div>
 </div>
 
+<button type="button" onclick="openPanel('collabPanel')" aria-controls="collabPanel" class="collab-note group w-full rounded-xl border border-cyan-400/50 p-4 text-left hover:border-cyan-300 transition">
+<div class="relative z-10 flex items-center justify-between gap-4">
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="rounded bg-cyan-400 px-2 py-1 text-[9px] font-black tracking-[0.12em] text-black">COLLAB OPEN</span>
+<span class="text-[9px] font-bold tracking-[0.18em] text-cyan-200">FREE ENTRY ONLY</span>
+</div>
+<h2 class="mt-2 text-base md:text-xl font-black leading-tight">COLLAB TOURNAMENT BERSAMA GNEX</h2>
+<p class="mt-1 text-xs md:text-sm text-zinc-300">Page khas, pendaftaran team, bracket, ranking, support admin & free caster.</p>
+</div>
+<span class="shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-cyan-300/60 bg-black/30 text-xl text-cyan-300 group-hover:bg-cyan-400 group-hover:text-black transition" aria-hidden="true">→</span>
+</div>
+</button>
+
 <div id="ongoing" class="rounded-xl border border-cyan-400/30 bg-black/45 p-3 md:p-5 backdrop-blur-md scroll-mt-28">
 <div class="flex items-center justify-between gap-3 mb-3 md:mb-5">
 <div>
@@ -583,6 +638,67 @@ SEASON HISTORY
 </div>
 </div>
 </header>
+
+<!-- COLLAB TOURNAMENT -->
+<section id="collabPanel" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePanel('collabPanel')"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePanel('collabPanel')" aria-label="Tutup info collab">X</button>
+<div class="max-w-6xl mx-auto px-5 py-10 md:px-6 md:py-14">
+<div class="max-w-3xl">
+<p class="text-cyan-400 font-bold text-xs tracking-[0.24em]">GNEX COLLAB PROGRAM</p>
+<h2 class="text-3xl md:text-5xl font-black mt-2 leading-tight">COLLAB TOURNAMENT <span class="text-cyan-400">BERSAMA GNEX</span></h2>
+<p class="text-zinc-300 mt-4 leading-relaxed">Bawa tournament korang ke tahap lebih profesional. Semua urusan tournament boleh dikendalikan dalam satu platform GNEX.</p>
+</div>
+
+<div class="mt-8 rounded-xl border border-amber-300/40 bg-amber-300/10 p-4 md:p-5">
+<p class="text-amber-300 font-black tracking-wide">SYARAT COLLAB</p>
+<p class="mt-2 text-sm md:text-base text-zinc-200">GNEX hanya menyokong tournament percuma yang tidak mengenakan sebarang yuran pendaftaran kepada pemain atau team.</p>
+<p class="mt-3 font-black text-white">FREE ENTRY SAHAJA — TIADA YURAN PENDAFTARAN.</p>
+</div>
+
+<div class="mt-10 flex items-end justify-between gap-4">
+<div>
+<p class="text-cyan-400 text-xs font-bold tracking-[0.2em]">PAKEJ COLLAB</p>
+<h3 class="mt-1 text-2xl md:text-3xl font-black">Apa yang korang akan dapat?</h3>
+</div>
+<span class="hidden sm:inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-300">14 BENEFITS</span>
+</div>
+
+<div class="mt-5 grid gap-3 sm:grid-cols-2">
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">01</p><h4 class="mt-1 font-black">Page Khas Tournament</h4><p class="mt-2 text-sm text-zinc-400">Page dengan nama dan branding sendiri seperti “Nama Tournament X GNEX”.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">02</p><h4 class="mt-1 font-black">Pendaftaran & Login Team</h4><p class="mt-2 text-sm text-zinc-400">Setiap team boleh mendaftar dan login tanpa mengisi maklumat berulang kali.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">03</p><h4 class="mt-1 font-black">Chat Dalam Website</h4><p class="mt-2 text-sm text-zinc-400">Admin boleh berhubung terus dengan pemain dan menyampaikan maklumat penting.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">04</p><h4 class="mt-1 font-black">Bracket Tournament</h4><p class="mt-2 text-sm text-zinc-400">Bracket perlawanan dipaparkan dengan kemas dan mudah dilihat oleh semua team.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">05</p><h4 class="mt-1 font-black">Jadual Perlawanan</h4><p class="mt-2 text-sm text-zinc-400">Pemain boleh menyemak tarikh, masa dan lawan terus melalui page tournament.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">06</p><h4 class="mt-1 font-black">Update Keputusan</h4><p class="mt-2 text-sm text-zinc-400">Keputusan, bracket dan status perlawanan boleh dikemas kini sepanjang tournament.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">07</p><h4 class="mt-1 font-black">Ranking & Leaderboard</h4><p class="mt-2 text-sm text-zinc-400">Kedudukan, point dan prestasi setiap team dipaparkan dengan lebih teratur.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">08</p><h4 class="mt-1 font-black">Announcement Tournament</h4><p class="mt-2 text-sm text-zinc-400">Semua pengumuman penting dikumpulkan dalam satu tempat supaya tiada update terlepas.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">09</p><h4 class="mt-1 font-black">Support Admin</h4><p class="mt-2 text-sm text-zinc-400">Team boleh terus menghubungi admin untuk masalah atau pertanyaan tournament.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">10</p><h4 class="mt-1 font-black">Rekod Perlawanan</h4><p class="mt-2 text-sm text-zinc-400">Keputusan dan sejarah perlawanan disimpan untuk rujukan admin dan pemain.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">11</p><h4 class="mt-1 font-black">Promosi Bersama GNEX</h4><p class="mt-2 text-sm text-zinc-400">Tournament korang akan dipromosikan melalui platform dan komuniti GNEX.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">12</p><h4 class="mt-1 font-black">Branding Khas Collab</h4><p class="mt-2 text-sm text-zinc-400">Nama, logo dan identiti tournament digabungkan bersama GNEX untuk rupa profesional.</p></article>
+<article class="collab-feature rounded-xl p-4"><p class="text-cyan-400 text-xs font-black">13</p><h4 class="mt-1 font-black">Pengurusan Lebih Teratur</h4><p class="mt-2 text-sm text-zinc-400">Pendaftaran, chat, jadual, bracket, ranking dan keputusan melalui satu platform.</p></article>
+<article class="collab-feature rounded-xl p-4 border-amber-300/40"><p class="text-amber-300 text-xs font-black">14</p><h4 class="mt-1 font-black">Free Caster</h4><p class="mt-2 text-sm text-zinc-400">GNEX menyediakan caster untuk game terpilih seperti semi final dan final. Game tambahan dikenakan caj caster.</p></article>
+</div>
+
+<div class="mt-10 rounded-xl border border-cyan-400/30 bg-cyan-400/5 p-5 md:p-7">
+<p class="text-cyan-400 text-xs font-bold tracking-[0.2em]">SEMUA DALAM SATU PLATFORM</p>
+<p class="mt-2 text-sm md:text-base font-black leading-relaxed">DAFTAR TEAM • CHAT • JADUAL • BRACKET • RESULT • RANKING</p>
+
+<form id="collabForm" class="mt-7 grid gap-4" onsubmit="submitCollabForm(event)">
+<div class="grid gap-4 md:grid-cols-2">
+<label class="block"><span class="mb-2 block text-sm font-bold text-zinc-300">Nama organisasi</span><input id="collabOrg" class="collab-field" type="text" autocomplete="organization" placeholder="Contoh: Alpha Esports" required></label>
+<label class="block"><span class="mb-2 block text-sm font-bold text-zinc-300">Nombor telefon</span><input id="collabPhone" class="collab-field" type="tel" autocomplete="tel" inputmode="tel" placeholder="Contoh: 0123456789" required></label>
+</div>
+<label class="block"><span class="mb-2 block text-sm font-bold text-zinc-300">TikTok organisasi</span><input id="collabTiktok" class="collab-field" type="text" placeholder="Contoh: @alphaesports" required></label>
+<button type="submit" class="mt-2 rounded-lg bg-cyan-400 px-6 py-4 font-black text-black shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300">SUBMIT BORANG MELALUI WHATSAPP</button>
+<p class="text-center text-xs text-zinc-500">Maklumat borang akan dihantar kepada admin GNEX melalui WhatsApp.</p>
+</form>
+</div>
+</div>
+</div>
+</section>
 
 <!-- TOURNAMENT LIST -->
 <section id="tournamentPanel" class="modal-view" aria-hidden="true">
@@ -858,7 +974,24 @@ moveLogoCarousel(diff < 0 ? 1 : -1);
 renderLogoCarousel();
 }
 
-const modalPanelIds = ["tournamentPanel", "historyPanel"];
+const modalPanelIds = ["collabPanel", "tournamentPanel", "historyPanel"];
+
+function submitCollabForm(event){
+event.preventDefault();
+const organisation = document.getElementById("collabOrg").value.trim();
+const phone = document.getElementById("collabPhone").value.trim();
+const tiktok = document.getElementById("collabTiktok").value.trim();
+const message = [
+"Hi GNEX, saya berminat untuk collab tournament.",
+"",
+"NAMA ORGANISASI: " + organisation,
+"NOMBOR TELEFON: " + phone,
+"TIKTOK ORGANISASI: " + tiktok,
+"",
+"Saya faham bahawa collab ini hanya untuk tournament FREE ENTRY."
+].join("\n");
+window.open("https://wa.me/601115421017?text=" + encodeURIComponent(message), "_blank", "noopener");
+}
 
 function openPanel(id){
 const target = document.getElementById(id);
