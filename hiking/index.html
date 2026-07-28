@@ -151,6 +151,12 @@
       line-height: .98;
       letter-spacing: -.055em;
     }
+    .hero-logo {
+      width: clamp(210px, 31vw, 420px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 16px 30px rgba(0,0,0,.3));
+    }
     .hero-copy {
       max-width: 570px;
       margin: 26px 0 34px;
@@ -394,7 +400,7 @@
       .hero { min-height: 680px; background-position: 62% center; }
       .hero-content { padding-top: 105px; }
       .mini-ad { position: fixed; top: 84px; left: 12px; right: 12px; width: auto; }
-      h1 { font-size: 52px; }
+      .hero-logo { width: min(72vw, 310px); }
       .hero-copy { font-size: 16px; }
       .search-wrap { margin-top: -25px; }
       .search { grid-template-columns: 1fr; padding: 7px; }
@@ -441,7 +447,7 @@
     </a>
     <div class="shell hero-content">
       <span class="eyebrow">gunung Malaysia</span>
-      <h1>Satu langkah.<br>Seribu cerita.</h1>
+      <img class="hero-logo" src="../images/logo baru gnex .webp" alt="GNEX">
       <p class="hero-copy">Trip hiking terancang untuk kaki gunung baru dan berpengalaman. Dari puncak Kedah ke denai Perak—kami urus, anda nikmati perjalanan.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#trip">Teroka Trip <span>↗</span></a>
