@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GNEX Topup Store - tournament, leaderboard, bracket match and game topup hub.">
+<link rel="icon" type="image/png" sizes="64x64" href="images/20260602_004238.png">
+<link rel="apple-touch-icon" href="images/gnex-home-192.png?v=2">
+<link rel="manifest" href="manifest.webmanifest?v=3">
+<meta name="theme-color" content="#02040a">
+
+<title>GNEX Center</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet" href="index.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-QXRQM1SYWH');
+</script>
+</head>
+<body class="min-h-screen bg-black text-white overflow-x-hidden">
+
+<a
+href="hiking/"
+aria-label="Kembali ke website hiking"
+class="fixed top-[92px] left-4 z-[100] inline-flex items-center gap-2 rounded-full border border-lime-300/60 bg-zinc-950/90 px-5 py-3 text-sm font-black text-lime-300 shadow-2xl shadow-black/50 backdrop-blur-xl transition hover:-translate-y-1 hover:bg-lime-300 hover:text-black">
+<span aria-hidden="true">←</span>
+KEMBALI KE HIKING
+</a>
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/80 border-b border-zinc-800/90">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+
+<div class="flex items-center gap-3">
+<button
+type="button"
+onclick="goHome()"
+aria-label="Go home"
+class="w-12 h-12 rounded-full bg-zinc-950 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition">
+<img src="images/logo baru gnex .webp" alt="GNEX logo" class="w-8 h-8 object-contain">
+</button>
+
+<div>
+<h1 class="text-2xl font-black text-cyan-400 leading-none">GNEX</h1>
+<p class="text-zinc-500 text-xs mt-1 tracking-wide">CENTER</p>
+</div>
+</div>
+
+<div class="hidden md:flex items-center gap-3 min-w-0 flex-1 justify-end">
+<button type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="inline-flex items-center gap-2 bg-cyan-400 text-black px-4 py-2 rounded-lg hover:bg-cyan-300 transition text-sm font-black shadow-lg shadow-cyan-500/15">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="m3 10.8 9-7 9 7"></path>
+<path d="M5 10v10h14V10"></path>
+<path d="M9 20v-6h6v6"></path>
+</svg>
+HOME
+</button>
+
+<button type="button" onclick="openPriceListPanel()" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="5" width="16" height="14" rx="3"></rect>
+<path d="M8 9h8"></path>
+<path d="M8 13h5"></path>
+<path d="M16 16h.01"></path>
+</svg>
+GNEX TOPUP
+</button>
+
+<a href="tournament.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 21h8"></path>
+<path d="M12 17v4"></path>
+<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
+<path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
+<path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
+</svg>
+TOURNAMENT
+</a>
+
+<a href="https://gnexscrim.gamer.gd/scrim.html" class="inline-flex items-center gap-2 border border-zinc-700/80 text-zinc-200 px-4 py-2 rounded-lg hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-400/10 transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
+MLBB SCRIM
+</a>
+
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="inline-flex items-center gap-2 border border-green-500/50 text-green-300 px-4 py-2 rounded-lg hover:bg-green-500 hover:text-black transition text-sm font-black">
+<svg class="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 5.5h16v10.5H7.5L4 19.5V5.5Z"></path>
+<path d="M8 9h8"></path>
+<path d="M8 12.5h5"></path>
+</svg>
+WHATSAPP
+</a>
+</div>
+
+<form class="mobile-inline-search md:hidden" role="search" onsubmit="event.preventDefault()">
+<svg viewBox="0 0 24 24" aria-hidden="true" class="mobile-inline-search-icon" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="11" cy="11" r="7"></circle>
+<path d="m20 20-3.6-3.6"></path>
+</svg>
+<input id="home-search-input" type="search" class="mobile-inline-search-input" placeholder="Search" autocomplete="off" aria-label="Search GNEX">
+</form>
+
+</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-24 md:pt-24">
+<video class="hero-video" autoplay muted loop playsinline>
+<source src="videos/a95becc139495c5a04610afbdfb797c6.mp" type="video/mp4">
+</video>
+<div class="hero-red-motion"></div>
+<div class="absolute inset-0 bg-black/55"></div>
+<div class="absolute inset-x-0 top-24 h-px cyan-line"></div>
+
+<div class="relative max-w-7xl mx-auto px-6 py-6 md:py-8">
+<div class="relative">
+<div id="promoCarousel" class="promo-carousel mx-auto">
+<button type="button" class="promo-slide is-active" data-promo-link="https://horizonxgnex.gamer.gd/clash-league.html?i=1" onclick="handlePromoSlideClick(event, 0)" aria-label="Promo 1">
+  <img class="promo-slide-image" src="image-iklan/gnexhorizon.webp" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm">DAFTAR SEKARANG</p>
+</div>
+</button>
+
+<button type="button" class="promo-slide is-right" onclick="handlePromoSlideClick(event, 1)" aria-label="Promo 2">
+<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm"></p>
+</div>
+</button>
+
+<button type="button" class="promo-slide is-hidden" data-promo-link="https://horizonxgnex.gamer.gd/clash-league.html?i=1" onclick="handlePromoSlideClick(event, 2)" aria-label="Promo 3">
+<img class="promo-slide-image" src="image-iklan/gnexhorizon.webp" alt="Iklan GNEX Topup"> 
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-cyan-300 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm">DAFTAR SEKARANG</p>
+</div>
+</button>
+
+<button type="button" class="promo-slide is-left" onclick="handlePromoSlideClick(event, 3)" aria-label="Promo 4">
+<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
+<div class="promo-slide-inner text-left">
+<div>
+<p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
+<h2 class="text-3xl md:text-5xl font-black mt-3 leading-none"></h2>
+</div>
+<p class="text-zinc-300 text-sm"></p>
+</div>
+</button>
+
+<button type="button" class="promo-nav-button is-prev" onclick="movePromoSlide(-1)" aria-label="Previous promo">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+<path d="m15 18-6-6 6-6"></path>
+</svg>
+</button>
+
+<button type="button" class="promo-nav-button is-next" onclick="movePromoSlide(1)" aria-label="Next promo">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+<path d="m9 18 6-6-6-6"></path>
+</svg>
+</button>
+</div>
+
+<div id="promoDots" class="flex items-center justify-center gap-2 mt-4">
+<button type="button" onclick="setPromoSlide(0)" class="promo-dot is-active" aria-label="Go to promo 1"></button>
+<button type="button" onclick="setPromoSlide(1)" class="promo-dot" aria-label="Go to promo 2"></button>
+<button type="button" onclick="setPromoSlide(2)" class="promo-dot" aria-label="Go to promo 3"></button>
+<button type="button" onclick="setPromoSlide(3)" class="promo-dot" aria-label="Go to promo 4"></button>
+</div>
+</div>
+
+<div class="card-button-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-1 md:gap-3 mt-6 md:mt-8">
+<a href="tournament.html" class="tournament-card-button" onclick="playTournamentTransition(event)" aria-label="Open tournament page">
+<img src="Card design/ESPORT TOURNAMENT CARD.png.png" alt="GNEX Esport Tournament" class="tournament-card-bg">
+<img src="Card design/KELLY.png" alt="" class="tournament-card-character is-kelly" aria-hidden="true">
+<img src="Card design/GRANGER.png" alt="" class="tournament-card-character is-granger" aria-hidden="true">
+<img src="Card design/KELLY.png" alt="" class="tournament-card-character is-kelly-repeat" aria-hidden="true">
+</a>
+
+<button type="button" onclick="openPriceListPanel()" class="topup-card-button" aria-label="Open GNEX Topup price list">
+<img src="Card design/TOPUP GAMING CARD.png" alt="GNEX Topup Gaming" class="topup-card-bg">
+<img src="Card design/LOGO FF DIAMOND.png" alt="" class="topup-card-item" aria-hidden="true">
+<img src="Card design/LOGO PUBG UC.png" alt="" class="topup-card-item is-pubg" aria-hidden="true">
+<img src="Card design/LOGO WEEKLYMEMBERSHIP (1).png" alt="" class="topup-card-item is-weekly" aria-hidden="true">
+</button>
+
+<a href="jersey.html" class="jersey-card-button" aria-label="Open GNEX jersey page">
+<img src="card jersey/JERSEY MERCHANDISE CARD (1).png" alt="GNEX Jersey Merchandise" class="jersey-card-bg">
+<img src="images/logo-gnex-esport-64x64.webp" alt="" class="jersey-card-logo" aria-hidden="true">
+<img src="card jersey/ALOYA FRONT JERSEY V1.png" alt="" class="jersey-card-item is-front" aria-hidden="true">
+<img src="card jersey/ALOYA BACK JERSEY.png" alt="" class="jersey-card-item is-back" aria-hidden="true">
+<img src="card jersey/ALOYA FRONT JERSEY V1.png" alt="" class="jersey-card-item is-front-repeat" aria-hidden="true">
+</a>
+
+<button type="button" onclick="openGnexEsportImage()" class="gnex-esport-card-button" aria-label="Open GNEX Guild open member poster">
+<img src="card gnex esport/20260611_212528.png" alt="GNEX Esport" class="gnex-esport-card-bg">
+<img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo" aria-hidden="true">
+<img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-kelly" aria-hidden="true">
+<img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo is-repeat" aria-hidden="true">
+</button>
+</div>
+</div>
+</header>
+
+<nav class="bottom-app-nav" aria-label="Mobile app navigation">
+<button type="button" class="bottom-nav-item is-active" data-nav="home" onclick="goHome()" aria-label="Home">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="m3 10.8 9-7 9 7"></path>
+<path d="M5 10v10h14V10"></path>
+<path d="M9 20v-6h6v6"></path>
+</svg>
+<span>Home</span>
+</button>
+
+<button type="button" class="bottom-nav-item" data-nav="topup" onclick="openPriceListPanel()" aria-label="GNEX Topup">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="5" width="16" height="14" rx="3"></rect>
+<path d="M8 9h8"></path>
+<path d="M8 13h5"></path>
+<path d="M16 16h.01"></path>
+</svg>
+<span>Topup</span>
+</button>
+
+<button type="button" class="bottom-nav-item" data-nav="tournament" onclick="window.location.href='tournament.html'" aria-label="Tournament">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 21h8"></path>
+<path d="M12 17v4"></path>
+<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
+<path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
+<path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
+</svg>
+<span>Tour</span>
+</button>
+
+<button type="button" class="bottom-nav-item" data-nav="support" onclick="goSection('support')" aria-label="Support">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 12a8 8 0 0 1 16 0"></path>
+<path d="M4 12v4a2 2 0 0 0 2 2h1v-6H4Z"></path>
+<path d="M20 12v4a2 2 0 0 1-2 2h-1v-6h3Z"></path>
+<path d="M9 20h3"></path>
+</svg>
+<span>Support</span>
+</button>
+</nav>
+
+<!-- PRICE LIST -->
+<section id="price-list" class="modal-view" aria-hidden="true">
+<div class="modal-backdrop" onclick="closePriceListPanel()"></div>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePriceListPanel()" aria-label="Close price list">X</button>
+<div class="price-list-shell max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">TOPUP STORE</p>
+<h2 class="text-3xl md:text-4xl font-black mt-2">GAME PRICE LIST</h2>
+</div>
+<p class="text-zinc-500 text-sm">Fast Delivery / Trusted Seller / Easy Payment</p>
+</div>
+
+<div class="price-card-grid grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/ff-wallpaper.webp" alt="Free Fire topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">FF</span>
+<img src="images/ff-logo.webp" alt="Free Fire logo" class="w-16 h-8 md:w-20 md:h-10 object-contain">
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Free Fire untuk event dan casual player.</p>
+</div>
+<a href="freefire.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
+
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/ml-wallpaper.webp" alt="Mobile Legends topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 20%;">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">MLBB</span>
+<img src="images/logo-ml.webp" alt="Mobile Legends logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Mobile Legends dengan seller GNEX.</p>
+</div>
+<a href="mlbb.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
+
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/pubg-wallpaper.webp" alt="PUBG topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 60%;">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">PUBG</span>
+<img src="images/pubg-logo.webp" alt="PUBG logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">UC</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup PUBG UC dengan checkout WhatsApp GNEX.</p>
+</div>
+<a href="pubg.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
+
+<article class="game-card roblox-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition">
+<div class="absolute inset-0 roblox-card-bg"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">RBX</span>
+<span class="text-zinc-100 font-black tracking-[0.18em] text-xs md:text-sm">ROBLOX</span>
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Robux</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Roblox topup akan dibuka tidak lama lagi.</p>
+</div>
+<a href="#" onclick="return false" aria-disabled="true" class="w-full text-center bg-cyan-400 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20 pointer-events-none opacity-80">
+COMING SOON
+</a>
+</div>
+</article>
+</div>
+
+<a href="jersey.html" class="price-jersey-card group mt-6 grid lg:grid-cols-[1fr_0.85fr] overflow-hidden rounded-lg border border-cyan-500/50 bg-black hover:border-cyan-300 transition">
+<div class="relative min-h-[280px] p-6 md:p-8 flex flex-col justify-between">
+<div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.webp')] bg-cover bg-center"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25"></div>
+
+<div class="relative z-10">
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">OFFICIAL MERCH</p>
+<h3 class="text-4xl md:text-5xl font-black mt-3 leading-none">
+GNEX OFFICIAL <span class="text-cyan-300">JERSEY</span>
+</h3>
+<p class="text-zinc-300 max-w-xl mt-4 leading-relaxed">
+Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
+</p>
+</div>
+
+<div class="relative z-10 flex flex-wrap gap-3 mt-8">
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">RM65</span>
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">XS - XL</span>
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">ORDER NOW</span>
+</div>
+</div>
+
+<div class="relative min-h-[280px] bg-zinc-950 overflow-hidden">
+<img src="images/jersey/jersey-size-chart.webp" alt="GNEX jersey front and back" class="absolute inset-0 w-full h-full object-cover object-top opacity-90 group-hover:scale-105 transition duration-500">
+<div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/40"></div>
+</div>
+</a>
+</div>
+</div>
+</section>
+
+<!-- GNEX ESPORT IMAGE -->
+<section id="gnexEsportImageModal" class="image-lightbox" aria-hidden="true">
+<button type="button" class="image-lightbox-backdrop" onclick="closeGnexEsportImage()" aria-label="Close GNEX Guild poster"></button>
+<div class="image-lightbox-panel">
+<button type="button" class="image-lightbox-close" onclick="closeGnexEsportImage()" aria-label="Close image">X</button>
+<img src="card gnex esport/gnex-guild-open-member.jpeg" alt="GNEX Guild Open Member syarat-syarat" class="image-lightbox-img">
+</div>
+</section>
+
+<!-- PAYMENT / TRUST -->
+<section id="payment" class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-16">
+<div class="grid lg:grid-cols-[0.85fr_1fr] gap-3 md:gap-6 items-stretch">
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-4 md:p-6">
+<p class="text-cyan-400 font-bold tracking-[0.18em] md:tracking-[0.2em] text-[10px] md:text-xs">WHY GNEX</p>
+<h2 class="text-xl md:text-3xl font-black mt-1 md:mt-2 leading-tight">Fast delivery, trusted seller.</h2>
+<p class="text-zinc-400 mt-2 md:mt-4 text-xs md:text-base leading-relaxed">
+Simple flow untuk player: pilih game, contact seller, buat payment dan tunggu order diproses.
+</p>
+</div>
+
+<div class="grid grid-cols-3 gap-2 md:gap-4">
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">01</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Send Detail</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Hantar ID game dan server kepada GNEX.</p>
+</div>
+
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">02</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Payment</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Seller confirm amount dan payment method.</p>
+</div>
+
+<div class="rounded-lg md:rounded-xl border border-zinc-800 bg-zinc-950 p-3 md:p-5">
+<p class="text-amber-300 text-sm md:text-base font-black">03</p>
+<h3 class="font-black mt-1 md:mt-3 text-[11px] md:text-base leading-tight">Process</h3>
+<p class="hidden md:block text-zinc-500 text-sm mt-2">Order diproses dan update diberi melalui WhatsApp.</p>
+</div>
+</div>
+</div>
+
+<div class="mt-5 md:mt-8 rounded-xl border border-cyan-500/40 bg-cyan-400 text-black p-4 md:p-7 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-5">
+<div>
+<p class="font-black text-lg md:text-2xl leading-tight">Need help with topup or tournament?</p>
+<p class="text-black/70 mt-1 text-xs md:text-base font-semibold">Contact GNEX terus melalui WhatsApp untuk pertanyaan cepat.</p>
+</div>
+<a href="https://wa.me/601115421017" target="_blank" rel="noopener" class="bg-black text-white text-center font-black px-4 md:px-6 py-2.5 md:py-3 rounded-lg hover:bg-zinc-900 transition text-xs md:text-base">
+CHAT WHATSAPP
+</a>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer id="support-old" class="hidden">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+<div class="col-span-2 md:col-span-1">
+<p class="text-cyan-400 font-black tracking-[0.18em] text-[10px] md:text-xs">GNEX</p>
+<p class="text-white font-black text-sm md:text-lg mt-1">GNEX CENTER</p>
+<p class="text-zinc-500 text-[11px] md:text-xs mt-1">Tournament, topup store dan community hub.</p>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Email</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="mailto:gnextopupenterprise@gmail.com" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition" aria-label="Email GNEX Topup">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>
+GNEX TOPUP
+</a>
+<a href="mailto:officialgnex@gmail.com" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition" aria-label="Email Official GNEX">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>
+OFFICIAL GNEX
+</a>
+</div>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Social</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="https://www.tiktok.com/@officialgnex" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition">
+<span class="inline-flex h-5 w-5 items-center justify-center rounded bg-white text-black font-black leading-none">♪</span>
+@officialgnex
+</a>
+<a href="https://www.tiktok.com/@gnex_a7" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-cyan-400 hover:text-cyan-300 transition">
+<span class="inline-flex h-5 w-5 items-center justify-center rounded bg-white text-black font-black leading-none">♪</span>
+@gnex_a7
+</a>
+<a href="https://whatsapp.com/channel/0029Va8PWv61noz1ttETrH2x" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+Channel
+</a>
+</div>
+</div>
+
+<div>
+<p class="text-white font-black text-xs md:text-sm">Contact</p>
+<div class="mt-2 flex flex-col gap-1.5 md:gap-2 text-[11px] md:text-xs">
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20buat%20topup" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition" aria-label="WhatsApp GNEX Topup">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+GNEX Topup
+</a>
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20collab.%20Collab%20untuk%20apa%3A%20" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-zinc-800 bg-black/60 px-2 md:px-3 py-1.5 md:py-2 text-zinc-300 hover:border-green-400 hover:text-green-300 transition" aria-label="WhatsApp GNEX Collab">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .4 5.2.4 11.6c0 2 .5 4 1.5 5.8L0 24l6.8-1.8a11.7 11.7 0 0 0 5.3 1.3h.1c6.4 0 11.6-5.2 11.7-11.6 0-3.1-1.2-6-3.4-8.4Zm-8.4 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-4 .9 1.1-3.8-.3-.4a9.5 9.5 0 1 1 8.5 4.8Zm5.4-7.1c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6 0-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8 0 1.6 1.2 3.2 1.4 3.4.2.2 2.4 3.7 5.8 5.1.8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4Z"></path></svg>
+Collab
+</a>
+</div>
+</div>
+</div>
+
+<div class="mt-4 md:mt-5 border-t border-zinc-800 pt-3 md:pt-4 text-center text-zinc-600 text-[11px] md:text-sm">
+(c) 2026 GNEX CENTER / Tournament & Diamond Store
+</div>
+</div>
+</footer>
+
+<footer id="support" class="border-t border-zinc-800 bg-black">
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+<div class="grid grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-4 md:gap-6">
+<div class="col-span-2 md:col-span-1">
+<div class="flex items-center gap-3">
+<img src="images/logo baru gnex .webp" alt="GNEX logo" class="w-9 h-9 rounded-full border border-cyan-400 bg-black object-contain p-0.5">
+<div>
+<p class="text-white font-black leading-none">GNEX CENTER</p>
+<p class="text-zinc-500 text-xs mt-1">Topup, tournament dan community hub.</p>
+</div>
+</div>
+</div>
+
+<div>
+<p class="footer-simple-title">Email</p>
+<div class="footer-simple-list">
+<a href="mailto:gnextopupenterprise@gmail.com">GNEX Topup</a>
+<a href="mailto:officialgnex@gmail.com">Official GNEX</a>
+</div>
+</div>
+
+<div>
+<p class="footer-simple-title">Social</p>
+<div class="footer-simple-list">
+<a href="https://www.tiktok.com/@officialgnex" target="_blank" rel="noopener">@officialgnex</a>
+<a href="https://www.tiktok.com/@gnex_a7" target="_blank" rel="noopener">@gnex_a7</a>
+<a href="https://whatsapp.com/channel/0029Va8PWv61noz1ttETrH2x" target="_blank" rel="noopener">WhatsApp Channel</a>
+</div>
+</div>
+
+<div>
+<p class="footer-simple-title">Contact</p>
+<div class="footer-simple-list">
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20buat%20topup" target="_blank" rel="noopener">WhatsApp Topup</a>
+<a href="https://wa.me/601115421017?text=Hi%20GNEX%2C%20saya%20nak%20collab.%20Collab%20untuk%20apa%3A%20" target="_blank" rel="noopener">WhatsApp Collab</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="border-t border-zinc-900 px-4 py-3 text-center text-zinc-700 text-[11px]">
+(c) 2026 GNEX CENTER / Tournament & Diamond Store
+</div>
+</footer>
+
+<script>
+function setBottomNavActive(navName){
+document.querySelectorAll(".bottom-nav-item[data-nav]").forEach((item) => {
+item.classList.toggle("is-active", item.dataset.nav === navName);
+});
+}
+
+function goHome(){
+const priceList = document.getElementById("price-list");
+if(priceList && priceList.classList.contains("is-open")){
+priceList.classList.remove("is-open");
+priceList.setAttribute("aria-hidden", "true");
+document.body.classList.remove("modal-open");
+}
+setBottomNavActive("home");
+window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function goSection(sectionId){
+const priceList = document.getElementById("price-list");
+if(priceList && priceList.classList.contains("is-open")){
+priceList.classList.remove("is-open");
+priceList.setAttribute("aria-hidden", "true");
+document.body.classList.remove("modal-open");
+}
+if(sectionId === "support"){
+setBottomNavActive("support");
+}
+setTimeout(() => {
+document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
+}, 40);
+}
+
+function openPriceListPanel(){
+const priceList = document.getElementById("price-list");
+if(!priceList) return;
+
+setBottomNavActive("topup");
+priceList.classList.add("is-open");
+priceList.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
+
+setTimeout(() => {
+const cards = document.querySelectorAll(".game-card");
+
+cards.forEach((card,index) => {
+card.classList.remove("animate-card");
+
+setTimeout(() => {
+card.classList.add("animate-card");
+}, index * 120);
+});
+}, 400);
+}
+
+function closePriceListPanel(){
+const priceList = document.getElementById("price-list");
+if(!priceList) return;
+
+priceList.classList.remove("is-open");
+priceList.setAttribute("aria-hidden", "true");
+document.body.classList.remove("modal-open");
+setBottomNavActive("home");
+}
+
+function scrollToPriceList(){
+openPriceListPanel();
+}
+
+function openGnexEsportImage(){
+const modal = document.getElementById("gnexEsportImageModal");
+if(!modal) return;
+
+modal.classList.add("is-open");
+modal.setAttribute("aria-hidden", "false");
+document.body.classList.add("modal-open");
+}
+
+function closeGnexEsportImage(){
+const modal = document.getElementById("gnexEsportImageModal");
+if(!modal) return;
+
+modal.classList.remove("is-open");
+modal.setAttribute("aria-hidden", "true");
+
+const priceList = document.getElementById("price-list");
+if(!priceList || !priceList.classList.contains("is-open")){
+document.body.classList.remove("modal-open");
+}
+}
+
+const promoSlides = Array.from(document.querySelectorAll(".promo-slide"));
+const promoDots = Array.from(document.querySelectorAll(".promo-dot"));
+const promoPositions = ["is-active", "is-right", "is-hidden", "is-left"];
+let promoIndex = 0;
+
+function setPromoSlide(nextIndex){
+promoIndex = (nextIndex + promoSlides.length) % promoSlides.length;
+
+promoSlides.forEach((slide,index) => {
+slide.classList.remove(...promoPositions);
+const offset = (index - promoIndex + promoSlides.length) % promoSlides.length;
+slide.classList.add(promoPositions[offset] || "is-hidden");
+});
+
+promoDots.forEach((dot,index) => {
+dot.classList.toggle("is-active", index === promoIndex);
+});
+}
+
+function movePromoSlide(direction){
+setPromoSlide(promoIndex + direction);
+}
+
+function handlePromoSlideClick(event, index){
+const slide = event.currentTarget;
+if(index !== promoIndex){
+setPromoSlide(index);
+return;
+}
+
+const link = slide.dataset.promoLink;
+if(link){
+window.location.href = link;
+}
+}
+
+let isTournamentTransitioning = false;
+
+function playTournamentTransition(event){
+event.preventDefault();
+
+if(isTournamentTransitioning) return;
+isTournamentTransitioning = true;
+
+const targetUrl = event.currentTarget.getAttribute("href") || "tournament.html";
+const cards = [
+document.querySelector(".tournament-card-button"),
+document.querySelector(".topup-card-button"),
+document.querySelector(".jersey-card-button"),
+document.querySelector(".gnex-esport-card-button")
+].filter(Boolean);
+const tournamentCard = cards[0];
+const esportCard = cards[3];
+
+if(!tournamentCard || !esportCard || window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(max-width: 767px)").matches){
+window.location.href = targetUrl;
+return;
+}
+
+const stage = document.createElement("div");
+stage.className = "tour-transition-stage";
+document.body.appendChild(stage);
+document.body.classList.add("tour-transition-active");
+
+const esportRect = esportCard.getBoundingClientRect();
+const clones = cards.map((card) => {
+const rect = card.getBoundingClientRect();
+const clone = card.cloneNode(true);
+clone.classList.add("tour-transition-clone");
+clone.style.left = `${rect.left}px`;
+clone.style.top = `${rect.top}px`;
+clone.style.width = `${rect.width}px`;
+clone.style.height = `${rect.height}px`;
+clone.style.borderRadius = getComputedStyle(card).borderRadius;
+clone.style.transformOrigin = "top left";
+stage.appendChild(clone);
+card.classList.add("is-transition-source-hidden");
+return {card, clone, rect, isTournament: card === tournamentCard};
+});
+
+clones.forEach(({clone, rect, isTournament}) => {
+const x = esportRect.left - rect.left;
+const y = esportRect.top - rect.top;
+
+clone.animate([
+{transform:"translate(0, 0) scale(1)", opacity:1},
+{transform:`translate(${x}px, ${y}px) scale(${isTournament ? 1.02 : .94})`, opacity:isTournament ? 1 : .18}
+], {
+duration:720,
+easing:"cubic-bezier(.2,.8,.2,1)",
+fill:"forwards"
+});
+});
+
+setTimeout(() => {
+const tournamentClone = clones.find((item) => item.isTournament);
+if(!tournamentClone){
+window.location.href = targetUrl;
+return;
+}
+
+tournamentClone.clone.getAnimations().forEach((animation) => animation.cancel());
+tournamentClone.clone.style.left = `${esportRect.left}px`;
+tournamentClone.clone.style.top = `${esportRect.top}px`;
+tournamentClone.clone.style.width = `${esportRect.width}px`;
+tournamentClone.clone.style.height = `${esportRect.height}px`;
+tournamentClone.clone.style.transform = "translate3d(0, 0, 0) scale(1)";
+tournamentClone.clone.style.transformOrigin = "top left";
+
+clones.forEach(({clone, isTournament}) => {
+if(!isTournament){
+clone.animate([
+{opacity:.18},
+{opacity:0}
+], {
+duration:180,
+easing:"ease",
+fill:"forwards"
+});
+}
+});
+
+stage.classList.add("is-title-view");
+tournamentClone.clone.animate([
+{opacity:1, transform:"translate3d(0, 0, 0) scale(1)"},
+{opacity:0, transform:"translate3d(0, -10px, 0) scale(.96)"}
+], {
+duration:300,
+easing:"ease",
+fill:"forwards"
+});
+
+const titleWrap = document.createElement("div");
+titleWrap.className = "tour-title-view";
+titleWrap.innerHTML = '<div class="tour-title-kicker">GNEX CENTER</div><div class="tour-title-type">TOURNAMENT</div>';
+stage.appendChild(titleWrap);
+
+setTimeout(() => {
+window.location.href = targetUrl;
+}, 1500);
+}, 760);
+}
+
+window.addEventListener("load", () => {
+const params = new URLSearchParams(window.location.search);
+if(params.get("topup") === "1" || window.location.hash === "#price-list"){
+openPriceListPanel();
+}
+});
+
+document.addEventListener("keydown", (event) => {
+if(event.key === "Escape"){
+closeGnexEsportImage();
+closePriceListPanel();
+}
+});
+</script>
+
+<script src="mobile-nav.js?v=10"></script>
+</body>
+</html>
