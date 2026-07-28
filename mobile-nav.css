@@ -111,4 +111,13 @@ padding-bottom:92px;
 .bottom-app-nav{
 display:flex;
 }
+
+body .bottom-app-nav [data-nav="scrim-home"]{order:1}
+body .bottom-app-nav [data-nav="deal"]{order:2}
+body .bottom-app-nav [data-nav="support"]{order:2}
+body .bottom-app-nav [data-nav="all-scrim"]{order:3}
+body .bottom-app-nav [data-nav="review"]{order:4}
+body.is-guest .bottom-app-nav [data-nav="deal"],
+body.is-guest .bottom-app-nav [data-nav="review"],
+body.is-authed .bottom-app-nav [data-nav="support"]{display:none}
 }

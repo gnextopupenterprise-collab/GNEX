@@ -45,6 +45,7 @@
   nav.className = "bottom-app-nav";
   nav.setAttribute("aria-label", "Mobile app navigation");
   nav.innerHTML = `
+${isScrimPage ? '' : `
 <a href="https://gnexcenter.com/" class="bottom-nav-item${activeClass("home")}" data-nav="home" aria-label="Home">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="m3 10.8 9-7 9 7"></path>
@@ -53,6 +54,7 @@
 </svg>
 <span>Home</span>
 </a>
+`}
 
 <a href="${isScrimPage ? '#deal' : 'https://gnexcenter.com/#price-list'}" class="bottom-nav-item${activeClass("topup")}" data-nav="${isScrimPage ? 'deal' : 'topup'}" aria-label="${isScrimPage ? 'Deal Chat' : 'GNEX Topup'}">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -72,7 +74,7 @@ ${isScrimPage ? '<strong class="bottom-nav-badge hidden" id="dealNavBadge">0</st
 <path d="M17 6h3v2a4 4 0 0 1-4 4"></path>
 <path d="M7 6H4v2a4 4 0 0 0 4 4"></path>
 </svg>
-<span>${isScrimPage ? 'Scrim' : 'Tour'}</span>
+<span>${isScrimPage ? 'Home' : 'Tour'}</span>
 </a>
 
 <a href="${isScrimPage ? '#all-scrim' : 'https://wa.me/601115421017'}" ${isScrimPage ? '' : 'target="_blank" rel="noopener"'} class="bottom-nav-item" data-nav="${isScrimPage ? 'all-scrim' : 'support'}" aria-label="${isScrimPage ? 'All Scrim' : 'Support'}">
@@ -86,6 +88,10 @@ ${isScrimPage ? '<strong class="bottom-nav-badge hidden" id="dealNavBadge">0</st
 </a>
 
 ${isScrimPage ? `
+<a href="#support" class="bottom-nav-item guest-support-nav" data-nav="support" aria-label="Support">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v11H8l-4 3v-14Z"></path><path d="M8 9h8"></path><path d="M8 13h5"></path></svg>
+<span>Support</span>
+</a>
 <a href="#review" class="bottom-nav-item" data-nav="review" aria-label="Request Review">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="M8 6h13"></path>
@@ -109,7 +115,7 @@ ${isScrimPage ? `
     if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) return;
 
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("scrim-sw.js?v=5")
+      navigator.serviceWorker.register("scrim-sw.js?v=8")
         .then((registration) => {
           if (registration.waiting) {
             registration.waiting.postMessage("GNEX_SKIP_WAITING");

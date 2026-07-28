@@ -5,11 +5,13 @@ CREATE TABLE IF NOT EXISTS cl_teams (
   logo_path VARCHAR(255) NULL,
   phone VARCHAR(40) NOT NULL,
   password_hash VARCHAR(255) NULL,
+  chat_token_hash CHAR(64) NULL,
   coach_name VARCHAR(100) NULL,
   manager_name VARCHAR(100) NULL,
   status ENUM('pending','accepted','rejected','removed') NOT NULL DEFAULT 'pending',
   slot_no INT NULL,
   admin_note VARCHAR(255) NULL,
+  admin_checked TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL,
   INDEX idx_cl_teams_status_slot (status, slot_no)
@@ -28,7 +30,7 @@ CREATE TABLE IF NOT EXISTS cl_players (
 
 CREATE TABLE IF NOT EXISTS cl_rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  room_type ENUM('admin','deal','match') NOT NULL DEFAULT 'admin',
+  room_type ENUM('admin','deal','match','group') NOT NULL DEFAULT 'admin',
   team_a_id INT NULL,
   team_b_id INT NULL,
   status ENUM('open','closed') NOT NULL DEFAULT 'open',
@@ -41,8 +43,10 @@ CREATE TABLE IF NOT EXISTS cl_rooms (
 CREATE TABLE IF NOT EXISTS cl_messages (
   id INT AUTO_INCREMENT PRIMARY KEY,
   room_id INT NOT NULL,
-  sender_type ENUM('admin','team','system') NOT NULL DEFAULT 'team',
+  sender_type ENUM('admin','team','guest','system') NOT NULL DEFAULT 'team',
   sender_team_id INT NULL,
+  guest_name VARCHAR(60) NULL,
+  reply_to_message_id INT NULL,
   message VARCHAR(700) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id) REFERENCES cl_rooms(id) ON DELETE CASCADE,
@@ -89,6 +93,21 @@ CREATE TABLE IF NOT EXISTS cl_admin_users (
   password_hash VARCHAR(255) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cl_room_reads (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  owner_type ENUM('team','admin') NOT NULL,
+  team_id INT NULL,
+  admin_id INT NULL,
+  room_id INT NOT NULL,
+  last_message_id INT NOT NULL DEFAULT 0,
+  updated_at DATETIME NULL,
+  UNIQUE KEY uniq_cl_room_read_admin (admin_id, room_id),
+  UNIQUE KEY uniq_cl_room_read_team (team_id, room_id),
+  FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+  FOREIGN KEY (room_id) REFERENCES cl_rooms(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS cl_settings (

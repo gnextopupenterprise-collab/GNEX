@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#12261f">
+  <title>GNEX — Trip Hiking Malaysia</title>
+  <meta name="description" content="Temui trip hiking pilihan di Kedah, Perak dan seluruh Malaysia bersama GNEX.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #12261f;
+      --forest-2: #1c392f;
+      --cream: #f5f1e8;
+      --paper: #fffdf8;
+      --lime: #c7ef62;
+      --orange: #ef8354;
+      --ink: #15251f;
+      --muted: #64736d;
+      --line: rgba(21, 37, 31, .13);
+      --shadow: 0 18px 55px rgba(18, 38, 31, .12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: "DM Sans", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin: auto; }
+    .nav {
+      position: fixed;
+      z-index: 10;
+      top: 0; left: 0; right: 0;
+      color: #fff;
+      background: rgba(18,38,31,.92);
+      box-shadow: 0 8px 24px rgba(0,0,0,.14);
+      backdrop-filter: blur(14px);
+    }
+    .nav-inner {
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.2);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; font-family: Manrope, sans-serif; font-weight: 800; }
+    .logo-mark {
+      width: 38px; height: 38px;
+      display: grid; place-items: center;
+      border-radius: 12px;
+      color: var(--forest);
+      background: var(--lime);
+      font-size: 20px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; font-size: 14px; font-weight: 600; }
+    .nav-links a { opacity: .8; transition: .2s; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta {
+      padding: 11px 17px;
+      border: 1px solid rgba(255,255,255,.5);
+      border-radius: 999px;
+    }
+    .menu { display: none; border: 0; background: transparent; color: white; font-size: 25px; }
+
+    .hero {
+      min-height: 770px;
+      position: relative;
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      color: #fff;
+      background:
+        linear-gradient(90deg, rgba(11,30,23,.95) 0%, rgba(11,30,23,.72) 43%, rgba(11,30,23,.2) 78%),
+        linear-gradient(0deg, rgba(11,30,23,.7), transparent 55%),
+        url("../images/hiking-hero-kinabalu-hd.jpg") center 58% / cover;
+    }
+    .hero::after {
+      content: "";
+      position: fixed;
+      right: -150px; bottom: -280px;
+      width: 700px; height: 700px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 50%;
+      box-shadow: 0 0 0 70px rgba(255,255,255,.035), 0 0 0 140px rgba(255,255,255,.025);
+    }
+    .hero-content { position: relative; z-index: 2; padding-top: 70px; }
+    .mini-ad {
+      position: absolute;
+      z-index: 4;
+      top: 112px;
+      right: max(20px, calc((100vw - 1180px) / 2));
+      width: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 13px 14px 13px 17px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 16px;
+      color: #fff;
+      background: rgba(18,38,31,.72);
+      box-shadow: 0 12px 35px rgba(0,0,0,.18);
+      backdrop-filter: blur(12px);
+      transition: transform .2s, background .2s;
+    }
+    .mini-ad:hover { transform: translateY(-2px); background: rgba(18,38,31,.9); }
+    .mini-ad-copy small {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--lime);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .mini-ad-copy strong { display: block; font: 800 14px/1.3 Manrope; }
+    .mini-ad-arrow {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--forest);
+      background: var(--lime);
+      font-weight: 800;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-bottom: 22px;
+      color: var(--lime);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-size: 12px; font-weight: 700;
+    }
+    .eyebrow::before { content: ""; width: 32px; height: 2px; background: currentColor; }
+    h1 {
+      max-width: 760px;
+      margin: 0;
+      font-family: Manrope, sans-serif;
+      font-size: clamp(52px, 7.3vw, 100px);
+      line-height: .98;
+      letter-spacing: -.055em;
+    }
+    .hero-copy {
+      max-width: 570px;
+      margin: 26px 0 34px;
+      color: rgba(255,255,255,.76);
+      font-size: 18px;
+      line-height: 1.65;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn {
+      min-height: 52px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .2s, background .2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--lime); color: var(--forest); }
+    .btn-ghost { border: 1px solid rgba(255,255,255,.35); color: #fff; background: rgba(255,255,255,.06); backdrop-filter: blur(8px); }
+    .hero-stat {
+      position: absolute;
+      z-index: 3;
+      right: max(30px, calc((100vw - 1180px) / 2));
+      bottom: 54px;
+      display: flex;
+      gap: 34px;
+    }
+    .stat strong { display: block; color: var(--lime); font-family: Manrope; font-size: 30px; }
+    .stat span { color: rgba(255,255,255,.65); font-size: 12px; }
+
+    .search-wrap { position: relative; z-index: 5; margin-top: -36px; }
+    .search {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr auto;
+      gap: 0;
+      padding: 10px;
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .field { padding: 9px 22px; border-right: 1px solid var(--line); }
+    .field label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .field select { width: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; font-weight: 600; }
+    .search .btn { margin-left: 10px; border-radius: 12px; padding: 0 28px; background: var(--forest); color: white; }
+
+    section { padding: 110px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 42px; }
+    .section-head h2 { max-width: 620px; margin: 0; font: 800 clamp(34px, 4.5vw, 58px)/1.08 Manrope; letter-spacing: -.045em; }
+    .section-head p { max-width: 370px; margin: 0; color: var(--muted); line-height: 1.7; }
+    .dark-eyebrow { color: #6f9322; }
+
+    .filters { display: flex; gap: 9px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 4px; }
+    .filter {
+      flex: 0 0 auto;
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .2s;
+    }
+    .filter.active, .filter:hover { color: #fff; background: var(--forest); }
+    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .card {
+      overflow: hidden;
+      border-radius: 22px;
+      background: var(--paper);
+      box-shadow: 0 10px 35px rgba(25, 48, 39, .08);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .card:hover { transform: translateY(-7px); box-shadow: var(--shadow); }
+    .card[hidden] { display: none; }
+    .card-image { position: relative; height: 285px; overflow: hidden; }
+    .card-image img { height: 100%; object-fit: cover; transition: transform .5s; }
+    .card:hover .card-image img { transform: scale(1.05); }
+    .badge {
+      position: absolute; top: 16px; left: 16px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(18,38,31,.85);
+      color: white;
+      backdrop-filter: blur(6px);
+      font-size: 11px; font-weight: 700;
+    }
+    .level { left: auto; right: 16px; background: var(--lime); color: var(--forest); }
+    .card-body { padding: 23px; }
+    .card-location { color: var(--orange); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .card h3 { margin: 8px 0 14px; font: 800 23px Manrope; letter-spacing: -.025em; }
+    .meta { display: flex; gap: 18px; padding-bottom: 20px; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 19px; }
+    .price small { display: block; color: var(--muted); font-size: 11px; }
+    .price strong { font: 800 21px Manrope; }
+    .arrow { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--forest); }
+
+    .collab { padding: 0 0 110px; }
+    .collab-ad {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      align-items: center;
+      gap: 45px;
+      padding: 52px 58px;
+      border-radius: 26px;
+      color: #fff;
+      background: var(--forest);
+      box-shadow: var(--shadow);
+    }
+    .collab-ad::before {
+      content: "GNEX";
+      position: absolute;
+      right: -18px;
+      bottom: -62px;
+      color: rgba(255,255,255,.045);
+      font: 800 190px/1 Manrope;
+      letter-spacing: -.08em;
+    }
+    .ad-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      color: var(--lime);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .ad-label::before { content: ""; width: 25px; height: 2px; background: currentColor; }
+    .collab-ad h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0;
+      font: 800 clamp(31px, 4vw, 50px)/1.08 Manrope;
+      letter-spacing: -.04em;
+    }
+    .collab-ad p {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 17px 0 0;
+      color: rgba(255,255,255,.68);
+      line-height: 1.7;
+    }
+    .ad-action {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 13px;
+    }
+    .ad-action .btn { background: var(--lime); color: var(--forest); }
+    .ad-action small { color: rgba(255,255,255,.55); line-height: 1.5; }
+
+    .story { background: var(--forest); color: white; overflow: hidden; }
+    .story-grid { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 80px; }
+    .story-image { position: relative; }
+    .story-image img { height: 570px; object-fit: cover; border-radius: 160px 160px 24px 24px; }
+    .story-tag {
+      position: absolute; right: -30px; bottom: 55px;
+      width: 150px; height: 150px;
+      display: grid; place-items: center;
+      padding: 25px;
+      text-align: center;
+      border-radius: 50%;
+      color: var(--forest);
+      background: var(--lime);
+      font: 800 16px/1.25 Manrope;
+      transform: rotate(7deg);
+    }
+    .story h2 { margin: 0 0 24px; font: 800 clamp(38px, 5vw, 64px)/1.06 Manrope; letter-spacing: -.045em; }
+    .story p { max-width: 580px; color: rgba(255,255,255,.68); font-size: 17px; line-height: 1.8; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin: 30px 0 38px; }
+    .check { display: flex; gap: 11px; align-items: center; font-weight: 600; }
+    .check i { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: var(--forest); background: var(--lime); font-style: normal; font-size: 12px; }
+
+    .cta { padding: 90px 0; text-align: center; }
+    .cta-box {
+      position: relative;
+      overflow: hidden;
+      padding: 85px 25px;
+      border-radius: 28px;
+      color: white;
+      background: var(--orange);
+    }
+    .cta-box::before, .cta-box::after { content: ""; position: absolute; width: 270px; height: 270px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; }
+    .cta-box::before { left: -100px; top: -100px; box-shadow: 0 0 0 45px rgba(255,255,255,.08); }
+    .cta-box::after { right: -80px; bottom: -160px; box-shadow: 0 0 0 55px rgba(255,255,255,.08); }
+    .cta h2 { position: relative; z-index: 1; max-width: 750px; margin: 0 auto 16px; font: 800 clamp(36px, 5vw, 64px)/1.05 Manrope; letter-spacing: -.045em; }
+    .cta p { position: relative; z-index: 1; margin: 0 auto 28px; opacity: .85; }
+    .cta .btn { position: relative; z-index: 1; background: var(--forest); color: white; }
+
+    footer { padding: 28px 0 40px; }
+    .footer { display: flex; justify-content: space-between; gap: 25px; color: var(--muted); font-size: 13px; }
+    .footer .logo { color: var(--ink); }
+
+    .toast {
+      position: fixed; z-index: 99; right: 22px; bottom: 22px;
+      max-width: 330px;
+      padding: 15px 18px;
+      border-radius: 13px;
+      color: white; background: var(--forest);
+      box-shadow: var(--shadow);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: .3s;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; position: absolute; top: 76px; left: 20px; right: 20px; padding: 22px; border-radius: 16px; background: var(--forest); flex-direction: column; align-items: flex-start; }
+      .nav-links.open { display: flex; }
+      .menu { display: block; }
+      .hero { min-height: 720px; }
+      .mini-ad { top: 100px; }
+      .hero-stat { display: none; }
+      .search { grid-template-columns: 1fr 1fr; }
+      .field:nth-child(2) { border-right: 0; }
+      .field:nth-child(3) { border-top: 1px solid var(--line); }
+      .search .btn { margin-top: 8px; }
+      .trip-grid { grid-template-columns: repeat(2, 1fr); }
+      .collab-ad { grid-template-columns: 1fr; }
+      .story-grid { grid-template-columns: 1fr; }
+      .story-image { max-width: 540px; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .nav {
+        position: fixed;
+        background: rgba(18,38,31,.92);
+        box-shadow: 0 8px 24px rgba(0,0,0,.14);
+        backdrop-filter: blur(14px);
+      }
+      .nav-inner { height: 72px; }
+      .hero { min-height: 680px; background-position: 62% center; }
+      .hero-content { padding-top: 105px; }
+      .mini-ad { position: fixed; top: 84px; left: 12px; right: 12px; width: auto; }
+      h1 { font-size: 52px; }
+      .hero-copy { font-size: 16px; }
+      .search-wrap { margin-top: -25px; }
+      .search { grid-template-columns: 1fr; padding: 7px; }
+      .field { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px 15px; }
+      .field:nth-child(3) { border-top: 0; }
+      .search .btn { margin: 7px 0 0; }
+      section { padding: 80px 0; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 18px; }
+      .trip-grid { grid-template-columns: 1fr; }
+      .card-image { height: 265px; }
+      .collab { padding-bottom: 80px; }
+      .collab-ad { padding: 38px 27px; gap: 28px; }
+      .collab-ad::before { font-size: 110px; bottom: -35px; }
+      .story-grid { gap: 55px; }
+      .story-image img { height: 450px; border-radius: 100px 100px 20px 20px; }
+      .story-tag { right: 8px; bottom: -35px; width: 125px; height: 125px; font-size: 14px; }
+      .checks { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="shell nav-inner">
+      <a class="logo" href="#"><span class="logo-mark">▲</span><span>GNEX</span></a>
+      <div class="nav-links" id="navLinks">
+        <a href="#trip">Trip</a>
+        <a href="#tentang">Tentang Kami</a>
+        <a href="#hubungi">Hubungi</a>
+        <a class="nav-cta" href="#trip">Cari Trip</a>
+      </div>
+      <button class="menu" id="menuBtn" aria-label="Buka menu">☰</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <a class="mini-ad" href="../index.html" aria-label="Terokai platform GNEX">
+      <span class="mini-ad-copy">
+        <small>Iklan · GNEX</small>
+        <strong>Tournament, scrim & dunia gaming.</strong>
+      </span>
+      <span class="mini-ad-arrow">↗</span>
+    </a>
+    <div class="shell hero-content">
+      <span class="eyebrow">gunung Malaysia</span>
+      <h1>Satu langkah.<br>Seribu cerita.</h1>
+      <p class="hero-copy">Trip hiking terancang untuk kaki gunung baru dan berpengalaman. Dari puncak Kedah ke denai Perak—kami urus, anda nikmati perjalanan.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#trip">Teroka Trip <span>↗</span></a>
+        <a class="btn btn-ghost" href="#tentang"><span>▶</span> Kenali Kami</a>
+      </div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat"><strong>40+</strong><span>Trip selesai</span></div>
+      <div class="stat"><strong>1.2k</strong><span>Hikers bersama</span></div>
+      <div class="stat"><strong>4.9</strong><span>Rating komuniti</span></div>
+    </div>
+  </header>
+
+  <div class="shell search-wrap">
+    <form class="search" id="searchForm">
+      <div class="field">
+        <label>Destinasi</label>
+        <select id="searchState">
+          <option value="all">Semua negeri</option>
+          <option value="kedah">Kedah</option>
+          <option value="perak">Perak</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tahap</label>
+        <select id="searchLevel">
+          <option value="all">Semua tahap</option>
+          <option value="mudah">Mudah</option>
+          <option value="sederhana">Sederhana</option>
+          <option value="mencabar">Mencabar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bulan</label>
+        <select><option>Ogos 2026</option><option>September 2026</option><option>Oktober 2026</option></select>
+      </div>
+      <button class="btn" type="submit">Cari Trip →</button>
+    </form>
+  </div>
+
+  <main>
+    <section id="trip">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow dark-eyebrow">Trip akan datang</span>
+            <h2>Pilih puncak, kami urus yang lain.</h2>
+          </div>
+          <p>Setiap trip disertai guide berpengalaman, taklimat lengkap dan kumpulan kecil untuk pengalaman lebih selamat.</p>
+        </div>
+        <div class="filters" id="filters">
+          <button class="filter active" data-state="all">Semua Trip</button>
+          <button class="filter" data-state="kedah">Kedah</button>
+          <button class="filter" data-state="perak">Perak</button>
+        </div>
+        <div class="trip-grid" id="tripGrid">
+          <article class="card" data-state="kedah" data-level="sederhana">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-gunung-pulai-user.png" alt="Pemandangan awan karpet di Gunung Pulai">
+              <span class="badge">Kedah</span><span class="badge level">Sederhana</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Kedah</span>
+              <h3>Gunung Pulai</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM35</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Pulai" aria-label="Tanya tentang Gunung Pulai">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="kedah" data-level="sederhana">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-gunung-baling.jpg" alt="Pemandangan trip Gunung Baling">
+              <span class="badge">Kedah</span><span class="badge level">Sederhana</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Kedah</span>
+              <h3>Gunung Baling</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM35</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Baling" aria-label="Tanya tentang Gunung Baling">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="kedah" data-level="sederhana">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-fakir-terbang-user.png" alt="Pemandangan awan karpet di Gunung Fakir Terbang">
+              <span class="badge">Kedah</span><span class="badge level">Sederhana</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Kedah</span>
+              <h3>Gunung Fakir Terbang</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM60</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Fakir Terbang" aria-label="Tanya tentang Gunung Fakir Terbang">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="perak" data-level="mencabar">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-gunung-alai-user.png" alt="Panorama awan karpet dari Gunung Alai">
+              <span class="badge">Perak</span><span class="badge level">Mencabar</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Perak</span>
+              <h3>Gunung Alai</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM75</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Alai" aria-label="Tanya tentang Gunung Alai">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="perak" data-level="mencabar">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-gunung-bubu-user.png" alt="Hutan berlumut di Gunung Bubu">
+              <span class="badge">Perak</span><span class="badge level">Mencabar</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Perak</span>
+              <h3>Gunung Bubu</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM85</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Bubu" aria-label="Tanya tentang Gunung Bubu">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="perak" data-level="mencabar">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-gunung-kerunai.jpg" alt="Pemandangan trip Gunung Kerunai">
+              <span class="badge">Perak</span><span class="badge level">Mencabar</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Perak</span>
+              <h3>Gunung Kerunai</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM85</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Gunung Kerunai" aria-label="Tanya tentang Gunung Kerunai">↗</a></div>
+            </div>
+          </article>
+          <article class="card" data-state="perak" data-level="mudah">
+            <div class="card-image">
+              <img loading="lazy" src="../images/trip-bukit-berekeh-user.png" alt="Pemandangan rabung Bukit Berekeh">
+              <span class="badge">Perak</span><span class="badge level">Mudah</span>
+            </div>
+            <div class="card-body">
+              <span class="card-location">Perak</span>
+              <h3>Bukit Berekeh</h3>
+              <div class="meta"><span>Trip sehari</span><span>Guide disediakan</span><span>Slot terhad</span></div>
+              <div class="card-foot"><div class="price"><small>Harga trip</small><strong>RM25</strong></div><a class="arrow enquire" href="#hubungi" data-trip="Bukit Berekeh" aria-label="Tanya tentang Bukit Berekeh">↗</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="story" id="tentang">
+      <div class="shell story-grid">
+        <div class="story-image">
+          <img loading="lazy" src="../images/hiking-hero-kinabalu-hd.jpg" alt="Pemandangan Gunung Kinabalu">
+          <div class="story-tag">Jalan jauh, jumpa diri sendiri.</div>
+        </div>
+        <div>
+          <span class="eyebrow">Kenapa GNEX</span>
+          <h2>Bukan sekadar sampai puncak.</h2>
+          <p>Kami bina pengalaman yang membuatkan anda rasa yakin dari langkah pertama. Sama ada ini pendakian pertama atau puncak kesepuluh anda, komuniti kami bergerak bersama—tiada siapa ditinggalkan.</p>
+          <div class="checks">
+            <div class="check"><i>✓</i> Guide</div>
+            <div class="check"><i>✓</i> Permit pendakian disediakan</div>
+            <div class="check"><i>✓</i> Carpool jika ada sehala</div>
+          </div>
+          <a class="btn btn-primary" href="#hubungi">Sertai komuniti →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="hubungi">
+      <div class="shell">
+        <div class="cta-box">
+          <h2>Puncak mana lepas ni?</h2>
+          <p>WhatsApp kami untuk semak slot dan dapatkan itinerari penuh trip pilihan anda.</p>
+          <a class="btn" id="whatsappBtn" href="https://wa.me/60199404591?text=Hi%20GNEX%2C%20saya%20nak%20tanya%20tentang%20trip%20hiking." target="_blank" rel="noopener">WhatsApp Sekarang ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="collab" aria-label="Promosi GNEX">
+      <div class="shell">
+        <div class="collab-ad">
+          <div>
+            <span class="ad-label">Ruang promosi · GNEX</span>
+            <h2>Gaming, tournament & komuniti—semuanya di GNEX.</h2>
+            <p>Ikuti kejohanan esports, sertai scrim, top up game dan dapatkan merchandise rasmi. GNEX menyatukan pemain serta komuniti dalam satu platform.</p>
+          </div>
+          <div class="ad-action">
+            <a class="btn" href="../index.html">Terokai GNEX ↗</a>
+            <small>Tournament · Scrim · Top Up · Merchandise</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer">
+      <div class="logo"><span class="logo-mark">▲</span><span>GNEX</span></div>
+      <span>© 2026 GNEX. Dibina untuk mereka yang mahu pergi lebih jauh.</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const cards = [...document.querySelectorAll(".card")];
+    const filters = [...document.querySelectorAll(".filter")];
+    const toast = document.getElementById("toast");
+
+    function filterTrips(state, level = "all") {
+      let shown = 0;
+      cards.forEach(card => {
+        const matchState = state === "all" || card.dataset.state === state;
+        const matchLevel = level === "all" || card.dataset.level === level;
+        card.hidden = !(matchState && matchLevel);
+        if (!card.hidden) shown++;
+      });
+      filters.forEach(btn => btn.classList.toggle("active", btn.dataset.state === state));
+      toast.textContent = shown ? `${shown} trip dijumpai.` : "Belum ada trip untuk pilihan ini.";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    filters.forEach(btn => btn.addEventListener("click", () => filterTrips(btn.dataset.state)));
+
+    document.getElementById("searchForm").addEventListener("submit", event => {
+      event.preventDefault();
+      filterTrips(document.getElementById("searchState").value, document.getElementById("searchLevel").value);
+      document.getElementById("trip").scrollIntoView({ behavior: "smooth" });
+    });
+
+    document.getElementById("menuBtn").addEventListener("click", () => {
+      document.getElementById("navLinks").classList.toggle("open");
+    });
+
+    document.querySelectorAll(".nav-links a").forEach(link => link.addEventListener("click", () => {
+      document.getElementById("navLinks").classList.remove("open");
+    }));
+
+    document.querySelectorAll(".enquire").forEach(link => link.addEventListener("click", () => {
+      const trip = link.dataset.trip;
+      document.getElementById("whatsappBtn").href = `https://wa.me/60199404591?text=${encodeURIComponent(`Hi GNEX, saya nak tanya tentang trip ${trip}.`)}`;
+    }));
+  </script>
+</body>
+</html>

@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="GNEX MLBB Scrim system untuk daftar team, create scrim, request join, scrim deal room, room ID, result dan point history.">
 <link rel="icon" type="image/png" sizes="64x64" href="images/logo-gnex-esport-64x64.png">
-<link rel="manifest" href="manifest.webmanifest?v=4">
+<link rel="manifest" href="scrim-manifest.webmanifest?v=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GNEX Scrim">
+<link rel="apple-touch-icon" href="images/gnex-home-192.png">
 <meta name="theme-color" content="#02040a">
 <title>GNEX MLBB Scrim</title>
-<link rel="stylesheet" href="scrim.css?v=1048">
-<link rel="stylesheet" href="mobile-nav.css?v=5">
+<link rel="stylesheet" href="scrim.css?v=1070">
+<link rel="stylesheet" href="mobile-nav.css?v=6">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -21,7 +25,7 @@
 </script>
 </head>
 <body class="is-loading scrim-view-home">
-<section class="auth-gate" id="authGate">
+<section class="auth-gate" id="authGate" role="dialog" aria-modal="true" aria-labelledby="authGateTitle" hidden>
   <nav class="auth-gate-nav">
     <a class="brand" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
       <img src="images/logo baru gnex .webp" alt="GNEX">
@@ -31,13 +35,13 @@
       </div>
     </a>
     <div class="nav-actions">
-      <a href="https://gnexcenter.com/" class="nav-link">HOME</a>
       <a href="https://gnexcenter.com/tournament.html" class="nav-link">TOURNAMENT</a>
       <button class="nav-link primary" type="button" data-auth-tab="login">JOIN</button>
     </div>
   </nav>
 
   <div class="auth-card">
+    <button class="auth-close" type="button" id="closeAuthGateBtn" aria-label="Tutup login">&times;</button>
     <div class="auth-welcome">
       <a class="auth-logo" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
         <img src="images/logo baru gnex .webp" alt="GNEX">
@@ -65,24 +69,25 @@
           <input id="teamName" name="team_name" autocomplete="username" placeholder="Contoh: GNEX Alpha" required>
         </div>
         <div class="field auth-register-field" hidden>
-          <label for="captainName">Nama captain</label>
-          <input id="captainName" name="captain_name" autocomplete="name" placeholder="Contoh: Ahmad">
+          <label for="registerPlayerIgn">Player IGN</label>
+          <input id="registerPlayerIgn" name="player_ign" autocomplete="off" placeholder="Nama dalam Mobile Legends">
         </div>
         <div class="field auth-register-field" hidden>
-          <label for="registerPhone">Nombor telefon captain</label>
-          <input id="registerPhone" name="phone_number" type="tel" autocomplete="tel" placeholder="Contoh: +60123456789">
+          <label for="registerPlayerId">Player ID</label>
+          <input id="registerPlayerId" name="player_game_id" autocomplete="off" placeholder="Contoh: 123456789 (1234)">
         </div>
         <div class="field">
           <label for="teamPassword">Password team</label>
-          <input id="teamPassword" name="password" type="password" autocomplete="current-password" minlength="4" required>
+          <input id="teamPassword" name="password" type="password" autocomplete="current-password" required>
         </div>
+        <p class="auth-form-message" id="authFormMessage" role="alert" aria-live="assertive" hidden></p>
         <button class="btn primary block" type="submit" id="authSubmit">Login Team</button>
       </form>
     </div>
   </div>
 </section>
 
-<div class="scrim-app" id="scrimApp" hidden>
+<div class="scrim-app" id="scrimApp">
 <nav class="scrim-nav">
   <a class="brand" href="https://gnexcenter.com/" aria-label="Back to GNEX Center">
     <img src="images/logo baru gnex .webp" alt="GNEX">
@@ -92,14 +97,22 @@
     </div>
   </a>
   <div class="nav-actions">
-    <a href="https://gnexcenter.com/" class="nav-link">HOME</a>
-    <a href="https://gnexcenter.com/tournament.html" class="nav-link">TOURNAMENT</a>
+    <div class="desktop-app-nav" aria-label="Scrim navigation">
+      <button class="nav-link" type="button" data-nav="scrim-home">HOME</button>
+      <button class="nav-link desktop-guest-only" type="button" data-nav="support">SUPPORT</button>
+      <button class="nav-link desktop-auth-only" type="button" data-nav="deal">DEAL</button>
+      <button class="nav-link" type="button" data-nav="all-scrim">ALL SCRIM</button>
+      <button class="nav-link desktop-auth-only" type="button" data-nav="review">REVIEW</button>
+    </div>
+    <a href="https://gnexcenter.com/tournament.html" class="nav-link" id="primaryNavLink">TOURNAMENT</a>
     <button class="profile-nav-button" type="button" id="profileBtn" aria-expanded="false">
       <span class="profile-name" id="profileTeamName">TEAM</span>
       <span class="profile-badge hidden" id="profileBadge">0</span>
     </button>
   </div>
 </nav>
+
+<div class="guest-login-note" role="status">Sila login untuk bermain scrim</div>
 
 <section class="admin-app-view" id="adminView" hidden>
   <div class="admin-shell">
@@ -109,26 +122,29 @@
         <h2>Scrim Admin</h2>
         <p>Manage scrim, team profile dan create match terus untuk dua team.</p>
       </div>
-      <button class="btn red panel-toggle" type="button" id="adminLogoutBtn">LOGOUT ADMIN</button>
+      <div class="admin-head-actions">
+        <button class="btn panel-toggle" type="button" id="adminBackScrimBtn">BACK TO SCRIM</button>
+        <button class="btn red panel-toggle" type="button" id="adminLogoutBtn">LOGOUT ADMIN</button>
+      </div>
     </div>
 
     <div class="admin-grid">
-      <section class="admin-card">
-        <div class="panel-title">
+      <details class="admin-card admin-toggle-card">
+        <summary class="panel-title admin-toggle-summary">
           <div>
             <h3>Create Match</h3>
-            <p>Pilih dua team dan terus confirm scrim.</p>
+            <p>Kosongkan kedua-dua team untuk Open Scrim, pilih 1 team sebagai host, atau 2 team untuk terus confirm.</p>
           </div>
-        </div>
+        </summary>
         <form class="form-grid" id="adminCreateMatchForm">
           <input type="hidden" name="action" value="admin_create_match">
           <div class="field">
             <label>Team 1 / Host</label>
-            <select name="team_one_id" id="adminTeamOne" required></select>
+            <select name="team_one_id" id="adminTeamOne"></select>
           </div>
           <div class="field">
-            <label>Team 2 / Opponent</label>
-            <select name="team_two_id" id="adminTeamTwo" required></select>
+            <label>Team 2 / Opponent (optional)</label>
+            <select name="team_two_id" id="adminTeamTwo"></select>
           </div>
           <div class="field">
             <label>Nama scrim</label>
@@ -165,20 +181,54 @@
             <label>Nota</label>
             <textarea name="notes" placeholder="Rules, lobby, arahan admin"></textarea>
           </div>
-          <button class="btn primary block" type="submit">Create Confirmed Scrim</button>
+          <button class="btn primary block" type="submit">Create Scrim</button>
         </form>
-      </section>
+      </details>
 
-      <section class="admin-card">
-        <div class="panel-title">
+      <details class="admin-card admin-toggle-card">
+        <summary class="panel-title admin-toggle-summary">
           <div>
             <h3>Team Profiles</h3>
             <p>Semak captain dan nombor telefon private.</p>
           </div>
+        </summary>
+        <div class="admin-team-search-wrap">
+          <label for="adminTeamSearch">Cari team</label>
+          <input id="adminTeamSearch" type="search" placeholder="Nama team, captain, telefon atau ID..." autocomplete="off">
+          <small id="adminTeamSearchResult"></small>
         </div>
+        <form class="admin-team-create" id="adminCreateTeamForm">
+          <input type="hidden" name="action" value="admin_create_team">
+          <div class="field">
+            <label>Nama team</label>
+            <input name="team_name" placeholder="Nama team baharu" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input name="password" type="password" minlength="4" pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{4,}" title="Mesti ada 1 huruf besar, 1 nombor dan 1 simbol" placeholder="Contoh: Team1!" required>
+          </div>
+          <div class="field">
+            <label>Captain</label>
+            <input name="captain_name" placeholder="Nama captain">
+          </div>
+          <div class="field">
+            <label>Telefon</label>
+            <input name="phone_number" type="tel" placeholder="Contoh: 60123456789">
+          </div>
+          <div class="field">
+            <label>Point awal</label>
+            <input name="points" type="number" value="0" required>
+          </div>
+          <button class="btn primary" type="submit">ADD TEAM</button>
+        </form>
         <div class="admin-team-list" id="adminTeamList"></div>
-      </section>
+      </details>
     </div>
+
+    <details class="admin-card admin-toggle-card">
+      <summary class="panel-title admin-toggle-summary"><div><h3>Support Inbox</h3><p>Reply chat private daripada guest.</p></div></summary>
+      <div id="adminSupportInbox"></div>
+    </details>
 
     <section class="admin-card">
       <div class="panel-title">
@@ -225,7 +275,15 @@
           <label for="profilePhone">Nombor telefon</label>
           <input id="profilePhone" name="phone_number" type="tel" autocomplete="tel" placeholder="Contoh: +60123456789">
         </div>
-        <p class="profile-private-note">Nombor ini private dan hanya display dalam profile team sendiri.</p>
+        <div class="field">
+          <label for="profilePlayerIgn">Player IGN</label>
+          <input id="profilePlayerIgn" name="player_ign" autocomplete="off" placeholder="Nama dalam Mobile Legends">
+        </div>
+        <div class="field">
+          <label for="profilePlayerId">Player ID</label>
+          <input id="profilePlayerId" name="player_game_id" inputmode="numeric" autocomplete="off" placeholder="Contoh: 123456789 (1234)">
+        </div>
+        <p class="profile-private-note">Lengkapkan semua maklumat ini sebelum create atau join scrim. Telefon dan Player ID hanya dipaparkan dalam profile sendiri.</p>
         <button class="btn gold block" type="submit">Update Profile</button>
       </form>
     </section>
@@ -266,6 +324,21 @@
       </div>
       <div id="rankList"></div>
     </section>
+  </article>
+</section>
+
+<section class="gtml-slot-overlay" id="gtmlSlotOverlay" aria-hidden="true" hidden>
+  <button class="gtml-slot-backdrop" id="gtmlSlotBackdrop" type="button" aria-label="Tutup info slot GTML"></button>
+  <article class="gtml-slot-card">
+    <div class="gtml-slot-head">
+      <div>
+        <p class="section-kicker">GTML SEASON 8 SLOT INFO</p>
+        <h2>Top 3 Ke Liga GTML</h2>
+        <p>Top 3 pasukan dalam Scrim Ranking akan mendapat slot ke Liga GTML Season 8.</p>
+      </div>
+      <button class="btn panel-toggle" type="button" id="closeGtmlSlotBtn">BACK</button>
+    </div>
+    <img class="gtml-slot-poster" src="images/gtml-season-8-poster.jpg" alt="Poster GTML Season 8 Coming Soon">
   </article>
 </section>
 
@@ -360,13 +433,22 @@
   </section>
 </header>
 
+<section class="support-app-view" id="supportView" hidden>
+  <div class="support-shell">
+    <div class="deal-view-head"><div><p class="section-kicker">GNEX HELP</p><h2>Support</h2><p>Chat private dengan admin.</p></div></div>
+    <div class="support-grid">
+      <section class="support-card"><h3>Private Support</h3><p>Mesej ini hanya dapat dilihat oleh anda dan admin.</p><div class="support-chat-log" id="supportChatLog"></div><form class="support-chat-form"><input type="hidden" name="action" value="send_support_message"><input name="guest_name" placeholder="Nama anda" required><input name="message" placeholder="Tulis mesej kepada admin..." maxlength="500" required><button class="btn primary" type="submit">SEND</button></form></section>
+    </div>
+  </div>
+</section>
+
 <section class="deal-app-view" id="dealView" hidden>
   <div class="deal-shell">
     <div class="deal-view-head">
       <div>
         <p class="section-kicker">SCRIM DEAL</p>
         <h2>Scrim Deal</h2>
-        <p>Room chat aktif untuk setiap scrim yang sudah accepted. Update id room jika scrim chat error</p>
+        <p>Group Pertanyaan untuk semua team dan private chat bagi setiap scrim yang sudah accepted.</p>
       </div>
       <button class="btn panel-toggle" type="button" id="dealBackListBtn" hidden>BACK</button>
     </div>
@@ -457,6 +539,7 @@
           <h2>Open Scrims</h2>
         </div>
         <div class="filters">
+          <button class="btn all-scrim-back-button" type="button" id="allScrimBackBtn">BACK TO HOME</button>
           <button class="filter is-active" type="button" data-filter="all">All</button>
           <button class="filter" type="button" data-filter="open">Open</button>
           <button class="filter" type="button" data-filter="deal">Deal</button>
@@ -470,7 +553,7 @@
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="scrim.js?v=79"></script>
-<script src="mobile-nav.js?v=10"></script>
+<script src="scrim-app.js?v=15"></script>
+<script src="mobile-nav.js?v=14"></script>
 </body>
 </html>

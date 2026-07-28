@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v1';
+const STATIC_CACHE = 'gnex-static-v10';
 const IMAGE_CACHE = 'gnex-images-v1';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
@@ -23,12 +23,17 @@ const CORE_ASSETS = [
   'mobile-nav.css',
   'datacust.js',
   'manifest.webmanifest',
+  'scrim-manifest.webmanifest',
+  'scrim.html',
+  'scrim.css',
+  'scrim-app.js',
   'images/logo baru gnex .webp',
   'images/logo baru gnex .png',
   'images/logo-gnex-esport-64x64.png',
   'images/logo-gnex-esport-64x64.webp',
   'images/gnex-home-192.png',
   'images/gnex-home-512.png',
+  'images/gtml-season-8-poster.jpg',
   'images/ff-wallpaper.webp',
   'images/ff-logo.webp',
   'images/ml-wallpaper.webp',
@@ -62,7 +67,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isStaticAsset(url)) {
-    event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
+    event.respondWith(networkFirst(request, STATIC_CACHE));
   }
 });
 
@@ -132,6 +137,20 @@ async function staleWhileRevalidate(request, cacheName){
   return cached || networkFetch;
 }
 
+async function networkFirst(request, cacheName){
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetch(request, {cache:'no-store'});
+    if (response.ok) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    return cached || new Response('', {status:504, statusText:'Offline'});
+  }
+}
+
 async function refreshCache(request, cache, trimAfterUpdate){
   try {
     const response = await fetch(request);
@@ -163,7 +182,21 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'GNEX_WARM_ASSETS') {
     event.waitUntil(warmAssetCache(event.data.urls || []));
   }
+  if (event.data?.type === 'SET_PUSH_TOKEN' && event.data.token) {
+    event.waitUntil(savePushToken(event.data.token).then(() => event.ports?.[0]?.postMessage({ok:true})));
+  }
 });
+
+async function savePushToken(token){
+  const cache = await caches.open('gnex-push-config-v1');
+  await cache.put('push-device-token', new Response(String(token)));
+}
+
+async function loadPushToken(){
+  const cache = await caches.open('gnex-push-config-v1');
+  const response = await cache.match('push-device-token');
+  return response ? response.text() : '';
+}
 
 async function warmAssetCache(urls){
   const cache = await caches.open(IMAGE_CACHE);
@@ -199,6 +232,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = new URL(event.notification.data?.url || 'scrim.html', self.location.origin).href;
   event.waitUntil((async () => {
+    if ('clearAppBadge' in self.navigator) await self.navigator.clearAppBadge();
     const windows = await self.clients.matchAll({type:'window', includeUncontrolled:true});
     for (const client of windows) {
       if (client.url.includes('scrim.html') && 'focus' in client) {
@@ -214,7 +248,8 @@ self.addEventListener('notificationclick', (event) => {
 
 async function showLatestScrimChat(){
   try {
-    const response = await fetch('api/scrim.php?push_latest=1', {
+    const token = await loadPushToken();
+    const response = await fetch(`api/scrim.php?push_latest=1&token=${encodeURIComponent(token)}`, {
       credentials:'include',
       cache:'no-store'
     });
@@ -230,8 +265,11 @@ async function showLatestScrimChat(){
       tag:data.tag || 'scrim-chat',
       icon:'images/logo-gnex-esport-64x64.png',
       badge:'images/logo-gnex-esport-64x64.png',
-      data:{url:data.url || 'scrim.html'}
+      data:{url:data.url || 'scrim.html'},
+      renotify:true,
+      vibrate:[180, 80, 180]
     });
+    if ('setAppBadge' in self.navigator) await self.navigator.setAppBadge(1);
   } catch (error) {
     await self.registration.showNotification('GNEX Scrim', {
       body:'Phone notification aktif. Chat baru akan masuk di sini.',

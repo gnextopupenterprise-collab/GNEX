@@ -34,9 +34,9 @@ body{
   letter-spacing:0;
 }
 
-body.is-loading .auth-gate,
-body.is-authed .auth-gate,
-body.is-guest .scrim-app{
+body.auth-modal-open{overflow:hidden}
+
+body.is-loading .auth-gate{
   display:none;
 }
 
@@ -83,7 +83,13 @@ textarea,
 }
 
 .auth-gate{
+  position:fixed;
+  inset:0;
+  z-index:10000;
   min-height:100vh;
+  -webkit-text-size-adjust:none;
+  text-size-adjust:none;
+  overflow:auto;
   display:flex;
   flex-direction:column;
   padding:0 24px 56px;
@@ -91,8 +97,24 @@ textarea,
     linear-gradient(90deg, rgba(0,0,0,.92), rgba(0,0,0,.62), rgba(2,6,23,.88)),
     radial-gradient(circle at 20% 18%, rgba(34,211,238,.22), transparent 28%),
     radial-gradient(circle at 82% 12%, rgba(236,72,153,.14), transparent 25%),
-    url("images/ml-wallpaper.jpg") center/cover no-repeat,
+    url("images/scrim-bg-red-blue.png?v=2") center/cover no-repeat,
     #02040a;
+}
+
+.auth-card{position:relative}
+.auth-close{
+  position:absolute;
+  top:12px;
+  right:14px;
+  z-index:2;
+  width:40px;
+  height:40px;
+  border:1px solid rgba(34,211,238,.4);
+  border-radius:50%;
+  background:rgba(2,4,10,.86);
+  color:#fff;
+  font-size:28px;
+  line-height:1;
 }
 
 .auth-gate-nav{
@@ -225,6 +247,34 @@ textarea,
   color:#001016;
 }
 
+.auth-form-message{
+  margin:2px 0 4px;
+  border:1px solid rgba(255,77,91,.65);
+  border-radius:7px;
+  background:rgba(116,10,23,.42);
+  color:#ff9ba5;
+  padding:10px 12px;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.4;
+}
+
+.auth-form-side .btn.primary:disabled{
+  cursor:wait;
+  opacity:.68;
+}
+
+.deal-chat-archived{
+  border-top:1px solid var(--line);
+  background:rgba(255,196,61,.08);
+  color:#ffd54f;
+  padding:14px 18px;
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
 .scrim-nav{
   position:sticky;
   top:0;
@@ -238,6 +288,24 @@ textarea,
   background:rgba(0,0,0,.88);
   border-bottom:1px solid rgba(255,255,255,.08);
   backdrop-filter:blur(18px);
+}
+
+.guest-login-note{
+  position:sticky;
+  top:var(--scrim-top-nav-height);
+  z-index:29;
+  padding:9px 16px;
+  border-bottom:1px solid rgba(255,93,104,.45);
+  background:rgba(80,5,12,.96);
+  color:#ff6b75;
+  text-align:center;
+  font-size:13px;
+  font-weight:900;
+}
+
+body.is-loading .guest-login-note,
+body.is-authed .guest-login-note{
+  display:none;
 }
 
 .brand{
@@ -275,6 +343,35 @@ textarea,
   display:flex;
   align-items:center;
   gap:12px;
+}
+
+.desktop-app-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.desktop-app-nav .nav-link{
+  min-height:38px;
+  padding:0 13px;
+  font-size:11px;
+}
+
+.desktop-guest-only,
+.desktop-auth-only{
+  display:none;
+}
+
+body.is-guest .desktop-guest-only,
+body.is-authed .desktop-auth-only{
+  display:inline-flex;
+}
+
+.desktop-app-nav .nav-link.is-active{
+  border-color:var(--cyan);
+  background:rgba(34,211,238,.14);
+  color:var(--cyan);
+  box-shadow:inset 0 -2px 0 var(--cyan);
 }
 
 .nav-link,.btn{
@@ -332,22 +429,67 @@ textarea,
   line-height:1;
 }
 
-.profile-overlay,.ranking-overlay,.result-overlay{
+.profile-overlay,.ranking-overlay,.result-overlay,.gtml-slot-overlay{
   position:fixed;
   inset:0;
   z-index:80;
 }
 
-.profile-overlay.is-visible,.ranking-overlay.is-visible,.result-overlay.is-visible{
+.profile-overlay.is-visible,.ranking-overlay.is-visible,.result-overlay.is-visible,.gtml-slot-overlay.is-visible{
   display:block;
 }
 
-.profile-backdrop,.ranking-backdrop,.result-backdrop{
+.profile-backdrop,.ranking-backdrop,.result-backdrop,.gtml-slot-backdrop{
   position:absolute;
   inset:0;
   border:0;
   background:rgba(0,0,0,.72);
   backdrop-filter:blur(10px);
+}
+
+.gtml-slot-card{
+  position:relative;
+  z-index:1;
+  width:min(760px, calc(100% - 28px));
+  max-height:calc(100dvh - 32px);
+  overflow:auto;
+  margin:16px auto;
+  border:1px solid rgba(34,211,238,.72);
+  border-radius:12px;
+  background:linear-gradient(145deg, rgba(5,13,27,.98), rgba(0,0,0,.98));
+  box-shadow:0 0 40px rgba(0,170,255,.24), 0 34px 110px rgba(0,0,0,.72);
+  padding:22px;
+}
+
+.gtml-slot-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.gtml-slot-head h2{
+  margin:7px 0;
+  color:#fff;
+  font-size:34px;
+  line-height:1;
+}
+
+.gtml-slot-head p:last-child{
+  max-width:580px;
+  margin:0;
+  color:#aeb8c8;
+  line-height:1.45;
+}
+
+.gtml-slot-poster{
+  display:block;
+  width:100%;
+  height:auto;
+  border:1px solid rgba(34,211,238,.34);
+  border-radius:9px;
+  background:#02040a;
 }
 
 .profile-card,.ranking-full-card,.result-review-card{
@@ -1459,7 +1601,7 @@ textarea,
   background:
     linear-gradient(90deg, rgba(0,0,0,.98), rgba(0,0,0,.72) 38%, rgba(8,16,40,.82)),
     linear-gradient(140deg, rgba(34,211,238,.1), transparent 38%, rgba(91,70,255,.18)),
-    url("images/ml-wallpaper.jpg") center/cover no-repeat;
+    url("images/scrim-bg-red-blue.png?v=2") center/cover no-repeat;
   border-bottom:1px solid rgba(255,255,255,.08);
 }
 
@@ -1770,6 +1912,37 @@ textarea,
     #000;
 }
 
+.support-app-view{
+  min-height:calc(100vh - 80px);
+  padding:34px max(18px, calc((100vw - 1280px) / 2)) 120px;
+  background:#000;
+}
+.support-shell{border:1px solid rgba(34,211,238,.34);border-radius:10px;background:linear-gradient(145deg,rgba(5,15,28,.97),#000);overflow:hidden}
+.support-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px}
+.support-card{min-width:0;padding:16px;border:1px solid rgba(255,255,255,.1);border-radius:9px;background:rgba(0,0,0,.45)}
+.support-card h3{margin:0 0 5px}.support-card>p{margin:0 0 12px;color:#9aa4b5;font-size:12px}
+.support-chat-log{display:grid;gap:8px;max-height:360px;overflow:auto;padding:8px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:#02050a}
+.support-message{padding:9px;border-radius:7px;background:rgba(34,211,238,.08)}
+.support-message.is-admin{background:rgba(70,245,157,.1)}
+.support-message strong,.support-message small{font-size:10px;color:var(--cyan)}.support-message p{margin:4px 0;font-size:13px}.support-message small{color:#788394}
+.support-chat-form,.group-chat-form,.admin-support-reply{display:grid;grid-template-columns:.55fr 1fr auto;gap:7px;margin-top:10px}
+.group-question-contact{
+  border-bottom-color:rgba(34,211,238,.34);
+  background:linear-gradient(90deg,rgba(34,211,238,.1),rgba(2,7,14,.92));
+}
+.question-room-avatar{
+  display:block;
+  background-color:#06121b;
+  background-image:url("images/question-chat-profile.png?v=20260727-1");
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:cover;
+}
+.group-question-screen .deal-chat-composer{
+  grid-template-columns:minmax(0,1fr) 48px;
+}
+.admin-support-thread{margin-bottom:12px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:8px}.admin-support-thread h4{margin:0 0 8px}
+
 .review-app-view{
   min-height:calc(100vh - 80px);
   padding:34px max(18px, calc((100vw - 1280px) / 2)) 130px;
@@ -1807,6 +1980,12 @@ textarea,
   padding:20px;
 }
 
+.admin-head-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
 .admin-head h2{
   margin:4px 0 0;
   font-size:32px;
@@ -1829,6 +2008,37 @@ textarea,
   padding:18px;
 }
 
+.admin-toggle-summary{
+  margin:0;
+  padding:4px;
+  cursor:pointer;
+  list-style:none;
+  user-select:none;
+}
+
+.admin-toggle-summary::-webkit-details-marker{display:none}
+
+.admin-toggle-summary::after{
+  content:'+';
+  flex:0 0 auto;
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(34,211,238,.45);
+  border-radius:8px;
+  color:var(--cyan);
+  font-size:22px;
+}
+
+.admin-toggle-card[open] > .admin-toggle-summary{
+  margin-bottom:16px;
+}
+
+.admin-toggle-card[open] > .admin-toggle-summary::after{
+  content:'-';
+}
+
 .admin-team-list,
 .admin-scrim-list{
   display:grid;
@@ -1844,9 +2054,79 @@ textarea,
 }
 
 .admin-team-row{
-  display:grid;
-  grid-template-columns:1fr auto;
+  display:block;
+}
+
+.admin-team-row-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   gap:10px;
+}
+
+.admin-team-row-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.admin-team-edit-toggle{
+  min-height:34px;
+  padding:0 14px;
+  border-color:rgba(34,211,238,.55);
+  color:var(--cyan);
+  font-size:11px;
+}
+
+.admin-team-create,
+.admin-team-edit{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  align-items:end;
+}
+
+.admin-team-search-wrap{
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr) auto;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.admin-team-search-wrap label{
+  color:#fff;
+  font-size:12px;
+}
+
+.admin-team-search-wrap input{
+  min-height:42px;
+}
+
+.admin-team-search-wrap small{
+  min-width:64px;
+  color:var(--cyan);
+  text-align:right;
+  font-size:11px;
+}
+
+.admin-team-create{
+  margin-bottom:14px;
+  padding:12px;
+  border:1px solid rgba(34,211,238,.22);
+  border-radius:8px;
+  background:rgba(34,211,238,.04);
+}
+
+.admin-team-edit{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.admin-team-create .btn,
+.admin-team-edit .btn{
+  min-height:42px;
 }
 
 .admin-team-row strong,
@@ -1869,10 +2149,65 @@ textarea,
 
 .admin-scrim-edit{
   display:grid;
-  grid-template-columns:1.1fr .9fr .55fr auto auto;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
   gap:8px;
   align-items:end;
   margin-top:10px;
+}
+
+.admin-scrim-edit .admin-info-field{
+  grid-column:span 2;
+}
+
+.admin-scrim-edit > .btn{
+  min-height:42px;
+}
+
+.admin-point-edit{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:8px;
+  align-items:end;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.admin-result-complete{
+  display:grid;
+  gap:4px;
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(70,245,157,.3);
+  border-radius:8px;
+  background:rgba(70,245,157,.06);
+}
+
+.admin-result-complete span{
+  color:var(--green);
+  font-size:10px;
+  letter-spacing:.16em;
+}
+
+.admin-result-complete strong{
+  font-size:14px;
+}
+
+.admin-result-complete small{
+  color:#9aa4b5;
+  font-size:11px;
+}
+
+.admin-point-edit .btn{
+  min-height:42px;
+}
+
+.admin-point-hint{
+  margin:12px 0 0;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:#f5b942;
+  font-size:12px;
 }
 
 .deal-shell{
@@ -1948,6 +2283,36 @@ textarea,
 .deal-contact-list{
   display:grid;
   gap:0;
+}
+
+.deal-contact-section-label{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid rgba(34,211,238,.16);
+  background:rgba(1,8,15,.94);
+  color:#67e8f9;
+  padding:8px 18px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.2em;
+}
+.deal-contact-section-label strong{
+  min-width:22px;
+  border-radius:999px;
+  background:rgba(34,211,238,.14);
+  padding:4px 7px;
+  text-align:center;
+  letter-spacing:0;
+}
+.deal-contact-empty{
+  margin:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  color:#788394;
+  padding:16px 18px;
+  font-size:12px;
 }
 
 .deal-contact-item{
@@ -2169,6 +2534,12 @@ body.scrim-view-admin .bottom-app-nav{
   display:none;
 }
 
+body.scrim-view-support #homeView,
+body.scrim-view-support #dealView,
+body.scrim-view-support #reviewView,
+body.scrim-view-support #scrimWorkspace,
+body.scrim-view-support #adminView{display:none}
+
 #dealViewContent{
   min-height:0;
   flex:1;
@@ -2255,6 +2626,18 @@ body.scrim-view-admin .bottom-app-nav{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+}
+
+.all-scrim-back-button{
+  min-height:36px;
+  padding:0 14px;
+  border-color:rgba(34,211,238,.5);
+  color:var(--cyan);
+  font-size:11px;
+}
+
+@media (max-width:820px){
+  .all-scrim-back-button{display:none}
 }
 
 .tab,.filter{
@@ -2977,23 +3360,57 @@ body.has-bottom-app-nav .toast{
   .auth-card{
     margin:16px auto 0;
     min-height:auto;
+    max-height:calc(100svh - 116px);
     grid-template-columns:1fr;
+    overflow-y:auto;
+    overscroll-behavior:contain;
   }
   .auth-welcome{
-    min-height:240px;
-    padding:24px;
+    min-height:210px;
+    gap:18px;
+    padding:22px 24px;
     border-right:0;
     border-bottom:1px solid rgba(34,211,238,.26);
     border-radius:0 0 72px 72px;
   }
+  .auth-welcome > .btn{
+    display:none;
+  }
   .auth-welcome h1{
-    font-size:32px;
+    font-size:30px;
+    line-height:1.05;
+  }
+  .auth-welcome p{
+    max-width:none;
+    font-size:15px;
+    line-height:1.45;
   }
   .auth-form-side{
     padding:24px;
   }
+  .auth-form-side h2{
+    padding-right:42px;
+    font-size:28px;
+    line-height:1.1;
+  }
+  .auth-helper{
+    margin:8px 0 14px;
+    font-size:13px;
+    line-height:1.4;
+  }
+  .auth-form-side .auth-tabs{
+    gap:8px;
+  }
+  .auth-form-side .tab{
+    min-width:0;
+    padding:0 8px;
+    font-size:15px;
+  }
   .scrim-app{
     padding-top:var(--scrim-content-top-offset);
+  }
+  body.is-guest .scrim-app{
+    padding-top:calc(var(--scrim-content-top-offset) + 36px);
   }
   .scrim-nav{
     position:fixed;
@@ -3006,12 +3423,23 @@ body.has-bottom-app-nav .toast{
     gap:8px;
     padding:12px;
   }
+  .guest-login-note{
+    position:fixed;
+    top:var(--scrim-top-nav-height);
+    left:0;
+    right:0;
+    z-index:69;
+    min-height:36px;
+  }
   .auth-gate-nav .nav-actions{
     display:none;
   }
   .scrim-nav .nav-actions{
     display:flex;
     margin-left:auto;
+  }
+  .desktop-app-nav{
+    display:none;
   }
   .scrim-nav .nav-actions .nav-link{
     display:none;
@@ -3184,6 +3612,16 @@ body.has-bottom-app-nav .toast{
   .hero-buttons{
     width:100%;
     max-width:100%;
+    gap:5px;
+    overflow:visible;
+  }
+  .hero-buttons .btn{
+    flex:1 1 0;
+    min-width:0;
+    min-height:40px;
+    padding:0 3px;
+    font-size:clamp(8px, 2.2vw, 10px);
+    letter-spacing:0;
   }
   .date-time-row{
     grid-template-columns:1fr;
@@ -3227,6 +3665,9 @@ body.has-bottom-app-nav .toast{
     overflow:hidden;
     padding:8px 10px 8px;
   }
+  .support-app-view{padding:8px 10px var(--scrim-bottom-nav-space)}
+  .support-grid{grid-template-columns:1fr;padding:10px}
+  .support-chat-form,.group-chat-form,.admin-support-reply{grid-template-columns:1fr}
   body.scrim-view-deal.has-bottom-app-nav .deal-app-view{
     padding:8px 10px 8px;
   }
@@ -3260,6 +3701,12 @@ body.has-bottom-app-nav .toast{
     flex-direction:column;
     padding:14px;
   }
+  .admin-head-actions{
+    width:100%;
+  }
+  .admin-head-actions .btn{
+    flex:1;
+  }
   .admin-grid{
     grid-template-columns:1fr;
   }
@@ -3268,6 +3715,31 @@ body.has-bottom-app-nav .toast{
   }
   .admin-scrim-edit{
     grid-template-columns:1fr;
+  }
+  .admin-scrim-edit .admin-info-field{
+    grid-column:auto;
+  }
+  .admin-point-edit{
+    grid-template-columns:1fr;
+  }
+  .admin-team-create,
+  .admin-team-edit{
+    grid-template-columns:1fr;
+  }
+  .admin-team-search-wrap{
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+  .admin-team-search-wrap small{
+    min-width:0;
+    text-align:left;
+  }
+  .admin-team-row-head{
+    align-items:flex-start;
+  }
+  .admin-team-row-actions{
+    flex-direction:column;
+    align-items:flex-end;
   }
   .deal-shell{
     height:100%;
@@ -3380,6 +3852,27 @@ body.has-bottom-app-nav .toast{
   :root{
     --scrim-content-top-offset:97px;
   }
+  .gtml-slot-card{
+    width:calc(100% - 20px);
+    max-height:calc(100dvh - 20px);
+    margin:10px auto;
+    padding:14px;
+  }
+  .gtml-slot-head{
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .gtml-slot-head h2{
+    font-size:25px;
+  }
+  .gtml-slot-head p:last-child{
+    font-size:13px;
+  }
+  .gtml-slot-head .btn{
+    min-height:36px;
+    padding:0 12px;
+    font-size:11px;
+  }
 }
 
 @media (max-width:820px){
@@ -3387,5 +3880,17 @@ body.has-bottom-app-nav .toast{
   select,
   textarea{
     font-size:16px !important;
+  }
+  .auth-gate{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.82), rgba(0,0,0,.64), rgba(2,6,23,.86)),
+      url("images/scrim-bg-mobile.png?v=1") center/cover no-repeat,
+      #02040a;
+  }
+  .scrim-hero{
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.74), rgba(0,0,0,.52) 45%, rgba(2,6,23,.82)),
+      linear-gradient(135deg, rgba(236,72,153,.08), transparent 46%, rgba(34,211,238,.12)),
+      url("images/scrim-bg-mobile.png?v=1") center top/cover no-repeat;
   }
 }

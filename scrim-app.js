@@ -2,7 +2,7 @@
 if (location.port === '5500') {
   location.replace('http://localhost/Training%20coding%203%20(website%20gnex)/scrim.html');
 }
-let state = {ok:false, team:null, admin:null, scrims:[], requests:[], stats:[], history:[], messages:[]};
+let state = {ok:false, team:null, admin:null, scrims:[], requests:[], stats:[], history:[], messages:[], support_messages:[], group_messages:[]};
 let activeFilter = 'all';
 let activeView = 'home';
 let activeDealId = 0;
@@ -96,6 +96,21 @@ function showToast(message){
   showToast.timer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
 }
 
+function setAuthFormMessage(message = ''){
+  const output = $('#authFormMessage');
+  if (!output) return;
+  output.textContent = message;
+  output.hidden = !message;
+}
+
+function strongPasswordError(password){
+  if (String(password).length < 4) return 'Password mesti sekurang-kurangnya 4 aksara.';
+  if (!/[A-Z]/.test(password)) return 'Password mesti mempunyai sekurang-kurangnya 1 huruf besar.';
+  if (!/[0-9]/.test(password)) return 'Password mesti mempunyai sekurang-kurangnya 1 nombor.';
+  if (!/[^A-Za-z0-9\s]/.test(password)) return 'Password mesti mempunyai sekurang-kurangnya 1 simbol seperti !, @ atau #.';
+  return '';
+}
+
 function canUseBrowserNotifications(){
   return 'Notification' in window && (location.protocol === 'https:' || location.hostname === 'localhost');
 }
@@ -115,7 +130,28 @@ function urlBase64ToUint8Array(value){
   return output;
 }
 
+async function savePushTokenToWorker(registration, token){
+  const readyRegistration = await navigator.serviceWorker.ready;
+  const worker = readyRegistration.active || registration.active;
+  if (!worker) throw new Error('Service worker belum ready. Cuba aktifkan noti semula.');
+  await new Promise((resolve, reject) => {
+    const channel = new MessageChannel();
+    const timer = window.setTimeout(() => reject(new Error('Push setup timeout.')), 5000);
+    channel.port1.onmessage = () => {
+      window.clearTimeout(timer);
+      resolve();
+    };
+    worker.postMessage({type:'SET_PUSH_TOKEN', token}, [channel.port2]);
+  });
+}
+
 async function enableWebPushNotifications(){
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isIos && !isStandalone) {
+    window.alert('Untuk iPhone: tekan Share, pilih Add to Home Screen, kemudian buka GNEX Scrim dari ikon Home Screen dan aktifkan notification semula.');
+    return;
+  }
   if (!canUseWebPush()) {
     showToast('Push noti perlu HTTPS dan browser support.');
     return;
@@ -132,7 +168,7 @@ async function enableWebPushNotifications(){
     return;
   }
 
-  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=5');
+  const registration = await navigator.serviceWorker.register('scrim-sw.js?v=15');
   const existing = await registration.pushManager.getSubscription();
   const subscription = existing || await registration.pushManager.subscribe({
     userVisibleOnly:true,
@@ -141,7 +177,10 @@ async function enableWebPushNotifications(){
   const data = new FormData();
   data.set('action', 'save_push_subscription');
   data.set('subscription', JSON.stringify(subscription));
-  await postForm(data);
+  const savedSubscription = await postForm(data);
+  if (savedSubscription.push_device_token) {
+    await savePushTokenToWorker(registration, savedSubscription.push_device_token);
+  }
   const testData = new FormData();
   testData.set('action', 'test_push');
   await postForm(testData);
@@ -150,9 +189,9 @@ async function enableWebPushNotifications(){
 async function showScrimNotification(title, body, tag = 'scrim-chat'){
   if (!canUseBrowserNotifications() || Notification.permission !== 'granted') return;
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=5')
+    const registration = await navigator.serviceWorker.getRegistration('scrim-sw.js?v=15')
       || await navigator.serviceWorker.getRegistration()
-      || await navigator.serviceWorker.register('scrim-sw.js?v=5');
+      || await navigator.serviceWorker.register('scrim-sw.js?v=15');
     await registration.showNotification(title, {
       body,
       tag,
@@ -271,21 +310,52 @@ function isAdmin(){
   return Boolean(state.admin);
 }
 
+function openAuthGate(mode = 'login'){
+  const gate = $('#authGate');
+  if (!gate) return;
+  gate.hidden = false;
+  document.body.classList.add('auth-modal-open');
+  const tab = $(`[data-auth-tab="${mode}"]`, gate);
+  tab?.click();
+  window.setTimeout(() => $('#teamName')?.focus(), 0);
+}
+
+function closeAuthGate(){
+  const gate = $('#authGate');
+  if (!gate) return;
+  gate.hidden = true;
+  document.body.classList.remove('auth-modal-open');
+}
+
+function requireTeamLogin(message = 'Sila login atau register team dahulu.'){
+  if (state.team) return true;
+  showToast(message);
+  openAuthGate('login');
+  return false;
+}
+
 function hasTeamPhone(){
   return Boolean(String(state.team?.phone_number || '').trim());
 }
 
 function isScrimReady(){
-  return hasTeamPhone() && Boolean(String(state.team?.captain_name || '').trim());
+  return hasTeamPhone()
+    && Boolean(String(state.team?.captain_name || '').trim())
+    && Boolean(String(state.team?.player_ign || '').trim())
+    && Boolean(String(state.team?.player_game_id || '').trim());
 }
 
 function openPhoneRequiredPanel(){
   toggleProfile(true);
   setCollapsible('#profileEditPanel', true);
   $('#editProfileBtn')?.setAttribute('aria-expanded', 'true');
-  const target = state.team?.captain_name ? $('#profilePhone') : $('#profileCaptain');
+  const target = !state.team?.captain_name
+    ? $('#profileCaptain')
+    : (!state.team?.phone_number
+      ? $('#profilePhone')
+      : (!state.team?.player_ign ? $('#profilePlayerIgn') : $('#profilePlayerId')));
   target?.focus();
-  showToast('Update nama captain dan nombor telefon dulu sebelum create atau join scrim.');
+  showToast('Lengkapkan Captain, telefon, Player IGN dan Player ID sebelum create atau join scrim.');
 }
 
 function requestFor(scrim){
@@ -301,11 +371,48 @@ function messagesFor(scrimId){
   return (state.messages || []).filter((message) => Number(message.scrim_id) === Number(scrimId));
 }
 
+function isDealChatExpired(scrim){
+  const scrimTime = malaysiaDate(scrim?.date_time)?.getTime();
+  return Boolean(scrimTime) && Date.now() >= scrimTime + (3 * 24 * 60 * 60 * 1000);
+}
+
+function clearExpiredDealUnread(){
+  const expiredIds = new Set((state.scrims || [])
+    .filter(isDealChatExpired)
+    .map((scrim) => Number(scrim.id)));
+  Object.keys(unreadChatByScrim).forEach((scrimId) => {
+    if (expiredIds.has(Number(scrimId))) delete unreadChatByScrim[scrimId];
+  });
+  unreadChatCount = Object.values(unreadChatByScrim)
+    .reduce((total, count) => total + Number(count || 0), 0);
+}
+
 function activeDeals(){
-  return state.scrims.filter((scrim) => canControl(scrim) && ['pending','confirmed'].includes(scrim.status));
+  const latestMessageTime = new Map();
+  (state.messages || []).forEach((message) => {
+    const scrimId = Number(message.scrim_id || 0);
+    const timestamp = malaysiaDate(message.created_at)?.getTime() || Number(message.id || 0);
+    if (timestamp > Number(latestMessageTime.get(scrimId) || 0)) {
+      latestMessageTime.set(scrimId, timestamp);
+    }
+  });
+  return state.scrims
+    .filter((scrim) => !isDealChatExpired(scrim)
+      && (isAdmin() || canControl(scrim))
+      && ['pending','confirmed','completed'].includes(scrim.status))
+    .sort((first, second) => {
+      const firstActivity = Number(latestMessageTime.get(Number(first.id)))
+        || malaysiaDate(first.created_at)?.getTime()
+        || Number(first.id || 0);
+      const secondActivity = Number(latestMessageTime.get(Number(second.id)))
+        || malaysiaDate(second.created_at)?.getTime()
+        || Number(second.id || 0);
+      return secondActivity - firstActivity || Number(second.id || 0) - Number(first.id || 0);
+    });
 }
 
 function dealContactName(scrim){
+  if (isAdmin()) return `${scrim.creator_name || 'Host'} VS ${scrim.opponent_name || 'Opponent'}`;
   return currentTeamId() === Number(scrim.creator_team_id)
     ? (scrim.opponent_name || 'Opponent')
     : scrim.creator_name;
@@ -487,6 +594,8 @@ function renderSession(){
   const profileCardMeta = $('#profileCardMeta');
   const profileCaptain = $('#profileCaptain');
   const profilePhone = $('#profilePhone');
+  const profilePlayerIgn = $('#profilePlayerIgn');
+  const profilePlayerId = $('#profilePlayerId');
   const profileRankBadge = $('#profileRankBadge');
   const profileResultHint = $('#profileResultHint');
   const rosterGames = $('#rosterGames');
@@ -523,9 +632,13 @@ function renderSession(){
 
   if (notifyButton) {
     const enabled = canUseBrowserNotifications() && Notification.permission === 'granted';
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const blocked = canUseBrowserNotifications() && Notification.permission === 'denied';
+    const label = enabled ? 'NOTI ON' : (isIos && !isStandalone ? 'INSTALL APP' : (blocked ? 'NOTI BLOCKED' : 'ENABLE NOTI'));
     notifyButton.classList.toggle('on', enabled);
     notifyButton.classList.toggle('off', !enabled);
-    notifyButton.innerHTML = `<span aria-hidden="true"></span>${enabled ? 'NOTI ON' : 'NOTI OFF'}`;
+    notifyButton.innerHTML = `<span aria-hidden="true"></span>${label}`;
   }
 
   if (state.team) {
@@ -534,10 +647,14 @@ function renderSession(){
     if (profileCardMeta) {
       const captainText = state.team.captain_name || 'Belum set';
       const phoneText = state.team.phone_number || 'Belum set';
+      const playerIgnText = state.team.player_ign || 'Belum set';
+      const playerIdText = state.team.player_game_id || 'Belum set';
       profileCardMeta.innerHTML = `
         <div><span>Team ID</span><strong>#${escapeHtml(state.team.id)}</strong></div>
         <div><span>Captain</span><strong>${escapeHtml(captainText)}</strong></div>
         <div><span>Phone</span><strong>${escapeHtml(phoneText)}</strong></div>
+        <div><span>Player IGN</span><strong>${escapeHtml(playerIgnText)}</strong></div>
+        <div><span>Player ID</span><strong>${escapeHtml(playerIdText)}</strong></div>
       `;
     }
     if (profileCaptain && document.activeElement !== profileCaptain) {
@@ -545,6 +662,12 @@ function renderSession(){
     }
     if (profilePhone && document.activeElement !== profilePhone) {
       profilePhone.value = state.team.phone_number || '';
+    }
+    if (profilePlayerIgn && document.activeElement !== profilePlayerIgn) {
+      profilePlayerIgn.value = state.team.player_ign || '';
+    }
+    if (profilePlayerId && document.activeElement !== profilePlayerId) {
+      profilePlayerId.value = state.team.player_game_id || '';
     }
     if (profileBadge) {
       const profileBadgeCount = pendingRequests.length;
@@ -565,14 +688,16 @@ function renderSession(){
         ? `<button class="btn primary block" type="button" id="openProfileResultBtn">${resultCount} update point action</button>`
         : (isScrimReady()
           ? '<p class="empty">Tiada result pending untuk confirm.</p>'
-          : '<button class="btn gold block" type="button" id="profilePhoneRequiredBtn">Update Captain & Phone</button>');
+          : '<button class="btn gold block" type="button" id="profilePhoneRequiredBtn">Lengkapkan Profile Scrim</button>');
     }
   } else {
-    if (profileTeamName) profileTeamName.textContent = 'TEAM';
+    if (profileTeamName) profileTeamName.textContent = isAdmin() ? 'ADMIN' : 'LOGIN';
     if (profileCardName) profileCardName.textContent = 'TEAM';
     if (profileCardMeta) profileCardMeta.textContent = 'Logged in team';
     if (profileCaptain) profileCaptain.value = '';
     if (profilePhone) profilePhone.value = '';
+    if (profilePlayerIgn) profilePlayerIgn.value = '';
+    if (profilePlayerId) profilePlayerId.value = '';
     if (profileRankBadge) profileRankBadge.textContent = 'RANK -';
     if (profileBadge) profileBadge.classList.add('hidden');
     if (rosterGames) rosterGames.textContent = '0';
@@ -730,17 +855,27 @@ function renderHeroDeal(){
 
 function renderAccess(){
   const scrimApp = $('#scrimApp');
+  const primaryNavLink = $('#primaryNavLink');
   const isAuthed = Boolean(state.team || state.admin);
   document.body.classList.toggle('is-authed', isAuthed);
   document.body.classList.toggle('is-guest', !isAuthed);
   document.body.classList.toggle('is-admin', isAdmin());
   document.body.classList.remove('is-loading');
   if (scrimApp) {
-    scrimApp.hidden = !isAuthed;
+    scrimApp.hidden = false;
   }
-  if (isAdmin() && activeView !== 'admin') {
-    setAppView('admin');
+  if (isAuthed) closeAuthGate();
+  if (primaryNavLink) {
+    primaryNavLink.textContent = isAdmin() ? 'ADMIN PANEL' : 'TOURNAMENT';
+    primaryNavLink.href = isAdmin() ? '#admin-panel' : 'https://gnexcenter.com/tournament.html';
   }
+  $$('.desktop-app-nav .nav-link').forEach((item) => {
+    item.classList.toggle('is-active',
+      item.dataset.nav === activeView
+      || (activeView === 'home' && item.dataset.nav === 'scrim-home')
+      || (activeView === 'all' && item.dataset.nav === 'all-scrim')
+    );
+  });
 }
 
 function setCollapsible(id, isVisible){
@@ -766,6 +901,7 @@ function toggleCreatePanel(event){
   if (event) {
     event.stopPropagation();
   }
+  if (!requireTeamLogin('Login atau register untuk buat scrim.')) return;
   if (state.team && !isScrimReady()) {
     openPhoneRequiredPanel();
     return;
@@ -798,6 +934,17 @@ function toggleProfile(isVisible){
 function toggleRanking(isVisible){
   const overlay = $('#rankingOverlay');
   const button = $('#viewRankingBtn');
+  if (!overlay) return;
+  const nextState = typeof isVisible === 'boolean' ? isVisible : overlay.hidden;
+  overlay.hidden = !nextState;
+  overlay.classList.toggle('is-visible', nextState);
+  overlay.setAttribute('aria-hidden', String(!nextState));
+  button?.setAttribute('aria-expanded', String(nextState));
+}
+
+function toggleGtmlSlotInfo(isVisible){
+  const overlay = $('#gtmlSlotOverlay');
+  const button = $('#viewGtmlSlotBtn');
   if (!overlay) return;
   const nextState = typeof isVisible === 'boolean' ? isVisible : overlay.hidden;
   overlay.hidden = !nextState;
@@ -867,16 +1014,21 @@ function renderScrims(){
   }
 
   list.innerHTML = scrims.map((scrim, index) => {
-    const isCreator = teamId === Number(scrim.creator_team_id);
+    const isCreator = teamId > 0 && teamId === Number(scrim.creator_team_id);
     const existingRequest = requestFor(scrim);
+    const isGuest = !state.team && !state.admin;
     const canRequest = state.team && scrim.status === 'open' && !isCreator && !existingRequest;
     const needsPhone = canRequest && !isScrimReady();
     const opponentName = scrim.opponent_name || 'Menunggu opponent';
+    const creatorName = scrim.creator_name || 'Open Slot - mana-mana team boleh join';
+    const matchupName = Number(scrim.admin_open_slots)
+      ? `${scrim.creator_name || 'TBD'} VS ${scrim.opponent_name || 'TBD'}`
+      : creatorName;
     const requestNote = existingRequest ? `<span class="chip ${statusClass(existingRequest.status)}">Request ${escapeHtml(existingRequest.status)}</span>` : '';
     const schedule = formatScrimDate(scrim.date_time);
     const detailId = `scrimDetail${scrim.id}`;
     const isDetailOpen = openScrimDetailIds.has(detailId);
-    const actionLabel = needsPhone ? 'UPDATE PHONE' : 'REQUEST JOIN';
+    const actionLabel = needsPhone ? 'UPDATE PHONE' : (Number(scrim.admin_open_slots) ? 'JOIN SLOT' : 'REQUEST JOIN');
 
     return `
       <article class="scrim-card scrim-card-${statusClass(scrim.status)}">
@@ -884,7 +1036,7 @@ function renderScrims(){
           <span class="scrim-number">#${String(index + 1).padStart(2, '0')}</span>
           <div class="scrim-identity">
             <span class="scrim-format">${escapeHtml(scrim.format)}</span>
-            <h3>${escapeHtml(scrim.creator_name)}</h3>
+            <h3>${escapeHtml(matchupName)}</h3>
             <p>${escapeHtml(scrim.title)}</p>
           </div>
           <div class="scrim-schedule">
@@ -894,9 +1046,11 @@ function renderScrims(){
           <span class="chip scrim-status ${statusClass(scrim.status)}">${escapeHtml(scrim.status)}</span>
           <div class="scrim-card-actions">
             <button class="btn scrim-detail-button" type="button" data-toggle-panel="${detailId}" aria-expanded="${String(isDetailOpen)}">DETAIL</button>
-            ${canRequest
-              ? `<button class="btn primary scrim-join-button" type="button" data-action="${needsPhone ? 'phone_required' : 'request'}" data-id="${scrim.id}">${actionLabel}</button>`
-              : (isCreator && scrim.status === 'open' ? '<span class="scrim-action-state open">WAITING</span>' : '')}
+            ${isGuest
+              ? `<button class="btn primary scrim-join-button" type="button" data-action="login_to_join">LOGIN TO JOIN</button>`
+              : (canRequest
+              ? `<button class="btn primary scrim-join-button" type="button" data-action="${needsPhone ? 'phone_required' : 'request'}" data-id="${scrim.id}" data-direct="${Number(scrim.admin_open_slots) ? '1' : '0'}">${actionLabel}</button>`
+              : (isCreator && scrim.status === 'open' ? '<span class="scrim-action-state open">WAITING</span>' : ''))}
           </div>
         </div>
         <div class="scrim-card-detail" id="${detailId}" ${isDetailOpen ? '' : 'hidden'}>
@@ -1120,7 +1274,8 @@ function renderDealRooms(){
 }
 
 function setAppView(view){
-  activeView = ['home','deal','all','review','admin'].includes(view) ? view : 'home';
+  activeView = ['home','support','deal','all','review','admin'].includes(view) ? view : 'home';
+  const supportView = $('#supportView');
   const dealView = $('#dealView');
   const reviewView = $('#reviewView');
   const adminView = $('#adminView');
@@ -1133,12 +1288,14 @@ function setAppView(view){
   if (adminView) {
     adminView.hidden = activeView !== 'admin';
   }
+  if (supportView) supportView.hidden = activeView !== 'support';
   document.body.classList.toggle('scrim-view-home', activeView === 'home');
   document.body.classList.toggle('scrim-view-deal', activeView === 'deal');
   document.body.classList.toggle('scrim-view-all', activeView === 'all');
   document.body.classList.toggle('scrim-view-review', activeView === 'review');
   document.body.classList.toggle('scrim-view-admin', activeView === 'admin');
-  $$('.bottom-app-nav .bottom-nav-item').forEach((item) => {
+  document.body.classList.toggle('scrim-view-support', activeView === 'support');
+  $$('.bottom-app-nav .bottom-nav-item, .desktop-app-nav .nav-link').forEach((item) => {
     item.classList.toggle('is-active',
       item.dataset.nav === activeView
       || (activeView === 'home' && item.dataset.nav === 'scrim-home')
@@ -1157,6 +1314,28 @@ function setAppView(view){
   }
 }
 
+function renderSupport(){
+  const renderMessages = (messages) => messages.length ? messages.map((message) => `
+    <div class="support-message ${message.sender_type === 'admin' ? 'is-admin' : ''}"><strong>${escapeHtml(message.sender_type === 'admin' ? 'Admin' : message.guest_name || message.sender_name)}</strong><p>${escapeHtml(message.message)}</p><small>${formatDate(message.created_at)}</small></div>
+  `).join('') : '<p class="empty">Belum ada mesej.</p>';
+  const supportLog = $('#supportChatLog');
+  if (supportLog) supportLog.innerHTML = renderMessages(state.support_messages || []);
+  const groupLog = $('#groupChatLog');
+  if (groupLog) groupLog.innerHTML = renderMessages(state.group_messages || []);
+  const inbox = $('#adminSupportInbox');
+  if (inbox) {
+    const conversations = new Map();
+    (state.support_messages || []).forEach((message) => {
+      if (!conversations.has(message.guest_key)) conversations.set(message.guest_key, []);
+      conversations.get(message.guest_key).push(message);
+    });
+    inbox.innerHTML = conversations.size ? [...conversations.entries()].map(([key, messages]) => {
+      const guestName = messages.find((item) => item.sender_type === 'guest')?.guest_name || 'Guest';
+      return `<article class="admin-support-thread"><h4>${escapeHtml(guestName)}</h4><div class="support-chat-log">${renderMessages(messages)}</div><form class="admin-support-reply"><input type="hidden" name="action" value="admin_reply_support"><input type="hidden" name="guest_key" value="${escapeHtml(key)}"><input type="hidden" name="guest_name" value="${escapeHtml(guestName)}"><input name="message" placeholder="Reply guest..." required><button class="btn primary" type="submit">REPLY</button></form></article>`;
+    }).join('') : '<p class="empty">Tiada mesej support.</p>';
+  }
+}
+
 function renderDealApp(){
   const box = $('#dealViewContent');
   const backBtn = $('#dealBackListBtn');
@@ -1164,44 +1343,109 @@ function renderDealApp(){
   if (!box) return;
   const deals = activeDeals();
   const selectedDeal = deals.find((deal) => Number(deal.id) === Number(activeDealId));
-  dealView?.classList.toggle('is-chat-open', Boolean(selectedDeal));
+  const selectedGroup = Number(activeDealId) === -1;
+  dealView?.classList.toggle('is-chat-open', Boolean(selectedDeal) || selectedGroup);
 
-  if (!state.team) {
+  if (!state.team && !state.admin) {
     if (backBtn) backBtn.hidden = true;
     box.innerHTML = '<p class="empty" style="padding:22px">Login untuk akses deal chat.</p>';
     return;
   }
 
   if (!selectedDeal) {
-    activeDealId = 0;
-    if (backBtn) backBtn.hidden = true;
-    if (!deals.length) {
-      box.innerHTML = '<p class="empty" style="padding:22px">Tiada scrim deal aktif.</p>';
+    if (selectedGroup) {
+      if (backBtn) backBtn.hidden = false;
+      const groupMessages = state.group_messages || [];
+      box.innerHTML = `
+        <section class="deal-chat-screen group-question-screen">
+          <div class="deal-chat-screen-head">
+            <span class="deal-contact-avatar question-room-avatar" aria-hidden="true"></span>
+            <div>
+              <h3>Group Pertanyaan</h3>
+              <p>Ruang umum untuk semua team bertanya dan berbincang dengan admin.</p>
+            </div>
+            <button class="btn panel-toggle deal-chat-back" type="button" data-action="back_deal_list">BACK</button>
+          </div>
+          <div class="deal-chat-full-log" id="dealGroupChatLog">
+            ${groupMessages.length ? groupMessages.map((message) => {
+              const isAdminMessage = message.sender_type === 'admin';
+              const isMine = isAdmin()
+                ? isAdminMessage
+                : Number(message.sender_team_id || 0) === currentTeamId();
+              return `
+                <div class="chat-bubble ${isMine ? 'mine' : 'theirs'} ${isAdminMessage ? 'is-admin' : ''}">
+                  <span>${escapeHtml(isAdminMessage ? 'ADMIN' : (message.sender_name || 'Team'))}</span>
+                  <p>${escapeHtml(message.message)}</p>
+                  <small>${formatDate(message.created_at)}</small>
+                </div>
+              `;
+            }).join('') : '<p class="empty">Belum ada pertanyaan. Mulakan perbualan dengan semua team dan admin.</p>'}
+          </div>
+          <form class="deal-chat-composer group-chat-form">
+            <input type="hidden" name="action" value="send_group_message">
+            <input name="message" maxlength="500" autocomplete="off" placeholder="Tulis pertanyaan..." required>
+            <button class="btn primary chat-send-button" type="submit" aria-label="Hantar pertanyaan">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 2-7 20-4-9-9-4 20-7Z"></path>
+                <path d="M22 2 11 13"></path>
+              </svg>
+            </button>
+          </form>
+        </section>
+      `;
+      window.requestAnimationFrame(() => {
+        const log = $('#dealGroupChatLog');
+        if (log) log.scrollTop = log.scrollHeight;
+      });
       return;
     }
+    activeDealId = 0;
+    if (backBtn) backBtn.hidden = true;
+    const groupMessages = state.group_messages || [];
+    const lastGroupMessage = groupMessages[groupMessages.length - 1];
+    const renderDealContact = (scrim) => {
+      const contactName = dealContactName(scrim);
+      const chatMessages = messagesFor(scrim.id);
+      const lastMessage = chatMessages[chatMessages.length - 1];
+      const unreadCount = Number(unreadChatByScrim[Number(scrim.id)] || 0);
+      return `
+        <button class="deal-contact-item" type="button" data-action="open_deal_chat" data-id="${scrim.id}">
+          <span class="deal-contact-avatar">${escapeHtml(dealInitials(contactName))}</span>
+          <span class="deal-contact-main">
+            <strong>${escapeHtml(contactName)}</strong>
+            <span>${escapeHtml(scrim.title)} - ${formatDate(scrim.date_time)}</span>
+            <span>${lastMessage ? escapeHtml(lastMessage.message) : 'Belum ada chat.'}</span>
+          </span>
+          <span class="deal-contact-meta">
+            ${unreadCount ? `<strong class="deal-contact-badge">${unreadCount}</strong>` : ''}
+            <span>${escapeHtml(scrim.status)}</span>
+            ${scrim.result_status ? `<span class="chip ${statusClass(scrim.result_status)}">${escapeHtml(scrim.result_status)}</span>` : ''}
+          </span>
+        </button>
+      `;
+    };
+    const unreadDeals = deals.filter((scrim) => Number(unreadChatByScrim[Number(scrim.id)] || 0) > 0);
+    const regularDeals = deals.filter((scrim) => Number(unreadChatByScrim[Number(scrim.id)] || 0) === 0);
     box.innerHTML = `
       <div class="deal-contact-list">
-        ${deals.map((scrim) => {
-          const contactName = dealContactName(scrim);
-          const chatMessages = messagesFor(scrim.id);
-          const lastMessage = chatMessages[chatMessages.length - 1];
-          const unreadCount = Number(unreadChatByScrim[Number(scrim.id)] || 0);
-          return `
-            <button class="deal-contact-item" type="button" data-action="open_deal_chat" data-id="${scrim.id}">
-              <span class="deal-contact-avatar">${escapeHtml(dealInitials(contactName))}</span>
-              <span class="deal-contact-main">
-                <strong>${escapeHtml(contactName)}</strong>
-                <span>${escapeHtml(scrim.title)} - ${formatDate(scrim.date_time)}</span>
-                <span>${lastMessage ? escapeHtml(lastMessage.message) : 'Belum ada chat.'}</span>
-              </span>
-              <span class="deal-contact-meta">
-                ${unreadCount ? `<strong class="deal-contact-badge">${unreadCount}</strong>` : ''}
-                <span>${escapeHtml(scrim.status)}</span>
-                ${scrim.result_status ? `<span class="chip ${statusClass(scrim.result_status)}">${escapeHtml(scrim.result_status)}</span>` : ''}
-              </span>
-            </button>
-          `;
-        }).join('')}
+        ${unreadDeals.length ? `
+          <div class="deal-contact-section-label"><span>UNREAD</span><strong>${unreadDeals.length}</strong></div>
+          ${unreadDeals.map(renderDealContact).join('')}
+        ` : ''}
+        <div class="deal-contact-section-label"><span>GROUP</span></div>
+        <button class="deal-contact-item group-question-contact" type="button" data-action="open_group_chat">
+          <span class="deal-contact-avatar question-room-avatar" aria-hidden="true"></span>
+          <span class="deal-contact-main">
+            <strong>Group Pertanyaan</strong>
+            <span>Semua team &amp; admin</span>
+            <span>${lastGroupMessage ? escapeHtml(lastGroupMessage.message) : 'Tanya apa-apa berkaitan scrim.'}</span>
+          </span>
+          <span class="deal-contact-meta"><span class="chip open">PUBLIC</span></span>
+        </button>
+        <div class="deal-contact-section-label"><span>SCRIM DEAL</span><strong>${regularDeals.length}</strong></div>
+        ${regularDeals.length
+          ? regularDeals.map(renderDealContact).join('')
+          : '<p class="deal-contact-empty">Tiada chat scrim lain.</p>'}
       </div>
     `;
     return;
@@ -1223,17 +1467,22 @@ function renderDealApp(){
       </div>
       <div class="deal-chat-full-log">
         ${chatMessages.length ? chatMessages.map((message) => {
-          const isMine = Number(message.sender_team_id) === currentTeamId();
+          const isAdminMessage = message.sender_type === 'admin';
+          const isMine = isAdmin() ? isAdminMessage : Number(message.sender_team_id) === currentTeamId();
           return `
-            <div class="chat-bubble ${isMine ? 'mine' : 'theirs'}">
-              <span>${escapeHtml(message.sender_name || 'Team')}</span>
+            <div class="chat-bubble ${isMine ? 'mine' : 'theirs'} ${isAdminMessage ? 'is-admin' : ''}">
+              <span>${escapeHtml(isAdminMessage ? 'ADMIN' : (message.sender_name || 'Team'))}</span>
               <p>${escapeHtml(message.message)}</p>
               <small>${formatDate(message.created_at)}</small>
             </div>
           `;
         }).join('') : '<p class="empty">Belum ada chat. Deal player, confirm masa atau bincang rules di sini.</p>'}
       </div>
-      <form class="deal-chat-composer chat-form">
+      ${selectedDeal.status === 'completed' ? `
+        <div class="deal-chat-archived">
+          MATCH COMPLETED — CHAT DISIMPAN SEHINGGA 3 HARI SELEPAS MASA SCRIM
+        </div>
+      ` : `<form class="deal-chat-composer chat-form">
         <input type="hidden" name="action" value="send_message">
         <input type="hidden" name="scrim_id" value="${selectedDeal.id}">
         <input name="message" autocomplete="off" placeholder="Tulis mesej..." required>
@@ -1243,7 +1492,7 @@ function renderDealApp(){
             <path d="M22 2 11 13"></path>
           </svg>
         </button>
-      </form>
+      </form>`}
     </section>
   `;
   if (pendingDealScrollToBottom) {
@@ -1314,29 +1563,84 @@ function renderAdminPanel(){
     const select = $(selector);
     if (select && !select.matches(':focus')) {
       const currentValue = select.value;
-      select.innerHTML = teamOptions;
+      select.innerHTML = selector === '#adminTeamTwo'
+        ? teamOptions.replace('Pilih team', 'Kosongkan untuk Open Scrim')
+        : teamOptions.replace('Pilih team', 'Kosongkan untuk Open Scrim (2 slot)');
       select.value = currentValue;
     }
   });
 
   const teamList = $('#adminTeamList');
   if (teamList) {
-    teamList.innerHTML = teams.length ? teams.map((team) => `
+    teamList.innerHTML = teams.length ? teams.map((team) => {
+      const editPanelId = `adminTeamEdit${Number(team.id)}`;
+      const isEditOpen = openScrimDetailIds.has(editPanelId);
+      return `
       <article class="admin-team-row">
-        <div>
-          <strong>${escapeHtml(team.name)}</strong>
-          <span>Captain: ${escapeHtml(team.captain_name || 'Belum set')}</span>
-          <span>Phone: ${escapeHtml(team.phone_number || 'Belum set')}</span>
+        <div class="admin-team-row-head">
+          <div>
+            <strong>${escapeHtml(team.name)}</strong>
+            <span>Captain: ${escapeHtml(team.captain_name || 'Belum set')} | Phone: ${escapeHtml(team.phone_number || 'Belum set')}</span>
+          </div>
+          <div class="admin-team-row-actions">
+            <small>#${Number(team.id)} | ${Number(team.points || 0)} pts</small>
+            <button class="btn admin-team-edit-toggle" type="button" data-toggle-panel="${editPanelId}" data-open-label="CLOSE" data-closed-label="EDIT" aria-expanded="${String(isEditOpen)}">${isEditOpen ? 'CLOSE' : 'EDIT'}</button>
+          </div>
         </div>
-        <small>#${Number(team.id)} | ${Number(team.points || 0)} pts</small>
+        <form class="admin-team-edit" id="${editPanelId}" data-admin-edit-team ${isEditOpen ? '' : 'hidden'}>
+          <input type="hidden" name="action" value="admin_update_team">
+          <input type="hidden" name="team_id" value="${Number(team.id)}">
+          <div class="field">
+            <label>Nama team</label>
+            <input name="team_name" value="${escapeHtml(team.name)}" required>
+          </div>
+          <div class="field">
+            <label>Captain</label>
+            <input name="captain_name" value="${escapeHtml(team.captain_name || '')}">
+          </div>
+          <div class="field">
+            <label>Telefon</label>
+            <input name="phone_number" type="tel" value="${escapeHtml(team.phone_number || '')}">
+          </div>
+          <div class="field">
+            <label>Point</label>
+            <input name="points" type="number" value="${Number(team.points || 0)}" required>
+          </div>
+          <div class="field">
+            <label>Win</label>
+            <input name="wins" type="number" min="0" value="${Number(team.wins || 0)}" required>
+          </div>
+          <div class="field">
+            <label>Lose</label>
+            <input name="losses" type="number" min="0" value="${Number(team.losses || 0)}" required>
+          </div>
+          <div class="field">
+            <label>Total Played Scrim</label>
+            <input name="played" type="number" min="0" value="${Number(team.played || 0)}" required>
+          </div>
+          <div class="field">
+            <label>Password baharu</label>
+            <input name="password" type="password" minlength="4" pattern="(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s]).{4,}" title="Mesti ada 1 huruf besar, 1 nombor dan 1 simbol" placeholder="Kosongkan jika kekal">
+          </div>
+          <button class="btn primary" type="submit">SAVE TEAM</button>
+          <button class="btn red" type="button" data-action="admin_delete_team" data-id="${Number(team.id)}" data-name="${escapeHtml(team.name)}">REMOVE</button>
+        </form>
       </article>
-    `).join('') : '<p class="empty">Belum ada team.</p>';
+    `;
+    }).join('') : '<p class="empty">Belum ada team.</p>';
   }
 
   const scrimList = $('#adminScrimList');
   if (scrimList) {
     const scrims = [...(state.scrims || [])].sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
-    scrimList.innerHTML = scrims.length ? scrims.map((scrim) => `
+    scrimList.innerHTML = scrims.length ? scrims.map((scrim) => {
+      const creatorId = Number(scrim.creator_team_id || 0);
+      const opponentId = Number(scrim.opponent_team_id || 0);
+      const opponentOptions = '<option value="">Pilih opponent</option>' + teams
+        .filter((team) => Number(team.id) !== creatorId)
+        .map((team) => `<option value="${Number(team.id)}" ${Number(team.id) === opponentId ? 'selected' : ''}>${escapeHtml(team.name)}</option>`)
+        .join('');
+      return `
       <article class="admin-scrim-row">
         <strong>#${Number(scrim.id)} ${escapeHtml(scrim.title)}</strong>
         <span>${escapeHtml(scrim.creator_name || '-')} VS ${escapeHtml(scrim.opponent_name || 'TBD')} | ${escapeHtml(scrim.status || '-')}</span>
@@ -1344,6 +1648,10 @@ function renderAdminPanel(){
         <form class="admin-scrim-edit" data-admin-edit-scrim>
           <input type="hidden" name="action" value="admin_update_scrim">
           <input type="hidden" name="scrim_id" value="${Number(scrim.id)}">
+          <div class="field admin-opponent-field">
+            <label>Opponent (pilih untuk confirm terus)</label>
+            <select name="opponent_team_id">${opponentOptions}</select>
+          </div>
           <div class="field">
             <label>Nama</label>
             <input name="title" value="${escapeHtml(scrim.title || '')}" required>
@@ -1358,17 +1666,65 @@ function renderAdminPanel(){
               ${['BO1','BO3','BO5','Training'].map((format) => `<option ${String(scrim.format) === format ? 'selected' : ''}>${format}</option>`).join('')}
             </select>
           </div>
-          <input name="notes" value="${escapeHtml(scrim.notes || '')}" placeholder="Nota">
-          <button class="btn primary" type="submit">Save</button>
+          <div class="field">
+            <label>Sistem point</label>
+            <select name="point_mode">
+              <option value="normal" ${scrim.point_mode !== 'challenge' ? 'selected' : ''}>Normal Scrim</option>
+              <option value="challenge" ${scrim.point_mode === 'challenge' ? 'selected' : ''}>Tabrak Team Atas</option>
+            </select>
+          </div>
+          <div class="field admin-info-field">
+            <label>Info / Nota</label>
+            <input name="notes" value="${escapeHtml(scrim.notes || '')}" placeholder="Info scrim">
+          </div>
+          <button class="btn primary" type="submit">Save Match</button>
+          ${opponentId && ['pending','confirmed','completed'].includes(scrim.status)
+            ? `<button class="btn green" type="button" data-admin-open-deal="${Number(scrim.id)}">${scrim.status === 'completed' ? 'VIEW CHAT ARCHIVE' : 'OPEN DEAL CHAT'}</button>`
+            : ''}
           <button class="btn red" type="button" data-action="admin_delete_scrim" data-id="${Number(scrim.id)}">Delete</button>
         </form>
+        ${opponentId ? `
+          ${scrim.status === 'completed' ? `
+            <div class="admin-result-complete">
+              <span>RESULT DIKIRA</span>
+              <strong>${escapeHtml(scrim.creator_name)} ${escapeHtml(scrim.result_score || '-')} ${escapeHtml(scrim.opponent_name)}</strong>
+              <small>Winner: ${escapeHtml(scrim.winner_name || '-')} | Ranking sudah dikemaskini</small>
+            </div>
+          ` : `
+            <form class="admin-point-edit" data-admin-record-result>
+              <input type="hidden" name="action" value="admin_record_result">
+              <input type="hidden" name="scrim_id" value="${Number(scrim.id)}">
+              <div class="field admin-score-field">
+                <label>Score: ${escapeHtml(scrim.creator_name)} - ${escapeHtml(scrim.opponent_name)}</label>
+                <input name="result_score" inputmode="numeric" pattern="[0-9]{1,2}\\s*-\\s*[0-9]{1,2}" placeholder="Contoh: 2-1" required>
+              </div>
+              <button class="btn gold" type="submit">UPDATE RESULT & RANKING</button>
+            </form>
+          `}
+        ` : '<p class="admin-point-hint">Pilih dan save opponent dahulu untuk update point.</p>'}
       </article>
-    `).join('') : '<p class="empty">Belum ada scrim.</p>';
+    `;
+    }).join('') : '<p class="empty">Belum ada scrim.</p>';
   }
+}
+
+function filterAdminTeams(value){
+  const query = String(value || '').trim().toLocaleLowerCase('ms-MY');
+  const teamList = $('#adminTeamList');
+  const rows = teamList ? $$('.admin-team-row', teamList) : [];
+  let visibleCount = 0;
+  rows.forEach((row) => {
+    const matches = !query || row.textContent.toLocaleLowerCase('ms-MY').includes(query);
+    row.hidden = !matches;
+    if (matches) visibleCount += 1;
+  });
+  const result = $('#adminTeamSearchResult');
+  if (result) result.textContent = `${visibleCount} team`;
 }
 
 function render(){
   syncTopNavHeight();
+  clearExpiredDealUnread();
   renderAccess();
   renderSession();
   renderResultReview();
@@ -1379,11 +1735,42 @@ function render(){
   renderDealApp();
   renderRanking();
   renderAdminPanel();
+  renderSupport();
+  filterAdminTeams($('#adminTeamSearch')?.value);
 }
 
 $('#authForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
+  const action = $('#authAction')?.value || 'login';
+  const submitButton = $('#authSubmit');
+  const password = $('#teamPassword')?.value || '';
+  setAuthFormMessage();
+
+  if (!form.checkValidity()) {
+    const message = 'Sila lengkapkan semua maklumat yang wajib diisi.';
+    setAuthFormMessage(message);
+    showToast(message);
+    form.reportValidity();
+    return;
+  }
+
+  if (action === 'register') {
+    const passwordError = strongPasswordError(password);
+    if (passwordError) {
+      setAuthFormMessage(passwordError);
+      showToast(passwordError);
+      $('#teamPassword')?.focus();
+      return;
+    }
+  }
+
+  if (submitButton?.disabled) return;
+  const originalLabel = submitButton?.textContent || '';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = action === 'register' ? 'REGISTERING...' : 'LOADING...';
+  }
   try {
     await postForm(form);
     form.reset();
@@ -1392,12 +1779,19 @@ $('#authForm').addEventListener('submit', async (event) => {
       openPhoneRequiredPanel();
       return;
     }
+    setAuthFormMessage(error.message);
     showToast(error.message);
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalLabel;
+    }
   }
 });
 
 $('#createForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  if (!requireTeamLogin('Login atau register untuk buat scrim.')) return;
   const form = event.currentTarget;
   const dateInput = $('#scrimDate', form);
   const timeInput = $('#scrimClock', form);
@@ -1424,9 +1818,13 @@ $('#createForm').addEventListener('submit', async (event) => {
 });
 
 document.addEventListener('submit', async (event) => {
-  if (!event.target.matches('.room-form,.result-form,.report-form,.chat-form,.profile-form,#adminCreateMatchForm,[data-admin-edit-scrim]')) return;
+  if (!event.target.matches('.room-form,.result-form,.report-form,.chat-form,.profile-form,.support-chat-form,.group-chat-form,.admin-support-reply,#adminCreateMatchForm,#adminCreateTeamForm,[data-admin-edit-team],[data-admin-edit-scrim],[data-admin-record-result]')) return;
   event.preventDefault();
   try {
+    if (event.target.matches('[data-admin-record-result]')) {
+      const score = $('input[name="result_score"]', event.target)?.value || '';
+      if (!window.confirm(`Confirm result ${score}? Win, lose dan point ranking akan terus dikira.`)) return;
+    }
     if (event.target.matches('.chat-form')) {
       await sendChatForm(event.target);
       return;
@@ -1442,7 +1840,11 @@ document.addEventListener('submit', async (event) => {
       dateTimeInput.value = malaysiaInputDateTime(dateInput.value, timeInput.value);
     }
     await postForm(event.target);
-    if (event.target.matches('#adminCreateMatchForm')) {
+    if (event.target.matches('.support-chat-form,.group-chat-form,.admin-support-reply')) {
+      const messageInput = $('input[name="message"]', event.target);
+      if (messageInput) messageInput.value = '';
+    }
+    if (event.target.matches('#adminCreateMatchForm,#adminCreateTeamForm')) {
       event.target.reset();
     }
     if (event.target.matches('.report-form')) {
@@ -1470,6 +1872,18 @@ document.addEventListener('focusout', (event) => {
   });
 });
 
+document.addEventListener('input', (event) => {
+  if (event.target.id === 'adminTeamSearch') {
+    filterAdminTeams(event.target.value);
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  if (!$('#gtmlSlotOverlay')?.hidden) toggleGtmlSlotInfo(false);
+  else if (!$('#authGate')?.hidden) closeAuthGate();
+});
+
 document.addEventListener('focusin', (event) => {
   if (!event.target.matches('.chat-form input[name="message"]')) return;
   syncKeyboardViewport();
@@ -1493,6 +1907,7 @@ document.addEventListener('click', async (event) => {
 
   if (button.dataset.authTab) {
     const authMode = button.dataset.authTab;
+    setAuthFormMessage();
     $$('.tab').forEach((tab) => tab.classList.toggle('is-active', tab.dataset.authTab === authMode));
     $('#authAction').value = authMode === 'admin' ? 'admin_login' : authMode;
     $('#authSubmit').textContent = authMode === 'register' ? 'Register Team' : (authMode === 'admin' ? 'Login Admin' : 'Login Team');
@@ -1511,11 +1926,25 @@ document.addEventListener('click', async (event) => {
     const passwordInput = $('#teamPassword');
     if (teamNameLabel) teamNameLabel.textContent = authMode === 'admin' ? 'Username admin' : 'Nama team';
     if (teamNameInput) teamNameInput.placeholder = authMode === 'admin' ? 'Contoh: gnexadmin' : 'Contoh: GNEX Alpha';
-    if (passwordInput) passwordInput.autocomplete = authMode === 'admin' ? 'current-password' : 'current-password';
+    if (passwordInput) {
+      passwordInput.autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
+      if (authMode === 'register') {
+        passwordInput.title = 'Mesti ada 1 huruf besar, 1 nombor dan 1 simbol';
+      } else {
+        passwordInput.removeAttribute('title');
+      }
+    }
     const helper = $('.auth-helper');
     if (helper) {
-      helper.textContent = authMode === 'admin' ? 'Login khas admin untuk manage scrim dan team.' : '';
+      helper.textContent = authMode === 'admin'
+        ? 'Login khas admin untuk manage scrim dan team.'
+        : (authMode === 'register' ? 'Player ID hanya boleh digunakan oleh satu team. Password wajib ada huruf besar, nombor dan simbol.' : '');
     }
+    return;
+  }
+
+  if (button.id === 'closeAuthGateBtn') {
+    closeAuthGate();
     return;
   }
 
@@ -1542,9 +1971,36 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
+  if (button.id === 'adminBackScrimBtn') {
+    setAppView('home');
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
+  if (button.id === 'primaryNavLink' && isAdmin()) {
+    event.preventDefault();
+    setAppView('admin');
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
+  if (button.dataset.adminOpenDeal) {
+    activeDealId = Number(button.dataset.adminOpenDeal);
+    pendingDealScrollToBottom = true;
+    setAppView('deal');
+    return;
+  }
+
   if (button.dataset.nav === 'deal') {
     event.preventDefault();
     setAppView('deal');
+    return;
+  }
+
+  if (button.dataset.nav === 'support') {
+    event.preventDefault();
+    setAppView('support');
+    window.scrollTo({top:0, behavior:'smooth'});
     return;
   }
 
@@ -1577,12 +2033,29 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
+  if (button.dataset.action === 'open_group_chat') {
+    activeDealId = -1;
+    renderDealApp();
+    return;
+  }
+
   if (button.dataset.action === 'admin_delete_scrim') {
     const confirmed = window.confirm('Confirm delete scrim ini? Chat dan request berkaitan akan dipadam.');
     if (!confirmed) return;
     const data = new FormData();
     data.set('action', 'admin_delete_scrim');
     data.set('scrim_id', button.dataset.id);
+    await postForm(data);
+    return;
+  }
+
+  if (button.dataset.action === 'admin_delete_team') {
+    const teamName = button.dataset.name || 'team ini';
+    const confirmed = window.confirm(`Remove ${teamName}? Semua scrim, request, chat dan rekod berkaitan team ini turut dipadam.`);
+    if (!confirmed) return;
+    const data = new FormData();
+    data.set('action', 'admin_delete_team');
+    data.set('team_id', button.dataset.id);
     await postForm(data);
     return;
   }
@@ -1625,6 +2098,15 @@ document.addEventListener('click', async (event) => {
   }
 
   if (button.id === 'profileBtn') {
+    if (isAdmin()) {
+      setAppView('admin');
+      window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+    if (!state.team && !state.admin) {
+      openAuthGate('login');
+      return;
+    }
     toggleProfile();
     return;
   }
@@ -1653,6 +2135,13 @@ document.addEventListener('click', async (event) => {
     return;
   }
 
+  if (button.id === 'allScrimBackBtn') {
+    activeDealId = 0;
+    setAppView('home');
+    window.scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+
   if (button.id === 'heroJoinScrimBtn') {
     setAppView('all');
     return;
@@ -1669,8 +2158,12 @@ document.addEventListener('click', async (event) => {
   }
 
   if (button.id === 'viewGtmlSlotBtn') {
-    toggleRanking(true);
-    showToast('Top ranking scrim akan dapat slot GTML.');
+    toggleGtmlSlotInfo(true);
+    return;
+  }
+
+  if (button.id === 'closeGtmlSlotBtn' || button.id === 'gtmlSlotBackdrop') {
+    toggleGtmlSlotInfo(false);
     return;
   }
 
@@ -1706,6 +2199,9 @@ document.addEventListener('click', async (event) => {
         openScrimDetailIds.add(button.dataset.togglePanel);
       }
       button.setAttribute('aria-expanded', String(!panel.hidden));
+      if (button.dataset.openLabel && button.dataset.closedLabel) {
+        button.textContent = panel.hidden ? button.dataset.closedLabel : button.dataset.openLabel;
+      }
     }
     return;
   }
@@ -1720,12 +2216,18 @@ document.addEventListener('click', async (event) => {
       return;
     }
 
+    if (button.dataset.action === 'login_to_join') {
+      openAuthGate('login');
+      return;
+    }
+
     if (button.dataset.action === 'request') {
+      if (!requireTeamLogin('Login atau register untuk join scrim.')) return;
       if (!isScrimReady()) {
         openPhoneRequiredPanel();
         return;
       }
-      const message = prompt('Message untuk host scrim?') || '';
+      const message = button.dataset.direct === '1' ? '' : (prompt('Message untuk host scrim?') || '');
       const data = new FormData();
       data.set('action', 'request_join');
       data.set('scrim_id', button.dataset.id);
@@ -1811,7 +2313,8 @@ async function loadState(){
 }
 
 async function pollState(){
-  if (isPollingState || !state.team) return;
+  const canPoll = Boolean(state.team) || activeView === 'support' || (Boolean(state.admin) && activeView === 'deal');
+  if (isPollingState || !canPoll) return;
   isPollingState = true;
   try {
     const payload = await loadState();
@@ -1835,6 +2338,9 @@ function startStatePolling(){
 
 async function boot(){
   try {
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      navigator.serviceWorker.register('scrim-sw.js?v=15').catch(console.warn);
+    }
     syncTopNavHeight();
     syncKeyboardViewport();
     state = await loadState();

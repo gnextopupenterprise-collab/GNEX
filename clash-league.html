@@ -3,11 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#02040a">
 <meta name="description" content="GNEX x Horizon Clash League tournament hub.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clash League">
 <title>Clash League | GNEX x Horizon</title>
-<link rel="icon" href="images/logo baru gnex .webp">
-<link rel="stylesheet" href="clash-league.css?v=20260709-schedule">
+<link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
+<link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
+<link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
+<link rel="stylesheet" href="clash-league.css?v=20260727-4">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+
+  gtag("config", "G-QXRQM1SYWH");
+</script>
 <style id="clash-mobile-hotfix">
 @media (max-width:860px){
   .hero-copy{display:contents!important}
@@ -17,6 +34,11 @@
   .logo-stage::after{content:none!important;background:none!important}
   .hero-actions,.hero-whatsapp-action{grid-column:1 / -1!important;display:grid!important}
   .hero-actions{grid-template-columns:repeat(3,1fr)!important}
+  .admin-team-search:not([hidden]){display:grid!important;grid-template-columns:20px minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;min-height:48px!important;margin-top:16px!important;padding:0 14px!important}
+  .admin-team-search svg{display:block!important;width:20px!important;height:20px!important;min-width:20px!important}
+  .admin-team-search input{display:block!important;width:100%!important;min-width:0!important}
+  .deal-new-chat{min-height:126px!important;position:relative!important;z-index:1!important}
+  .deal-contact-item{position:relative!important;z-index:0!important}
 }
 @media (max-width:430px){
   .logo-stage{min-height:136px!important}
@@ -24,6 +46,19 @@
 }
 </style>
 <script>
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260726-pwa-v4";
+if ("serviceWorker" in navigator) {
+  const checkClashAppUpdate = () => {
+    navigator.serviceWorker.getRegistration().then((registration) => {
+      if (!registration) return;
+      registration.update().catch(() => {});
+    }).catch(() => {});
+  };
+  window.addEventListener("pageshow", checkClashAppUpdate);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") checkClashAppUpdate();
+  });
+}
 (function(){
   const isLocalPreview = ["127.0.0.1", "localhost"].includes(window.location.hostname);
   const flushKey = "clash-league-sw-cache-flushed-v7";
@@ -45,9 +80,9 @@
 </head>
 <body>
 <header class="top-nav" aria-label="Clash League top navigation">
-  <a class="brand-link" href="index.html" aria-label="GNEX Center">
+  <a class="brand-link" href="https://gnexcenter.com/" aria-label="Pergi ke halaman utama GNEX Center">
     <span class="brand-mark">
-      <img src="images/logo baru gnex .webp" alt="GNEX">
+      <img src="images/logo baru gnex .webp" width="34" height="34" alt="GNEX" onerror="this.onerror=null;this.src='images/logo baru gnex .png'">
     </span>
     <span class="brand-copy">
       <strong>GNEX</strong>
@@ -65,10 +100,28 @@
     <a href="#result-check" data-panel-target="result-check" data-admin-nav hidden>Result</a>
   </nav>
 
+  <button class="guest-noti-button" type="button" data-guest-noti-toggle hidden aria-label="On atau off notification">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+    <span>Noti</span>
+  </button>
+
   <button class="team-slot login-slot" type="button" aria-label="Login team" data-panel-target="login" data-auth-slot>
     <span data-auth-slot-mark>Login</span>
   </button>
 </header>
+<aside class="install-app-banner" data-install-banner hidden>
+  <span class="install-app-icon" aria-hidden="true">+</span>
+  <span class="install-app-copy">
+    <strong>Add to Home Screen</strong>
+    <small data-install-message>Simpan Clash League untuk akses lebih cepat.</small>
+  </span>
+  <button class="install-app-button" type="button" data-install-button>Install</button>
+  <button class="install-app-close" type="button" data-install-close aria-label="Tutup">&times;</button>
+</aside>
+<div class="notification-reminder" data-noti-reminder hidden>
+  <span>Sila on notification untuk terima info tournament.</span>
+  <button type="button" data-noti-toggle>On Notification</button>
+</div>
 
 <main id="home">
   <section class="hero-section">
@@ -99,6 +152,11 @@
             <span>WhatsApp Group</span>
             <small>Join untuk dapat info tour</small>
           </a>
+        </div>
+        <div class="hero-poster-action">
+          <button class="btn secondary poster-tour-button" type="button" data-poster-open>
+            <span>Poster Tour</span>
+          </button>
         </div>
       </div>
 
@@ -270,6 +328,10 @@
         <button class="btn secondary" type="button" data-logout hidden>Logout</button>
       </div>
       <p class="form-status" data-login-status></p>
+      <div class="login-register-prompt">
+        <span>Daftar team jika belum ada</span>
+        <button class="login-register-button" type="button" data-panel-target="register">Go Now</button>
+      </div>
     </form>
   </div>
 </section>
@@ -285,17 +347,17 @@
     <form class="register-form" data-register-form>
       <div class="notification-gate" data-noti-gate>
         <div>
-          <p class="section-tag">Wajib On Noti</p>
+          <p class="section-tag">Notification Optional</p>
           <h3>Aktifkan Notification</h3>
-          <p>Noti digunakan untuk alert bila slot team confirm, kena reject, atau admin minta betulkan data.</p>
+          <p>Boleh on sekarang atau nanti dalam profile selepas login. Noti digunakan untuk alert slot confirm, reject, chat dan update tournament.</p>
         </div>
-        <button class="btn primary" type="button" data-noti-button>On Noti Dulu</button>
+        <button class="btn primary" type="button" data-noti-button>On Noti</button>
       </div>
 
       <div class="form-grid">
         <label class="field full">
           <span>Nama Team</span>
-          <input type="text" name="team_name" placeholder="Contoh: GNEX ESPORT" autocomplete="organization">
+          <input type="text" name="team_name" placeholder="Contoh: GNEX ESPORT" autocomplete="organization" autocapitalize="characters" spellcheck="false" pattern="[A-Z0-9 ]+" required data-uppercase-input>
         </label>
 
         <label class="field full">
@@ -305,12 +367,12 @@
 
         <label class="field">
           <span>Number Telefon</span>
-          <input type="tel" name="phone" placeholder="0123456789" autocomplete="tel">
+          <input type="tel" name="phone" placeholder="0123456789" autocomplete="tel" required>
         </label>
 
         <label class="field">
           <span>Password Team</span>
-          <input type="password" name="team_password" placeholder="Minimum 4 aksara" autocomplete="new-password">
+          <input type="password" name="team_password" placeholder="Minimum 4 aksara" autocomplete="new-password" required minlength="4">
         </label>
 
         <label class="field">
@@ -332,26 +394,26 @@
 
           <div class="player-row">
             <strong>P1</strong>
-            <input type="text" name="p1_ign" placeholder="IGN player 1">
-            <input type="text" name="p1_id" placeholder="ID player 1">
+            <input type="text" name="p1_ign" placeholder="IGN player 1" required>
+            <input type="text" name="p1_id" placeholder="ID player 1" required>
           </div>
 
           <div class="player-row">
             <strong>P2</strong>
-            <input type="text" name="p2_ign" placeholder="IGN player 2">
-            <input type="text" name="p2_id" placeholder="ID player 2">
+            <input type="text" name="p2_ign" placeholder="IGN player 2" required>
+            <input type="text" name="p2_id" placeholder="ID player 2" required>
           </div>
 
           <div class="player-row">
             <strong>P3</strong>
-            <input type="text" name="p3_ign" placeholder="IGN player 3">
-            <input type="text" name="p3_id" placeholder="ID player 3">
+            <input type="text" name="p3_ign" placeholder="IGN player 3" required>
+            <input type="text" name="p3_id" placeholder="ID player 3" required>
           </div>
 
           <div class="player-row">
             <strong>P4</strong>
-            <input type="text" name="p4_ign" placeholder="IGN player 4">
-            <input type="text" name="p4_id" placeholder="ID player 4">
+            <input type="text" name="p4_ign" placeholder="IGN player 4" required>
+            <input type="text" name="p4_id" placeholder="ID player 4" required>
           </div>
 
           <div class="player-row">
@@ -694,6 +756,19 @@
           <span class="deal-status-pill" data-deal-chat-status>online</span>
         </div>
 
+        <aside class="deal-pinned-info" data-pinned-info hidden>
+          <div class="deal-pinned-view">
+            <span class="deal-pin-icon">PIN</span>
+            <div><b>INFO SEMASA</b><p data-pinned-text></p></div>
+            <button type="button" data-edit-pinned hidden>Edit</button>
+          </div>
+          <form class="deal-pinned-form" data-pinned-form hidden>
+            <input name="pinned_info" maxlength="500" placeholder="Tulis info semasa untuk semua pengguna...">
+            <button type="submit">Save Pin</button>
+            <button type="button" data-cancel-pinned>Cancel</button>
+          </form>
+        </aside>
+
         <div class="deal-chat-full-log" data-deal-messages>
           <div class="deal-chat-bubble theirs">
             <span>Admin</span>
@@ -710,8 +785,14 @@
         </div>
 
         <form class="deal-chat-composer" data-chat-form>
+          <div class="deal-reply-preview" data-reply-preview hidden>
+            <span><b data-reply-name>Reply</b><small data-reply-text></small></span>
+            <button type="button" data-cancel-reply aria-label="Batal reply">×</button>
+          </div>
+          <input class="deal-guest-name" name="guest_name" autocomplete="name" maxlength="60" placeholder="Nama anda" aria-label="Nama anda" hidden>
           <input name="message" autocomplete="off" placeholder="Tulis mesej..." aria-label="Tulis mesej">
-          <button class="btn primary chat-send-button" type="submit">Send</button>
+          <button class="btn primary chat-send-button" type="submit" value="none">Send</button>
+          <button class="btn chat-important-button" type="submit" value="all" data-important-send aria-label="Send penting dan push kepada semua team" title="Send penting: push kepada semua team" hidden>Send</button>
         </form>
       </section>
     </div>
@@ -830,8 +911,12 @@
       </div>
 
       <div class="profile-actions">
+        <button class="btn secondary profile-edit-button" type="button" data-profile-edit-toggle hidden>Edit Maklumat</button>
+        <button class="btn secondary profile-noti-button" type="button" data-noti-toggle hidden>On Notification</button>
         <button class="btn secondary profile-logout-button" type="button" data-logout hidden>Logout</button>
       </div>
+      <div data-profile-edit-host></div>
+      <p class="profile-noti-status" data-profile-noti-status></p>
     </article>
   </div>
 </section>
@@ -845,6 +930,35 @@
       <h2 id="all-team-title">Team Registered</h2>
       <h3 class="section-tag" style="padding-top: 10px;" ><span data-team-count>0</span> Teams</h3>
     </div>
+
+    <label class="admin-team-search" data-admin-team-search hidden>
+      <svg viewBox="0 0 24 24" width="20" height="20" style="display:block;width:20px;height:20px;min-width:20px" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
+      <input type="search" placeholder="Search nama team..." autocomplete="off" data-team-search-input>
+      <span data-team-search-count></span>
+    </label>
+
+    <section class="admin-whatsapp-composer" data-admin-whatsapp-composer hidden>
+      <div>
+        <p class="section-tag">WhatsApp Team</p>
+        <h3>Tulis Mesej</h3>
+        <p>Pilih template atau edit mesej sendiri. Gunakan <strong>{team}</strong> untuk masukkan nama team secara automatik.</p>
+      </div>
+      <label>
+        <span>Template Mesej</span>
+        <select data-whatsapp-template>
+          <option value="registered">Pendaftaran berjaya</option>
+          <option value="confirmed">Slot telah disahkan</option>
+          <option value="schedule">Semak jadual match</option>
+          <option value="deal">Buat deal dengan lawan</option>
+          <option value="reminder">Peringatan login</option>
+          <option value="custom">Mesej sendiri</option>
+        </select>
+      </label>
+      <label class="admin-whatsapp-message">
+        <span>Mesej</span>
+        <textarea rows="4" data-whatsapp-message></textarea>
+      </label>
+    </section>
 
     <div class="team-roster-list" data-team-roster>
       <article class="team-roster-item team-roster-message">
@@ -899,14 +1013,203 @@
   </div>
 </section>
 
-<aside class="video-ad-card" aria-label="Video iklan">
-  <div class="video-ad-frame">
-    <video muted playsinline preload="metadata" poster="images/clash-league.png"></video>
-  </div>
-  <div class="video-ad-copy">
-    <span>Video Iklan</span>
-    <strong>Clash League</strong>
-  </div>
+<div class="poster-modal" data-poster-modal hidden>
+  <button class="poster-modal-backdrop" type="button" data-poster-close aria-label="Tutup poster"></button>
+  <section class="poster-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="poster-modal-title">
+    <div class="poster-modal-head">
+      <div>
+        <p class="section-tag">Clash League</p>
+        <h2 id="poster-modal-title">Poster Tour</h2>
+      </div>
+      <button class="poster-modal-close" type="button" data-poster-close aria-label="Tutup">&times;</button>
+    </div>
+    <img
+      src="/images/clash-league-tour-poster.png?v=20260726-2"
+      alt="Poster pendaftaran GNEX x Horizon Clash League"
+      onerror="if(!this.dataset.triedRelative){this.dataset.triedRelative='1';this.src='images/clash-league-tour-poster.png?v=20260726-2'}"
+    >
+  </section>
+</div>
+
+<div class="team-password-modal" data-team-password-modal hidden>
+  <button class="team-password-backdrop" type="button" data-team-password-close aria-label="Tutup"></button>
+  <form class="team-password-dialog" data-team-password-form>
+    <input type="hidden" name="team_id" data-team-password-id>
+    <div class="team-password-head">
+      <div>
+        <p class="section-tag">Admin Security</p>
+        <h2>Tukar Password Team</h2>
+        <p data-team-password-name>Team</p>
+      </div>
+      <button type="button" data-team-password-close aria-label="Tutup">&times;</button>
+    </div>
+    <label>
+      <span>Password Baru</span>
+      <input type="password" name="new_password" autocomplete="new-password" minlength="4" required>
+    </label>
+    <label>
+      <span>Confirm Password Baru</span>
+      <input type="password" name="confirm_password" autocomplete="new-password" minlength="4" required>
+    </label>
+    <button class="btn primary" type="submit">Simpan Password Team</button>
+    <p class="form-status" data-team-password-status></p>
+  </form>
+</div>
+
+<div class="team-crop-modal" data-team-crop-modal hidden>
+  <div class="team-crop-backdrop" data-crop-cancel></div>
+  <section class="team-crop-dialog" role="dialog" aria-modal="true" aria-labelledby="team-crop-title">
+    <div class="team-crop-head">
+      <div>
+        <p class="section-tag">Admin Editor</p>
+        <h2 id="team-crop-title">Crop Logo Team</h2>
+      </div>
+      <button type="button" class="team-crop-close" data-crop-cancel aria-label="Tutup">&times;</button>
+    </div>
+    <div class="team-crop-stage" data-crop-stage>
+      <canvas width="420" height="420" data-crop-canvas></canvas>
+      <span class="team-crop-ring" aria-hidden="true"></span>
+    </div>
+    <p class="team-crop-help">Drag gambar untuk ubah posisi. Laraskan zoom supaya logo memenuhi bulatan.</p>
+    <label class="team-crop-zoom">
+      <span>Zoom</span>
+      <input type="range" min="1" max="3" value="1" step="0.01" data-crop-zoom>
+    </label>
+    <div class="team-crop-actions">
+      <button type="button" class="btn secondary" data-crop-cancel>Batal</button>
+      <button type="button" class="btn primary" data-crop-save>Simpan Crop</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const posterModal = document.querySelector("[data-poster-modal]");
+  const openButton = document.querySelector("[data-poster-open]");
+  if (!posterModal || !openButton) return;
+
+  const closePoster = () => {
+    posterModal.hidden = true;
+    document.body.classList.remove("poster-open");
+    openButton.focus();
+  };
+
+  openButton.addEventListener("click", () => {
+    posterModal.hidden = false;
+    document.body.classList.add("poster-open");
+    posterModal.querySelector(".poster-modal-close")?.focus();
+  });
+
+  posterModal.querySelectorAll("[data-poster-close]").forEach((button) => {
+    button.addEventListener("click", closePoster);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !posterModal.hidden) closePoster();
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const banner = document.querySelector("[data-install-banner]");
+  const installButton = document.querySelector("[data-install-button]");
+  const closeButton = document.querySelector("[data-install-close]");
+  const message = document.querySelector("[data-install-message]");
+  if (!banner || !installButton || !closeButton || !message) return;
+
+  const dismissedKey = "clash_install_banner_dismissed_at";
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+    || window.navigator.standalone === true;
+  let installPrompt = null;
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register(window.CLASH_SW_URL, {updateViaCache:"none"}).then((registration) => {
+      registration.update().catch(() => {});
+    }).catch((error) => {
+      console.warn("Clash League install service worker gagal", error);
+    });
+  }
+
+  const recentlyDismissed = () => {
+    const dismissedAt = Number(localStorage.getItem(dismissedKey) || 0);
+    return dismissedAt && Date.now() - dismissedAt < 3 * 24 * 60 * 60 * 1000;
+  };
+
+  const showBanner = () => {
+    if (!isStandalone && !recentlyDismissed()) banner.hidden = false;
+  };
+
+  const hideBanner = () => {
+    banner.hidden = true;
+  };
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    installPrompt = event;
+    installButton.textContent = "Install";
+    message.textContent = "Simpan Clash League untuk akses lebih cepat.";
+    showBanner();
+  });
+
+  if (isIos && !isStandalone) {
+    installButton.textContent = "Cara Add";
+    message.textContent = "Tambah Clash League ke Home Screen iPhone.";
+    showBanner();
+  }
+
+  installButton.addEventListener("click", async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      const result = await installPrompt.userChoice;
+      if (result.outcome === "accepted") hideBanner();
+      installPrompt = null;
+      return;
+    }
+
+    if (isIos) {
+      message.textContent = "Tekan Share, kemudian pilih Add to Home Screen.";
+      installButton.textContent = "Share → Add";
+      return;
+    }
+
+    message.textContent = "Buka menu browser dan pilih Install app atau Add to Home screen.";
+  });
+
+  closeButton.addEventListener("click", () => {
+    localStorage.setItem(dismissedKey, String(Date.now()));
+    hideBanner();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    localStorage.removeItem(dismissedKey);
+    hideBanner();
+  });
+})();
+</script>
+
+            <aside
+  class="video-ad-card"
+  aria-label="Video iklan"
+  style="position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:9999;display:block;width:min(calc(100vw - 24px),440px);height:clamp(58px,14vw,64px);min-height:58px;max-height:64px;padding:0;overflow:hidden;box-sizing:border-box;border-radius:18px;border:1px solid rgba(80,230,255,.35);background:#02060d;box-shadow:0 12px 28px rgba(0,0,0,.55),0 0 24px rgba(30,210,255,.12);"
+>
+  <a
+    class="video-ad-link"
+    href="index.html#price-list"
+    aria-label="Pergi ke GNEX Topup"
+  >
+    <img
+      class="video-ad-image"
+      src="images/topup-ff-ml-banner.png?v=20260722b"
+      alt="GNEX Topup FF dan ML"
+      loading="lazy"
+      decoding="async"
+      style="position:absolute;inset:0;display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:cover;object-position:center;margin:0;padding:0;border:0;transform:none;pointer-events:none;"
+      onerror="if(!this.dataset.triedRoot){this.dataset.triedRoot='1';this.src='/images/topup-ff-ml-banner.png?v=20260722b'}else{this.closest('.video-ad-card')?.classList.add('is-missing')}"
+    >
+  </a>
 </aside>
 
 <nav class="bottom-nav" aria-label="Mobile bottom navigation">
@@ -1026,8 +1329,131 @@
 })();
 </script>
 <script>
+window.ClashLeagueApi = window.ClashLeagueApi || (() => {
+  let challengePromise = null;
+
+  function toNumbers(value){
+    const output = [];
+    String(value || "").replace(/(..)/g, (match) => output.push(parseInt(match, 16)));
+    return output;
+  }
+
+  function toHex(value){
+    const input = value && value.constructor === Array ? value : Array.from(arguments);
+    let output = "";
+    for (let index = 0; index < input.length; index++) {
+      output += (input[index] < 16 ? "0" : "") + input[index].toString(16);
+    }
+    return output.toLowerCase();
+  }
+
+  function isInfinityFreeChallenge(text){
+    return /__test=/.test(text) && /\/aes\.js/.test(text) && /slowAES\.decrypt/.test(text);
+  }
+
+  function loadSlowAes(){
+    if (window.slowAES && typeof window.slowAES.decrypt === "function") return Promise.resolve();
+    if (challengePromise) return challengePromise;
+
+    challengePromise = new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-infinityfree-aes]');
+      if (existing) {
+        existing.addEventListener("load", resolve, {once:true});
+        existing.addEventListener("error", reject, {once:true});
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "/aes.js";
+      script.async = true;
+      script.dataset.infinityfreeAes = "1";
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("Gagal load InfinityFree aes.js."));
+      document.head.appendChild(script);
+    });
+
+    return challengePromise;
+  }
+
+  async function solveInfinityFreeChallenge(text){
+    if (!isInfinityFreeChallenge(text)) return false;
+
+    const keys = Array.from(text.matchAll(/toNumbers\("([a-f0-9]+)"\)/gi)).map((match) => match[1]);
+    if (keys.length < 3) return false;
+
+    await loadSlowAes();
+    if (!window.slowAES || typeof window.slowAES.decrypt !== "function") return false;
+
+    const cookieValue = toHex(window.slowAES.decrypt(toNumbers(keys[2]), 2, toNumbers(keys[0]), toNumbers(keys[1])));
+    document.cookie = `__test=${cookieValue}; max-age=21600; path=/`;
+    return true;
+  }
+
+  function mergeRequestOptions(options = {}){
+    return {
+      ...options,
+      credentials: options.credentials || "same-origin",
+      headers: {
+        "Accept": "application/json",
+        ...(options.headers || {})
+      }
+    };
+  }
+
+  function cleanApiErrorMessage(error, fallback = "API error."){
+    const message = String(error?.message || fallback);
+    if (/Failed to fetch|NetworkError|Load failed/i.test(message)) {
+      return "Connection/API lambat. Cuba login sekali lagi atau refresh page.";
+    }
+    if (/API return HTML|tidak return JSON|not valid JSON/i.test(message)) {
+      return "API balas HTML, bukan JSON. Refresh page dulu, kalau masih sama upload/check file API Clash League.";
+    }
+    return message;
+  }
+
+  async function fetchJson(url, options = {}, retry = true){
+    const requestOptions = mergeRequestOptions(options);
+    let response;
+    let text = "";
+
+    try {
+      response = await fetch(url, requestOptions);
+      text = await response.text();
+    } catch (error) {
+      throw new Error(cleanApiErrorMessage(error));
+    }
+
+    try {
+      const data = text ? JSON.parse(text) : {};
+      if (!response.ok || !data.ok) {
+        const apiError = new Error(data.message || "API error.");
+        apiError.apiData = data;
+        throw apiError;
+      }
+      return data;
+    } catch (error) {
+      if (error?.apiData) throw error;
+      if (retry && await solveInfinityFreeChallenge(text)) {
+        return fetchJson(url, requestOptions, false);
+      }
+
+      const cleanText = text.replace(/\s+/g, " ").trim().slice(0, 140);
+      if (/^</.test(cleanText)) {
+        throw new Error("API balas HTML, bukan JSON. Biasanya InfinityFree challenge/404/PHP error. Refresh page atau check file api/clash-league.php.");
+      }
+      throw new Error(cleanApiErrorMessage(error, cleanText || "API tidak return JSON."));
+    }
+  }
+
+  return {fetchJson, cleanApiErrorMessage};
+})();
+</script>
+<script>
 (function(){
   const API_URL = "api/clash-league.php";
+  const API_FALLBACK_URL = "/api/clash-league.php";
+  window.CLASH_LEAGUE_API_URL = window.CLASH_LEAGUE_API_URL || API_URL;
+  window.CLASH_LEAGUE_API_FALLBACK_URL = window.CLASH_LEAGUE_API_FALLBACK_URL || API_FALLBACK_URL;
   const isApiReady = true;
   const registerForm = document.querySelector("[data-register-form]");
   const registerStatus = document.querySelector("[data-register-status]");
@@ -1055,11 +1481,23 @@
     registerStatus.dataset.type = type || "";
   }
 
+  function showGoToProfileNote(message){
+    if (!registerStatus) return;
+    registerStatus.dataset.type = "error";
+    registerStatus.innerHTML = `
+      <span>${escapeHtml(message)}</span>
+      <button class="register-profile-link" type="button" data-register-go-profile>Go to Profile</button>
+    `;
+  }
+
   function formValue(formData, name){
     return String(formData.get(name) || "").trim();
   }
 
   function notificationPermission(){
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (isIos && !isStandalone) return "install-required";
     if (!("Notification" in window)) return "unsupported";
     return Notification.permission;
   }
@@ -1081,12 +1519,11 @@
 
   async function getPushPublicKey(){
     if (window.ClashLeaguePush?.publicKey) return window.ClashLeaguePush.publicKey;
-    const response = await fetch(`${API_URL}?action=pushConfig&v=${Date.now()}`, {
+    const data = await window.ClashLeagueApi.fetchJson(`${API_URL}?action=pushConfig&v=${Date.now()}`, {
       headers: {"Accept":"application/json"},
       cache: "no-store"
     });
-    const data = await response.json();
-    if (!response.ok || !data.ok || !data.push_public_key) {
+    if (!data.push_public_key) {
       throw new Error(data.message || "Push key belum ready.");
     }
     window.ClashLeaguePush.publicKey = data.push_public_key;
@@ -1102,7 +1539,11 @@
     }
 
     const publicKey = await getPushPublicKey();
-    const registration = await navigator.serviceWorker.register("clash-league-sw.js?v=20260703-push");
+    const registration = await navigator.serviceWorker.register(window.CLASH_SW_URL, {updateViaCache:"none"});
+    await registration.update().catch(() => {});
+    if (registration.waiting) {
+      registration.waiting.postMessage({type: "CLASH_SKIP_WAITING"});
+    }
     let subscription = await registration.pushManager.getSubscription();
     if (!subscription) {
       subscription = await registration.pushManager.subscribe({
@@ -1116,16 +1557,12 @@
     data.set("subscription", JSON.stringify(subscription));
     if (teamId) data.set("team_id", String(teamId));
 
-    const response = await fetch(API_URL, {
+    const result = await window.ClashLeagueApi.fetchJson(API_URL, {
       method: "POST",
       body: data,
       headers: {"Accept":"application/json"},
       cache: "no-store"
     });
-    const result = await response.json();
-    if (!response.ok || !result.ok) {
-      throw new Error(result.message || "Gagal simpan notification device.");
-    }
     return result;
   }
 
@@ -1140,68 +1577,160 @@
     await savePushSubscription(teamId);
   }
 
+  async function enablePushForTeam(teamId = ""){
+    const permission = notificationPermission();
+    if (permission === "install-required") {
+      throw new Error("iPhone Safari: tekan Share, pilih Add to Home Screen, kemudian buka Clash League dari ikon Home Screen dan tekan On Notification.");
+    }
+    if (permission === "unsupported") {
+      throw new Error("Browser ni tak support notification. Android guna Chrome. iPhone perlu Safari Add to Home Screen untuk Web Push.");
+    }
+    if (permission !== "granted") {
+      const requested = await Notification.requestPermission();
+      if (requested !== "granted") {
+        updateNotificationGate();
+        throw new Error("Notification belum allow.");
+      }
+    }
+    const result = await savePushSubscription(teamId);
+    updateNotificationGate();
+    return result;
+  }
+
+  async function disablePushForDevice(){
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    let disabled = false;
+    for (const registration of registrations) {
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+        disabled = true;
+      }
+    }
+    return disabled;
+  }
+
   window.ClashLeaguePush = window.ClashLeaguePush || {};
   window.ClashLeaguePush.saveSubscription = savePushSubscription;
   window.ClashLeaguePush.saveStoredRegistration = saveStoredRegistrationPush;
   window.ClashLeaguePush.canUseWebPush = canUseWebPush;
+  window.ClashLeaguePush.getPermission = notificationPermission;
+  window.ClashLeaguePush.enableForTeam = enablePushForTeam;
+  window.ClashLeaguePush.disableForDevice = disablePushForDevice;
 
   function updateNotificationGate(){
     const permission = notificationPermission();
     if (!notiGate || !notiButton || !submitRegister) return;
 
     notiGate.classList.toggle("is-allowed", permission === "granted");
-    notiGate.classList.toggle("is-blocked", permission === "denied" || permission === "unsupported");
+    notiGate.classList.toggle("is-blocked", permission === "denied" || permission === "unsupported" || permission === "install-required");
 
     if (permission === "granted") {
       notiButton.textContent = "Noti Sudah On";
       notiButton.disabled = true;
       submitRegister.disabled = false;
-      setStatus("", "");
       return;
     }
 
-    submitRegister.disabled = true;
+    submitRegister.disabled = false;
 
     if (permission === "denied") {
       notiButton.textContent = "Noti Blocked";
-      setStatus("Notification kena block. Buka lock icon dekat address bar dan allow notification untuk daftar.", "error");
+      notiButton.disabled = true;
+      return;
+    }
+
+    if (permission === "install-required") {
+      notiButton.textContent = "Install App Dulu";
+      notiButton.disabled = false;
       return;
     }
 
     if (permission === "unsupported") {
       notiButton.textContent = "Browser Tak Support";
-      setStatus("Browser ni tak support notification. Android guna Chrome. iPhone perlu Safari Add to Home Screen untuk Web Push.", "error");
+      notiButton.disabled = true;
       return;
     }
 
-    notiButton.textContent = "On Noti Dulu";
+    notiButton.disabled = false;
+    notiButton.textContent = "On Noti";
   }
 
   async function requestNotification(){
     const permission = notificationPermission();
 
+    if (permission === "install-required") {
+      updateNotificationGate();
+      setStatus("iPhone Safari: tekan butang Share, pilih Add to Home Screen, buka Clash League dari ikon Home Screen, kemudian tekan On Notification.", "loading");
+      return;
+    }
+
     if (permission === "unsupported") {
       updateNotificationGate();
+      setStatus("Browser ni tak support notification. Android guna Chrome. iPhone perlu Safari Add to Home Screen untuk Web Push.", "error");
       return;
     }
 
     if (permission === "granted") {
+      try {
+        await saveStoredRegistrationPush();
+        setStatus("Notification sudah allow. Kalau team ini sudah daftar, phone ini akan terima noti bila admin sahkan slot.", "success");
+      } catch (error) {
+        if (error?.apiData?.go_to_profile) {
+          showGoToProfileNote(error.apiData.message || "Team ini sudah didaftarkan. Tukar maklumat melalui Profile.");
+          return;
+        }
+        const message = window.ClashLeagueApi?.cleanApiErrorMessage
+          ? window.ClashLeagueApi.cleanApiErrorMessage(error, "Notification sudah allow, tapi belum dapat link dengan pendaftaran team.")
+          : (error.message || "Notification sudah allow, tapi belum dapat link dengan pendaftaran team.");
+        setStatus(message, "error");
+      }
       updateNotificationGate();
       return;
     }
 
-    setStatus("Browser akan tanya permission notification. Tekan Allow supaya admin boleh hantar alert slot.", "loading");
-    await Notification.requestPermission();
-    updateNotificationGate();
     try {
-      await saveStoredRegistrationPush();
-    } catch (_) {}
+      setStatus("Browser akan tanya permission notification. Tekan Allow kalau nak terima alert tournament.", "loading");
+      const requested = await Notification.requestPermission();
+      updateNotificationGate();
+      if (requested !== "granted") {
+        setStatus("Notification belum allow. Daftar masih boleh jalan, boleh on semula dalam profile nanti.", "error");
+        return;
+      }
+      try {
+        await saveStoredRegistrationPush();
+      } catch (_) {}
+      setStatus("Notification sudah allow. Lepas daftar, phone ini akan diikat dengan team untuk noti confirm slot.", "success");
+    } catch (error) {
+      const message = window.ClashLeagueApi?.cleanApiErrorMessage
+        ? window.ClashLeagueApi.cleanApiErrorMessage(error, "Notification belum aktif.")
+        : (error.message || "Notification belum aktif.");
+      setStatus(message, "error");
+      updateNotificationGate();
+    }
   }
 
   function buildRegisterPayload(form){
     const formData = new FormData(form);
     formData.set("action", "registerTeam");
+    const teamName = String(formData.get("team_name") || "").trim().toUpperCase();
+    formData.set("team_name", teamName);
     return formData;
+  }
+
+  function validateRegisterPayload(formData){
+    const teamName = formValue(formData, "team_name").toUpperCase();
+    if (!teamName) return "Nama team wajib isi.";
+    if (!/^[A-Z0-9 ]+$/.test(teamName)) return "Nama team tidak boleh ada simbol.";
+    if (!formValue(formData, "phone")) return "Nombor telefon wajib isi.";
+    if (formValue(formData, "team_password").length < 4) return "Password team minimum 4 aksara.";
+    for (let slot = 1; slot <= 4; slot += 1) {
+      if (!formValue(formData, `p${slot}_ign`) || !formValue(formData, `p${slot}_id`)) {
+        return `P${slot} IGN dan P${slot} ID wajib isi. Lengkapkan 4 pemain utama dulu.`;
+      }
+    }
+    return "";
   }
 
   function getInitials(name){
@@ -1324,11 +1853,10 @@
       showRosterMessage("Loading team dari database...", "Sistem tengah ambil data confirm slot.", "DB");
     }
 
-    fetch(`${API_URL}?action=teams&v=${Date.now()}`, {
+    window.ClashLeagueApi.fetchJson(`${API_URL}?action=teams&v=${Date.now()}`, {
       headers: {"Accept": "application/json"},
       cache: "no-store"
     })
-      .then((response) => response.json())
       .then((response) => {
         teamsLoading = false;
         if (!response || response.ok === false) {
@@ -1346,34 +1874,44 @@
   }
 
   async function postToApi(payload){
-    const response = await fetch(API_URL, {
+    return window.ClashLeagueApi.fetchJson(API_URL, {
       method: "POST",
       body: payload,
       headers: {"Accept": "application/json"},
       cache: "no-store"
     });
-    const data = await response.json();
-    if (!response.ok || !data.ok) {
-      throw new Error(data.message || "Pendaftaran gagal dihantar.");
-    }
-    return data;
   }
+
+  registerStatus?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-register-go-profile]");
+    if (!button) return;
+    const profileTrigger = document.querySelector('[data-panel-target="profile"]');
+    if (profileTrigger) profileTrigger.click();
+  });
 
   if (registerForm) {
     updateNotificationGate();
     saveStoredRegistrationPush().catch(() => {});
+    registerForm.querySelectorAll("[data-uppercase-input]").forEach((input) => {
+      input.addEventListener("input", () => {
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const upperValue = input.value.toUpperCase();
+        if (input.value !== upperValue) {
+          input.value = upperValue;
+          if (start != null && end != null) input.setSelectionRange(start, end);
+        }
+      });
+      input.addEventListener("blur", () => {
+        input.value = input.value.trim().toUpperCase();
+      });
+    });
     if (notiButton) {
       notiButton.addEventListener("click", requestNotification);
     }
 
     registerForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-
-      if (notificationPermission() !== "granted") {
-        setStatus("Wajib allow notification dulu sebelum daftar. Ini untuk alert slot confirm/reject.", "error");
-        updateNotificationGate();
-        return;
-      }
 
       if (!isApiReady) {
         setStatus("API belum connect. Pastikan api/clash-league.php sudah upload sekali.", "error");
@@ -1385,8 +1923,9 @@
         const payload = await buildRegisterPayload(registerForm);
         const payloadCheck = new FormData(registerForm);
 
-        if (!formValue(payloadCheck, "team_name") || !formValue(payloadCheck, "phone") || !formValue(payloadCheck, "team_password") || !formValue(payloadCheck, "p1_ign") || !formValue(payloadCheck, "p1_id")) {
-          setStatus("Isi nama team, nombor telefon, password, P1 IGN dan P1 ID dulu.", "error");
+        const validationMessage = validateRegisterPayload(payloadCheck);
+        if (validationMessage) {
+          setStatus(validationMessage, "error");
           return;
         }
 
@@ -1396,20 +1935,29 @@
         if (result.team_id) {
           try {
             localStorage.setItem("clash_registered_team_id", String(result.team_id));
+            if (result.chat_token) localStorage.setItem("clash_chat_token", String(result.chat_token));
             localStorage.removeItem("clash_notified_accept_team_id");
           } catch (_) {}
-          try {
-            await savePushSubscription(result.team_id);
-            setStatus("Pendaftaran dihantar. Phone notification aktif, tunggu admin confirm slot.", "success");
-            return;
-          } catch (pushError) {
-            setStatus(`Pendaftaran dihantar, tapi phone notification belum aktif: ${pushError.message}`, "error");
-            return;
+          if (notificationPermission() === "granted") {
+            try {
+              await savePushSubscription(result.team_id);
+              setStatus("Pendaftaran dihantar. Notification aktif untuk team ini. Admin akan semak slot.", "success");
+              return;
+            } catch (pushError) {
+              const pushMessage = window.ClashLeagueApi?.cleanApiErrorMessage
+                ? window.ClashLeagueApi.cleanApiErrorMessage(pushError, "Pendaftaran dihantar, tapi notification belum berjaya link.")
+                : (pushError.message || "Pendaftaran dihantar, tapi notification belum berjaya link.");
+              setStatus(`${result.message || "Pendaftaran dihantar."} ${pushMessage}`, "error");
+              return;
+            }
           }
         }
         setStatus(result.message || "Pendaftaran dihantar. Admin akan semak dalam database.", "success");
       } catch (error) {
-        setStatus(error.message || "Pendaftaran gagal dihantar.", "error");
+        const message = window.ClashLeagueApi?.cleanApiErrorMessage
+          ? window.ClashLeagueApi.cleanApiErrorMessage(error, "Pendaftaran gagal dihantar.")
+          : (error.message || "Pendaftaran gagal dihantar.");
+        setStatus(message, "error");
       }
     });
   }
@@ -1451,8 +1999,9 @@
 </script>
 <script>
 (function(){
-  const API_URL = "api/clash-league.php";
-  const state = {team:null, admin:null, teams:[], matches:[], results:[], rooms:[], messages:[], selectedRoomId:null, rulesText:"", pushPublicKey:null, initialized:false};
+  const API_URL = window.CLASH_LEAGUE_API_URL || "api/clash-league.php";
+  const API_FALLBACK_URL = window.CLASH_LEAGUE_API_FALLBACK_URL || "/api/clash-league.php";
+  const state = {team:null, chatTeam:null, admin:null, teams:[], matches:[], results:[], rooms:[], messages:[], selectedRoomId:null, rulesText:"", pinnedInfo:"", pushPublicKey:null, initialized:false};
   const scheduleDraft = {
     random: {team_limit: "", match_prefix: "Qualifier Match", match_time: ""},
     matches: {}
@@ -1463,6 +2012,9 @@
   const loginMode = document.querySelector("[data-login-mode]");
   const loginStatus = document.querySelector("[data-login-status]");
   const logoutButtons = Array.from(document.querySelectorAll("[data-logout]"));
+  const notiReminder = document.querySelector("[data-noti-reminder]");
+  const notiToggleButtons = Array.from(document.querySelectorAll("[data-noti-toggle]"));
+  const guestNotiButton = document.querySelector("[data-guest-noti-toggle]");
   const adminNavItems = Array.from(document.querySelectorAll("[data-admin-nav]"));
   const roster = document.querySelector("[data-team-roster]");
   const confirmRoster = document.querySelector("[data-confirm-roster]");
@@ -1475,15 +2027,25 @@
   const resultHistory = document.querySelector("[data-result-history]");
   const resultRoster = document.querySelector("[data-result-roster]");
   const dealApp = document.querySelector("[data-deal-app]");
+  const dealSection = dealApp?.closest(".deal-section");
   const dealChatAvatar = document.querySelector("[data-deal-chat-avatar]");
   const dealChatName = document.querySelector("[data-deal-chat-name]");
   const dealChatSubtitle = document.querySelector("[data-deal-chat-subtitle]");
   const dealChatStatus = document.querySelector("[data-deal-chat-status]");
   const dealList = document.querySelector("[data-deal-list]");
   const dealMessages = document.querySelector("[data-deal-messages]");
+  const pinnedInfoCard = document.querySelector("[data-pinned-info]");
+  const pinnedInfoText = document.querySelector("[data-pinned-text]");
+  const pinnedInfoForm = document.querySelector("[data-pinned-form]");
   const dealTitle = document.querySelector("#deal-title");
   const dealBadges = Array.from(document.querySelectorAll("[data-deal-badge]"));
   const allTeamTitle = document.querySelector("#all-team-title");
+  const adminTeamSearch = document.querySelector("[data-admin-team-search]");
+  const teamSearchInput = document.querySelector("[data-team-search-input]");
+  const teamSearchCount = document.querySelector("[data-team-search-count]");
+  const whatsappComposer = document.querySelector("[data-admin-whatsapp-composer]");
+  const whatsappTemplate = document.querySelector("[data-whatsapp-template]");
+  const whatsappMessage = document.querySelector("[data-whatsapp-message]");
   const chatForm = document.querySelector("[data-chat-form]");
   const profileLogo = document.querySelector("[data-profile-logo]");
   const profileSlot = document.querySelector("[data-profile-slot]");
@@ -1493,19 +2055,50 @@
   const profileManager = document.querySelector("[data-profile-manager]");
   const profilePhone = document.querySelector("[data-profile-phone]");
   const profilePlayers = document.querySelector("[data-profile-players]");
+  const profileNotiStatus = document.querySelector("[data-profile-noti-status]");
+  const profileEditButton = document.querySelector("[data-profile-edit-toggle]");
+  const profileEditHost = document.querySelector("[data-profile-edit-host]");
+  const teamPasswordModal = document.querySelector("[data-team-password-modal]");
+  const teamPasswordForm = document.querySelector("[data-team-password-form]");
+  const teamPasswordStatus = document.querySelector("[data-team-password-status]");
   const rulesGrid = document.querySelector("[data-rules-grid]");
   const rulesStatus = document.querySelector("[data-rules-status]");
+  const cropModal = document.querySelector("[data-team-crop-modal]");
+  const cropCanvas = document.querySelector("[data-crop-canvas]");
+  const cropStage = document.querySelector("[data-crop-stage]");
+  const cropZoom = document.querySelector("[data-crop-zoom]");
+  const croppedLogos = new WeakMap();
+  const cropEditor = {form:null, input:null, image:null, zoom:1, x:0, y:0, baseScale:1, pointerId:null, lastX:0, lastY:0};
   const seenKey = "clash_seen_messages_v1";
   const registeredTeamKey = "clash_registered_team_id";
+  const chatTokenKey = "clash_chat_token";
+  const guestNameKey = "clash_guest_name";
   const notifiedAcceptKey = "clash_notified_accept_team_id";
   const pointReminderKey = "clash_point_reminders_v1";
+  const notiMutedKey = "clash_notification_muted_v1";
+  const adminCheckKey = "clash_admin_team_checks_v1";
   let seenMessages = {};
   let pointReminders = {};
+  let adminTeamChecks = {};
   let expandedTeamId = null;
   let editingTeamId = null;
   let expandedResultId = null;
   let editingRuleIndex = null;
   let pushSyncOwner = "";
+  let loginBusy = false;
+  let teamSearchQuery = "";
+  let dealRoomFilter = "all";
+  let dealMatchDate = "";
+  let replyToMessageId = null;
+  let pinnedEditOpen = false;
+  let renderedDealRoomId = null;
+  let forceDealScrollToBottom = true;
+  const dealScrollPositions = {};
+  let pendingChatMessages = [];
+  let adminChecksMigrated = false;
+  let scheduleOpenStateReady = false;
+  const openScheduleDates = new Set();
+  const openScheduleMatches = new Set();
 
   const DEFAULT_RULE_CARDS = [
     {title:"Requirements", body:"Level account 20 keatas dan Rank BR atau CS harus Platinum keatas."},
@@ -1519,6 +2112,126 @@
     {title:"Interaction Ingame", body:"Tiada tindakan dikenakan jika player melakukan emote dan seangkatan dengan itu."}
   ];
 
+  function syncDealChatOpenClass(){
+    const isOpen = Boolean(dealApp?.classList.contains("chat-open"));
+    if (dealSection) dealSection.classList.toggle("chat-room-open", isOpen);
+    document.body.classList.toggle("deal-chat-active", isOpen);
+  }
+  if (dealApp) {
+    new MutationObserver(syncDealChatOpenClass).observe(dealApp, {attributes:true, attributeFilter:["class"]});
+    syncDealChatOpenClass();
+  }
+
+  const WHATSAPP_TEMPLATES = {
+    registered: "Hi {team}, team anda telah berjaya mendaftar Tournament Clash League GNEX x HORIZON. Sila login untuk menerima maklumat tournament.",
+    confirmed: "Hi {team}, slot team anda untuk Tournament Clash League GNEX x HORIZON telah disahkan. Sila login dan aktifkan notification untuk menerima update seterusnya.",
+    schedule: "Hi {team}, jadual match anda telah dikemas kini. Sila login ke Clash League dan semak bahagian Jadual untuk tarikh serta masa perlawanan.",
+    deal: "Hi {team}, sila login ke Clash League dan buka bahagian Deal untuk berbincang serta mengesahkan maklumat match bersama pihak lawan.",
+    reminder: "Hi {team}, ini peringatan daripada admin Clash League GNEX x HORIZON. Sila login untuk menyemak notification, jadual, room deal dan maklumat tournament terkini.",
+    custom: ""
+  };
+
+  function applyWhatsappTemplate(){
+    if (!whatsappTemplate || !whatsappMessage) return;
+    whatsappMessage.value = WHATSAPP_TEMPLATES[whatsappTemplate.value] ?? "";
+    if (whatsappTemplate.value === "custom") whatsappMessage.focus();
+  }
+
+  function whatsappNumber(value){
+    const raw = String(value || "").trim();
+    let digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    if (digits.startsWith("0")) digits = `60${digits.slice(1)}`;
+    return digits;
+  }
+
+  function openTeamWhatsapp(team){
+    if (!state.admin || !team) return;
+    const number = whatsappNumber(team.phone);
+    if (!number) {
+      alert(`Nombor WhatsApp ${team.team_name || "team"} tidak tersedia.`);
+      return;
+    }
+    const source = String(whatsappMessage?.value || "").trim();
+    if (!source) {
+      alert("Tulis atau pilih template mesej dahulu.");
+      whatsappMessage?.focus();
+      return;
+    }
+    const message = source.replace(/\{team\}/gi, team.team_name || "Team");
+    window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  }
+
+  whatsappTemplate?.addEventListener("change", applyWhatsappTemplate);
+  applyWhatsappTemplate();
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-whatsapp-team]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const teamId = Number(button.dataset.whatsappTeam);
+    const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === teamId);
+    openTeamWhatsapp(team);
+  });
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-team-password]");
+    if (!button || !state.admin || !teamPasswordModal || !teamPasswordForm) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const teamId = Number(button.dataset.teamPassword);
+    const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === teamId);
+    if (!team) return;
+    teamPasswordForm.reset();
+    teamPasswordForm.querySelector("[data-team-password-id]").value = String(teamId);
+    teamPasswordModal.querySelector("[data-team-password-name]").textContent = team.team_name || "Team";
+    teamPasswordStatus.textContent = "";
+    teamPasswordStatus.dataset.type = "";
+    teamPasswordModal.hidden = false;
+    document.body.classList.add("team-password-open");
+    teamPasswordForm.querySelector("[name='new_password']")?.focus();
+  });
+
+  const closeTeamPassword = () => {
+    if (!teamPasswordModal || !teamPasswordForm) return;
+    teamPasswordForm.reset();
+    teamPasswordModal.hidden = true;
+    document.body.classList.remove("team-password-open");
+  };
+
+  teamPasswordModal?.querySelectorAll("[data-team-password-close]").forEach((button) => {
+    button.addEventListener("click", closeTeamPassword);
+  });
+
+  teamPasswordForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.admin) return;
+    const submitButton = teamPasswordForm.querySelector("[type='submit']");
+    const data = new FormData(teamPasswordForm);
+    data.set("action", "changeTeamPassword");
+    try {
+      submitButton.disabled = true;
+      submitButton.textContent = "Menyimpan...";
+      teamPasswordStatus.textContent = "Sedang menukar password team...";
+      teamPasswordStatus.dataset.type = "loading";
+      const result = await apiPost(data);
+      alert(result.message || "Password team berjaya ditukar.");
+      setState(result);
+      closeTeamPassword();
+    } catch (error) {
+      teamPasswordStatus.textContent = friendlyApiError(error, "Password team gagal ditukar.");
+      teamPasswordStatus.dataset.type = "error";
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Simpan Password Team";
+    }
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && teamPasswordModal && !teamPasswordModal.hidden) closeTeamPassword();
+  });
+
   try {
     seenMessages = JSON.parse(localStorage.getItem(seenKey) || "{}") || {};
   } catch (_) {
@@ -1528,6 +2241,11 @@
     pointReminders = JSON.parse(localStorage.getItem(pointReminderKey) || "{}") || {};
   } catch (_) {
     pointReminders = {};
+  }
+  try {
+    adminTeamChecks = JSON.parse(localStorage.getItem(adminCheckKey) || "{}") || {};
+  } catch (_) {
+    adminTeamChecks = {};
   }
 
   function updateTeamCount(count) {
@@ -1552,10 +2270,180 @@
       : escapeHtml(label || "TM");
   }
 
+  function roomAvatarHtml(room){
+    if (String(room?.room_type || "") === "group") {
+      return `<span class="question-room-avatar" role="img" aria-label="Profile Pertanyaan / Question"></span>`;
+    }
+    return avatarHtml(room?.avatar || "AD", room?.avatar_logo || "", room?.title || "Team");
+  }
+
+  function drawTeamCrop(){
+    if (!cropCanvas || !cropEditor.image) return;
+    const context = cropCanvas.getContext("2d");
+    const size = cropCanvas.width;
+    const scale = cropEditor.baseScale * cropEditor.zoom;
+    const width = cropEditor.image.naturalWidth * scale;
+    const height = cropEditor.image.naturalHeight * scale;
+    cropEditor.x = Math.max((352 - width) / 2, Math.min((width - 352) / 2, cropEditor.x));
+    cropEditor.y = Math.max((352 - height) / 2, Math.min((height - 352) / 2, cropEditor.y));
+    context.clearRect(0, 0, size, size);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.drawImage(cropEditor.image, (size - width) / 2 + cropEditor.x, (size - height) / 2 + cropEditor.y, width, height);
+  }
+
+  function closeTeamCrop(){
+    if (cropEditor.input) cropEditor.input.value = "";
+    if (cropModal) cropModal.hidden = true;
+    cropEditor.form = null;
+    cropEditor.input = null;
+    cropEditor.image = null;
+    cropEditor.pointerId = null;
+  }
+
+  function openTeamCrop(source, input, form = null){
+    if (!cropModal || !cropCanvas || !source) return;
+    if (source instanceof File && source.size > 2 * 1024 * 1024) {
+      input.value = "";
+      alert("Logo maksimum 2MB sahaja.");
+      return;
+    }
+    const image = new Image();
+    const isFile = source instanceof File;
+    const objectUrl = isFile ? URL.createObjectURL(source) : String(source);
+    if (!isFile) image.crossOrigin = "anonymous";
+    image.onload = () => {
+      if (isFile) URL.revokeObjectURL(objectUrl);
+      cropEditor.form = form || input?.closest("[data-team-edit-form]");
+      cropEditor.input = input;
+      cropEditor.image = image;
+      cropEditor.zoom = 1;
+      cropEditor.x = 0;
+      cropEditor.y = 0;
+      cropEditor.baseScale = Math.max(352 / image.naturalWidth, 352 / image.naturalHeight);
+      if (cropZoom) cropZoom.value = "1";
+      cropModal.hidden = false;
+      drawTeamCrop();
+    };
+    image.onerror = () => {
+      if (isFile) URL.revokeObjectURL(objectUrl);
+      if (input) input.value = "";
+      alert("Logo sedia ada tidak dapat dibuka untuk crop. Cuba guna pilihan Ganti Logo.");
+    };
+    image.src = objectUrl;
+  }
+
+  if (cropZoom) {
+    cropZoom.addEventListener("input", () => {
+      cropEditor.zoom = Number(cropZoom.value) || 1;
+      drawTeamCrop();
+    });
+  }
+
+  if (cropStage) {
+    cropStage.addEventListener("pointerdown", (event) => {
+      if (!cropEditor.image) return;
+      cropEditor.pointerId = event.pointerId;
+      cropEditor.lastX = event.clientX;
+      cropEditor.lastY = event.clientY;
+      cropStage.setPointerCapture(event.pointerId);
+    });
+    cropStage.addEventListener("pointermove", (event) => {
+      if (cropEditor.pointerId !== event.pointerId) return;
+      const ratio = cropCanvas.width / cropStage.getBoundingClientRect().width;
+      cropEditor.x += (event.clientX - cropEditor.lastX) * ratio;
+      cropEditor.y += (event.clientY - cropEditor.lastY) * ratio;
+      cropEditor.lastX = event.clientX;
+      cropEditor.lastY = event.clientY;
+      drawTeamCrop();
+    });
+    const releaseCropPointer = (event) => {
+      if (cropEditor.pointerId === event.pointerId) cropEditor.pointerId = null;
+    };
+    cropStage.addEventListener("pointerup", releaseCropPointer);
+    cropStage.addEventListener("pointercancel", releaseCropPointer);
+  }
+
+  document.querySelectorAll("[data-crop-cancel]").forEach((button) => button.addEventListener("click", closeTeamCrop));
+  document.querySelector("[data-crop-save]")?.addEventListener("click", () => {
+    if (!cropEditor.image || !cropEditor.form) return;
+    const saveButton = document.querySelector("[data-crop-save]");
+    const form = cropEditor.form;
+    const output = document.createElement("canvas");
+    output.width = 512;
+    output.height = 512;
+    output.getContext("2d").drawImage(cropCanvas, 34, 34, 352, 352, 0, 0, 512, 512);
+    if (saveButton) {
+      saveButton.disabled = true;
+      saveButton.textContent = "Menyimpan...";
+    }
+    try {
+      output.toBlob(async (blob) => {
+        if (!blob) {
+          if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Simpan Crop";
+          }
+          alert("Hasil crop gagal dijana.");
+          return;
+        }
+        croppedLogos.set(form, blob);
+        const preview = form.querySelector("[data-edit-logo-preview]");
+        if (preview) {
+          const previewUrl = URL.createObjectURL(blob);
+          preview.innerHTML = `<img src="${previewUrl}" alt="Preview logo crop">`;
+        }
+        const data = new FormData(form);
+        data.delete("team_logo_source");
+        data.set("team_logo", blob, `team-logo-${Date.now()}.webp`);
+        data.set("action", "updateTeamInfo");
+        try {
+          const result = await apiPost(data);
+          editingTeamId = null;
+          if (profileEditHost?.contains(form)) {
+            profileEditHost.innerHTML = "";
+            if (profileEditButton) profileEditButton.textContent = "Edit Maklumat";
+          }
+          closeTeamCrop();
+          setState(result);
+        } catch (error) {
+          alert(error.message || "Crop logo gagal disimpan.");
+        } finally {
+          if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Simpan Crop";
+          }
+        }
+      }, "image/webp", 0.92);
+    } catch (error) {
+      if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = "Simpan Crop";
+      }
+      alert("Logo ini tidak boleh diproses terus. Cuba guna Ganti Logo.");
+    }
+  });
+
   function setLoginStatus(message, type = ""){
     if (!loginStatus) return;
     loginStatus.textContent = message || "";
     loginStatus.dataset.type = type;
+  }
+
+  function friendlyApiError(error, fallback = "API error."){
+    if (window.ClashLeagueApi?.cleanApiErrorMessage) {
+      return window.ClashLeagueApi.cleanApiErrorMessage(error, fallback);
+    }
+    return error?.message || fallback;
+  }
+
+  function setLoginBusy(busy){
+    loginBusy = busy;
+    if (!loginForm) return;
+    loginForm.querySelectorAll("button, input, select, textarea").forEach((field) => {
+      if (field.type === "hidden") return;
+      field.disabled = busy;
+    });
   }
 
   function setRulesStatus(message, type = ""){
@@ -1582,6 +2470,158 @@
     } catch (_) {}
   }
 
+  function saveAdminTeamChecks(){
+    try {
+      localStorage.setItem(adminCheckKey, JSON.stringify(adminTeamChecks));
+    } catch (_) {}
+  }
+
+  async function copyTextToClipboard(value){
+    const text = String(value == null ? "" : value).trim();
+    if (!text || text === "-") throw new Error("Tiada data untuk copy.");
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const input = document.createElement("textarea");
+    input.value = text;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.left = "-9999px";
+    document.body.appendChild(input);
+    input.select();
+    const ok = document.execCommand("copy");
+    input.remove();
+    if (!ok) throw new Error("Browser tak allow copy.");
+  }
+
+  function currentNotificationPermission(){
+    if (window.ClashLeaguePush?.getPermission) return window.ClashLeaguePush.getPermission();
+    if (!("Notification" in window)) return "unsupported";
+    return Notification.permission;
+  }
+
+  function isNotificationMuted(){
+    try {
+      return localStorage.getItem(notiMutedKey) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setNotificationMuted(isMuted){
+    try {
+      if (isMuted) {
+        localStorage.setItem(notiMutedKey, "1");
+      } else {
+        localStorage.removeItem(notiMutedKey);
+      }
+    } catch (_) {}
+  }
+
+  function setProfileNotiStatus(message, type = ""){
+    if (!profileNotiStatus) return;
+    profileNotiStatus.textContent = message || "";
+    profileNotiStatus.dataset.type = type;
+  }
+
+  function renderNotificationControls(){
+    const isTeamLogin = Boolean(state.team && !state.admin);
+    const permission = currentNotificationPermission();
+    const muted = isNotificationMuted();
+    const active = permission === "granted" && !muted;
+
+    notiToggleButtons.forEach((button) => {
+      button.hidden = !isTeamLogin;
+      button.disabled = permission === "unsupported";
+      button.dataset.notiState = active ? "on" : "off";
+      if (permission === "install-required") {
+        button.textContent = "Install App Dulu";
+      } else if (permission === "unsupported") {
+        button.textContent = "Noti Tak Support";
+      } else {
+        button.textContent = active ? "Off Notification" : "On Notification";
+      }
+    });
+  }
+
+  function renderGuestNotificationButton(){
+    if (!guestNotiButton) return;
+    const permission = currentNotificationPermission();
+    const active = permission === "granted" && !isNotificationMuted();
+    guestNotiButton.hidden = Boolean(state.team || state.admin);
+    guestNotiButton.disabled = permission === "unsupported";
+    guestNotiButton.classList.toggle("is-active", active);
+    guestNotiButton.dataset.notiState = active ? "on" : "off";
+    const label = guestNotiButton.querySelector("span");
+    if (!label) return;
+    if (permission === "install-required") label.textContent = "Install";
+    else if (permission === "unsupported") label.textContent = "No Noti";
+    else label.textContent = active ? "Noti On" : "Noti";
+  }
+
+  function watchedRegistrationTeam(){
+    if (state.team && !state.admin) return state.team;
+    let registeredId = "";
+    try {
+      registeredId = localStorage.getItem(registeredTeamKey) || "";
+    } catch (_) {}
+    if (!registeredId) return null;
+    return state.teams.find((team) => Number(team.id || team.team_id) === Number(registeredId)) || null;
+  }
+
+  function statusNoticeForTeam(team){
+    if (!team) return null;
+    if (team.status === "accepted") {
+      return {
+        kind:"accepted",
+        title:"Clash League",
+        text:"Pasukan anda berjaya menyertai tournament Clash League, sila login untuk bermain."
+      };
+    }
+    if (team.status === "rejected") {
+      const reason = String(team.admin_note || "").trim();
+      return {
+        kind:"rejected",
+        title:"Pendaftaran Clash League",
+        text: reason
+          ? `Pendaftaran anda tidak berjaya kerana ${reason}, sila daftar semula.`
+          : "Pendaftaran anda tidak berjaya, sila daftar semula."
+      };
+    }
+    return null;
+  }
+
+  function renderTopNotificationReminder(){
+    if (!notiReminder) return;
+    const textNode = notiReminder.querySelector("span");
+    const buttons = notiReminder.querySelectorAll("[data-noti-toggle]");
+    const permission = currentNotificationPermission();
+    const active = permission === "granted" && !isNotificationMuted();
+    const notice = statusNoticeForTeam(watchedRegistrationTeam());
+
+    notiReminder.classList.remove("is-status", "is-accepted", "is-rejected");
+
+    if (notice && !active) {
+      notiReminder.hidden = false;
+      notiReminder.classList.add("is-visible", "is-status", notice.kind === "accepted" ? "is-accepted" : "is-rejected");
+      if (textNode) textNode.textContent = notice.text;
+      buttons.forEach((button) => {
+        button.hidden = false;
+        button.disabled = permission === "unsupported";
+        button.dataset.notiState = active ? "on" : "off";
+        button.textContent = permission === "install-required" ? "Install App Dulu" : (permission === "unsupported" ? "Noti Tak Support" : "On Notification");
+      });
+      return;
+    }
+
+    const isTeamLogin = Boolean(state.team && !state.admin);
+    const shouldRemind = isTeamLogin && !active;
+    notiReminder.hidden = !shouldRemind;
+    notiReminder.classList.toggle("is-visible", shouldRemind);
+    if (textNode) textNode.textContent = "Sila on notification untuk terima info tournament.";
+  }
+
   function showBrowserNotification(title, body){
     if (!("Notification" in window) || Notification.permission !== "granted") return;
     try {
@@ -1596,6 +2636,7 @@
 
   function syncPushSubscription(){
     if (!("Notification" in window) || Notification.permission !== "granted" || !window.ClashLeaguePush?.saveSubscription) return;
+    if (isNotificationMuted()) return;
     const owner = state.admin ? `admin:${state.admin.id || "admin"}` : (state.team ? `team:${state.team.id}` : "");
     if (!owner || pushSyncOwner === owner) return;
     pushSyncOwner = owner;
@@ -1607,11 +2648,11 @@
 
   function roomIncomingUnread(room){
     const roomId = Number(room.id);
-    const seen = Number(seenMessages[roomId] || 0);
+    const seen = Math.max(Number(room.seen_message_id || 0), Number(seenMessages[roomId] || 0));
     return state.messages.filter((message) => {
       if (Number(message.room_id) !== roomId || Number(message.id) <= seen) return false;
       if (state.admin) return message.sender_type === "team";
-      return message.sender_type === "admin" || message.sender_type === "system";
+      return message.sender_type === "admin" || message.sender_type === "system" || Number(message.sender_team_id) !== Number(state.chatTeam?.id);
     });
   }
 
@@ -1622,6 +2663,14 @@
     if (maxId > 0) {
       seenMessages[roomId] = maxId;
       saveSeenMessages();
+      const room = state.rooms.find((entry) => Number(entry.id) === Number(roomId));
+      if (room) room.seen_message_id = Math.max(Number(room.seen_message_id || 0), maxId);
+      if (state.admin || state.chatTeam) {
+        const data = new FormData();
+        data.set("action", "markRoomRead");
+        data.set("room_id", roomId);
+        apiPost(data).catch((error) => console.warn("Gagal sync status read chat", error));
+      }
     }
   }
 
@@ -1640,15 +2689,17 @@
     } catch (_) {}
     if (!registeredId) return;
     const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === Number(registeredId));
-    if (!team || team.status !== "accepted") return;
+    const notice = statusNoticeForTeam(team);
+    if (!notice) return;
     let notified = "";
     try {
       notified = localStorage.getItem(notifiedAcceptKey) || "";
     } catch (_) {}
-    if (notified === String(registeredId)) return;
-    showBrowserNotification("Clash League", "Pasukan anda berjaya menyertai tournament Clash League, sila login untuk bermain.");
+    const noticeKey = `${team.status}:${registeredId}:${team.admin_note || ""}`;
+    if (notified === noticeKey) return;
+    showBrowserNotification(notice.title, notice.text);
     try {
-      localStorage.setItem(notifiedAcceptKey, String(registeredId));
+      localStorage.setItem(notifiedAcceptKey, noticeKey);
     } catch (_) {}
   }
 
@@ -1658,7 +2709,7 @@
     const incoming = state.messages.filter((message) => {
       if (Number(message.id || 0) <= previousMax) return false;
       if (state.admin) return message.sender_type === "team";
-      return message.sender_type === "admin" || message.sender_type === "system";
+      return message.sender_type === "admin" || message.sender_type === "system" || Number(message.sender_team_id) !== Number(state.chatTeam?.id);
     });
     if (!incoming.length) return;
     const latest = incoming[incoming.length - 1];
@@ -1752,7 +2803,8 @@
   }
 
   function canAccessPanel(id){
-    if (id === "jadual" || id === "deal") return isLoggedTeam() || Boolean(state.admin);
+    if (id === "deal") return Boolean(state.chatTeam || state.admin);
+    if (id === "jadual") return isLoggedTeam() || Boolean(state.admin);
     if (id === "profile") return isLoggedTeam() || Boolean(state.admin);
     if (id === "confirm-slot") return Boolean(state.admin);
     if (id === "result-check") return Boolean(state.admin);
@@ -1795,30 +2847,137 @@
     });
   });
 
-  async function apiGet(action){
-    const response = await fetch(`${API_URL}?action=${encodeURIComponent(action)}&v=${Date.now()}`, {cache:"no-store", headers:{"Accept":"application/json"}});
-    const data = await response.json();
+  async function readApiJson(response, url){
+    const text = await response.text();
+    let data = null;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (error) {
+      const cleanText = text.replace(/\s+/g, " ").trim().slice(0, 120);
+      const message = /^</.test(cleanText)
+        ? `API ${url} balas HTML, bukan JSON. Check file api/clash-league.php atau refresh page.`
+        : `API ${url} tidak return JSON. Response: ${cleanText || response.status}`;
+      throw new Error(friendlyApiError(new Error(message), "API tidak return JSON."));
+    }
     if (!response.ok || !data.ok) throw new Error(data.message || "API error.");
     return data;
   }
 
+  function sleep(ms){
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function fetchApi(url, options){
+    if (window.ClashLeagueApi?.fetchJson) {
+      return window.ClashLeagueApi.fetchJson(url, options);
+    }
+    const response = await fetch(url, {...options, credentials: options?.credentials || "same-origin"});
+    return readApiJson(response, url);
+  }
+
+  async function fetchApiWithFallback(path, options){
+    const urls = [API_URL + path];
+    const fallbackPath = API_FALLBACK_URL + path;
+    if (fallbackPath !== urls[0]) urls.push(fallbackPath);
+
+    const method = String(options?.method || "GET").toUpperCase();
+    const attempts = method === "GET" ? 2 : 1;
+    let lastError = null;
+    for (const url of urls) {
+      for (let attempt = 0; attempt < attempts; attempt++) {
+        try {
+          return await fetchApi(url, options);
+        } catch (error) {
+          lastError = error;
+          if (attempt + 1 < attempts) await sleep(350);
+        }
+      }
+    }
+    throw lastError || new Error("API error.");
+  }
+
+  async function apiGet(action){
+    let chatToken = "";
+    try { chatToken = localStorage.getItem(chatTokenKey) || ""; } catch (_) {}
+    const tokenQuery = chatToken ? `&chat_token=${encodeURIComponent(chatToken)}` : "";
+    return fetchApiWithFallback(`?action=${encodeURIComponent(action)}&v=${Date.now()}${tokenQuery}`, {cache:"no-store", headers:{"Accept":"application/json"}});
+  }
+
   async function apiPost(formData){
-    const response = await fetch(API_URL, {method:"POST", body:formData, cache:"no-store", headers:{"Accept":"application/json"}});
-    const data = await response.json();
-    if (!response.ok || !data.ok) throw new Error(data.message || "API error.");
-    return data;
+    try {
+      const chatToken = localStorage.getItem(chatTokenKey) || "";
+      if (chatToken) formData.set("chat_token", chatToken);
+    } catch (_) {}
+    const options = {method:"POST", body:formData, cache:"no-store", headers:{"Accept":"application/json"}};
+    return fetchApiWithFallback("", options);
+  }
+
+  async function postTeamStatus(teamId, status, adminNote = ""){
+    const data = new FormData();
+    data.set("action", "setTeamStatus");
+    data.set("team_id", teamId);
+    data.set("status", status);
+    if (adminNote) data.set("admin_note", adminNote);
+    const result = await apiPost(data);
+    setState(result);
+    return result;
   }
 
   function setState(data){
     const previousMessages = state.messages.slice();
     state.team = data.team || null;
+    state.chatTeam = data.chat_team || state.team || null;
     state.admin = data.admin || null;
+    const isAdminAccount = Boolean(state.admin);
+    const adCard = document.querySelector(".video-ad-card");
+    document.body.classList.toggle("admin-account", isAdminAccount);
+    if (adCard) {
+      adCard.hidden = isAdminAccount;
+      if (isAdminAccount) {
+        adCard.style.setProperty("display", "none", "important");
+      } else {
+        adCard.style.removeProperty("display");
+      }
+    }
     state.teams = Array.isArray(data.teams) ? data.teams : [];
-    state.matches = Array.isArray(data.matches) ? data.matches : [];
+    if (state.admin) {
+      const checksToMigrate = [];
+      const databaseChecks = {};
+      state.teams.forEach((team) => {
+        const teamId = String(team.id || team.team_id || "");
+        if (!teamId) return;
+        const checkedInDatabase = Boolean(team.admin_checked);
+        const checkedLocally = Boolean(adminTeamChecks[teamId]);
+        if (checkedInDatabase || checkedLocally) databaseChecks[teamId] = true;
+        if (!adminChecksMigrated && checkedLocally && !checkedInDatabase) checksToMigrate.push(teamId);
+      });
+      adminTeamChecks = databaseChecks;
+      saveAdminTeamChecks();
+      if (!adminChecksMigrated) {
+        adminChecksMigrated = true;
+        checksToMigrate.forEach((teamId) => {
+          const migrationData = new FormData();
+          migrationData.set("action", "setTeamCheck");
+          migrationData.set("team_id", teamId);
+          migrationData.set("checked", "1");
+          apiPost(migrationData).catch(() => {});
+        });
+      }
+    }
+    const incomingMatches = Array.isArray(data.matches) ? data.matches : [];
+    if (state.team && !state.admin) {
+      const loggedTeamId = Number(state.team.id || 0);
+      state.matches = incomingMatches.filter((match) => {
+        return Number(match.team_a_id || 0) === loggedTeamId || Number(match.team_b_id || 0) === loggedTeamId;
+      });
+    } else {
+      state.matches = incomingMatches;
+    }
     state.results = Array.isArray(data.results) ? data.results : [];
     state.rooms = Array.isArray(data.rooms) ? data.rooms : [];
     state.messages = Array.isArray(data.messages) ? data.messages : [];
     state.rulesText = data.rules_text || "";
+    state.pinnedInfo = data.pinned_info || "";
     state.pushPublicKey = data.push_public_key || state.pushPublicKey;
     if (state.pushPublicKey && window.ClashLeaguePush) {
       window.ClashLeaguePush.publicKey = state.pushPublicKey;
@@ -1837,6 +2996,9 @@
     renderDeal();
     renderRules();
     renderDealBadges();
+    renderNotificationControls();
+    renderGuestNotificationButton();
+    renderTopNotificationReminder();
     checkRegistrationNotification();
     checkMessageNotifications(previousMessages);
     checkPointReminderNotifications();
@@ -1872,6 +3034,8 @@
     if (scheduleTitle) scheduleTitle.textContent = state.admin ? "Jadual All Team" : "Next Match";
     if (dealTitle) dealTitle.textContent = state.admin ? "All Chat" : "Room Deal";
     if (allTeamTitle) allTeamTitle.textContent = state.admin ? "Team Confirmed" : "Team Registered";
+    if (adminTeamSearch) adminTeamSearch.hidden = !state.admin;
+    if (whatsappComposer) whatsappComposer.hidden = !state.admin;
   }
 
   function statusClass(status){
@@ -1882,12 +3046,19 @@
 
   function renderTeams(){
     if (!roster) return;
-    const teams = state.admin ? state.teams.filter((team) => team.status === "accepted") : state.teams;
+    const adminTeams = state.teams.filter((team) => team.status === "accepted");
+    const normalizedQuery = teamSearchQuery.trim().toLocaleLowerCase();
+    const teams = state.admin
+      ? adminTeams.filter((team) => !normalizedQuery || String(team.team_name || "").toLocaleLowerCase().includes(normalizedQuery))
+      : state.teams;
     const canRevealTeamDetails = Boolean(state.admin);
     updateTeamCount(teams.length);
+    if (teamSearchCount) {
+      teamSearchCount.textContent = state.admin && normalizedQuery ? `${teams.length}/${adminTeams.length}` : `${adminTeams.length}`;
+    }
     if (!teams.length) {
-      const message = state.admin ? "Belum ada team confirm slot" : "Belum ada team daftar";
-      const detail = state.admin ? "Team yang admin confirm akan muncul di sini." : "Team akan muncul di sini selepas submit pendaftaran.";
+      const message = state.admin && normalizedQuery ? "Nama team tidak dijumpai" : (state.admin ? "Belum ada team confirm slot" : "Belum ada team daftar");
+      const detail = state.admin && normalizedQuery ? `Tiada hasil untuk “${escapeHtml(teamSearchQuery.trim())}”.` : (state.admin ? "Team yang admin confirm akan muncul di sini." : "Team akan muncul di sini selepas submit pendaftaran.");
       roster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>${message}</h3><p>${detail}</p></div><strong>Empty</strong></article>`;
       return;
     }
@@ -1896,8 +3067,15 @@
       const logo = avatarHtml(initials(team.team_name), team.logo_url, team.team_name);
       const slot = team.slot_no ? `Slot ${escapeHtml(team.slot_no)}` : "Slot belum confirm";
       const label = team.status_label || team.status || "Status";
+      const checked = Boolean(adminTeamChecks[String(teamId)]);
       return `
-        <article class="team-roster-item">
+        <article class="team-roster-item ${state.admin ? "is-admin-row" : ""} ${state.admin && checked ? "is-admin-checked" : ""}">
+          ${state.admin ? `
+            <label class="team-admin-check" title="Tanda untuk semak">
+              <input type="checkbox" data-team-check="${teamId}" ${checked ? "checked" : ""}>
+              <span></span>
+            </label>
+          ` : ""}
           <span class="team-roster-logo">${logo}</span>
           <div>
             <h3>${escapeHtml(team.team_name)}</h3>
@@ -1905,12 +3083,14 @@
           </div>
           ${state.admin ? `
             <span class="team-admin-actions">
+              <button type="button" data-whatsapp-team="${teamId}">WhatsApp</button>
+              <button type="button" data-team-password="${teamId}">Password</button>
               <button type="button" data-team-more="${teamId}">${expandedTeamId === teamId ? "Hide" : "More Info"}</button>
               <button type="button" data-team-edit="${teamId}">${editingTeamId === teamId ? "Close Edit" : "Edit"}</button>
               <button type="button" data-team-remove="${teamId}">Remove</button>
             </span>
           ` : ""}
-          <strong class="team-status ${statusClass(team.status)}">${escapeHtml(label)}</strong>
+          ${state.admin ? "" : `<strong class="team-status ${statusClass(team.status)}">${escapeHtml(label)}</strong>`}
           ${canRevealTeamDetails && expandedTeamId === teamId ? teamDetailHtml(team) : ""}
           ${canRevealTeamDetails && editingTeamId === teamId ? teamEditFormHtml(team) : ""}
         </article>
@@ -1918,29 +3098,68 @@
     }).join("");
   }
 
+  if (teamSearchInput) {
+    teamSearchInput.addEventListener("input", () => {
+      teamSearchQuery = teamSearchInput.value;
+      expandedTeamId = null;
+      editingTeamId = null;
+      renderTeams();
+    });
+  }
+
   function teamDetailHtml(team){
     const players = Array.isArray(team.players) ? team.players : [];
     return `
       <div class="team-detail-panel">
         <div class="team-detail-grid">
-          <span><small>Phone</small><strong>${escapeHtml(team.phone || "-")}</strong></span>
-          <span><small>Coach</small><strong>${escapeHtml(team.coach_name || "-")}</strong></span>
-          <span><small>Manager</small><strong>${escapeHtml(team.manager_name || "-")}</strong></span>
-          <span><small>Slot</small><strong>${escapeHtml(team.slot_no || "TBA")}</strong></span>
+          ${copyInfoFieldHtml("Phone", team.phone || "-")}
+          ${copyInfoFieldHtml("Coach", team.coach_name || "-")}
+          ${copyInfoFieldHtml("Manager", team.manager_name || "-")}
+          ${copyInfoFieldHtml("Slot", team.slot_no || "TBA")}
         </div>
         <div class="team-detail-players">
-          ${players.length ? players.map((player) => `<span><b>${escapeHtml(player.slot || "-")}</b> ${escapeHtml(player.ign || "-")} / ${escapeHtml(player.id || "-")}</span>`).join("") : `<span>Player data kosong.</span>`}
+          ${players.length ? players.map((player) => copyPlayerFieldHtml(player)).join("") : `<span>Player data kosong.</span>`}
         </div>
       </div>
     `;
   }
 
-  function renderTeamInfoPanel(team){
+  function copyInfoFieldHtml(label, value){
+    const safeValue = value == null || value === "" ? "-" : String(value);
+    return `
+      <span class="copy-info-field">
+        <small>${escapeHtml(label)}</small>
+        <strong>${escapeHtml(safeValue)}</strong>
+        <button type="button" class="copy-chip" data-copy-text="${escapeHtml(safeValue)}" aria-label="Copy ${escapeHtml(label)}">Copy</button>
+      </span>
+    `;
+  }
+
+  function copyPlayerFieldHtml(player){
+    const slot = player.slot || "-";
+    const ign = player.ign || "-";
+    const id = player.id || "-";
+    return `
+      <span class="team-player-copy-row">
+        <b>${escapeHtml(slot)}</b>
+        <em>IGN</em>
+        <strong>${escapeHtml(ign)}</strong>
+        <button type="button" class="copy-chip" data-copy-text="${escapeHtml(ign)}" aria-label="Copy ${escapeHtml(slot)} IGN">Copy</button>
+        <em>ID</em>
+        <strong>${escapeHtml(id)}</strong>
+        <button type="button" class="copy-chip" data-copy-text="${escapeHtml(id)}" aria-label="Copy ${escapeHtml(slot)} ID">Copy</button>
+      </span>
+    `;
+  }
+
+  function renderTeamInfoPanel(team, options = {}){
     if (!teamInfoCard || !team) return;
     const players = Array.isArray(team.players) ? team.players : [];
     const teamId = Number(team.id || team.team_id);
     const logo = avatarHtml(initials(team.team_name), team.logo_url, team.team_name);
     const label = team.status_label || team.status || "Status";
+    const rejectReason = escapeHtml(team.admin_note || "");
+    const showReject = Boolean(options.showReject);
     teamInfoCard.innerHTML = `
       <article class="team-info-card">
         <div class="team-info-hero">
@@ -1970,9 +3189,23 @@
           }).join("") : `<div class="team-info-empty">Player data kosong.</div>`}
         </div>
         <div class="team-info-actions">
+          <button type="button" data-team-info-back>Back</button>
+          <button type="button" data-whatsapp-team="${teamId}">WhatsApp</button>
+          <button type="button" data-team-password="${teamId}">Password</button>
           <button type="button" data-admin-team-status="accepted" data-admin-team-id="${teamId}">Confirm</button>
-          <button type="button" data-admin-team-status="rejected" data-admin-team-id="${teamId}">Reject</button>
+          <button type="button" data-team-reject-toggle data-admin-team-id="${teamId}">Reject</button>
         </div>
+        <form class="reject-reason-form" data-reject-reason-form ${showReject ? "" : "hidden"}>
+          <input type="hidden" name="team_id" value="${teamId}">
+          <label>
+            <span>Sebab Reject</span>
+            <textarea name="admin_note" rows="3" placeholder="Contoh: nama team melanggar rule" required>${rejectReason}</textarea>
+          </label>
+          <div class="team-info-actions reject-reason-actions">
+            <button type="submit" data-submit-reject>Hantar Reject</button>
+            <button type="button" data-reject-cancel>Cancel</button>
+          </div>
+        </form>
       </article>
     `;
   }
@@ -1996,9 +3229,23 @@
       <form class="team-edit-panel" data-team-edit-form>
         <input type="hidden" name="team_id" value="${Number(team.id || team.team_id)}">
         <label><span>Nama Team</span><input name="team_name" value="${escapeHtml(team.team_name || "")}" required></label>
-        <label><span>Logo URL</span><input name="logo_url" value="${escapeHtml(team.logo_url || "")}"></label>
+        <label class="team-logo-editor">
+          <span>Logo Team</span>
+          <span class="team-logo-picker">
+            <span class="team-logo-picker-preview" data-edit-logo-preview>${avatarHtml(initials(team.team_name), team.logo_url, team.team_name)}</span>
+            <span class="team-logo-picker-copy"><b>Edit Logo Team</b><small>Crop logo semasa atau ganti gambar baharu</small></span>
+            <span class="team-logo-picker-actions">
+              ${team.logo_url ? `<button type="button" data-crop-current-logo="${escapeHtml(team.logo_url)}">Crop Sedia Ada</button>` : ""}
+              <button type="button" data-replace-team-logo>Ganti Logo</button>
+            </span>
+            <input type="file" name="team_logo_source" accept="image/png,image/jpeg,image/webp" data-team-logo-input hidden>
+          </span>
+          <input type="hidden" name="logo_url" value="${escapeHtml(team.logo_url || "")}">
+        </label>
         <label><span>Phone</span><input name="phone" value="${escapeHtml(team.phone || "")}" required></label>
-        <label><span>Slot</span><input name="slot_no" value="${escapeHtml(team.slot_no || "")}" inputmode="numeric"></label>
+        ${state.admin
+          ? `<label><span>Slot</span><input name="slot_no" value="${escapeHtml(team.slot_no || "")}" inputmode="numeric"></label>`
+          : `<input type="hidden" name="slot_no" value="${escapeHtml(team.slot_no || "")}">`}
         <label><span>Coach</span><input name="coach_name" value="${escapeHtml(team.coach_name || "")}"></label>
         <label><span>Manager</span><input name="manager_name" value="${escapeHtml(team.manager_name || "")}"></label>
         <div class="team-edit-players">${playerRows}</div>
@@ -2031,6 +3278,8 @@
           </div>
           <span class="team-admin-actions">
             <button type="button" data-confirm-team-info="${teamId}">More Info</button>
+            <button type="button" data-whatsapp-team="${teamId}">WhatsApp</button>
+            <button type="button" data-team-password="${teamId}">Password</button>
             <button type="button" data-admin-team-status="accepted" data-admin-team-id="${teamId}">Confirm</button>
             <button type="button" data-admin-team-status="rejected" data-admin-team-id="${teamId}">${team.status === "rejected" ? "Rejected" : "Reject"}</button>
           </span>
@@ -2042,6 +3291,8 @@
 
   function renderProfile(team){
     if (state.admin && !state.team) {
+      if (profileEditButton) profileEditButton.hidden = true;
+      if (profileEditHost) profileEditHost.innerHTML = "";
       if (profileLogo) profileLogo.textContent = "AD";
       if (profileSlot) profileSlot.textContent = "Admin";
       if (profileName) profileName.textContent = state.admin.username || "Admin";
@@ -2056,9 +3307,12 @@
           </div>
         `;
       }
+      renderNotificationControls();
+      renderTopNotificationReminder();
       return;
     }
     if (!team) return;
+    if (profileEditButton) profileEditButton.hidden = !state.team;
     const logo = team.logo_url ? `<img src="${escapeHtml(team.logo_url)}" alt="${escapeHtml(team.team_name)}">` : escapeHtml(initials(team.team_name));
     if (profileLogo) profileLogo.innerHTML = logo;
     if (profileSlot) profileSlot.textContent = team.slot_no ? `Slot ${team.slot_no}` : "Slot TBA";
@@ -2077,12 +3331,15 @@
         </div>
       `).join("") : `<div class="profile-empty">Player data belum ada dalam database.</div>`;
     }
+    renderNotificationControls();
+    renderTopNotificationReminder();
   }
 
   function renderSchedule(){
     if (!scheduleList) return;
     collectScheduleDraft();
-    const adminTools = state.admin ? randomMatchToolHtml() : "";
+    collectScheduleOpenState();
+    const adminTools = state.admin ? randomMatchToolHtml() + scheduleStatsHtml() : "";
     if (!isLoggedTeam() && !state.admin) {
       scheduleList.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">LOCK</span><div><h3>Login diperlukan</h3><p>Jadual hanya keluar selepas team login dan slot confirm.</p></div><strong>Login</strong></article>`;
       return;
@@ -2104,23 +3361,80 @@
         </article>`;
       return;
     }
-    scheduleList.innerHTML = adminTools + state.matches.map((match) => `
+    if (state.admin) {
+      scheduleList.innerHTML = adminTools + adminScheduleHtml();
+      return;
+    }
+    scheduleList.innerHTML = state.matches.map((match) => `
       <article class="match-card next-match-card">
         <p class="next-match-label">Next Match</p>
         <div class="next-match-row">
           <div class="next-team">${match.team_a_logo ? `<img src="${escapeHtml(match.team_a_logo)}" alt="${escapeHtml(match.team_a_name)}">` : `<span class="team-roster-logo">${escapeHtml(initials(match.team_a_name))}</span>`}<p>${escapeHtml(match.team_a_name || "Team")}</p></div>
-          <div class="next-center"><p class="next-status">${escapeHtml(match.status || "Up Next")}</p><strong>VS</strong><p class="next-stage">${escapeHtml(match.match_name || "Match")}</p><p class="next-time">${escapeHtml(match.match_time || "TBD")}</p></div>
+          <div class="next-center"><p class="next-status">${escapeHtml(match.status || "Up Next")}</p><strong>VS</strong>${matchScoreHtml(match)}<p class="next-stage">${escapeHtml(match.match_name || "Match")}</p><p class="next-time">${escapeHtml(match.match_time || "TBD")}</p></div>
           <div class="next-team">${match.team_b_logo ? `<img src="${escapeHtml(match.team_b_logo)}" alt="${escapeHtml(match.team_b_name)}">` : `<span class="team-roster-logo">?</span>`}<p>${escapeHtml(match.team_b_name || "TBD")}</p></div>
         </div>
-        ${state.admin ? matchAdminFormHtml(match) : ""}
       </article>`).join("");
   }
 
+  function adminScheduleHtml(){
+    const groups = new Map();
+    state.matches.forEach((match) => {
+      const key = scheduleDateKey(match.match_time);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(match);
+    });
+    return `<div class="admin-schedule-groups">${Array.from(groups.entries()).map(([dateKey, matches], index) => `
+      <details class="admin-date-card" data-schedule-date="${escapeHtml(dateKey)}" ${openScheduleDates.has(dateKey) || (!scheduleOpenStateReady && index === 0) ? "open" : ""}>
+        <summary>
+          <span>${escapeHtml(scheduleDateLabel(dateKey))}</span>
+          <strong>${matches.length} Match</strong>
+        </summary>
+        <div class="admin-match-list">
+          ${matches.map(adminMatchCardHtml).join("")}
+        </div>
+      </details>
+    `).join("")}</div>`;
+  }
+
+  function scheduleDateKey(value){
+    const date = parseMysqlDate(value);
+    if (!date) return "TBD";
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  }
+
+  function scheduleDateLabel(key){
+    if (key === "TBD") return "Tarikh belum set";
+    const date = parseMysqlDate(`${key} 00:00:00`);
+    if (!date) return key;
+    return date.toLocaleDateString("en-MY", {day:"2-digit", month:"long", year:"numeric"});
+  }
+
+  function adminMatchCardHtml(match){
+    return `
+      <details class="admin-match-card" data-schedule-match="${Number(match.id)}" ${openScheduleMatches.has(Number(match.id)) ? "open" : ""}>
+        <summary>
+          <span class="admin-match-teams">${escapeHtml(match.team_a_name || "Team")} <b>VS</b> ${escapeHtml(match.team_b_name || "TBD")}</span>
+          <span class="admin-match-meta">${escapeHtml(match.match_name || "Match")} / ${escapeHtml(formatMatchTime(match.match_time))}</span>
+          <strong>${escapeHtml(match.status || "up_next")}</strong>
+        </summary>
+        <div class="admin-match-detail">
+          <div class="admin-match-scoreline">
+            <span>${escapeHtml(match.team_a_name || "Team A")}</span>
+            <b>${matchScoreText(match)}</b>
+            <span>${escapeHtml(match.team_b_name || "TBD")}</span>
+          </div>
+          ${matchAdminFormHtml(match)}
+        </div>
+      </details>
+    `;
+  }
+
   function randomMatchToolHtml(){
-    const confirmedTeams = state.teams.filter((team) => team.status === "accepted");
-    const defaultCount = Math.min(10, confirmedTeams.length || 2);
+    const stats = scheduleTeamStats();
+    const defaultCount = Math.min(10, stats.pending);
     const draft = scheduleDraft.random;
-    const teamLimit = draft.team_limit || defaultCount;
+    const requestedCount = Number(draft.team_limit || defaultCount || 2);
+    const teamLimit = stats.pending >= 2 ? Math.max(2, Math.min(requestedCount, stats.pending)) : 2;
     const matchPrefix = draft.match_prefix || "Qualifier Match";
     const matchTime = draft.match_time || "";
     return `
@@ -2128,13 +3442,52 @@
         <div>
           <p class="section-tag">Admin Match Generator</p>
           <h3>Auto Random Lawan</h3>
-          <small>${confirmedTeams.length} team confirm tersedia</small>
+          <small>${stats.pending} team baharu belum pernah diproses</small>
         </div>
-        <label><span>Jumlah Team</span><input type="number" name="team_limit" min="2" max="${Math.max(2, confirmedTeams.length)}" value="${escapeHtml(teamLimit)}"></label>
+        <label><span>Saiz Batch</span><input type="number" name="team_limit" min="2" max="${Math.max(2, stats.pending)}" value="${escapeHtml(teamLimit)}" ${stats.pending < 2 ? "disabled" : ""}></label>
         <label><span>Nama Match</span><input name="match_prefix" value="${escapeHtml(matchPrefix)}"></label>
         <label><span>Tarikh / Masa</span><input type="datetime-local" name="match_time" value="${escapeHtml(matchTime)}"></label>
-        <button class="btn primary" type="submit">Generate</button>
+        <div class="match-random-actions">
+          <button class="btn primary" type="submit" ${stats.pending < 2 ? "disabled" : ""}>Generate Batch Baru</button>
+          <button class="btn schedule-reset-button" type="button" data-reset-schedule ${state.matches.length ? "" : "disabled"}>Reset Semua Jadual</button>
+        </div>
       </form>
+    `;
+  }
+
+  function scheduleTeamStats(){
+    const confirmedTeams = state.teams.filter((team) => team.status === "accepted");
+    const scheduled = confirmedTeams.reduce((total, team) => {
+      return total + (team.has_schedule ? 1 : 0);
+    }, 0);
+    const confirmed = confirmedTeams.length;
+    return {
+      confirmed,
+      scheduled,
+      pending: Math.max(confirmed - scheduled, 0)
+    };
+  }
+
+  function scheduleStatsHtml(){
+    const stats = scheduleTeamStats();
+    return `
+      <div class="schedule-status-grid" aria-label="Status proses jadual">
+        <article>
+          <span>Total Confirm</span>
+          <strong>${stats.confirmed}</strong>
+          <small>Team sudah confirm</small>
+        </article>
+        <article class="is-clear">
+          <span>Sudah Jadual</span>
+          <strong>${stats.scheduled}</strong>
+          <small>Team sudah ada match</small>
+        </article>
+        <article class="${stats.pending ? "is-alert" : "is-clear"}">
+          <span>Belum Dapat</span>
+          <strong>${stats.pending}</strong>
+          <small>Team belum masuk jadual</small>
+        </article>
+      </div>
     `;
   }
 
@@ -2150,19 +3503,40 @@
     const matchName = draft.match_name ?? (match.match_name || "");
     const matchTime = draft.match_time ?? toDateTimeLocal(match.match_time);
     const status = draft.status ?? (match.status || "up_next");
+    const teamAPoint = draft.team_a_point ?? (match.team_a_point ?? "");
+    const teamBPoint = draft.team_b_point ?? (match.team_b_point ?? "");
+    const teamALabel = match.team_a_name || "Team A";
+    const teamBLabel = match.team_b_name || "Team B";
     return `
       <form class="match-admin-form" data-match-admin-form>
         <input type="hidden" name="match_id" value="${matchId}">
-        <label><span>Match</span><input name="match_name" value="${escapeHtml(matchName)}"></label>
-        <label><span>Tarikh / Masa</span><input type="datetime-local" name="match_time" value="${escapeHtml(matchTime)}"></label>
-        <label><span>Status</span>
+        <label class="match-name-field"><span>Match</span><input name="match_name" value="${escapeHtml(matchName)}"></label>
+        <label class="match-time-field"><span>Tarikh / Masa</span><input type="datetime-local" name="match_time" value="${escapeHtml(matchTime)}"></label>
+        <label class="match-status-field"><span>Status</span>
           <select name="status">
             ${["up_next","live","completed","hidden"].map((item) => `<option value="${item}" ${status === item ? "selected" : ""}>${item}</option>`).join("")}
           </select>
         </label>
+        <label class="match-point-field"><span>${escapeHtml(teamALabel)}</span><input type="number" name="team_a_point" min="0" max="99" value="${escapeHtml(teamAPoint)}"></label>
+        <label class="match-point-field"><span>${escapeHtml(teamBLabel)}</span><input type="number" name="team_b_point" min="0" max="99" value="${escapeHtml(teamBPoint)}"></label>
         <button type="submit">Save</button>
+        <button type="submit" class="score-save-button">Update Point</button>
       </form>
     `;
+  }
+
+  function matchScoreHtml(match){
+    if (match.team_a_point === null || match.team_a_point === undefined || match.team_a_point === "" || match.team_b_point === null || match.team_b_point === undefined || match.team_b_point === "") {
+      return "";
+    }
+    return `<p class="next-score">${Number(match.team_a_point)} - ${Number(match.team_b_point)}</p>`;
+  }
+
+  function matchScoreText(match){
+    if (match.team_a_point === null || match.team_a_point === undefined || match.team_a_point === "" || match.team_b_point === null || match.team_b_point === undefined || match.team_b_point === "") {
+      return "VS";
+    }
+    return `${Number(match.team_a_point)} - ${Number(match.team_b_point)}`;
   }
 
   function collectScheduleDraft(){
@@ -2183,9 +3557,25 @@
       scheduleDraft.matches[matchId] = {
         match_name: String(data.get("match_name") || ""),
         match_time: String(data.get("match_time") || ""),
-        status: String(data.get("status") || "up_next")
+        status: String(data.get("status") || "up_next"),
+        team_a_point: String(data.get("team_a_point") || ""),
+        team_b_point: String(data.get("team_b_point") || "")
       };
     });
+  }
+
+  function collectScheduleOpenState(){
+    if (!scheduleList || !scheduleList.querySelector("[data-schedule-date], [data-schedule-match]")) return;
+    openScheduleDates.clear();
+    openScheduleMatches.clear();
+    scheduleList.querySelectorAll("[data-schedule-date][open]").forEach((details) => {
+      openScheduleDates.add(String(details.dataset.scheduleDate || ""));
+    });
+    scheduleList.querySelectorAll("[data-schedule-match][open]").forEach((details) => {
+      const matchId = Number(details.dataset.scheduleMatch || 0);
+      if (matchId) openScheduleMatches.add(matchId);
+    });
+    scheduleOpenStateReady = true;
   }
 
   function isScheduleFormActive(){
@@ -2359,65 +3749,266 @@
     `;
   }
 
+  function sortedDealRooms(){
+    return state.rooms.slice().sort((roomA, roomB) => {
+      const groupA = roomA.room_type === "group" ? 1 : 0;
+      const groupB = roomB.room_type === "group" ? 1 : 0;
+      if (groupA !== groupB) return groupB - groupA;
+
+      const unreadA = roomIncomingUnread(roomA).length;
+      const unreadB = roomIncomingUnread(roomB).length;
+      if (Boolean(unreadA) !== Boolean(unreadB)) return Number(Boolean(unreadB)) - Number(Boolean(unreadA));
+
+      const latestA = Number(roomA.last_message_id || 0);
+      const latestB = Number(roomB.last_message_id || 0);
+      if (latestA !== latestB) return latestB - latestA;
+      return Number(roomB.id || 0) - Number(roomA.id || 0);
+    });
+  }
+
+  function adminDealFilterHtml(){
+    if (!state.admin) return "";
+    const unread = state.rooms.reduce((sum, room) => sum + roomIncomingUnread(room).length, 0);
+    const dates = Array.from(new Set(state.rooms
+      .filter((room) => ["match", "deal"].includes(String(room.room_type || "")) && room.match_date)
+      .map((room) => String(room.match_date))))
+      .sort();
+    if (dealMatchDate && !dates.includes(dealMatchDate)) dealMatchDate = "";
+    return `
+      <div class="deal-filter-bar">
+        <div class="deal-filter-tabs" role="tablist" aria-label="Filter chat">
+          <button type="button" class="${dealRoomFilter === "all" ? "is-active" : ""}" data-deal-filter="all">All Chat</button>
+          <button type="button" class="${dealRoomFilter === "match" ? "is-active" : ""}" data-deal-filter="match">Group Match</button>
+          <button type="button" class="${dealRoomFilter === "unread" ? "is-active" : ""}" data-deal-filter="unread">Unread${unread ? ` <b>${unread > 99 ? "99+" : unread}</b>` : ""}</button>
+        </div>
+        ${dealRoomFilter === "match" ? `
+          <select class="deal-filter-date" data-deal-date aria-label="Pilih tarikh match">
+            <option value="">Semua tarikh</option>
+            ${dates.map((date) => `<option value="${escapeHtml(date)}" ${date === dealMatchDate ? "selected" : ""}>${escapeHtml(date)}</option>`).join("")}
+          </select>
+        ` : ""}
+      </div>
+    `;
+  }
+
+  function filteredDealRooms(){
+    const rooms = sortedDealRooms();
+    if (!state.admin || dealRoomFilter === "all") return rooms;
+    if (dealRoomFilter === "unread") return rooms.filter((room) => roomIncomingUnread(room).length > 0);
+    return rooms.filter((room) => {
+      const isMatch = ["match", "deal"].includes(String(room.room_type || ""));
+      return isMatch && (!dealMatchDate || String(room.match_date || "") === dealMatchDate);
+    }).sort((a, b) => String(a.match_date || "").localeCompare(String(b.match_date || "")) || Number(a.id) - Number(b.id));
+  }
+
+  function renderDealRoomItems(rooms){
+    let previousGroup = "";
+    return rooms.map((room, index) => {
+      let heading = "";
+      if (state.admin && dealRoomFilter === "match") {
+        const date = room.match_date || "Tarikh belum ditetapkan";
+        const sameDateBefore = rooms.slice(0, index).filter((entry) => String(entry.match_date || "") === String(room.match_date || "")).length;
+        const chunk = Math.floor(sameDateBefore / 10) + 1;
+        const groupKey = `${date}:${chunk}`;
+        if (groupKey !== previousGroup) {
+          previousGroup = groupKey;
+          heading = `<div class="deal-room-group-title"><span>${escapeHtml(date)}</span><b>Grouping ${chunk}</b></div>`;
+        }
+      }
+      const unread = roomIncomingUnread(room).length;
+      return `${heading}
+        <button class="deal-contact-item ${Number(room.id) === Number(state.selectedRoomId) ? "is-active" : ""}" type="button" data-room-id="${Number(room.id)}">
+          <span class="deal-contact-avatar">${roomAvatarHtml(room)}</span>
+          <span class="deal-contact-main">
+            <strong>${escapeHtml(room.title || "Room")}</strong>
+            <span>${escapeHtml(room.match_name || room.subtitle || "Clash League")}</span>
+            <span>${escapeHtml(room.last_message || "Belum ada chat.")}</span>
+          </span>
+          <span class="deal-contact-meta">
+            ${unread ? `<b class="chat-unread-badge">${unread > 9 ? "9+" : unread}</b>` : ""}
+            <span>${escapeHtml(room.status || "open")}</span>
+          </span>
+        </button>`;
+    }).join("");
+  }
+
   function renderDeal(){
     if (!dealList || !dealMessages) return;
-    if (!isLoggedTeam() && !state.admin) {
-      dealList.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">LOCK</span><div><h3>Login diperlukan</h3><p>Deal dan chat admin hanya untuk team yang confirm slot.</p></div><strong>Login</strong></article>`;
-      dealMessages.innerHTML = `<p class="profile-empty">Login team untuk buka chat.</p>`;
-      if (chatForm) chatForm.hidden = true;
-      return;
+    if (renderedDealRoomId) {
+      dealScrollPositions[renderedDealRoomId] = {
+        top: dealMessages.scrollTop,
+        nearBottom: dealMessages.scrollHeight - dealMessages.clientHeight - dealMessages.scrollTop < 80
+      };
     }
+    const isGuestChat = !state.chatTeam && !state.admin;
+    const guestNameInput = chatForm?.querySelector("[name='guest_name']");
+    if (chatForm) chatForm.classList.toggle("guest-mode", isGuestChat);
+    if (chatForm) chatForm.classList.toggle("admin-send-mode", Boolean(state.admin));
+    const importantSendButton = chatForm?.querySelector("[data-important-send]");
+    if (importantSendButton) importantSendButton.hidden = !state.admin;
+    if (guestNameInput) {
+      guestNameInput.hidden = !isGuestChat;
+      if (isGuestChat && !guestNameInput.value) {
+        try { guestNameInput.value = localStorage.getItem(guestNameKey) || ""; } catch (_) {}
+      }
+    }
+    const adminFilters = adminDealFilterHtml();
     const adminNewChatTool = renderAdminNewChatTool();
     if (!state.rooms.length) {
       if (chatForm) chatForm.hidden = true;
       const emptyTitle = state.admin ? "Belum ada chat team" : "Belum ada room";
       const emptyText = state.admin ? "Pilih New Chat untuk mula chat dengan team yang daftar." : "Room admin akan dibuat selepas login team.";
-      dealList.innerHTML = `${adminNewChatTool}<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>${emptyTitle}</h3><p>${emptyText}</p></div><strong>Empty</strong></article>`;
+      dealList.innerHTML = `${adminFilters}${adminNewChatTool}<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>${emptyTitle}</h3><p>${emptyText}</p></div><strong>Empty</strong></article>`;
       dealMessages.innerHTML = `<p class="profile-empty">${emptyText}</p>`;
       return;
     }
     if (chatForm) chatForm.hidden = false;
-    dealList.innerHTML = adminNewChatTool + state.rooms.map((room) => `
-      <button class="deal-contact-item ${Number(room.id) === Number(state.selectedRoomId) ? "is-active" : ""}" type="button" data-room-id="${Number(room.id)}">
-        <span class="deal-contact-avatar">${avatarHtml(room.avatar || "AD", room.avatar_logo || "", room.title || "Team")}</span>
-        <span class="deal-contact-main">
-          <strong>${escapeHtml(room.title || "Room")}</strong>
-          <span>${escapeHtml(room.subtitle || "Clash League")}</span>
-          <span>${escapeHtml(room.last_message || "Belum ada chat.")}</span>
-        </span>
-        <span class="deal-contact-meta">
-          ${roomIncomingUnread(room).length ? `<b class="chat-unread-badge">${roomIncomingUnread(room).length > 9 ? "9+" : roomIncomingUnread(room).length}</b>` : ""}
-          <span>${escapeHtml(room.status || "open")}</span>
-        </span>
-      </button>
-    `).join("");
-    const selected = state.rooms.find((room) => Number(room.id) === Number(state.selectedRoomId)) || state.rooms[0];
-    if (dealChatAvatar) dealChatAvatar.innerHTML = avatarHtml(selected.avatar || "AD", selected.avatar_logo || "", selected.title || "Team");
+    const displayRooms = filteredDealRooms();
+    const emptyFilter = `<div class="deal-filter-empty">Tiada chat dalam bahagian ini.</div>`;
+    dealList.innerHTML = adminFilters + adminNewChatTool + (displayRooms.length ? renderDealRoomItems(displayRooms) : emptyFilter);
+    const selected = displayRooms.find((room) => Number(room.id) === Number(state.selectedRoomId)) || displayRooms[0] || state.rooms.find((room) => Number(room.id) === Number(state.selectedRoomId)) || state.rooms[0];
+    state.selectedRoomId = Number(selected.id);
+    if (dealChatAvatar) dealChatAvatar.innerHTML = roomAvatarHtml(selected);
     if (dealChatName) dealChatName.textContent = selected.title || "Room";
     if (dealChatSubtitle) dealChatSubtitle.textContent = selected.subtitle || "Clash League";
     if (dealChatStatus) dealChatStatus.textContent = selected.status || "open";
-    const messages = messagesFor(selected.id);
+    const showPinnedInfo = selected.room_type === "group" && (Boolean(state.pinnedInfo) || Boolean(state.admin));
+    if (pinnedInfoCard) pinnedInfoCard.hidden = !showPinnedInfo;
+    if (pinnedInfoText) pinnedInfoText.textContent = state.pinnedInfo || "Belum ada info semasa.";
+    const editPinnedButton = pinnedInfoCard?.querySelector("[data-edit-pinned]");
+    if (editPinnedButton) editPinnedButton.hidden = !state.admin || pinnedEditOpen;
+    if (pinnedInfoForm) {
+      pinnedInfoForm.hidden = !state.admin || !pinnedEditOpen || selected.room_type !== "group";
+      const pinnedInput = pinnedInfoForm.querySelector("[name='pinned_info']");
+      if (pinnedInput && document.activeElement !== pinnedInput) pinnedInput.value = state.pinnedInfo || "";
+    }
+    const messages = messagesFor(selected.id).concat(
+      pendingChatMessages.filter((message) => Number(message.room_id) === Number(selected.id))
+    );
+    const selectedReply = messages.find((message) => Number(message.id) === Number(replyToMessageId));
+    if (!selectedReply || selected.room_type !== "group") replyToMessageId = null;
+    const replyPreview = chatForm?.querySelector("[data-reply-preview]");
+    if (replyPreview) {
+      replyPreview.hidden = !replyToMessageId;
+      const replyName = replyPreview.querySelector("[data-reply-name]");
+      const replyText = replyPreview.querySelector("[data-reply-text]");
+      if (replyToMessageId && selectedReply) {
+        const selectedReplyName = selectedReply.sender_type === "admin" ? "Admin" : (selectedReply.sender_type === "guest" ? (selectedReply.guest_name || "Pelawat") : (selectedReply.sender_team_name || "Team"));
+        if (replyName) replyName.textContent = `Reply ${selectedReplyName}`;
+        if (replyText) replyText.textContent = selectedReply.message || "";
+      }
+    }
+    const guestIdentity = String(guestNameInput?.value || "").trim().toLocaleLowerCase();
     dealMessages.innerHTML = messages.length ? messages.map((message) => {
-      const mine = state.admin ? message.sender_type === "admin" : Number(message.sender_team_id) === Number(state.team?.id);
-      const sender = message.sender_type === "admin" ? "Admin" : (message.sender_team_name || "Team");
-      return `<div class="deal-chat-bubble ${mine ? "mine" : "theirs"}"><span>${escapeHtml(sender)}</span><p>${escapeHtml(message.message)}</p><small>${escapeHtml(message.created_at || "")}</small></div>`;
-    }).join("") : `<p class="profile-empty">Belum ada chat. Tanya admin dekat sini.</p>`;
-    dealMessages.scrollTop = dealMessages.scrollHeight;
+      const mine = state.admin
+        ? message.sender_type === "admin"
+        : (state.chatTeam
+          ? Number(message.sender_team_id) === Number(state.chatTeam.id)
+          : message.sender_type === "guest" && guestIdentity && String(message.guest_name || "").trim().toLocaleLowerCase() === guestIdentity);
+      const sender = message.sender_type === "admin" ? "Admin" : (message.sender_type === "guest" ? (message.guest_name || "Pelawat") : (message.sender_team_name || "Team"));
+      const replySender = message.reply_sender_type === "admin" ? "Admin" : (message.reply_sender_type === "guest" ? (message.reply_guest_name || "Pelawat") : (message.reply_team_name || "Team"));
+      const replyBlock = message.reply_to_message_id && message.reply_message
+        ? `<div class="deal-reply-quote"><b>${escapeHtml(replySender)}</b><span>${escapeHtml(message.reply_message)}</span></div>`
+        : "";
+      const canReply = selected.room_type === "group";
+      const canSelectReply = canReply && !message._pending;
+      return `<div class="deal-chat-bubble ${mine ? "mine" : "theirs"} ${canSelectReply ? "can-reply" : ""} ${message._pending ? "is-sending" : ""}" ${canSelectReply ? `data-reply-message="${Number(message.id)}" tabindex="0" role="button" aria-label="Reply mesej ${escapeHtml(sender)}"` : ""}><span>${escapeHtml(sender)}</span>${replyBlock}<p>${escapeHtml(message.message)}</p><small>${escapeHtml(message._pending ? "Menghantar..." : (message.created_at || ""))}</small></div>`;
+    }).join("") : `<p class="profile-empty">Belum ada mesej. Mulakan perbualan dengan semua team dan admin.</p>`;
+
+    const selectedRoomId = Number(selected.id);
+    const savedScroll = dealScrollPositions[selectedRoomId];
+    const roomChanged = renderedDealRoomId !== selectedRoomId;
+    if (forceDealScrollToBottom || roomChanged || !savedScroll || savedScroll.nearBottom) {
+      dealMessages.scrollTop = dealMessages.scrollHeight;
+    } else {
+      dealMessages.scrollTop = savedScroll.top;
+    }
+    renderedDealRoomId = selectedRoomId;
+    forceDealScrollToBottom = false;
   }
 
   if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (loginBusy) return;
       const data = new FormData(loginForm);
       data.set("action", "login");
       try {
+        setLoginBusy(true);
         setLoginStatus("Logging in...", "loading");
         const result = await apiPost(data);
+        if (result.chat_token) {
+          try { localStorage.setItem(chatTokenKey, String(result.chat_token)); } catch (_) {}
+          result.chat_team = result.chat_team || result.team || state.teams.find((team) => String(team.team_name || "").toLowerCase() === String(data.get("name") || "").toLowerCase()) || null;
+        }
         setState(result);
         setLoginStatus(result.message || "Login berjaya.", "success");
-        goHome();
+        if (result.chat_only) openAppPanel("deal"); else goHome();
       } catch (error) {
-        setLoginStatus(error.message || "Login gagal.", "error");
+        setLoginStatus(friendlyApiError(error, "Login gagal."), "error");
+      } finally {
+        setLoginBusy(false);
+      }
+    });
+  }
+
+  notiToggleButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (currentNotificationPermission() === "install-required") {
+        alert("iPhone Safari: tekan Share, pilih Add to Home Screen, kemudian buka Clash League dari ikon Home Screen dan tekan On Notification.");
+        return;
+      }
+      const notificationTeam = state.team || watchedRegistrationTeam();
+      if (!notificationTeam || state.admin) return;
+      const isActive = button.dataset.notiState === "on";
+      try {
+        button.disabled = true;
+        if (isActive) {
+          await window.ClashLeaguePush?.disableForDevice?.();
+          setNotificationMuted(true);
+          pushSyncOwner = "";
+          setProfileNotiStatus("Notification dimatikan untuk device ini.", "success");
+        } else {
+          setNotificationMuted(false);
+          await window.ClashLeaguePush?.enableForTeam?.(notificationTeam.id || notificationTeam.team_id);
+          pushSyncOwner = `team:${notificationTeam.id || notificationTeam.team_id}`;
+          setProfileNotiStatus("Notification aktif untuk team ini.", "success");
+        }
+      } catch (error) {
+        setProfileNotiStatus(error.message || "Notification gagal diubah.", "error");
+      } finally {
+        renderNotificationControls();
+        renderTopNotificationReminder();
+      }
+    });
+  });
+
+  if (guestNotiButton) {
+    guestNotiButton.addEventListener("click", async () => {
+      if (currentNotificationPermission() === "install-required") {
+        alert("iPhone Safari: tekan Share, pilih Add to Home Screen, buka Clash League dari ikon Home Screen, kemudian tekan butang Noti.");
+        return;
+      }
+      const isActive = guestNotiButton.dataset.notiState === "on";
+      const notificationTeam = watchedRegistrationTeam();
+      if (!isActive && !notificationTeam) {
+        alert("Daftar team dahulu untuk aktifkan notification tanpa login.");
+        return;
+      }
+      try {
+        guestNotiButton.disabled = true;
+        if (isActive) {
+          await window.ClashLeaguePush?.disableForDevice?.();
+          setNotificationMuted(true);
+        } else {
+          setNotificationMuted(false);
+          await window.ClashLeaguePush?.enableForTeam?.(notificationTeam.id || notificationTeam.team_id);
+        }
+      } catch (error) {
+        alert(error.message || "Notification gagal diubah.");
+      } finally {
+        renderGuestNotificationButton();
+        renderTopNotificationReminder();
       }
     });
   }
@@ -2483,6 +4074,30 @@
   if (scheduleList) {
     scheduleList.addEventListener("input", collectScheduleDraft);
     scheduleList.addEventListener("change", collectScheduleDraft);
+    scheduleList.addEventListener("toggle", collectScheduleOpenState, true);
+    scheduleList.addEventListener("click", async (event) => {
+      const resetButton = event.target.closest("[data-reset-schedule]");
+      if (!resetButton) return;
+      const total = state.matches.length;
+      if (!total || !confirm(`Padam semua ${total} jadual? Chat Group Match dan result berkaitan juga akan dipadam. Team pendaftaran tidak akan dipadam.`)) return;
+      resetButton.disabled = true;
+      resetButton.textContent = "Resetting...";
+      const data = new FormData();
+      data.set("action", "resetAllMatches");
+      try {
+        const result = await apiPost(data);
+        openScheduleDates.clear();
+        openScheduleMatches.clear();
+        scheduleOpenStateReady = false;
+        scheduleDraft.matches = {};
+        setState(result);
+        alert(result.message || "Semua jadual berjaya dipadam.");
+      } catch (error) {
+        resetButton.disabled = false;
+        resetButton.textContent = "Reset Semua Jadual";
+        alert(error.message || "Gagal reset jadual.");
+      }
+    });
 
     scheduleList.addEventListener("submit", async (event) => {
       const randomForm = event.target.closest("[data-random-match-form]");
@@ -2515,6 +4130,62 @@
     });
   }
 
+  if (profileEditButton && profileEditHost) {
+    profileEditButton.addEventListener("click", () => {
+      if (!state.team) return;
+      const isOpen = Boolean(profileEditHost.querySelector("[data-team-edit-form]"));
+      profileEditHost.innerHTML = isOpen ? "" : teamEditFormHtml(state.team);
+      profileEditButton.textContent = isOpen ? "Edit Maklumat" : "Tutup Edit";
+    });
+
+    profileEditHost.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-team-logo-input]");
+      if (input?.files?.[0]) openTeamCrop(input.files[0], input);
+    });
+
+    profileEditHost.addEventListener("click", (event) => {
+      const cropButton = event.target.closest("[data-crop-current-logo]");
+      if (cropButton) {
+        event.preventDefault();
+        openTeamCrop(cropButton.dataset.cropCurrentLogo, null, cropButton.closest("[data-team-edit-form]"));
+        return;
+      }
+      const replaceButton = event.target.closest("[data-replace-team-logo]");
+      if (replaceButton) {
+        event.preventDefault();
+        replaceButton.closest("[data-team-edit-form]")?.querySelector("[data-team-logo-input]")?.click();
+      }
+    });
+
+    profileEditHost.addEventListener("submit", async (event) => {
+      const form = event.target.closest("[data-team-edit-form]");
+      if (!form) return;
+      event.preventDefault();
+      const data = new FormData(form);
+      data.delete("team_logo_source");
+      const croppedLogo = croppedLogos.get(form);
+      if (croppedLogo) data.set("team_logo", croppedLogo, `team-logo-${Date.now()}.webp`);
+      data.set("action", "updateTeamInfo");
+      const saveButton = form.querySelector("[type='submit']");
+      try {
+        saveButton.disabled = true;
+        saveButton.textContent = "Menyimpan...";
+        const result = await apiPost(data);
+        profileEditHost.innerHTML = "";
+        profileEditButton.textContent = "Edit Maklumat";
+        setState(result);
+        alert(result.message || "Maklumat player berjaya dikemas kini.");
+      } catch (error) {
+        alert(error.message || "Maklumat team gagal dikemas kini.");
+      } finally {
+        if (saveButton?.isConnected) {
+          saveButton.disabled = false;
+          saveButton.textContent = "Save Team";
+        }
+      }
+    });
+  }
+
   logoutButtons.forEach((logoutButton) => {
     logoutButton.addEventListener("click", async () => {
       const data = new FormData();
@@ -2526,13 +4197,87 @@
         await refreshState();
         goHome();
       } catch (error) {
-        setLoginStatus(error.message || "Logout gagal.", "error");
+        setLoginStatus(friendlyApiError(error, "Logout gagal."), "error");
       }
     });
   });
 
   if (roster) {
+    roster.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-team-logo-input]");
+      if (!input || !input.files?.[0]) return;
+      openTeamCrop(input.files[0], input);
+    });
+
     roster.addEventListener("click", async (event) => {
+      const cropCurrentButton = event.target.closest("[data-crop-current-logo]");
+      if (cropCurrentButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        const form = cropCurrentButton.closest("[data-team-edit-form]");
+        openTeamCrop(cropCurrentButton.dataset.cropCurrentLogo, null, form);
+        return;
+      }
+      const replaceLogoButton = event.target.closest("[data-replace-team-logo]");
+      if (replaceLogoButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        replaceLogoButton.closest("[data-team-edit-form]")?.querySelector("[data-team-logo-input]")?.click();
+        return;
+      }
+      const checkInput = event.target.closest("[data-team-check]");
+      if (checkInput) {
+        event.stopPropagation();
+        const teamId = String(checkInput.dataset.teamCheck);
+        const previousChecked = !checkInput.checked;
+        if (checkInput.checked) {
+          adminTeamChecks[teamId] = true;
+        } else {
+          delete adminTeamChecks[teamId];
+        }
+        saveAdminTeamChecks();
+        checkInput.closest(".team-roster-item")?.classList.toggle("is-admin-checked", checkInput.checked);
+        const data = new FormData();
+        data.set("action", "setTeamCheck");
+        data.set("team_id", teamId);
+        data.set("checked", checkInput.checked ? "1" : "0");
+        try {
+          const result = await apiPost(data);
+          setState(result);
+        } catch (error) {
+          checkInput.checked = previousChecked;
+          if (previousChecked) {
+            adminTeamChecks[teamId] = true;
+          } else {
+            delete adminTeamChecks[teamId];
+          }
+          saveAdminTeamChecks();
+          checkInput.closest(".team-roster-item")?.classList.toggle("is-admin-checked", previousChecked);
+          alert(error.message || "Tanda team gagal disimpan.");
+        }
+        return;
+      }
+      const copyButton = event.target.closest("[data-copy-text]");
+      if (copyButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        const originalText = copyButton.textContent;
+        try {
+          await copyTextToClipboard(copyButton.dataset.copyText || "");
+          copyButton.textContent = "Copied";
+          copyButton.classList.add("is-copied");
+          setTimeout(() => {
+            copyButton.textContent = originalText || "Copy";
+            copyButton.classList.remove("is-copied");
+          }, 1100);
+        } catch (error) {
+          copyButton.textContent = "Fail";
+          setTimeout(() => {
+            copyButton.textContent = originalText || "Copy";
+          }, 1100);
+        }
+        return;
+      }
       const moreButton = event.target.closest("[data-team-more]");
       if (moreButton) {
         event.preventDefault();
@@ -2558,7 +4303,7 @@
         event.stopPropagation();
         const teamId = Number(removeButton.dataset.teamRemove);
         const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === teamId);
-        if (!confirm(`Remove ${team?.team_name || "team"} dari Clash League?`)) return;
+        if (!confirm(`Remove ${team?.team_name || "team"} dari Clash League? Match aktif akan jadi walkover 1-0 kepada pihak lawan. Match yang sudah completed tidak berubah.`)) return;
         const data = new FormData();
         data.set("action", "removeTeam");
         data.set("team_id", teamId);
@@ -2588,6 +4333,8 @@
       }
       if (
         event.target.closest("[data-team-edit-form]") ||
+        event.target.closest(".team-admin-check") ||
+        event.target.closest("[data-copy-text]") ||
         event.target.closest(".team-detail-panel") ||
         event.target.closest(".team-admin-actions")
       ) {
@@ -2600,13 +4347,25 @@
       if (!form) return;
       event.preventDefault();
       const data = new FormData(form);
+      data.delete("team_logo_source");
+      const croppedLogo = croppedLogos.get(form);
+      if (croppedLogo) data.set("team_logo", croppedLogo, `team-logo-${Date.now()}.webp`);
       data.set("action", "updateTeamInfo");
+      const saveButton = form.querySelector("[type='submit']");
       try {
+        saveButton.disabled = true;
+        saveButton.textContent = "Menyimpan...";
         const result = await apiPost(data);
         editingTeamId = null;
         setState(result);
+        alert(result.message || "Maklumat player berjaya dikemas kini.");
       } catch (error) {
         alert(error.message || "Gagal update team.");
+      } finally {
+        if (saveButton?.isConnected) {
+          saveButton.disabled = false;
+          saveButton.textContent = "Save Team";
+        }
       }
     });
   }
@@ -2625,13 +4384,18 @@
       const adminButton = event.target.closest("[data-admin-team-status]");
       if (!adminButton) return;
       event.preventDefault();
-      const data = new FormData();
-      data.set("action", "setTeamStatus");
-      data.set("team_id", adminButton.dataset.adminTeamId);
-      data.set("status", adminButton.dataset.adminTeamStatus);
+      const teamId = Number(adminButton.dataset.adminTeamId);
+      const status = adminButton.dataset.adminTeamStatus;
+      if (status === "rejected") {
+        const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === teamId);
+        renderTeamInfoPanel(team, {showReject:true});
+        openAppPanel("team-info");
+        const reasonInput = teamInfoCard?.querySelector("[name='admin_note']");
+        if (reasonInput) reasonInput.focus();
+        return;
+      }
       try {
-        await apiPost(data);
-        await refreshState();
+        await postTeamStatus(teamId, status);
       } catch (error) {
         alert(error.message || "Gagal update team.");
       }
@@ -2640,20 +4404,60 @@
 
   if (teamInfoCard) {
     teamInfoCard.addEventListener("click", async (event) => {
+      const backButton = event.target.closest("[data-team-info-back]");
+      if (backButton) {
+        event.preventDefault();
+        openAppPanel("confirm-slot");
+        return;
+      }
+
+      const rejectToggle = event.target.closest("[data-team-reject-toggle]");
+      if (rejectToggle) {
+        event.preventDefault();
+        const form = teamInfoCard.querySelector("[data-reject-reason-form]");
+        if (form) {
+          form.hidden = false;
+          const reasonInput = form.querySelector("[name='admin_note']");
+          if (reasonInput) reasonInput.focus();
+        }
+        return;
+      }
+
+      const rejectCancel = event.target.closest("[data-reject-cancel]");
+      if (rejectCancel) {
+        event.preventDefault();
+        const form = teamInfoCard.querySelector("[data-reject-reason-form]");
+        if (form) form.hidden = true;
+        return;
+      }
+
       const adminButton = event.target.closest("[data-admin-team-status]");
       if (!adminButton) return;
       event.preventDefault();
-      const data = new FormData();
-      data.set("action", "setTeamStatus");
-      data.set("team_id", adminButton.dataset.adminTeamId);
-      data.set("status", adminButton.dataset.adminTeamStatus);
       try {
-        await apiPost(data);
-        await refreshState();
-        goHome();
+        await postTeamStatus(adminButton.dataset.adminTeamId, adminButton.dataset.adminTeamStatus);
         openAppPanel("confirm-slot");
       } catch (error) {
         alert(error.message || "Gagal update team.");
+      }
+    });
+
+    teamInfoCard.addEventListener("submit", async (event) => {
+      const form = event.target.closest("[data-reject-reason-form]");
+      if (!form) return;
+      event.preventDefault();
+      const data = new FormData(form);
+      const teamId = Number(data.get("team_id"));
+      const adminNote = String(data.get("admin_note") || "").trim();
+      if (!adminNote) {
+        alert("Tulis sebab reject dulu.");
+        return;
+      }
+      try {
+        await postTeamStatus(teamId, "rejected", adminNote);
+        openAppPanel("confirm-slot");
+      } catch (error) {
+        alert(error.message || "Gagal reject team.");
       }
     });
   }
@@ -2680,6 +4484,7 @@
         const roomId = Number(result.room_id || 0);
         setState(result);
         if (roomId) state.selectedRoomId = roomId;
+        forceDealScrollToBottom = true;
         if (dealApp) dealApp.classList.add("chat-open");
         renderDeal();
         renderDealBadges();
@@ -2689,13 +4494,28 @@
     });
 
     dealList.addEventListener("click", (event) => {
+      const filter = event.target.closest("[data-deal-filter]");
+      if (filter) {
+        dealRoomFilter = String(filter.dataset.dealFilter || "all");
+        renderDeal();
+        return;
+      }
       const item = event.target.closest("[data-room-id]");
       if (!item) return;
       state.selectedRoomId = Number(item.dataset.roomId);
+      forceDealScrollToBottom = true;
+      replyToMessageId = null;
       markRoomSeen(state.selectedRoomId);
       if (dealApp) dealApp.classList.add("chat-open");
       renderDeal();
       renderDealBadges();
+    });
+
+    dealList.addEventListener("change", (event) => {
+      const select = event.target.closest("[data-deal-date]");
+      if (!select) return;
+      dealMatchDate = String(select.value || "");
+      renderDeal();
     });
   }
 
@@ -2710,17 +4530,110 @@
       data.set("action", "sendMessage");
       data.set("room_id", state.selectedRoomId);
       data.set("message", message);
+      if (state.admin) data.set("push_mode", event.submitter?.value === "all" ? "all" : "none");
+      if (replyToMessageId) data.set("reply_to_message_id", replyToMessageId);
+      const guestNameInput = chatForm.querySelector("[name='guest_name']");
+      if (!state.chatTeam && !state.admin) {
+        const guestName = String(guestNameInput?.value || "").trim();
+        if (guestName.length < 2) {
+          alert("Isi nama anda sekurang-kurangnya 2 huruf.");
+          guestNameInput?.focus();
+          return;
+        }
+        data.set("guest_name", guestName);
+        try { localStorage.setItem(guestNameKey, guestName); } catch (_) {}
+      }
+      const replySource = replyToMessageId
+        ? state.messages.find((entry) => Number(entry.id) === Number(replyToMessageId))
+        : null;
+      const pendingId = `pending-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const pendingMessage = {
+        _pending: true,
+        _pending_id: pendingId,
+        id: 0,
+        room_id: state.selectedRoomId,
+        sender_type: state.admin ? "admin" : (state.chatTeam ? "team" : "guest"),
+        sender_team_id: state.chatTeam?.id || null,
+        sender_team_name: state.chatTeam?.team_name || "",
+        guest_name: String(guestNameInput?.value || "").trim(),
+        message,
+        created_at: "Menghantar...",
+        reply_to_message_id: replySource?.id || null,
+        reply_message: replySource?.message || "",
+        reply_sender_type: replySource?.sender_type || "",
+        reply_guest_name: replySource?.guest_name || "",
+        reply_team_name: replySource?.sender_team_name || ""
+      };
+      pendingChatMessages.push(pendingMessage);
+      input.value = "";
+      forceDealScrollToBottom = true;
+      renderDeal();
       try {
-        input.value = "";
         const result = await apiPost(data);
+        pendingChatMessages = pendingChatMessages.filter((entry) => entry._pending_id !== pendingId);
+        replyToMessageId = null;
+        forceDealScrollToBottom = true;
         setState(result);
         markRoomSeen(state.selectedRoomId);
         renderDealBadges();
       } catch (error) {
+        pendingChatMessages = pendingChatMessages.filter((entry) => entry._pending_id !== pendingId);
+        input.value = message;
+        renderDeal();
         alert(error.message || "Mesej gagal dihantar.");
       }
     });
   }
+
+  if (dealMessages) {
+    const selectReply = (target) => {
+      const bubble = target.closest("[data-reply-message]");
+      if (!bubble) return;
+      replyToMessageId = Number(bubble.dataset.replyMessage || 0) || null;
+      renderDeal();
+      chatForm?.querySelector("input[name='message']")?.focus();
+    };
+    dealMessages.addEventListener("click", (event) => selectReply(event.target));
+    dealMessages.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      if (!event.target.closest("[data-reply-message]")) return;
+      event.preventDefault();
+      selectReply(event.target);
+    });
+  }
+
+  chatForm?.querySelector("[data-cancel-reply]")?.addEventListener("click", () => {
+    replyToMessageId = null;
+    renderDeal();
+  });
+
+  pinnedInfoCard?.querySelector("[data-edit-pinned]")?.addEventListener("click", () => {
+    pinnedEditOpen = true;
+    renderDeal();
+    pinnedInfoForm?.querySelector("[name='pinned_info']")?.focus();
+  });
+
+  pinnedInfoCard?.querySelector("[data-cancel-pinned]")?.addEventListener("click", () => {
+    pinnedEditOpen = false;
+    renderDeal();
+  });
+
+  pinnedInfoForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = new FormData(pinnedInfoForm);
+    data.set("action", "savePinnedInfo");
+    const saveButton = pinnedInfoForm.querySelector("[type='submit']");
+    try {
+      if (saveButton) saveButton.disabled = true;
+      const result = await apiPost(data);
+      pinnedEditOpen = false;
+      setState(result);
+    } catch (error) {
+      alert(error.message || "Gagal simpan pinned info.");
+    } finally {
+      if (saveButton?.isConnected) saveButton.disabled = false;
+    }
+  });
 
   async function refreshState(){
     if (isScheduleFormActive()) return;

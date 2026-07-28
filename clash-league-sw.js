@@ -1,18 +1,45 @@
+const CLASH_CACHE_VERSION = "20260726-pwa-v4";
+const CLASH_API_URL = new URL("api/clash-league.php", self.location.origin + "/").href;
+const CLASH_HOME_URL = new URL("clash-league.html", self.location.origin + "/").href;
+const CLASH_ICON_URL = new URL("images/clash-league.png", self.location.origin + "/").href;
+
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  event.respondWith(fetch(request, {
+    cache: "no-store",
+    credentials: "same-origin",
+    redirect: "follow"
+  }));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CLASH_SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("push", (event) => {
-  event.waitUntil(showLatestNotification());
+  event.waitUntil(showLatestNotification(event));
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = new URL(event.notification.data?.url || "clash-league.html", self.location.href).href;
+  const targetUrl = new URL(event.notification.data?.url || CLASH_HOME_URL, self.location.href).href;
 
   event.waitUntil((async () => {
     const clientList = await self.clients.matchAll({type: "window", includeUncontrolled: true});
@@ -27,44 +54,63 @@ self.addEventListener("notificationclick", (event) => {
   })());
 });
 
-async function showLatestNotification(){
-  const fallback = {
+function fallbackNotification(){
+  return {
     title: "Clash League",
     body: "Update baru Clash League. Buka page untuk semak.",
-    url: "clash-league.html",
+    url: CLASH_HOME_URL,
     tag: "clash-league"
   };
+}
+
+async function readPayloadFromServer(){
+  const subscription = await self.registration.pushManager.getSubscription();
+  const data = new FormData();
+  data.set("action", "pushLatest");
+  data.set("sw_version", CLASH_CACHE_VERSION);
+  if (subscription) data.set("subscription", JSON.stringify(subscription));
+
+  const response = await fetch(CLASH_API_URL, {
+    method: "POST",
+    body: data,
+    cache: "no-store",
+    credentials: "include"
+  });
+
+  if (!response.ok) {
+    throw new Error(`Push latest failed ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return payload.notification || fallbackNotification();
+}
+
+async function showLatestNotification(event){
+  let notification = fallbackNotification();
 
   try {
-    const subscription = await self.registration.pushManager.getSubscription();
-    const data = new FormData();
-    data.set("action", "pushLatest");
-    if (subscription) data.set("subscription", JSON.stringify(subscription));
-
-    const response = await fetch("api/clash-league.php", {
-      method: "POST",
-      body: data,
-      cache: "no-store",
-      credentials: "include"
-    });
-    const payload = await response.json();
-    const notification = payload.notification || fallback;
-
-    await self.registration.showNotification(notification.title || fallback.title, {
-      body: notification.body || fallback.body,
-      icon: "images/clash-league.png",
-      badge: "images/clash-league.png",
-      tag: notification.tag || fallback.tag,
-      renotify: true,
-      data: {url: notification.url || fallback.url}
-    });
+    if (event.data) {
+      const text = event.data.text();
+      if (text) {
+        notification = JSON.parse(text);
+      } else {
+        notification = await readPayloadFromServer();
+      }
+    } else {
+      notification = await readPayloadFromServer();
+    }
   } catch (_) {
-    await self.registration.showNotification(fallback.title, {
-      body: fallback.body,
-      icon: "images/clash-league.png",
-      badge: "images/clash-league.png",
-      tag: fallback.tag,
-      data: {url: fallback.url}
-    });
+    notification = fallbackNotification();
   }
+
+  await self.registration.showNotification(notification.title || "Clash League", {
+    body: notification.body || notification.message || "Update baru Clash League.",
+    icon: notification.icon || CLASH_ICON_URL,
+    badge: notification.badge || CLASH_ICON_URL,
+    tag: notification.tag || "clash-league",
+    renotify: true,
+    vibrate: [120, 70, 120],
+    timestamp: Date.now(),
+    data: {url: notification.url || CLASH_HOME_URL}
+  });
 }
