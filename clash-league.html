@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260727-4">
+<link rel="stylesheet" href="clash-league.css?v=20260728-attendance-v1">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260726-pwa-v4";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260728-media-v1";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -755,6 +755,8 @@ if ("serviceWorker" in navigator) {
           </div>
           <span class="deal-status-pill" data-deal-chat-status>online</span>
         </div>
+
+        <aside class="deal-match-attendance" data-match-attendance hidden></aside>
 
         <aside class="deal-pinned-info" data-pinned-info hidden>
           <div class="deal-pinned-view">
@@ -2032,6 +2034,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const dealChatName = document.querySelector("[data-deal-chat-name]");
   const dealChatSubtitle = document.querySelector("[data-deal-chat-subtitle]");
   const dealChatStatus = document.querySelector("[data-deal-chat-status]");
+  const matchAttendance = document.querySelector("[data-match-attendance]");
   const dealList = document.querySelector("[data-deal-list]");
   const dealMessages = document.querySelector("[data-deal-messages]");
   const pinnedInfoCard = document.querySelector("[data-pinned-info]");
@@ -3433,8 +3436,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     const stats = scheduleTeamStats();
     const defaultCount = Math.min(10, stats.pending);
     const draft = scheduleDraft.random;
-    const requestedCount = Number(draft.team_limit || defaultCount || 2);
-    const teamLimit = stats.pending >= 2 ? Math.max(2, Math.min(requestedCount, stats.pending)) : 2;
+    const requestedCount = Number(draft.team_limit || defaultCount || 1);
+    const teamLimit = stats.pending >= 1 ? Math.max(1, Math.min(requestedCount, stats.pending)) : 1;
     const matchPrefix = draft.match_prefix || "Qualifier Match";
     const matchTime = draft.match_time || "";
     return `
@@ -3444,11 +3447,11 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           <h3>Auto Random Lawan</h3>
           <small>${stats.pending} team baharu belum pernah diproses</small>
         </div>
-        <label><span>Saiz Batch</span><input type="number" name="team_limit" min="2" max="${Math.max(2, stats.pending)}" value="${escapeHtml(teamLimit)}" ${stats.pending < 2 ? "disabled" : ""}></label>
+        <label><span>Saiz Batch</span><input type="number" name="team_limit" min="1" max="${Math.max(1, stats.pending)}" value="${escapeHtml(teamLimit)}" ${stats.pending < 1 ? "disabled" : ""}></label>
         <label><span>Nama Match</span><input name="match_prefix" value="${escapeHtml(matchPrefix)}"></label>
         <label><span>Tarikh / Masa</span><input type="datetime-local" name="match_time" value="${escapeHtml(matchTime)}"></label>
         <div class="match-random-actions">
-          <button class="btn primary" type="submit" ${stats.pending < 2 ? "disabled" : ""}>Generate Batch Baru</button>
+          <button class="btn primary" type="submit" ${stats.pending < 1 ? "disabled" : ""}>Generate Batch Baru</button>
           <button class="btn schedule-reset-button" type="button" data-reset-schedule ${state.matches.length ? "" : "disabled"}>Reset Semua Jadual</button>
         </div>
       </form>
@@ -3822,6 +3825,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           <span class="deal-contact-main">
             <strong>${escapeHtml(room.title || "Room")}</strong>
             <span>${escapeHtml(room.match_name || room.subtitle || "Clash League")}</span>
+            ${room.match_time ? `<span>${escapeHtml(formatMatchTime(room.match_time))}</span>` : ""}
             <span>${escapeHtml(room.last_message || "Belum ada chat.")}</span>
           </span>
           <span class="deal-contact-meta">
@@ -3830,6 +3834,64 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           </span>
         </button>`;
     }).join("");
+  }
+
+  function renderMatchAttendance(room){
+    if (!matchAttendance) return;
+    const isMatchRoom = ["match", "deal"].includes(String(room?.room_type || ""));
+    if (!isMatchRoom || !Number(room?.match_id || 0)) {
+      matchAttendance.hidden = true;
+      matchAttendance.innerHTML = "";
+      return;
+    }
+
+    const attendance = room.attendance && typeof room.attendance === "object" ? room.attendance : {};
+    const teams = [
+      {id: Number(room.team_a_id || 0), name: room.team_a_name || "TBD"},
+      {id: Number(room.team_b_id || 0), name: room.team_b_name || "TBD"}
+    ];
+    const teamCards = teams.map((team) => {
+      const confirmedAt = team.id ? String(attendance[String(team.id)] || attendance[team.id] || "") : "";
+      return `
+        <span class="attendance-team ${confirmedAt ? "is-confirmed" : ""}">
+          <b>${escapeHtml(team.name)}</b>
+          <small>${confirmedAt ? `✓ Ada wakil · ${escapeHtml(formatMatchTime(confirmedAt))}` : "Belum sahkan hadir"}</small>
+        </span>
+      `;
+    }).join("");
+
+    const myTeamId = Number(state.team?.id || 0);
+    const myConfirmed = myTeamId ? String(attendance[String(myTeamId)] || attendance[myTeamId] || "") : "";
+    let actionHtml = "";
+    if (state.team && teams.some((team) => team.id === myTeamId)) {
+      if (myConfirmed) {
+        actionHtml = `<strong class="attendance-result">✓ Kehadiran disahkan</strong>`;
+      } else if (room.attendance_open) {
+        actionHtml = `
+          <form data-attendance-form>
+            <input type="hidden" name="match_id" value="${Number(room.match_id)}">
+            <label><input type="checkbox" name="has_representative" required> Team kami hadir (ada wakil)</label>
+            <button type="submit">Sahkan Hadir</button>
+          </form>
+        `;
+      } else if (room.attendance_closed) {
+        actionHtml = `<strong class="attendance-closed">Pengesahan sudah ditutup</strong>`;
+      } else {
+        actionHtml = `<strong class="attendance-waiting">Dibuka 2 hari sebelum match · ${escapeHtml(formatMatchTime(room.attendance_opens_at))}</strong>`;
+      }
+    } else if (state.admin) {
+      actionHtml = `<strong class="attendance-admin-note">Status kehadiran kedua-dua team</strong>`;
+    }
+
+    matchAttendance.hidden = false;
+    matchAttendance.innerHTML = `
+      <div class="attendance-heading">
+        <span><b>Tarikh & Masa Match</b><strong>${escapeHtml(formatMatchTime(room.match_time))}</strong></span>
+        <small>Setiap team wajib sahkan ada wakil bermula 2 hari sebelum match.</small>
+      </div>
+      <div class="attendance-teams">${teamCards}</div>
+      ${actionHtml}
+    `;
   }
 
   function renderDeal(){
@@ -3870,8 +3932,16 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     state.selectedRoomId = Number(selected.id);
     if (dealChatAvatar) dealChatAvatar.innerHTML = roomAvatarHtml(selected);
     if (dealChatName) dealChatName.textContent = selected.title || "Room";
-    if (dealChatSubtitle) dealChatSubtitle.textContent = selected.subtitle || "Clash League";
+    if (dealChatSubtitle) {
+      const matchMeta = selected.match_time
+        ? `${selected.match_name || "Match"} · ${formatMatchTime(selected.match_time)}`
+        : (selected.match_name || selected.subtitle || "Tarikh dan masa belum ditetapkan");
+      dealChatSubtitle.textContent = ["match", "deal"].includes(String(selected.room_type || ""))
+        ? matchMeta
+        : (selected.subtitle || "Clash League");
+    }
     if (dealChatStatus) dealChatStatus.textContent = selected.status || "open";
+    renderMatchAttendance(selected);
     const showPinnedInfo = selected.room_type === "group" && (Boolean(state.pinnedInfo) || Boolean(state.admin));
     if (pinnedInfoCard) pinnedInfoCard.hidden = !showPinnedInfo;
     if (pinnedInfoText) pinnedInfoText.textContent = state.pinnedInfo || "Belum ada info semasa.";
@@ -4519,6 +4589,36 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
+  if (matchAttendance) {
+    matchAttendance.addEventListener("submit", async (event) => {
+      const form = event.target.closest("[data-attendance-form]");
+      if (!form) return;
+      event.preventDefault();
+      const checkbox = form.querySelector("[name='has_representative']");
+      if (!checkbox?.checked) {
+        checkbox?.focus();
+        return;
+      }
+      const button = form.querySelector("button[type='submit']");
+      const data = new FormData(form);
+      data.set("action", "confirmMatchAttendance");
+      try {
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Menyimpan...";
+        }
+        const result = await apiPost(data);
+        setState(result);
+      } catch (error) {
+        alert(error.message || "Gagal sahkan kehadiran team.");
+        if (button?.isConnected) {
+          button.disabled = false;
+          button.textContent = "Sahkan Hadir";
+        }
+      }
+    });
+  }
+
   if (chatForm) {
     chatForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -4635,8 +4735,12 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     }
   });
 
+  let stateRefreshInFlight = false;
+  let stateRefreshTimer = 0;
+
   async function refreshState(){
-    if (isScheduleFormActive()) return;
+    if (isScheduleFormActive() || stateRefreshInFlight || document.visibilityState === "hidden") return;
+    stateRefreshInFlight = true;
     try {
       const data = await apiGet("state");
       setState(data);
@@ -4644,16 +4748,41 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       if (roster) {
         roster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>Gagal load database</h3><p>${escapeHtml(error.message || "Check PHP/MySQL hosting.")}</p></div><strong>Error</strong></article>`;
       }
+    } finally {
+      stateRefreshInFlight = false;
     }
+  }
+
+  function scheduleStateRefresh(){
+    window.clearTimeout(stateRefreshTimer);
+    if (document.visibilityState === "hidden") return;
+    const dealIsOpen = Boolean(document.getElementById("deal")?.classList.contains("is-open"));
+    const baseDelay = dealIsOpen ? 3000 : 15000;
+    const jitter = Math.floor(Math.random() * (dealIsOpen ? 900 : 3500));
+    stateRefreshTimer = window.setTimeout(async () => {
+      await refreshState();
+      scheduleStateRefresh();
+    }, baseDelay + jitter);
   }
 
   window.addEventListener("clash:panel-open", (event) => {
     const id = event.detail && event.detail.id;
-    if (["all-team","profile","jadual","deal","confirm-slot","rules","update-point","result-check"].includes(id)) refreshState();
+    if (["all-team","profile","jadual","deal","confirm-slot","rules","update-point","result-check"].includes(id)) {
+      refreshState();
+      scheduleStateRefresh();
+    }
   });
 
   refreshState();
-  setInterval(refreshState, 5000);
+  scheduleStateRefresh();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      refreshState();
+      scheduleStateRefresh();
+    } else {
+      window.clearTimeout(stateRefreshTimer);
+    }
+  });
 })();
 </script>
 </body>

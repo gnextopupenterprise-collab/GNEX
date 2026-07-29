@@ -77,18 +77,16 @@ try {
     ], 500);
 }
 
-ensure_schema($pdo);
+ensure_schema_once($pdo, $rootDir, (string) ($dbConfig['database'] ?? 'clash'));
 seed_admin($pdo, $dbConfig);
 
 $action = (string) ($_GET['action'] ?? $_POST['action'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'teams') {
-    renumber_accepted_slots($pdo);
     json_response(['ok' => true, 'teams' => get_public_teams($pdo)]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'state') {
-    renumber_accepted_slots($pdo);
     json_response(get_state($pdo));
 }
 
@@ -161,6 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'setTeamCheck') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'markRoomRead') {
     mark_room_read($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'confirmMatchAttendance') {
+    confirm_match_attendance($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'logout') {
@@ -338,6 +340,19 @@ function ensure_schema(PDO $pdo): void
     ");
 
     $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_match_attendance (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            match_id INT NOT NULL,
+            team_id INT NOT NULL,
+            confirmed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_cl_match_attendance (match_id, team_id),
+            INDEX idx_cl_match_attendance_team (team_id, match_id),
+            FOREIGN KEY (match_id) REFERENCES cl_matches(id) ON DELETE CASCADE,
+            FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_admin_users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(80) NOT NULL UNIQUE,
@@ -428,6 +443,40 @@ function ensure_schema(PDO $pdo): void
             INDEX idx_cl_login_expiry (expires_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
+}
+
+function ensure_schema_once(PDO $pdo, string $rootDir, string $databaseName): void
+{
+    $schemaVersion = '20260728-attendance-v2';
+    $markerId = hash('sha256', $rootDir . '|' . $databaseName);
+    $markerPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
+        . DIRECTORY_SEPARATOR . 'gnex-clash-schema-' . $markerId . '.txt';
+    $lockPath = $markerPath . '.lock';
+
+    if (is_file($markerPath) && trim((string) @file_get_contents($markerPath)) === $schemaVersion) {
+        return;
+    }
+
+    $lock = @fopen($lockPath, 'c+');
+    if ($lock === false) {
+        ensure_schema($pdo);
+        return;
+    }
+
+    try {
+        if (!flock($lock, LOCK_EX)) {
+            ensure_schema($pdo);
+            return;
+        }
+        clearstatcache(true, $markerPath);
+        if (!is_file($markerPath) || trim((string) @file_get_contents($markerPath)) !== $schemaVersion) {
+            ensure_schema($pdo);
+            @file_put_contents($markerPath, $schemaVersion, LOCK_EX);
+        }
+    } finally {
+        @flock($lock, LOCK_UN);
+        @fclose($lock);
+    }
 }
 
 function column_exists(PDO $pdo, string $table, string $column): bool
@@ -1385,7 +1434,11 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
                    (SELECT m.match_time FROM cl_matches m
                     WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
                        OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
-                    ORDER BY m.id DESC LIMIT 1) AS match_time
+                    ORDER BY m.id DESC LIMIT 1) AS match_time,
+                   (SELECT m.id FROM cl_matches m
+                    WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
+                       OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
+                    ORDER BY m.id DESC LIMIT 1) AS match_id
             FROM cl_rooms r
             LEFT JOIN cl_teams ta ON ta.id = r.team_a_id
             LEFT JOIN cl_teams tb ON tb.id = r.team_b_id
@@ -1412,18 +1465,55 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
         $stmt->execute([$groupRoomId]);
     }
 
+    $rawRooms = $stmt->fetchAll();
+    $matchIds = array_values(array_unique(array_filter(array_map(
+        static fn(array $room): int => (int) ($room['match_id'] ?? 0),
+        $rawRooms
+    ))));
+    $attendanceByMatch = [];
+    if ($matchIds) {
+        $attendancePlaceholders = implode(',', array_fill(0, count($matchIds), '?'));
+        $attendanceStmt = $pdo->prepare("
+            SELECT match_id, team_id, confirmed_at
+            FROM cl_match_attendance
+            WHERE match_id IN ($attendancePlaceholders)
+        ");
+        $attendanceStmt->execute($matchIds);
+        foreach ($attendanceStmt->fetchAll() as $attendance) {
+            $attendanceByMatch[(int) $attendance['match_id']][(int) $attendance['team_id']] = (string) $attendance['confirmed_at'];
+        }
+    }
+
     $rooms = [];
-    foreach ($stmt->fetchAll() as $room) {
+    foreach ($rawRooms as $room) {
         $isGroupRoom = $room['room_type'] === 'group';
         $isAdminRoom = $room['room_type'] === 'admin';
         $teamName = (string) ($room['team_a_name'] ?? 'Team');
         $teamLogo = (string) ($room['team_a_logo'] ?? '');
+        $matchId = (int) ($room['match_id'] ?? 0);
+        $matchTime = (string) ($room['match_time'] ?? '');
+        $attendanceOpensAt = '';
+        $attendanceOpen = false;
+        $attendanceClosed = false;
+        if ($matchId > 0 && $matchTime !== '') {
+            $matchAt = new DateTimeImmutable($matchTime, new DateTimeZone('Asia/Kuala_Lumpur'));
+            $opensAt = $matchAt->modify('-2 days');
+            $now = new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));
+            $attendanceOpensAt = $opensAt->format('Y-m-d H:i:s');
+            $attendanceOpen = $now >= $opensAt && $now <= $matchAt;
+            $attendanceClosed = $now > $matchAt;
+        }
+        $roomAttendance = $attendanceByMatch[$matchId] ?? [];
         $title = $isGroupRoom ? 'PERTANYAAN / QUESTION' : ($isAdminRoom ? ($admin ? $teamName : 'ADMIN') : ($teamName . ' vs ' . (string) ($room['team_b_name'] ?? 'TBD')));
         $avatar = $isGroupRoom ? 'Q' : ($isAdminRoom ? ($admin ? make_initials($teamName) : 'AD') : 'VS');
         $rooms[] = [
             'id' => (int) $room['id'],
             'room_type' => (string) $room['room_type'],
             'team_id' => (int) ($room['team_a_id'] ?? 0),
+            'team_a_id' => (int) ($room['team_a_id'] ?? 0),
+            'team_b_id' => (int) ($room['team_b_id'] ?? 0),
+            'team_a_name' => (string) ($room['team_a_name'] ?? 'TBD'),
+            'team_b_name' => (string) ($room['team_b_name'] ?? 'TBD'),
             'title' => $title,
             'subtitle' => $isGroupRoom ? 'Pertanyaan awam · semua boleh chat' : ($isAdminRoom ? ($admin ? 'Chat ke admin' : $teamName) : 'Clash League Deal'),
             'avatar' => $avatar,
@@ -1434,8 +1524,14 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
             'last_sender_type' => (string) ($room['last_sender_type'] ?? ''),
             'seen_message_id' => (int) ($room['seen_message_id'] ?? 0),
             'match_name' => (string) ($room['match_name'] ?? ''),
-            'match_time' => (string) ($room['match_time'] ?? ''),
-            'match_date' => !empty($room['match_time']) ? substr((string) $room['match_time'], 0, 10) : '',
+            'match_id' => $matchId,
+            'match_time' => $matchTime,
+            'match_date' => $matchTime !== '' ? substr($matchTime, 0, 10) : '',
+            'attendance' => $roomAttendance,
+            'attendance_opens_at' => $attendanceOpensAt,
+            'attendance_open' => $attendanceOpen,
+            'attendance_closed' => $attendanceClosed,
+            'my_attendance' => $team ? (string) ($roomAttendance[(int) $team['id']] ?? '') : '',
         ];
     }
 
@@ -1493,6 +1589,58 @@ function mark_room_read(PDO $pdo): void
     $stmt->execute([$ownerType, $teamId, $adminId, $roomId, $lastMessageId]);
 
     json_response(['ok' => true, 'room_id' => $roomId, 'last_message_id' => $lastMessageId]);
+}
+
+function confirm_match_attendance(PDO $pdo): void
+{
+    $team = require_team($pdo);
+    $matchId = (int) ($_POST['match_id'] ?? 0);
+    if ($matchId <= 0) {
+        json_response(['ok' => false, 'message' => 'Match tidak valid.'], 422);
+    }
+
+    $stmt = $pdo->prepare('
+        SELECT id, team_a_id, team_b_id, match_time
+        FROM cl_matches
+        WHERE id = ? AND status != "hidden"
+        LIMIT 1
+    ');
+    $stmt->execute([$matchId]);
+    $match = $stmt->fetch();
+    if (!$match) {
+        json_response(['ok' => false, 'message' => 'Match tidak dijumpai.'], 404);
+    }
+
+    $teamId = (int) $team['id'];
+    if ($teamId !== (int) ($match['team_a_id'] ?? 0) && $teamId !== (int) ($match['team_b_id'] ?? 0)) {
+        json_response(['ok' => false, 'message' => 'Team anda bukan peserta match ini.'], 403);
+    }
+    if (empty($match['match_time'])) {
+        json_response(['ok' => false, 'message' => 'Tarikh dan masa match belum ditetapkan.'], 422);
+    }
+
+    $timezone = new DateTimeZone('Asia/Kuala_Lumpur');
+    $matchAt = new DateTimeImmutable((string) $match['match_time'], $timezone);
+    $opensAt = $matchAt->modify('-2 days');
+    $now = new DateTimeImmutable('now', $timezone);
+    if ($now < $opensAt) {
+        json_response([
+            'ok' => false,
+            'message' => 'Pengesahan hadir hanya dibuka 2 hari sebelum match.',
+        ], 422);
+    }
+    if ($now > $matchAt) {
+        json_response(['ok' => false, 'message' => 'Masa pengesahan hadir sudah tamat.'], 422);
+    }
+
+    $stmt = $pdo->prepare('
+        INSERT INTO cl_match_attendance (match_id, team_id, confirmed_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE confirmed_at = confirmed_at
+    ');
+    $stmt->execute([$matchId, $teamId]);
+
+    json_response(get_state($pdo) + ['message' => 'Kehadiran team berjaya disahkan. Ada wakil.']);
 }
 
 function get_messages(PDO $pdo, array $rooms): array
@@ -1913,7 +2061,7 @@ function generate_random_matches(PDO $pdo): void
         json_response(['ok' => false, 'message' => 'Login admin diperlukan untuk generate jadual.'], 401);
     }
 
-    $limit = max(2, min(128, (int) ($_POST['team_limit'] ?? 10)));
+    $limit = max(1, min(128, (int) ($_POST['team_limit'] ?? 10)));
     $prefix = clean_text($_POST['match_prefix'] ?? 'Qualifier Match', 120);
     if ($prefix === '') {
         $prefix = 'Qualifier Match';
@@ -1950,6 +2098,70 @@ function generate_random_matches(PDO $pdo): void
         }
 
         shuffle($teamIds);
+        $processedCount = count($teamIds);
+        $filledTbd = 0;
+
+        if ($teamIds) {
+            $tbdStmt = $pdo->query('
+                SELECT id, team_a_id, team_b_id
+                FROM cl_matches
+                WHERE status IN ("up_next", "live")
+                  AND (
+                    (team_a_id IS NOT NULL AND team_b_id IS NULL)
+                    OR (team_a_id IS NULL AND team_b_id IS NOT NULL)
+                  )
+                ORDER BY COALESCE(match_time, "2999-12-31") ASC, id ASC
+                LIMIT 1
+                FOR UPDATE
+            ');
+            $tbdMatch = $tbdStmt->fetch();
+            if ($tbdMatch) {
+                $newOpponentId = (int) array_shift($teamIds);
+                $matchId = (int) $tbdMatch['id'];
+                $existingTeamA = (int) ($tbdMatch['team_a_id'] ?? 0);
+                $existingTeamB = (int) ($tbdMatch['team_b_id'] ?? 0);
+                $teamA = $existingTeamA > 0 ? $existingTeamA : $newOpponentId;
+                $teamB = $existingTeamB > 0 ? $existingTeamB : $newOpponentId;
+
+                $updateTbd = $pdo->prepare('
+                    UPDATE cl_matches
+                    SET team_a_id = ?, team_b_id = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ');
+                $updateTbd->execute([$teamA, $teamB, $matchId]);
+
+                $roomLookup = $pdo->prepare('
+                    SELECT id
+                    FROM cl_rooms
+                    WHERE room_type = "match" AND status = "open"
+                      AND (
+                        (team_a_id = ? AND team_b_id IS NULL)
+                        OR (team_a_id IS NULL AND team_b_id = ?)
+                      )
+                    ORDER BY id DESC
+                    LIMIT 1
+                    FOR UPDATE
+                ');
+                $roomLookup->execute([$existingTeamA, $existingTeamB]);
+                $roomId = (int) ($roomLookup->fetchColumn() ?: 0);
+                if ($roomId > 0) {
+                    $updateRoom = $pdo->prepare('
+                        UPDATE cl_rooms
+                        SET team_a_id = ?, team_b_id = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ');
+                    $updateRoom->execute([$teamA, $teamB, $roomId]);
+                } else {
+                    $createRoom = $pdo->prepare('
+                        INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, status, updated_at)
+                        VALUES ("match", ?, ?, "open", CURRENT_TIMESTAMP)
+                    ');
+                    $createRoom->execute([$teamA, $teamB]);
+                }
+                $filledTbd = 1;
+            }
+        }
+
         $nameStmt = $pdo->prepare('SELECT match_name FROM cl_matches WHERE match_name LIKE ?');
         $nameStmt->execute([$prefix . ' %']);
         $highestMatchNo = 0;
@@ -1975,9 +2187,7 @@ function generate_random_matches(PDO $pdo): void
             $teamB = $teamIds[$index + 1] ?? null;
             $matchName = $prefix . ' ' . $matchNo;
             $matchStmt->execute([$teamA, $teamB, $matchName, $matchTimeSql]);
-            if ($teamB !== null) {
-                $roomStmt->execute([$teamA, $teamB]);
-            }
+            $roomStmt->execute([$teamA, $teamB]);
             $matchNo++;
         }
         $pdo->commit();
@@ -1987,7 +2197,9 @@ function generate_random_matches(PDO $pdo): void
     }
 
     json_response(get_state($pdo) + [
-        'message' => 'Batch ' . count($teamIds) . ' team baharu berjaya dibuat. Jadual lama tidak diubah.',
+        'message' => $filledTbd > 0
+            ? 'Batch ' . $processedCount . ' team berjaya diproses. Slot lawan TBD telah diisi.'
+            : 'Batch ' . $processedCount . ' team baharu berjaya dibuat. Jika seorang sahaja, jadual ditetapkan sebagai vs TBD.',
     ]);
 }
 

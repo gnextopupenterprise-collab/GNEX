@@ -1,16 +1,35 @@
-const CLASH_CACHE_VERSION = "20260726-pwa-v4";
+const CLASH_CACHE_VERSION = "20260728-media-v1";
+const CLASH_MEDIA_CACHE = `gnex-clash-media-${CLASH_CACHE_VERSION}`;
 const CLASH_API_URL = new URL("api/clash-league.php", self.location.origin + "/").href;
 const CLASH_HOME_URL = new URL("clash-league.html", self.location.origin + "/").href;
 const CLASH_ICON_URL = new URL("images/clash-league.png", self.location.origin + "/").href;
+const CLASH_MEDIA_ASSETS = [
+  "images/logo baru gnex .webp",
+  "images/logo baru gnex .png",
+  "images/clash-league.png",
+  "images/clash-league-tour-poster.png?v=20260726-2",
+  "images/clash-league-icon-192.png?v=20260726",
+  "images/clash-league-icon-512.png?v=20260726",
+  "images/question-chat-profile.png?v=20260726-2"
+].map((path) => new URL(path, self.location.origin + "/").href);
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil((async () => {
+    const cache = await caches.open(CLASH_MEDIA_CACHE);
+    await Promise.allSettled(CLASH_MEDIA_ASSETS.map(async (assetUrl) => {
+      const response = await fetch(assetUrl, {cache: "reload", credentials: "same-origin"});
+      if (response.ok) await cache.put(assetUrl, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.map((key) => caches.delete(key)));
+    await Promise.all(keys
+      .filter((key) => key.startsWith("gnex-clash-media-") && key !== CLASH_MEDIA_CACHE)
+      .map((key) => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -20,12 +39,47 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  const isImageRequest = request.destination === "image"
+    || /\.(?:avif|gif|jpe?g|png|svg|webp)$/i.test(url.pathname);
+
+  if (isImageRequest) {
+    event.respondWith(cacheImage(request));
+    return;
+  }
+
   event.respondWith(fetch(request, {
     cache: "no-store",
     credentials: "same-origin",
     redirect: "follow"
   }));
 });
+
+async function cacheImage(request){
+  const cache = await caches.open(CLASH_MEDIA_CACHE);
+  const cached = await cache.match(request, {ignoreVary: true});
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request, {
+      cache: "no-cache",
+      credentials: "same-origin",
+      redirect: "follow"
+    });
+    if (response.ok && (response.type === "basic" || response.type === "default")) {
+      try {
+        await cache.put(request, response.clone());
+      } catch (_) {
+        // Storage penuh tidak patut menghalang gambar yang baru dimuat turun.
+      }
+    }
+    return response;
+  } catch (error) {
+    const fallback = await cache.match(CLASH_ICON_URL, {ignoreSearch: true});
+    if (fallback) return fallback;
+    throw error;
+  }
+}
 
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CLASH_SKIP_WAITING") {
