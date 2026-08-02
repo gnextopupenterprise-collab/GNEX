@@ -1,4 +1,4 @@
-const CLASH_CACHE_VERSION = "20260728-media-v1";
+const CLASH_CACHE_VERSION = "20260731-notification-v2";
 const CLASH_MEDIA_CACHE = `gnex-clash-media-${CLASH_CACHE_VERSION}`;
 const CLASH_API_URL = new URL("api/clash-league.php", self.location.origin + "/").href;
 const CLASH_HOME_URL = new URL("clash-league.html", self.location.origin + "/").href;
@@ -96,6 +96,7 @@ self.addEventListener("notificationclick", (event) => {
   const targetUrl = new URL(event.notification.data?.url || CLASH_HOME_URL, self.location.href).href;
 
   event.waitUntil((async () => {
+    await acknowledgeNotification(event.notification.data?.event_id).catch(() => {});
     const clientList = await self.clients.matchAll({type: "window", includeUncontrolled: true});
     for (const client of clientList) {
       if (client.url.includes("clash-league") && "focus" in client) {
@@ -107,6 +108,22 @@ self.addEventListener("notificationclick", (event) => {
     await self.clients.openWindow(targetUrl);
   })());
 });
+
+async function acknowledgeNotification(eventId){
+  if (!eventId) return;
+  const subscription = await self.registration.pushManager.getSubscription();
+  if (!subscription) return;
+  const data = new FormData();
+  data.set("action", "acknowledgeNotification");
+  data.set("event_id", String(eventId));
+  data.set("subscription", JSON.stringify(subscription));
+  await fetch(CLASH_API_URL, {
+    method: "POST",
+    body: data,
+    cache: "no-store",
+    credentials: "include"
+  });
+}
 
 function fallbackNotification(){
   return {
@@ -165,6 +182,6 @@ async function showLatestNotification(event){
     renotify: true,
     vibrate: [120, 70, 120],
     timestamp: Date.now(),
-    data: {url: notification.url || CLASH_HOME_URL}
+    data: {url: notification.url || CLASH_HOME_URL, event_id: notification.event_id || null}
   });
 }

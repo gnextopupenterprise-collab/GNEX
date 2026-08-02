@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10392f">
+  <title>Kaunter — Sistem Cashier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cashier.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Kaunter utama">
+        <span class="brand-mark">K</span>
+        <span><strong>KAUNTER</strong><small>POS Pasar Raya</small></span>
+      </a>
+      <div class="counter-meta">
+        <span class="status-dot"></span>
+        <span>Kaunter 01</span>
+        <span class="divider"></span>
+        <strong id="clock">--:--</strong>
+      </div>
+      <a class="icon-btn manage-link" href="product-admin.html" aria-label="Urus produk">＋</a>
+      <button class="icon-btn" id="fullscreenBtn" aria-label="Skrin penuh">⛶</button>
+    </header>
+
+    <main class="workspace">
+      <section class="catalog-panel">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">SELAMAT DATANG, CASHIER</p>
+            <h1>Transaksi baharu</h1>
+          </div>
+          <button class="scan-btn" id="openScannerBtn">
+            <span class="scan-icon">⌗</span>
+            Imbas barcode
+          </button>
+        </div>
+
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Cari nama atau masukkan barcode…" autocomplete="off">
+          <kbd>Enter</kbd>
+        </label>
+
+        <div class="section-head">
+          <div>
+            <h2>Produk popular</h2>
+            <p>Ketik produk untuk tambah ke bakul</p>
+          </div>
+          <span class="product-count" id="productCount">0 produk</span>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+        <div class="empty-products hidden" id="emptyProducts">
+          <span>⌕</span>
+          <h3>Produk tidak dijumpai</h3>
+          <p>Semak ejaan atau barcode yang dimasukkan.</p>
+        </div>
+      </section>
+
+      <aside class="cart-panel">
+        <div class="cart-head">
+          <div>
+            <p class="eyebrow">PESANAN SEMASA</p>
+            <h2>Bakul belian</h2>
+          </div>
+          <button class="text-btn danger" id="clearCartBtn">Kosongkan</button>
+        </div>
+
+        <div class="cart-items" id="cartItems"></div>
+        <div class="empty-cart" id="emptyCart">
+          <div class="bag-icon">⌑</div>
+          <h3>Bakul masih kosong</h3>
+          <p>Imbas barcode atau pilih produk untuk mula.</p>
+        </div>
+
+        <div class="cart-summary">
+          <div><span>Subtotal</span><strong id="subtotal">RM 0.00</strong></div>
+          <div><span>Cukai (0%)</span><strong>RM 0.00</strong></div>
+          <div class="total-row"><span>Jumlah</span><strong id="total">RM 0.00</strong></div>
+          <button class="pay-btn" id="payBtn" disabled>
+            <span>Bayar sekarang</span>
+            <span id="payAmount">RM 0.00 →</span>
+          </button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <dialog class="modal scanner-modal" id="scannerModal">
+    <div class="modal-head">
+      <div><p class="eyebrow">KAMERA TELEFON</p><h2>Imbas barcode</h2></div>
+      <button class="close-btn" data-close="scannerModal" aria-label="Tutup">×</button>
+    </div>
+    <div class="camera-frame">
+      <video id="cameraVideo" playsinline muted></video>
+      <div class="camera-placeholder" id="cameraPlaceholder">
+        <span>⌗</span>
+        <p>Tekan “Hidupkan kamera” dan halakan barcode ke dalam kotak.</p>
+      </div>
+      <div class="scan-target"><i></i><i></i><i></i><i></i><span></span></div>
+    </div>
+    <p class="scanner-status" id="scannerStatus">Kamera belum dihidupkan.</p>
+    <button class="primary-btn" id="startCameraBtn">Hidupkan kamera</button>
+    <div class="manual-scan">
+      <span>ATAU MASUKKAN SECARA MANUAL</span>
+      <div><input id="manualBarcode" inputmode="numeric" placeholder="Contoh: 9556001122334"><button id="manualAddBtn">Tambah</button></div>
+    </div>
+  </dialog>
+
+  <dialog class="modal payment-modal" id="paymentModal">
+    <div class="modal-head">
+      <div><p class="eyebrow">PEMBAYARAN</p><h2>Pilih kaedah bayaran</h2></div>
+      <button class="close-btn" data-close="paymentModal" aria-label="Tutup">×</button>
+    </div>
+    <div class="payment-total"><span>Jumlah perlu dibayar</span><strong id="modalTotal">RM 0.00</strong></div>
+    <div class="payment-methods">
+      <button data-method="Tunai"><b>RM</b><span><strong>Tunai</strong><small>Kira baki pelanggan</small></span></button>
+      <button data-method="Kad"><b>▣</b><span><strong>Kad debit / kredit</strong><small>Bayaran melalui terminal</small></span></button>
+      <button data-method="QR"><b>▦</b><span><strong>DuitNow QR</strong><small>Imbas kod pembayaran</small></span></button>
+    </div>
+  </dialog>
+
+  <dialog class="modal success-modal" id="successModal">
+    <div class="success-icon">✓</div>
+    <p class="eyebrow">TRANSAKSI BERJAYA</p>
+    <h2>Bayaran diterima</h2>
+    <p id="successMessage">Bayaran telah selesai.</p>
+    <div class="receipt-ref"><span>No. resit</span><strong id="receiptNumber">—</strong></div>
+    <button class="primary-btn" id="newSaleBtn">Transaksi baharu</button>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="cashier.js"></script>
+</body>
+</html>

@@ -260,8 +260,12 @@ GNEX Laga CS 2026. Mode Squad, live casual bersama @gnex_a7, dan slot boleh dite
 
 <form id="lagaRegisterForm" class="panel rounded-lg p-5 md:p-6 space-y-4" enctype="multipart/form-data">
 <div>
-<label for="wakil" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">WAKIL / NO TELEFON</label>
-<input id="wakil" name="wakil" class="form-input" type="tel" placeholder="Contoh: 0199404591" required>
+<label for="wakil" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">NAMA WAKIL</label>
+<input id="wakil" name="wakil" class="form-input" type="text" placeholder="Contoh: AHMAD" autocomplete="name" required>
+</div>
+<div>
+<label for="phoneNumber" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">NOMBOR TELEFON</label>
+<input id="phoneNumber" name="phone_number" class="form-input" type="tel" inputmode="tel" autocomplete="tel" placeholder="Contoh: 0199404591" required>
 </div>
 <div>
 <label for="teamName" class="block text-cyan-400 text-xs font-black tracking-[.2em] mb-2">TEAM NAME</label>
@@ -851,6 +855,7 @@ const file=document.getElementById("paymentProof").files[0];
 const payment=await fileToBase64(file);
 const payload={
 wakil:document.getElementById("wakil").value.trim(),
+phone_number:document.getElementById("phoneNumber").value.trim(),
 team_name:document.getElementById("teamName").value.trim(),
 payment_proof:payment
 };

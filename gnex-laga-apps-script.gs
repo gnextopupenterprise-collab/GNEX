@@ -29,6 +29,7 @@ function doPost(e) {
 
     const sheet = getOrCreateSheet_(ss, REGISTRATION_SHEET_NAME, [
       "Wakil",
+      "Nombor Telefon",
       "Team name",
       "Pembayaran",
       "Tarikh",
@@ -43,11 +44,13 @@ function doPost(e) {
 
     const payload = getPayload_(e);
     const wakil = String(payload.wakil || "").trim();
+    const phoneNumber = String(payload.phone_number || "").trim();
     const teamName = String(payload.team_name || "").trim();
     let paymentUrl = "";
 
     debugLog_(ss, "doPost payload", {
       wakil,
+      phoneNumber,
       teamName,
       hasPayment: Boolean(payload.payment_proof && payload.payment_proof.data),
       rawLength: e && e.postData && e.postData.contents ? e.postData.contents.length : 0,
@@ -55,14 +58,15 @@ function doPost(e) {
     });
     executionLog_("doPost:payload-parsed", {
       wakil,
+      phoneNumber,
       teamName,
       hasPayment: Boolean(payload.payment_proof && payload.payment_proof.data),
       paymentName: payload.payment_proof ? payload.payment_proof.name : "",
       paymentType: payload.payment_proof ? payload.payment_proof.type : ""
     });
 
-    if (!wakil || !teamName) {
-      throw new Error("Payload kosong atau tidak lengkap. Wakil dan Team name wajib ada.");
+    if (!wakil || !phoneNumber || !teamName) {
+      throw new Error("Payload kosong atau tidak lengkap. Wakil, nombor telefon dan Team name wajib ada.");
     }
 
     if (payload.payment_proof && payload.payment_proof.data) {
@@ -86,10 +90,18 @@ function doPost(e) {
 
     const nextRow = findNextEmptyRegistrationRow_(sheet);
     executionLog_("doPost:write-start", { nextRow });
-    sheet.getRange(nextRow, 1, 1, 6).setValues([[wakil, teamName, paymentUrl, "", "", false]]);
+    const headers = getHeaders_(sheet);
+    sheet.getRange(nextRow, headers["wakil"]).setValue(wakil);
+    sheet.getRange(nextRow, headers["nombor telefon"]).setValue(phoneNumber);
+    sheet.getRange(nextRow, headers["team name"]).setValue(teamName);
+    sheet.getRange(nextRow, headers["pembayaran"]).setValue(paymentUrl);
+    sheet.getRange(nextRow, headers["tarikh"]).setValue("");
+    sheet.getRange(nextRow, headers["masa"]).setValue("");
+    sheet.getRange(nextRow, headers["slot"]).setValue(false);
     executionLog_("doPost:write-done", {
       nextRow,
       wakil,
+      phoneNumber,
       teamName,
       paymentUrl
     });
@@ -472,16 +484,29 @@ function getCellValue_(sheet, row, col) {
 
 function getOrCreateSheet_(ss, name, headers) {
   const sheet = ss.getSheetByName(name) || ss.insertSheet(name);
-  if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(headers);
+  } else {
+    const existingHeaders = getHeaders_(sheet);
+    headers.forEach(header => {
+      const key = String(header).trim().toLowerCase();
+      if (!existingHeaders[key]) {
+        sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
+        existingHeaders[key] = sheet.getLastColumn();
+      }
+    });
+  }
   return sheet;
 }
 
 function findNextEmptyRegistrationRow_(sheet) {
   const lastRow = Math.max(sheet.getLastRow(), 2);
-  const values = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
-  const emptyIndex = values.findIndex(row => {
+  const headers = getHeaders_(sheet);
+  const wakilValues = sheet.getRange(2, headers["wakil"], lastRow - 1, 1).getValues();
+  const teamValues = sheet.getRange(2, headers["team name"], lastRow - 1, 1).getValues();
+  const emptyIndex = wakilValues.findIndex((row, index) => {
     const wakil = String(row[0] || "").trim();
-    const teamName = String(row[1] || "").trim();
+    const teamName = String(teamValues[index][0] || "").trim();
     return !wakil && !teamName;
   });
 

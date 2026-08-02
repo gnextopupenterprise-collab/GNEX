@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10392f">
+  <title>Produk — Kaunter POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cashier.css">
+  <link rel="stylesheet" href="product-admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="cashier.html"><span class="brand-mark">K</span><span><strong>KAUNTER</strong><small>Pengurusan produk</small></span></a>
+    <a class="back-link" href="cashier.html">← Buka cashier</a>
+  </header>
+  <main class="admin-page">
+    <section class="admin-hero">
+      <div><p class="eyebrow">DATABASE PRODUK</p><h1>Daftar harga produk</h1><p>Imbas barcode dahulu. Nombor barcode menjadi ID untuk mencari harga produk.</p></div>
+      <button class="scan-btn" id="scanAdminBtn"><span class="scan-icon">⌗</span> Imbas barcode</button>
+    </section>
+
+    <div class="admin-layout">
+      <form class="product-form" id="productForm">
+        <div class="form-title"><span>01</span><div><h2>Maklumat produk</h2><p>Semua ruangan bertanda * diperlukan.</p></div></div>
+        <label>Barcode / nombor kod *
+          <div class="barcode-input"><input id="barcode" name="barcode" required maxlength="64" autocomplete="off" placeholder="Imbas atau taip nombor barcode"><button type="button" id="lookupBtn">Semak</button></div>
+        </label>
+        <label>Nama produk *<input id="name" name="name" required maxlength="160" placeholder="Contoh: Susu Segar Farm Fresh"></label>
+        <div class="form-grid">
+          <label>Harga jual (RM) *<input id="price" name="price" required type="number" min="0" step="0.01" placeholder="0.00"></label>
+          <label>Jumlah stok *<input id="stock" name="stock" required type="number" min="0" step="1" value="0"></label>
+          <label>Kategori<input id="category" name="category" maxlength="80" placeholder="Contoh: Minuman"></label>
+          <label>Unit / saiz<input id="unit" name="unit" maxlength="40" placeholder="Contoh: 1L"></label>
+        </div>
+        <label class="password-label">Kata laluan pentadbir *
+          <input id="adminPassword" type="password" required autocomplete="current-password" placeholder="Diperlukan untuk simpan perubahan">
+        </label>
+        <div class="form-actions"><button type="button" class="reset-btn" id="resetBtn">Borang baharu</button><button class="primary-btn" id="saveBtn">Simpan produk</button></div>
+        <p class="form-status" id="formStatus"></p>
+      </form>
+
+      <section class="database-list">
+        <div class="list-head"><div><h2>Produk dalam database</h2><p id="databaseCount">Memuatkan…</p></div><input id="adminSearch" type="search" placeholder="Cari produk…"></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Produk</th><th>Harga</th><th>Stok</th><th></th></tr></thead><tbody id="productRows"></tbody></table>
+          <div class="database-empty hidden" id="databaseEmpty">Belum ada produk dalam database.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="modal scanner-modal" id="adminScanner">
+    <div class="modal-head"><div><p class="eyebrow">KAMERA TELEFON</p><h2>Imbas barcode produk</h2></div><button class="close-btn" id="closeAdminScanner">×</button></div>
+    <div class="camera-frame"><video id="adminVideo" playsinline muted></video><div class="camera-placeholder" id="adminCameraPlaceholder"><span>⌗</span><p>Halakan barcode ke dalam kotak.</p></div><div class="scan-target"><i></i><i></i><i></i><i></i><span></span></div></div>
+    <p class="scanner-status" id="adminScannerStatus">Kamera belum dihidupkan.</p>
+    <button class="primary-btn" id="startAdminCamera">Hidupkan kamera</button>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="product-admin.js"></script>
+</body>
+</html>
