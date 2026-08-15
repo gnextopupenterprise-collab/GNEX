@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260813-mobile-chat-scroll-v70">
+<link rel="stylesheet" href="clash-league.css?v=20260815-schedule-manager-v72">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260814-login-point-fix-v57";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-schedule-manager-v58";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -4572,7 +4572,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
     return `<div class="admin-schedule-groups">${Array.from(groups.entries()).map(([dateKey, matches], index) => `
       <details class="admin-date-card" data-schedule-date="${escapeHtml(dateKey)}" ${openScheduleDates.has(dateKey) || (!scheduleOpenStateReady && index === 0) ? "open" : ""}>
-        <summary>
+        <summary data-open-date-manager="${escapeHtml(dateKey)}" title="Buka pengurusan penuh">
           <span>${escapeHtml(scheduleDateLabel(dateKey))}</span>
           <strong>${matches.length} Match</strong>
         </summary>
@@ -4581,6 +4581,67 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         </div>
       </details>
     `).join("")}</div>`;
+  }
+
+  function qualifierStageLabel(matches){
+    const name = String(matches[0]?.match_name || "Jadual Manual");
+    return name.replace(/\s*\/\s*BO\d+.*$/i, "").trim() || name;
+  }
+
+  function openDateScheduleManager(dateKey){
+    document.querySelector("[data-date-manager]")?.remove();
+    const dateMatches = state.matches.filter((match) => scheduleDateKey(match.match_time) === dateKey);
+    const stageLabel = qualifierStageLabel(dateMatches);
+    const stageMatches = state.matches.filter((match) => String(match.match_name || "").toLocaleLowerCase("ms").startsWith(stageLabel.toLocaleLowerCase("ms")));
+    const scheduledIds = new Set(stageMatches.flatMap((match) => [Number(match.team_a_id || 0), Number(match.team_b_id || 0)]).filter(Boolean));
+    const teamMap = new Map();
+    stageMatches.forEach((match) => {
+      [[match.team_a_id, match.team_a_name, match.team_a_logo], [match.team_b_id, match.team_b_name, match.team_b_logo]].forEach(([id, name, logo]) => {
+        if (Number(id)) teamMap.set(Number(id), {id:Number(id), team_name:name, logo_url:logo});
+      });
+    });
+    (state.winnerPool?.teams || []).forEach((team) => teamMap.set(Number(team.team_id), {id:Number(team.team_id), team_name:team.team_name, logo_url:team.team_logo}));
+    const teams = Array.from(teamMap.values()).sort((a,b) => String(a.team_name).localeCompare(String(b.team_name)));
+    const accepted = state.teams.filter((team) => team.status === "accepted").sort((a,b) => String(a.team_name).localeCompare(String(b.team_name)));
+    const options = `<option value="">Pilih team</option>${accepted.map((team) => `<option value="${Number(team.id || team.team_id)}">${escapeHtml(team.team_name)}</option>`).join("")}`;
+    const modal = document.createElement("section");
+    modal.className = "date-schedule-manager";
+    modal.dataset.dateManager = dateKey;
+    modal.innerHTML = `
+      <div class="date-manager-shell">
+        <header><div><small>PENGURUSAN QUALIFIER</small><h2>${escapeHtml(stageLabel)}</h2><p>${escapeHtml(scheduleDateLabel(dateKey))} · ${dateMatches.length} jadual</p></div><button type="button" data-close-date-manager aria-label="Tutup">×</button></header>
+        <div class="date-manager-grid">
+          <main><div class="date-manager-heading"><h3>Senarai Jadual</h3><span>${dateMatches.length} MATCH</span></div><div class="date-manager-matches">
+            ${dateMatches.length ? dateMatches.map((match) => `<article><div><b>${escapeHtml(match.team_a_name || "TBD")} <i>VS</i> ${escapeHtml(match.team_b_name || "TBD")}</b><small>${escapeHtml(match.match_name || "Match")} · ${escapeHtml(formatMatchTime(match.match_time))}</small></div><button type="button" data-manager-delete-match="${Number(match.id)}">DELETE</button></article>`).join("") : `<p class="date-manager-empty">Tiada jadual pada tarikh ini.</p>`}
+          </div></main>
+          <aside><div class="date-manager-heading"><h3>Team Qualifier</h3><span>${teams.length} TEAM</span></div><div class="date-manager-teams">
+            ${teams.length ? teams.map((team) => `<article>${avatarHtml(initials(team.team_name), team.logo_url, team.team_name)}<b>${escapeHtml(team.team_name)}</b><strong class="${scheduledIds.has(team.id) ? "is-scheduled" : ""}">${scheduledIds.has(team.id) ? "✓" : "—"}</strong></article>`).join("") : `<p class="date-manager-empty">Belum ada team dikesan.</p>`}
+          </div></aside>
+        </div>
+        <form class="date-manager-add" data-manual-match-form><h3>+ Tambah Jadual Manual</h3><label>Nama Jadual<input name="match_name" value="${escapeHtml(dateMatches[0]?.match_name || stageLabel)}" required></label><label>Tarikh / Masa<input type="datetime-local" name="match_time" value="${dateKey === "TBD" ? "" : `${dateKey}T21:30`}" required></label><label>Team A<select name="team_a_id" required>${options}</select></label><label>Team B<select name="team_b_id" required>${options}</select></label><button type="submit">TAMBAH JADUAL</button></form>
+      </div>`;
+    document.body.appendChild(modal);
+    document.body.classList.add("date-manager-open");
+    const close = () => { modal.remove(); document.body.classList.remove("date-manager-open"); };
+    modal.querySelector("[data-close-date-manager]").addEventListener("click", close);
+    modal.addEventListener("click", async (event) => {
+      if (event.target === modal) return close();
+      const button = event.target.closest("[data-manager-delete-match]");
+      if (!button) return;
+      const matchId = Number(button.dataset.managerDeleteMatch || 0);
+      const match = state.matches.find((item) => Number(item.id) === matchId);
+      if (!matchId || !confirm(`Delete jadual ${match?.team_a_name || "TBD"} VS ${match?.team_b_name || "TBD"}? Result, attendance dan group match berkaitan turut dipadam.`)) return;
+      const data = new FormData(); data.set("action", "deleteMatch"); data.set("match_id", String(matchId));
+      try { button.disabled = true; const result = await apiPost(data); close(); setState(result); alert(result.message); }
+      catch (error) { button.disabled = false; alert(error.message || "Gagal delete jadual."); }
+    });
+    modal.querySelector("[data-manual-match-form]").addEventListener("submit", async (event) => {
+      event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); data.set("action", "createManualMatch");
+      if (data.get("team_a_id") === data.get("team_b_id")) return alert("Team A dan Team B mesti berbeza.");
+      const button = form.querySelector("button");
+      try { button.disabled = true; const result = await apiPost(data); close(); setState(result); alert(result.message); }
+      catch (error) { button.disabled = false; alert(error.message || "Gagal tambah jadual."); }
+    });
   }
 
   function scheduleDateKey(value){
@@ -4722,10 +4783,19 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     const teamBPoint = draft.team_b_point ?? (match.team_b_point ?? "");
     const teamALabel = match.team_a_name || "Team A";
     const teamBLabel = match.team_b_name || "Team B";
+    const selectedTeamAId = draft.team_a_id ?? match.team_a_id;
+    const selectedTeamBId = draft.team_b_id ?? match.team_b_id;
     const acceptedTeams = state.teams.filter((team) => team.status === "accepted");
     const teamOptions = (selectedId) => `
       <option value="0" ${Number(selectedId || 0) === 0 ? "selected" : ""}>TBD / Kosongkan slot</option>
       ${acceptedTeams.map((team) => `<option value="${Number(team.id || team.team_id)}" ${Number(selectedId) === Number(team.id || team.team_id) ? "selected" : ""}>${escapeHtml(team.team_name)}</option>`).join("")}
+    `;
+    const teamSearchField = (slot, label, selectedId) => `
+      <label class="match-team-select">
+        <span>${label}</span>
+        <input type="search" class="match-team-search" data-team-search="${slot}" placeholder="Cari nama team..." autocomplete="off" aria-label="Cari ${label}">
+        <select name="team_${slot}_id" data-team-select="${slot}">${teamOptions(selectedId)}</select>
+      </label>
     `;
     return `
       <form class="match-admin-form" data-match-admin-form>
@@ -4739,12 +4809,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         </label>
         <label class="match-point-field"><span>${escapeHtml(teamALabel)}</span><input type="number" name="team_a_point" min="0" max="99" value="${escapeHtml(teamAPoint)}"></label>
         <label class="match-point-field"><span>${escapeHtml(teamBLabel)}</span><input type="number" name="team_b_point" min="0" max="99" value="${escapeHtml(teamBPoint)}"></label>
-        <label class="match-team-select"><span>Peserta A</span><select name="team_a_id">${teamOptions(match.team_a_id)}</select></label>
-        <label class="match-team-select"><span>Peserta B</span><select name="team_b_id">${teamOptions(match.team_b_id)}</select></label>
-        <button type="submit">Save Jadual</button>
-        <button type="button" data-update-match-teams="${matchId}">Tukar / Swap Team</button>
-        <button type="button" class="score-save-button" data-admin-set-score="${matchId}">Admin Sahkan Point</button>
-        <button type="button" class="score-save-button" data-reopen-match="${matchId}">Buka Semula / Reset Point</button>
+        ${teamSearchField("a", "Peserta A", selectedTeamAId)}
+        ${teamSearchField("b", "Peserta B", selectedTeamBId)}
+        <div class="match-admin-actions">
+          <button type="submit">Save Jadual</button>
+          <button type="button" data-update-match-teams="${matchId}">Tukar / Swap Team</button>
+          <button type="button" class="score-save-button" data-admin-set-score="${matchId}">Admin Sahkan Point</button>
+          <button type="button" class="score-save-button" data-reopen-match="${matchId}">Buka Semula / Reset Point</button>
+        </div>
       </form>
     `;
   }
@@ -4784,7 +4856,9 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         match_time: String(data.get("match_time") || ""),
         status: String(data.get("status") || "up_next"),
         team_a_point: String(data.get("team_a_point") || ""),
-        team_b_point: String(data.get("team_b_point") || "")
+        team_b_point: String(data.get("team_b_point") || ""),
+        team_a_id: String(data.get("team_a_id") || "0"),
+        team_b_id: String(data.get("team_b_id") || "0")
       };
     });
   }
@@ -6088,6 +6162,22 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   }
 
   if (scheduleList) {
+    scheduleList.addEventListener("input", (event) => {
+      const searchInput = event.target.closest("[data-team-search]");
+      if (!searchInput) return;
+      const select = searchInput.closest(".match-team-select")?.querySelector("[data-team-select]");
+      if (!select) return;
+      const query = searchInput.value.trim().toLocaleLowerCase("ms");
+      Array.from(select.options).forEach((option) => {
+        const isPlaceholder = option.value === "0";
+        option.hidden = Boolean(query) && !isPlaceholder && !option.textContent.toLocaleLowerCase("ms").includes(query);
+      });
+      const matches = Array.from(select.options).filter((option) => option.value !== "0" && !option.hidden);
+      const exactMatch = matches.find((option) => option.textContent.trim().toLocaleLowerCase("ms") === query);
+      if (exactMatch) select.value = exactMatch.value;
+      else if (query && matches.length === 1) select.value = matches[0].value;
+    });
+
     scheduleList.addEventListener("change", (event) => {
       const poolSelect = event.target.closest('[data-random-match-form] select[name="team_pool"]');
       if (!poolSelect) return;
@@ -6109,6 +6199,12 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     scheduleList.addEventListener("change", collectScheduleDraft);
     scheduleList.addEventListener("toggle", collectScheduleOpenState, true);
     scheduleList.addEventListener("click", async (event) => {
+      const dateManagerButton = event.target.closest("[data-open-date-manager]");
+      if (dateManagerButton) {
+        event.preventDefault();
+        openDateScheduleManager(String(dateManagerButton.dataset.openDateManager || "TBD"));
+        return;
+      }
       const createRoomButton = event.target.closest("[data-schedule-match-open]");
       if (createRoomButton) {
         event.preventDefault();
@@ -6197,6 +6293,21 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         event.preventDefault();
         const form = updateTeamsButton.closest("[data-match-admin-form]");
         const matchId = Number(updateTeamsButton.dataset.updateMatchTeams || 0);
+        let unresolvedSearch = false;
+        form?.querySelectorAll("[data-team-search]").forEach((searchInput) => {
+          const query = searchInput.value.trim().toLocaleLowerCase("ms");
+          if (!query) return;
+          const select = searchInput.closest(".match-team-select")?.querySelector("[data-team-select]");
+          const visible = Array.from(select?.options || []).filter((option) => option.value !== "0" && !option.hidden);
+          const exact = visible.find((option) => option.textContent.trim().toLocaleLowerCase("ms") === query);
+          if (exact) select.value = exact.value;
+          else if (visible.length === 1) select.value = visible[0].value;
+          else unresolvedSearch = true;
+        });
+        if (unresolvedSearch) {
+          alert("Nama team masih mempunyai beberapa pilihan atau tidak dijumpai. Pilih satu team daripada dropdown dahulu.");
+          return;
+        }
         const teamAId = Number(form?.querySelector("[name='team_a_id']")?.value || 0);
         const teamBId = Number(form?.querySelector("[name='team_b_id']")?.value || 0);
         if (!matchId || (teamAId > 0 && teamAId === teamBId)) {
@@ -6214,6 +6325,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         try {
           updateTeamsButton.disabled = true;
           const result = await apiPost(data);
+          delete scheduleDraft.matches[matchId];
           setState(result);
           alert(result.message || "Peserta match berjaya ditukar.");
         } catch (error) {

@@ -1,4 +1,4 @@
-const CLASH_CACHE_VERSION = "20260814-login-point-fix-v57";
+const CLASH_CACHE_VERSION = "20260816-schedule-manager-v58";
 const CLASH_MEDIA_CACHE = `gnex-clash-media-${CLASH_CACHE_VERSION}`;
 const CLASH_API_URL = new URL("api/clash-league.php", self.location.origin + "/").href;
 const CLASH_HOME_URL = new URL("clash-league.html", self.location.origin + "/").href;

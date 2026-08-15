@@ -290,6 +290,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'updateMatch') {
     update_match($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'createManualMatch') {
+    create_manual_match($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'deleteMatch') {
+    delete_match($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'reopenMatch') {
     reopen_match($pdo);
 }
@@ -4832,7 +4840,20 @@ function get_winner_pool(PDO $pdo, ?array $admin): array
                     OR active_match.team_b_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
                 )
           )
-        ORDER BY COALESCE(m.updated_at, m.created_at) ASC, m.id ASC
+          AND NOT EXISTS (
+              SELECT 1 FROM cl_matches lost_match
+              WHERE lost_match.status = "completed"
+                AND lost_match.team_a_point IS NOT NULL AND lost_match.team_b_point IS NOT NULL
+                AND lost_match.team_a_point <> lost_match.team_b_point
+                AND (
+                    (lost_match.team_a_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                     AND lost_match.team_a_point < lost_match.team_b_point)
+                    OR
+                    (lost_match.team_b_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                     AND lost_match.team_b_point < lost_match.team_a_point)
+                )
+          )
+        ORDER BY COALESCE(m.match_time, m.updated_at, m.created_at) DESC, m.id DESC
     ');
     $teamsById = [];
     foreach ($stmt->fetchAll() as $row) {
@@ -5629,8 +5650,29 @@ function generate_random_matches(PDO $pdo): void
                   AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL
                   AND m.team_a_point IS NOT NULL AND m.team_b_point IS NOT NULL
                   AND m.team_a_point <> m.team_b_point AND a.id IS NULL
-                ORDER BY COALESCE(m.updated_at, m.created_at) ASC, m.id ASC
-                LIMIT ? FOR UPDATE
+                  AND NOT EXISTS (
+                      SELECT 1 FROM cl_matches lost_match
+                      WHERE lost_match.status = "completed"
+                        AND lost_match.team_a_point IS NOT NULL AND lost_match.team_b_point IS NOT NULL
+                        AND lost_match.team_a_point <> lost_match.team_b_point
+                        AND (
+                            (lost_match.team_a_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                             AND lost_match.team_a_point < lost_match.team_b_point)
+                            OR
+                            (lost_match.team_b_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                             AND lost_match.team_b_point < lost_match.team_a_point)
+                        )
+                  )
+                  AND NOT EXISTS (
+                      SELECT 1 FROM cl_matches active_match
+                      WHERE active_match.status IN ("up_next", "live")
+                        AND (
+                            active_match.team_a_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                            OR active_match.team_b_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                        )
+                  )
+                ORDER BY COALESCE(m.match_time, m.updated_at, m.created_at) DESC, m.id DESC
+                FOR UPDATE
             ');
         } else {
             $stmt = $pdo->prepare('
@@ -5644,14 +5686,18 @@ function generate_random_matches(PDO $pdo): void
                 LIMIT ? FOR UPDATE
             ');
         }
-        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        if ($teamPool !== 'winners') {
+            $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        }
         $stmt->execute();
         $selectedRows = $stmt->fetchAll();
         $teamIds = [];
         foreach ($selectedRows as $row) {
             $teamId = (int) $row['id'];
+            if ($teamId <= 0 || in_array($teamId, $teamIds, true)) continue;
             $teamIds[] = $teamId;
             if (!empty($row['source_match_id'])) $sourceMatchByTeam[$teamId] = (int) $row['source_match_id'];
+            if (count($teamIds) >= $limit) break;
         }
 
         if (count($teamIds) < $limit) {
@@ -5837,6 +5883,59 @@ function update_match(PDO $pdo): void
     }
 
     json_response(get_state($pdo) + ['message' => 'Match berjaya update.']);
+}
+
+function create_manual_match(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    $teamAId = max(0, (int) ($_POST['team_a_id'] ?? 0));
+    $teamBId = max(0, (int) ($_POST['team_b_id'] ?? 0));
+    $matchName = clean_text($_POST['match_name'] ?? 'Qualifier / Fasa / BO3', 120);
+    $matchTime = normalize_match_time($_POST['match_time'] ?? '');
+    if (!$teamAId || !$teamBId || $teamAId === $teamBId || $matchName === '') {
+        json_response(['ok' => false, 'message' => 'Pilih dua team berbeza dan isi nama jadual.'], 422);
+    }
+    $check = $pdo->prepare('SELECT COUNT(*) FROM cl_teams WHERE id IN (?, ?) AND status = "accepted"');
+    $check->execute([$teamAId, $teamBId]);
+    if ((int) $check->fetchColumn() !== 2) {
+        json_response(['ok' => false, 'message' => 'Kedua-dua team mesti aktif dan sudah confirm.'], 422);
+    }
+    $stageCode = '';
+    foreach (get_timeline($pdo) as $item) {
+        if (strcasecmp(trim((string) ($item['title'] ?? '')), $matchName) === 0) {
+            $stageCode = trim((string) ($item['stage_code'] ?? ''));
+            break;
+        }
+    }
+    $stmt = $pdo->prepare('INSERT INTO cl_matches (team_a_id,team_b_id,match_name,stage_code,match_time,status,updated_at) VALUES (?,?,?,?,?,"up_next",CURRENT_TIMESTAMP)');
+    $stmt->execute([$teamAId, $teamBId, $matchName, $stageCode !== '' ? $stageCode : null, $matchTime]);
+    json_response(get_state($pdo) + ['message' => 'Jadual manual berjaya ditambah.']);
+}
+
+function delete_match(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    $matchId = (int) ($_POST['match_id'] ?? 0);
+    if ($matchId <= 0) json_response(['ok' => false, 'message' => 'Match tidak valid.'], 422);
+    $stmt = $pdo->prepare('SELECT team_a_id,team_b_id,match_name FROM cl_matches WHERE id=? FOR UPDATE');
+    $pdo->beginTransaction();
+    try {
+        $stmt->execute([$matchId]);
+        $match = $stmt->fetch();
+        if (!$match) throw new RuntimeException('Jadual tidak dijumpai.');
+        $pdo->prepare('DELETE FROM cl_rooms WHERE room_type IN ("match","deal") AND match_id=?')->execute([$matchId]);
+        if (!empty($match['team_a_id']) && !empty($match['team_b_id'])) {
+            $pdo->prepare('DELETE FROM cl_rooms WHERE room_type IN ("match","deal") AND match_id IS NULL AND ((team_a_id=? AND team_b_id=?) OR (team_a_id=? AND team_b_id=?))')
+                ->execute([$match['team_a_id'], $match['team_b_id'], $match['team_b_id'], $match['team_a_id']]);
+        }
+        $pdo->prepare('UPDATE cl_match_advancements SET next_match_id=NULL WHERE next_match_id=?')->execute([$matchId]);
+        $pdo->prepare('DELETE FROM cl_matches WHERE id=?')->execute([$matchId]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        json_response(['ok' => false, 'message' => $error->getMessage()], 409);
+    }
+    json_response(get_state($pdo) + ['message' => 'Jadual berjaya dipadam.']);
 }
 
 function reopen_match(PDO $pdo): void

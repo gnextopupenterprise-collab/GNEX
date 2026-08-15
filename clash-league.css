@@ -1465,7 +1465,7 @@ grid-column:span 2;
 .match-admin-form .match-team-select select{
 width:100%;
 min-width:0;
-height:42px;
+height:36px;
 padding:0 10px;
 border:1px solid rgba(34,211,238,.3);
 border-radius:8px;
@@ -1474,24 +1474,59 @@ background:#03070d;
 color:#fff;
 font:800 11px/1 var(--font-body);
 }
+.match-admin-form .match-team-search{
+min-height:36px;
+height:36px;
+padding:0 10px;
+border-color:rgba(34,211,238,.38);
+background:rgba(5,18,28,.92);
+font-size:11px;
+}
+.match-admin-form .match-team-search::placeholder{color:#718096}
+.match-admin-form .match-team-search:focus{border-color:#67e8f9;box-shadow:0 0 0 2px rgba(34,211,238,.1)}
 .match-admin-form .match-team-select select:focus{
 border-color:#67e8f9;
 }
 .match-admin-form button{
-min-height:42px;
-padding:0 16px;
+min-height:34px;
+padding:0 11px;
 border:1px solid rgba(94,224,255,.5);
 border-radius:8px;
 background:rgba(0,0,0,.45);
 color:#7deaff;
 font-weight:900;
+font-size:9px;
+letter-spacing:.025em;
+white-space:nowrap;
 text-transform:uppercase;
 cursor:pointer;
+}
+.match-admin-actions{
+grid-column:1 / -1;
+display:flex;
+justify-content:flex-end;
+align-items:center;
+gap:7px;
+flex-wrap:wrap;
+padding-top:1px;
 }
 .match-admin-form .score-save-button{
 border-color:rgba(70,245,157,.5);
 color:#46f59d;
 }
+.date-manager-open{overflow:hidden}
+.date-schedule-manager{position:fixed;z-index:10050;inset:0;display:grid;place-items:center;padding:22px;background:rgba(0,3,8,.88);backdrop-filter:blur(10px)}
+.date-manager-shell{width:min(1380px,100%);height:min(900px,calc(100dvh - 44px));display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;border:1px solid rgba(94,224,255,.5);border-radius:18px;background:linear-gradient(145deg,#06131f,#010408 58%);box-shadow:0 30px 100px #000}
+.date-manager-shell>header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(94,224,255,.22)}
+.date-manager-shell>header small{color:#5ee0ff;font-size:9px;font-weight:950;letter-spacing:.18em}.date-manager-shell>header h2{margin:3px 0 2px;color:#fff;font-size:25px;text-transform:uppercase}.date-manager-shell>header p{margin:0;color:#8ea0b8;font-size:11px;font-weight:800}
+.date-manager-shell>header button{width:38px;height:38px;border:1px solid rgba(94,224,255,.35);border-radius:11px;background:#07111c;color:#7deaff;font-size:25px;cursor:pointer}
+.date-manager-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.72fr);min-height:0}.date-manager-grid>main,.date-manager-grid>aside{min-height:0;padding:16px;overflow:auto}.date-manager-grid>aside{border-left:1px solid rgba(94,224,255,.18);background:rgba(0,0,0,.22)}
+.date-manager-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.date-manager-heading h3{margin:0;color:#fff;font-size:14px;text-transform:uppercase}.date-manager-heading span{color:#5ee0ff;font-size:9px;font-weight:950}
+.date-manager-matches,.date-manager-teams{display:grid;gap:7px}.date-manager-matches article,.date-manager-teams article{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border:1px solid rgba(94,224,255,.18);border-radius:9px;background:rgba(0,0,0,.42)}
+.date-manager-matches article>div{min-width:0;flex:1}.date-manager-matches b{display:block;color:#fff;font-size:12px;text-transform:uppercase}.date-manager-matches b i{color:#5ee0ff;font-style:normal;margin:0 5px}.date-manager-matches small{display:block;margin-top:4px;color:#8796aa;font-size:9px;font-weight:800}.date-manager-matches button{min-height:30px;padding:0 10px;border:1px solid rgba(251,113,133,.5);border-radius:7px;background:rgba(127,29,29,.25);color:#fda4af;font-size:8px;font-weight:950;cursor:pointer}
+.date-manager-teams article img,.date-manager-teams article>.team-roster-logo{width:30px;height:30px;border-radius:50%;object-fit:cover}.date-manager-teams article b{min-width:0;flex:1;color:#fff;font-size:10px;text-transform:uppercase}.date-manager-teams article strong{display:grid;place-items:center;width:25px;height:25px;border:1px solid #334155;border-radius:50%;color:#64748b}.date-manager-teams article strong.is-scheduled{border-color:#22c55e;background:rgba(34,197,94,.15);color:#4ade80;box-shadow:0 0 16px rgba(34,197,94,.16)}
+.date-manager-add{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;align-items:end;gap:9px;padding:14px 16px;border-top:1px solid rgba(94,224,255,.22);background:#030910}.date-manager-add h3{grid-column:1/-1;margin:0 0 2px;color:#fff;font-size:12px;text-transform:uppercase}.date-manager-add label{display:grid;gap:5px;color:#62def7;font-size:8px;font-weight:950;text-transform:uppercase}.date-manager-add input,.date-manager-add select{width:100%;height:36px;padding:0 9px;border:1px solid rgba(94,224,255,.28);border-radius:8px;background:#01050a;color:#fff;font-size:10px;font-weight:800}.date-manager-add button{height:36px;padding:0 14px;border:1px solid #35e999;border-radius:8px;background:rgba(16,185,129,.13);color:#4ade80;font-size:9px;font-weight:950;white-space:nowrap;cursor:pointer}.date-manager-empty{color:#8492a6;font-size:11px}
+@media(max-width:760px){.date-schedule-manager{padding:0}.date-manager-shell{height:100dvh;border-radius:0}.date-manager-grid{grid-template-columns:1fr}.date-manager-grid>aside{border-left:0;border-top:1px solid rgba(94,224,255,.18)}.date-manager-add{grid-template-columns:1fr 1fr}.date-manager-add h3,.date-manager-add button{grid-column:1/-1}.date-manager-shell>header h2{font-size:18px}}
 .admin-schedule-groups{
 display:grid;
 gap:12px;
