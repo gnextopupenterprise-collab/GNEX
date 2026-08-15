@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260816-date-open-button-v73">
+<link rel="stylesheet" href="clash-league.css?v=20260816-manual-team-search-v74">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-date-open-button-v59";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-manual-team-search-v60";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -4604,7 +4604,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     (state.winnerPool?.teams || []).forEach((team) => teamMap.set(Number(team.team_id), {id:Number(team.team_id), team_name:team.team_name, logo_url:team.team_logo}));
     const teams = Array.from(teamMap.values()).sort((a,b) => String(a.team_name).localeCompare(String(b.team_name)));
     const accepted = state.teams.filter((team) => team.status === "accepted").sort((a,b) => String(a.team_name).localeCompare(String(b.team_name)));
-    const options = `<option value="">Pilih team</option>${accepted.map((team) => `<option value="${Number(team.id || team.team_id)}">${escapeHtml(team.team_name)}</option>`).join("")}`;
+    const teamSuggestions = accepted.map((team) => `<option value="${escapeHtml(team.team_name)}"></option>`).join("");
     const modal = document.createElement("section");
     modal.className = "date-schedule-manager";
     modal.dataset.dateManager = dateKey;
@@ -4619,7 +4619,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
             ${teams.length ? teams.map((team) => `<article>${avatarHtml(initials(team.team_name), team.logo_url, team.team_name)}<b>${escapeHtml(team.team_name)}</b><strong class="${scheduledIds.has(team.id) ? "is-scheduled" : ""}">${scheduledIds.has(team.id) ? "✓" : "—"}</strong></article>`).join("") : `<p class="date-manager-empty">Belum ada team dikesan.</p>`}
           </div></aside>
         </div>
-        <form class="date-manager-add" data-manual-match-form><h3>+ Tambah Jadual Manual</h3><label>Nama Jadual<input name="match_name" value="${escapeHtml(dateMatches[0]?.match_name || stageLabel)}" required></label><label>Tarikh / Masa<input type="datetime-local" name="match_time" value="${dateKey === "TBD" ? "" : `${dateKey}T21:30`}" required></label><label>Team A<select name="team_a_id" required>${options}</select></label><label>Team B<select name="team_b_id" required>${options}</select></label><button type="submit">TAMBAH JADUAL</button></form>
+        <form class="date-manager-add" data-manual-match-form><h3>+ Tambah Jadual Manual</h3><label>Nama Jadual<input name="match_name" value="${escapeHtml(dateMatches[0]?.match_name || stageLabel)}" required></label><label>Tarikh / Masa<input type="datetime-local" name="match_time" value="${dateKey === "TBD" ? "" : `${dateKey}T21:30`}" required></label><label>Team A<input type="search" name="team_a_name" list="manual-team-list-${dateKey}" placeholder="Cari nama team..." autocomplete="off" required></label><label>Team B<input type="search" name="team_b_name" list="manual-team-list-${dateKey}" placeholder="Cari nama team..." autocomplete="off" required></label><datalist id="manual-team-list-${dateKey}">${teamSuggestions}</datalist><button type="submit">TAMBAH JADUAL</button></form>
       </div>`;
     document.body.appendChild(modal);
     document.body.classList.add("date-manager-open");
@@ -4638,6 +4638,18 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
     modal.querySelector("[data-manual-match-form]").addEventListener("submit", async (event) => {
       event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); data.set("action", "createManualMatch");
+      const findTeam = (name) => {
+        const query = String(name || "").trim().toLocaleLowerCase("ms");
+        const exact = accepted.find((team) => String(team.team_name || "").trim().toLocaleLowerCase("ms") === query);
+        if (exact) return exact;
+        const matches = accepted.filter((team) => String(team.team_name || "").toLocaleLowerCase("ms").includes(query));
+        return matches.length === 1 ? matches[0] : null;
+      };
+      const teamA = findTeam(data.get("team_a_name"));
+      const teamB = findTeam(data.get("team_b_name"));
+      if (!teamA || !teamB) return alert("Nama team tidak tepat atau mempunyai lebih daripada satu padanan. Pilih nama penuh daripada cadangan carian.");
+      data.delete("team_a_name"); data.delete("team_b_name");
+      data.set("team_a_id", String(teamA.id || teamA.team_id)); data.set("team_b_id", String(teamB.id || teamB.team_id));
       if (data.get("team_a_id") === data.get("team_b_id")) return alert("Team A dan Team B mesti berbeza.");
       const button = form.querySelector("button");
       try { button.disabled = true; const result = await apiPost(data); close(); setState(result); alert(result.message); }
