@@ -6,7 +6,7 @@
 <meta name="description" content="GNEX Topup Store - tournament, leaderboard, bracket match and game topup hub.">
 <link rel="icon" type="image/png" sizes="64x64" href="images/20260602_004238.png">
 <link rel="apple-touch-icon" href="images/gnex-home-192.png?v=2">
-<link rel="manifest" href="manifest.webmanifest?v=3">
+<link rel="manifest" href="manifest.webmanifest?v=20260813-4">
 <meta name="theme-color" content="#02040a">
 
 <title>GNEX Center</title>
@@ -109,7 +109,7 @@ WHATSAPP
 <!-- HERO -->
 <header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-24 md:pt-24">
 <video class="hero-video" autoplay muted loop playsinline>
-<source src="videos/a95becc139495c5a04610afbdfb797c6.mp" type="video/mp4">
+<source src="videos/a95becc139495c5a04610afbdfb797c6.mp4" type="video/mp4">
 </video>
 <div class="hero-red-motion"></div>
 <div class="absolute inset-0 bg-black/55"></div>
@@ -216,7 +216,7 @@ WHATSAPP
 </div>
 </header>
 
-<nav class="bottom-app-nav" aria-label="Mobile app navigation">
+<nav class="bottom-app-nav main-bottom-nav" aria-label="Main mobile navigation">
 <button type="button" class="bottom-nav-item is-active" data-nav="home" onclick="goHome()" aria-label="Home">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <path d="m3 10.8 9-7 9 7"></path>
@@ -258,121 +258,162 @@ WHATSAPP
 </button>
 </nav>
 
-<!-- PRICE LIST -->
+<nav class="bottom-app-nav topup-bottom-nav" aria-label="GNEX Topup mobile navigation">
+<button type="button" class="bottom-nav-item" data-nav="home" onclick="goHome()" aria-label="Home">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10.8 9-7 9 7"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg>
+<span>Home</span>
+</button>
+<button type="button" class="bottom-nav-item is-active" data-nav="topup" onclick="openPriceListPanel()" aria-label="GNEX Topup">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M16 16h.01"></path></svg>
+<span>Topup</span>
+</button>
+<button type="button" class="bottom-nav-item" data-nav="ranking" onclick="openTopupRanking()" aria-label="Ranking Topup">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10"></path><path d="M12 20V4"></path><path d="M19 20v-7"></path><path d="M3 20h18"></path></svg>
+<span>Ranking Topup</span>
+</button>
+<button type="button" class="bottom-nav-item" data-nav="profile" onclick="openTopupProfile()" aria-label="Profile">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21a7.5 7.5 0 0 1 15 0"></path></svg>
+<span>Profile</span>
+<span class="profile-login-note" aria-hidden="true"><i></i> LOGIN DULU</span>
+</button>
+</nav>
+
+<!-- GNEX TOPUP CHAT -->
 <section id="price-list" class="modal-view" aria-hidden="true">
 <div class="modal-backdrop" onclick="closePriceListPanel()"></div>
-<div class="modal-panel">
-<button type="button" class="modal-close" onclick="closePriceListPanel()" aria-label="Close price list">X</button>
-<div class="price-list-shell max-w-7xl mx-auto px-6 py-16 md:py-20">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-<div>
-<p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">TOPUP STORE</p>
-<h2 class="text-3xl md:text-4xl font-black mt-2">GAME PRICE LIST</h2>
+<div class="modal-panel topup-chat-panel">
+<div class="topup-chat-shell">
+<header class="topup-chat-header">
+<button type="button" class="topup-chat-back" onclick="closePriceListPanel()" aria-label="Back to GNEX home">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<img src="images/logo baru gnex .webp" alt="GNEX Topup" class="topup-chat-avatar">
+<div class="topup-chat-identity"><strong>GNEX TOPUP</strong><span><i></i> Admin online</span></div>
+<button type="button" class="topup-chat-search-toggle" onclick="toggleChatSearch()" aria-label="Search chat" aria-expanded="false" aria-controls="topup-chat-search">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+</button>
+<div id="topup-chat-search" class="topup-chat-search" aria-hidden="true">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+<input id="topup-chat-search-input" type="search" placeholder="Cari dalam chat..." oninput="searchTopupChat(this.value)" autocomplete="off">
+<button type="button" onclick="toggleChatSearch(false)" aria-label="Close search">X</button>
 </div>
-<p class="text-zinc-500 text-sm">Fast Delivery / Trusted Seller / Easy Payment</p>
-</div>
+</header>
 
-<div class="price-card-grid grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
-<img src="images/ff-wallpaper.webp" alt="Free Fire topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500">
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
-<div class="relative z-10 h-full flex flex-col justify-between">
-<div>
-<div class="flex justify-between items-center">
-<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">FF</span>
-<img src="images/ff-logo.webp" alt="Free Fire logo" class="w-16 h-8 md:w-20 md:h-10 object-contain">
+<main id="topup-chat-messages" class="topup-chat-messages" aria-live="polite">
+<div class="chat-date-chip">Hari ini</div>
+<div class="chat-row is-admin">
+<img src="images/logo baru gnex .webp" alt="" class="chat-avatar">
+<div><div class="chat-name">GNEX Admin</div><div class="chat-bubble">Hai! Selamat datang ke GNEX Topup 👋<br>Ada apa yang kami boleh bantu?</div><time>10:52 AM</time></div>
 </div>
-<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
-<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Free Fire untuk event dan casual player.</p>
+<div class="chat-row is-admin">
+<img src="images/logo baru gnex .webp" alt="" class="chat-avatar">
+<div><div class="chat-bubble">Boleh tanya harga terus di sini atau tekan <b>LIST GAME</b> untuk lihat semua pakej topup.</div><time>10:52 AM</time></div>
 </div>
-<a href="freefire.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
-VIEW PACKAGE
+</main>
+
+<form class="topup-chat-composer" onsubmit="sendTopupMessage(event)">
+<button type="button" class="chat-attach" aria-label="Attach file">+</button>
+<input id="topup-chat-input" type="text" placeholder="Tulis mesej..." autocomplete="off" aria-label="Message GNEX admin">
+<button type="submit" class="chat-send" aria-label="Send message">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+</button>
+</form>
+
+<section id="topup-ranking-view" class="topup-ranking-view" aria-hidden="true">
+<header class="topup-ranking-header">
+<button type="button" onclick="closeTopupRanking()" aria-label="Back to chat">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<div><span>GNEX TOPUP</span><h2>RANKING TOPUP</h2></div>
+</header>
+<div class="topup-ranking-content">
+<p class="topup-ranking-kicker">PILIH GAME</p>
+<h3>Lihat ranking customer</h3>
+<p class="topup-ranking-copy">Pilih game untuk melihat ranking customer berdasarkan jumlah topup.</p>
+<div class="topup-ranking-games">
+<a href="freefire.html?ranking=1" class="topup-ranking-game">
+<img src="images/ff-wallpaper.webp" alt=""><span class="topup-ranking-game-shade"></span>
+<div><img src="images/ff-logo.webp" alt="Free Fire"><strong>FREE FIRE</strong><small>Lihat ranking</small></div>
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m9 18 6-6-6-6"></path></svg>
 </a>
-</div>
-</article>
-
-<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
-<img src="images/ml-wallpaper.webp" alt="Mobile Legends topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 20%;">
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
-<div class="relative z-10 h-full flex flex-col justify-between">
-<div>
-<div class="flex justify-between items-center">
-<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">MLBB</span>
-<img src="images/logo-ml.webp" alt="Mobile Legends logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
-</div>
-<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
-<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Mobile Legends dengan seller GNEX.</p>
-</div>
-<a href="mlbb.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
-VIEW PACKAGE
+<a href="mlbb.html?ranking=1" class="topup-ranking-game">
+<img src="images/ml-wallpaper.webp" alt=""><span class="topup-ranking-game-shade"></span>
+<div><img src="images/logo-ml.webp" alt="Mobile Legends"><strong>MOBILE LEGENDS</strong><small>Lihat ranking</small></div>
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m9 18 6-6-6-6"></path></svg>
 </a>
+<div class="topup-ranking-game is-disabled" aria-disabled="true">
+<img src="images/pubg-wallpaper.webp" alt=""><span class="topup-ranking-game-shade"></span>
+<div><img src="images/pubg-logo.webp" alt="PUBG Mobile"><strong>PUBG MOBILE</strong><small>Ranking belum tersedia</small></div>
+<span class="topup-ranking-soon">SOON</span>
 </div>
-</article>
+</div>
+</div>
+</section>
 
-<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
-<img src="images/pubg-wallpaper.webp" alt="PUBG topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 60%;">
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
-<div class="relative z-10 h-full flex flex-col justify-between">
-<div>
-<div class="flex justify-between items-center">
-<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">PUBG</span>
-<img src="images/pubg-logo.webp" alt="PUBG logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
-</div>
-<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">UC</h3>
-<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup PUBG UC dengan checkout WhatsApp GNEX.</p>
-</div>
-<a href="pubg.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
-VIEW PACKAGE
-</a>
-</div>
-</article>
+<section id="topup-profile-view" class="topup-profile-view" aria-hidden="true">
+<header class="topup-profile-header">
+<button type="button" onclick="closeTopupProfile()" aria-label="Back to chat">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<div><span>GNEX TOPUP</span><h2>PROFILE</h2></div>
+</header>
+<div class="topup-profile-content">
+<div id="topup-auth-card" class="topup-auth-card is-login-mode">
+<aside class="topup-auth-welcome">
+<img src="images/logo baru gnex .webp" alt="GNEX logo">
+<p class="topup-auth-eyebrow">GNEX PLAYER ACCOUNT</p>
+<h3 class="login-welcome-copy">Welcome back!</h3>
+<h3 class="register-welcome-copy">Hello, player!</h3>
+<p class="login-welcome-copy">Belum ada akaun? Daftar untuk simpan rekod topup dan lihat ranking anda.</p>
+<p class="register-welcome-copy">Sudah ada akaun? Login semula untuk teruskan perjalanan anda bersama GNEX.</p>
+<button type="button" class="login-welcome-copy" onclick="selectProfileCard('register')">REGISTER</button>
+<button type="button" class="register-welcome-copy" onclick="selectProfileCard('login')">LOGIN</button>
+</aside>
 
-<article class="game-card roblox-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition">
-<div class="absolute inset-0 roblox-card-bg"></div>
-<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
-<div class="relative z-10 h-full flex flex-col justify-between">
-<div>
-<div class="flex justify-between items-center">
-<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">RBX</span>
-<span class="text-zinc-100 font-black tracking-[0.18em] text-xs md:text-sm">ROBLOX</span>
-</div>
-<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Robux</h3>
-<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Roblox topup akan dibuka tidak lama lagi.</p>
-</div>
-<a href="#" onclick="return false" aria-disabled="true" class="w-full text-center bg-cyan-400 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20 pointer-events-none opacity-80">
-COMING SOON
-</a>
-</div>
-</article>
+<div class="topup-auth-form-side">
+<div class="topup-auth-mobile-tabs" role="tablist" aria-label="Account access">
+<button type="button" class="is-active" data-auth-tab="login" onclick="selectProfileCard('login')">LOGIN</button>
+<button type="button" data-auth-tab="register" onclick="selectProfileCard('register')">REGISTER</button>
 </div>
 
-<a href="jersey.html" class="price-jersey-card group mt-6 grid lg:grid-cols-[1fr_0.85fr] overflow-hidden rounded-lg border border-cyan-500/50 bg-black hover:border-cyan-300 transition">
-<div class="relative min-h-[280px] p-6 md:p-8 flex flex-col justify-between">
-<div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.webp')] bg-cover bg-center"></div>
-<div class="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25"></div>
+<form class="topup-auth-form is-login-form" onsubmit="submitTopupLogin(event)">
+<p>WELCOME TO GNEX</p>
+<h3>Login Account</h3>
+<span>Masukkan maklumat akaun anda.</span>
+<label><small>Email atau nombor telefon</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="m4 7 8 6 8-6"></path></svg><input name="login_id" type="text" placeholder="Masukkan email atau nombor" required></div></label>
+<label><small>Password</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input name="password" type="password" placeholder="Masukkan password" required></div></label>
+<div class="topup-auth-options"><label><input type="checkbox"> Ingat saya</label><button type="button">Lupa password?</button></div>
+<button type="submit" class="topup-auth-submit">LOGIN</button>
+<p class="topup-auth-switch">Belum ada akaun? <button type="button" onclick="selectProfileCard('register')">Register</button></p>
+</form>
 
-<div class="relative z-10">
-<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">OFFICIAL MERCH</p>
-<h3 class="text-4xl md:text-5xl font-black mt-3 leading-none">
-GNEX OFFICIAL <span class="text-cyan-300">JERSEY</span>
-</h3>
-<p class="text-zinc-300 max-w-xl mt-4 leading-relaxed">
-Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
-</p>
+<form class="topup-auth-form is-register-form" onsubmit="submitTopupRegister(event)">
+<p>JOIN GNEX</p>
+<h3>Create Account</h3>
+<span>Daftar akaun player GNEX anda.</span>
+<label><small>Nama player</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg><input name="name" type="text" placeholder="Masukkan nama player" required></div></label>
+<label><small>Email atau nombor telefon</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="m4 7 8 6 8-6"></path></svg><input name="login_id" type="text" placeholder="Masukkan email atau nombor" required></div></label>
+<label><small>Password</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input name="password" type="password" minlength="8" placeholder="Cipta password minimum 8 aksara" required></div></label>
+<button type="submit" class="topup-auth-submit">CREATE ACCOUNT</button>
+<p class="topup-auth-switch">Sudah ada akaun? <button type="button" onclick="selectProfileCard('login')">Login</button></p>
+</form>
+<p id="topup-auth-status" class="topup-auth-status" role="status"></p>
 </div>
+</div>
+</div>
+</section>
 
-<div class="relative z-10 flex flex-wrap gap-3 mt-8">
-<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">RM65</span>
-<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">XS - XL</span>
-<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">ORDER NOW</span>
+<div class="game-list-fab-wrap">
+<div id="game-list-menu" class="game-list-menu" aria-hidden="true">
+<a href="freefire.html"><img src="images/ff-logo.webp" alt="">Free Fire</a>
+<a href="mlbb.html"><img src="images/logo-ml.webp" alt="">Mobile Legends</a>
+<a href="pubg.html"><img src="images/pubg-logo.webp" alt="">PUBG Mobile</a>
 </div>
+<button id="game-list-toggle" type="button" class="game-list-toggle" onclick="toggleGameList()" aria-expanded="false" aria-controls="game-list-menu">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="5" width="16" height="14" rx="3"></rect><path d="M8 9h8M8 13h5M16 16h.01"></path></svg>
+<span>LIST GAME</span>
+</button>
 </div>
-
-<div class="relative min-h-[280px] bg-zinc-950 overflow-hidden">
-<img src="images/jersey/jersey-size-chart.webp" alt="GNEX jersey front and back" class="absolute inset-0 w-full h-full object-cover object-top opacity-90 group-hover:scale-105 transition duration-500">
-<div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/40"></div>
-</div>
-</a>
 </div>
 </div>
 </section>
@@ -550,9 +591,90 @@ if(priceList && priceList.classList.contains("is-open")){
 priceList.classList.remove("is-open");
 priceList.setAttribute("aria-hidden", "true");
 document.body.classList.remove("modal-open");
+document.body.classList.remove("topup-chat-open");
 }
+
 setBottomNavActive("home");
 window.scrollTo({top:0, behavior:"smooth"});
+}
+
+let topupApiState = {csrf:"", customer:null, lastMessageId:0};
+
+async function loadTopupState(){
+try{
+const response = await fetch("api/topup.php?action=state", {credentials:"same-origin"});
+const data = await response.json();
+if(!response.ok || !data.ok) throw new Error(data.message || "API tidak tersedia.");
+topupApiState.csrf = data.csrf || topupApiState.csrf;
+topupApiState.customer = data.customer || null;
+document.body.classList.toggle("topup-user-logged-in", Boolean(data.customer));
+if(data.customer){
+try{ localStorage.setItem("gnex_topup_user", data.customer.name || "customer"); }catch(error){}
+}else{
+try{ localStorage.removeItem("gnex_topup_user"); }catch(error){}
+}
+return data;
+}catch(error){
+document.body.classList.remove("topup-user-logged-in");
+return null;
+}
+}
+
+function updateTopupLoginPrompt(){
+loadTopupState();
+}
+
+async function postTopup(action, payload){
+if(!topupApiState.csrf) await loadTopupState();
+const response = await fetch(`api/topup.php?action=${encodeURIComponent(action)}`, {
+method:"POST",
+credentials:"same-origin",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({...payload, csrf:topupApiState.csrf})
+});
+const data = await response.json();
+if(data.csrf) topupApiState.csrf = data.csrf;
+if(!response.ok || !data.ok) throw new Error(data.message || "Permintaan gagal.");
+return data;
+}
+
+function setTopupAuthStatus(message, isError = false){
+const status = document.getElementById("topup-auth-status");
+if(!status) return;
+status.textContent = message;
+status.classList.toggle("is-error", isError);
+}
+
+async function submitTopupLogin(event){
+event.preventDefault();
+const form = event.currentTarget;
+const button = form.querySelector("[type=submit]");
+button.disabled = true;
+setTopupAuthStatus("Sedang login...");
+try{
+const data = await postTopup("login", Object.fromEntries(new FormData(form)));
+topupApiState.customer = data.customer;
+document.body.classList.add("topup-user-logged-in");
+try{ localStorage.setItem("gnex_topup_user", data.customer.name); }catch(error){}
+setTopupAuthStatus(`Selamat kembali, ${data.customer.name}.`);
+}catch(error){ setTopupAuthStatus(error.message, true); }
+button.disabled = false;
+}
+
+async function submitTopupRegister(event){
+event.preventDefault();
+const form = event.currentTarget;
+const button = form.querySelector("[type=submit]");
+button.disabled = true;
+setTopupAuthStatus("Sedang mencipta akaun...");
+try{
+const data = await postTopup("register", Object.fromEntries(new FormData(form)));
+topupApiState.customer = data.customer;
+document.body.classList.add("topup-user-logged-in");
+try{ localStorage.setItem("gnex_topup_user", data.customer.name); }catch(error){}
+setTopupAuthStatus(`Akaun ${data.customer.name} berjaya dicipta.`);
+}catch(error){ setTopupAuthStatus(error.message, true); }
+button.disabled = false;
 }
 
 function goSection(sectionId){
@@ -561,6 +683,7 @@ if(priceList && priceList.classList.contains("is-open")){
 priceList.classList.remove("is-open");
 priceList.setAttribute("aria-hidden", "true");
 document.body.classList.remove("modal-open");
+document.body.classList.remove("topup-chat-open");
 }
 if(sectionId === "support"){
 setBottomNavActive("support");
@@ -578,18 +701,131 @@ setBottomNavActive("topup");
 priceList.classList.add("is-open");
 priceList.setAttribute("aria-hidden", "false");
 document.body.classList.add("modal-open");
+document.body.classList.add("topup-chat-open");
+updateTopupLoginPrompt();
+closeTopupRanking(false);
+closeTopupProfile(false);
 
-setTimeout(() => {
-const cards = document.querySelectorAll(".game-card");
-
-cards.forEach((card,index) => {
-card.classList.remove("animate-card");
-
-setTimeout(() => {
-card.classList.add("animate-card");
-}, index * 120);
+requestAnimationFrame(() => {
+const messages = document.getElementById("topup-chat-messages");
+if(messages) messages.scrollTop = messages.scrollHeight;
 });
-}, 400);
+}
+
+function openTopupRanking(){
+const ranking = document.getElementById("topup-ranking-view");
+if(!ranking) return;
+closeTopupProfile(false);
+ranking.classList.add("is-open");
+ranking.setAttribute("aria-hidden", "false");
+setBottomNavActive("ranking");
+toggleGameList(false);
+}
+
+function closeTopupRanking(restoreNav = true){
+const ranking = document.getElementById("topup-ranking-view");
+if(!ranking) return;
+ranking.classList.remove("is-open");
+ranking.setAttribute("aria-hidden", "true");
+if(restoreNav) setBottomNavActive("topup");
+}
+
+function openTopupProfile(){
+const profile = document.getElementById("topup-profile-view");
+if(!profile) return;
+closeTopupRanking(false);
+profile.classList.add("is-open");
+profile.setAttribute("aria-hidden", "false");
+setBottomNavActive("profile");
+toggleGameList(false);
+}
+
+function closeTopupProfile(restoreNav = true){
+const profile = document.getElementById("topup-profile-view");
+if(!profile) return;
+profile.classList.remove("is-open");
+profile.setAttribute("aria-hidden", "true");
+if(restoreNav) setBottomNavActive("topup");
+}
+
+function selectProfileCard(type){
+const authCard = document.getElementById("topup-auth-card");
+if(!authCard) return;
+authCard.classList.toggle("is-login-mode", type === "login");
+authCard.classList.toggle("is-register-mode", type === "register");
+authCard.querySelectorAll("[data-auth-tab]").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.authTab === type));
+}
+
+function toggleChatSearch(forceState){
+const search = document.getElementById("topup-chat-search");
+const toggle = document.querySelector(".topup-chat-search-toggle");
+const input = document.getElementById("topup-chat-search-input");
+if(!search || !toggle || !input) return;
+
+const shouldOpen = typeof forceState === "boolean" ? forceState : !search.classList.contains("is-open");
+search.classList.toggle("is-open", shouldOpen);
+search.setAttribute("aria-hidden", String(!shouldOpen));
+toggle.setAttribute("aria-expanded", String(shouldOpen));
+if(shouldOpen){
+setTimeout(() => input.focus(), 80);
+}else{
+input.value = "";
+searchTopupChat("");
+}
+}
+
+function searchTopupChat(query){
+const keyword = query.trim().toLowerCase();
+document.querySelectorAll("#topup-chat-messages .chat-row").forEach((row) => {
+const matches = !keyword || row.textContent.toLowerCase().includes(keyword);
+row.classList.toggle("is-search-hidden", !matches);
+});
+}
+
+function toggleGameList(forceState){
+const menu = document.getElementById("game-list-menu");
+const toggle = document.getElementById("game-list-toggle");
+if(!menu || !toggle) return;
+
+const shouldOpen = typeof forceState === "boolean" ? forceState : !menu.classList.contains("is-open");
+menu.classList.toggle("is-open", shouldOpen);
+menu.setAttribute("aria-hidden", String(!shouldOpen));
+toggle.setAttribute("aria-expanded", String(shouldOpen));
+}
+
+async function sendTopupMessage(event){
+event.preventDefault();
+const input = document.getElementById("topup-chat-input");
+const messages = document.getElementById("topup-chat-messages");
+if(!input || !messages) return;
+
+const message = input.value.trim();
+if(!message) return;
+
+input.disabled = true;
+try{
+await postTopup("sendMessage", {body:message});
+}catch(error){
+input.disabled = false;
+input.focus();
+return;
+}
+
+const row = document.createElement("div");
+row.className = "chat-row is-user";
+const body = document.createElement("div");
+const bubble = document.createElement("div");
+const time = document.createElement("time");
+bubble.className = "chat-bubble";
+bubble.textContent = message;
+time.textContent = new Intl.DateTimeFormat("en-MY", {hour:"numeric", minute:"2-digit"}).format(new Date());
+body.append(bubble, time);
+row.appendChild(body);
+messages.appendChild(row);
+input.value = "";
+input.disabled = false;
+input.focus();
+messages.scrollTo({top:messages.scrollHeight, behavior:"smooth"});
 }
 
 function closePriceListPanel(){
@@ -599,6 +835,11 @@ if(!priceList) return;
 priceList.classList.remove("is-open");
 priceList.setAttribute("aria-hidden", "true");
 document.body.classList.remove("modal-open");
+document.body.classList.remove("topup-chat-open");
+toggleGameList(false);
+toggleChatSearch(false);
+closeTopupRanking(false);
+closeTopupProfile(false);
 setBottomNavActive("home");
 }
 
@@ -772,9 +1013,13 @@ window.location.href = targetUrl;
 }
 
 window.addEventListener("load", () => {
+updateTopupLoginPrompt();
 const params = new URLSearchParams(window.location.search);
 if(params.get("topup") === "1" || window.location.hash === "#price-list"){
 openPriceListPanel();
+if(params.get("view") === "ranking"){
+openTopupRanking();
+}
 }
 });
 

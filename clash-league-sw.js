@@ -1,4 +1,4 @@
-const CLASH_CACHE_VERSION = "20260731-notification-v2";
+const CLASH_CACHE_VERSION = "20260814-login-point-fix-v57";
 const CLASH_MEDIA_CACHE = `gnex-clash-media-${CLASH_CACHE_VERSION}`;
 const CLASH_API_URL = new URL("api/clash-league.php", self.location.origin + "/").href;
 const CLASH_HOME_URL = new URL("clash-league.html", self.location.origin + "/").href;
@@ -10,7 +10,9 @@ const CLASH_MEDIA_ASSETS = [
   "images/clash-league-tour-poster.png?v=20260726-2",
   "images/clash-league-icon-192.png?v=20260726",
   "images/clash-league-icon-512.png?v=20260726",
-  "images/question-chat-profile.png?v=20260726-2"
+  "images/question-chat-profile.png?v=20260726-2",
+  "images/topup-ff-ml-banner.png?v=20260807c",
+  "images/horizon-studio-banner.jpg?v=20260807c"
 ].map((path) => new URL(path, self.location.origin + "/").href);
 
 self.addEventListener("install", (event) => {
@@ -39,6 +41,11 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Safari/iOS tidak membenarkan navigation response daripada service worker
+  // yang melalui redirect (contohnya /order-record -> /order-record/).
+  // Biarkan browser mengurus semua page navigation terus melalui network.
+  if (request.mode === "navigate" || request.destination === "document") return;
 
   const isImageRequest = request.destination === "image"
     || /\.(?:avif|gif|jpe?g|png|svg|webp)$/i.test(url.pathname);

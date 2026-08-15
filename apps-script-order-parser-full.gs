@@ -13,6 +13,78 @@
   - Pending ID/code hanya dipair kalau mesej dekat dari segi timestamp.
   - Combo membership tanpa payment default ke Digi: FDC.
 */
+// Samakan token ini dengan order-record-sheet-config.php sebelum deploy Web App.
+var ORDER_WEB_TOKEN = "gnex-order-2026-9f4d2c7a81e6b350";
+
+// Public read endpoint for the Order Record page. This replaces the fragile
+// "Publish to web" CSV URL, which changes whenever publishing is disabled.
+function doGet(e) {
+  try {
+    var action = String((e && e.parameter && e.parameter.action) || "");
+    if (action !== "readOrders") return orderWebJson_({ok:false,message:"Action tidak sah"});
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var recordSheet = ss.getSheetByName("RecordOrder");
+    if (!recordSheet) throw new Error('Sheet "RecordOrder" tak jumpa.');
+
+    // The daily tab is identified by its stable gid, so renaming the tab is safe.
+    var dailySheet = ss.getSheets().filter(function (sheet) {
+      return sheet.getSheetId() === 357721629;
+    })[0] || null;
+
+    return orderWebJson_({
+      ok: true,
+      all_rows: orderWebSheetValues_(recordSheet),
+      daily_rows: dailySheet ? orderWebSheetValues_(dailySheet) : [],
+      all_live: true,
+      daily_live: !!dailySheet
+    });
+  } catch (error) {
+    return orderWebJson_({ok:false,message:error.message || String(error)});
+  }
+}
+
+function orderWebSheetValues_(sheet) {
+  var lastRow = sheet.getLastRow();
+  var lastColumn = sheet.getLastColumn();
+  if (!lastRow || !lastColumn) return [];
+  return sheet.getRange(1, 1, lastRow, lastColumn).getDisplayValues();
+}
+
+function doPost(e) {
+  try {
+    var payload = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    // Keep the deployed endpoint self-contained. Some earlier deployments only
+    // copied the web-handler functions and therefore missed the global variable.
+    var expectedToken = "gnex-order-2026-9f4d2c7a81e6b350";
+    if (!payload || payload.token !== expectedToken) return orderWebJson_({ok:false,message:"Unauthorized"});
+    if (payload.action !== "appendOrder") return orderWebJson_({ok:false,message:"Action tidak sah"});
+    var id = String(payload.id || "").trim();
+    var code = String(payload.code || "").trim().toUpperCase();
+    if (!id || !code) return orderWebJson_({ok:false,message:"ID dan code wajib ada"});
+    // Jangan tunggu ScriptLock di sini. Trigger processPendingOrders boleh
+    // memegang lock agak lama dan menyebabkan permintaan web tamat selepas 30s.
+    // getNextRecordOrderRow memilih baris kosong sebelum data ditulis terus.
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("RecordOrder");
+    if (!sheet) throw new Error('Sheet "RecordOrder" tak jumpa.');
+    var row = getNextRecordOrderRow(sheet);
+    var now = new Date();
+    sheet.getRange(row, 3, 1, 2).setValues([[id, code]]);
+    sheet.getRange(row, 11, 1, 2).setValues([[
+      Utilities.formatDate(now, Session.getScriptTimeZone(), "HH:mm:ss"),
+      Utilities.formatDate(now, Session.getScriptTimeZone(), "M/d/yyyy")
+    ]]);
+    processCodeItem(row, code);
+    return orderWebJson_({ok:true,row:row,id:id,code:code});
+  } catch (error) {
+    return orderWebJson_({ok:false,message:error.message || String(error)});
+  }
+}
+
+function orderWebJson_(value) {
+  return ContentService.createTextOutput(JSON.stringify(value)).setMimeType(ContentService.MimeType.JSON);
+}
+
 function onEdit(e) {
   if (!e || typeof e.value === "undefined") return;
 
@@ -59,15 +131,15 @@ function processPendingOrders() {
     var lastRow = recordSheet.getLastRow();
     if (lastRow < 2) return;
 
-    var values = recordSheet.getRange(2, 1, lastRow - 1, 13).getValues();
+    var values = recordSheet.getRange(2, 1, lastRow - 1, 14).getValues();
 
     for (var i = 0; i < values.length; i++) {
       var row = i + 2;
       var id = values[i][2];       // C
       var code = values[i][3];     // D
-      var masa = values[i][9];     // J
-      var tarikh = values[i][10];  // K
-      var status = String(values[i][12] || "").toLowerCase().trim(); // M
+      var masa = values[i][10];    // K
+      var tarikh = values[i][11];  // L
+      var status = String(values[i][13] || "").toLowerCase().trim(); // N
 
       if (!id || !code || !masa || !tarikh) continue;
       if (status === "successful") continue;
@@ -91,45 +163,57 @@ function processCodeItem(row, codeItem) {
 
   codeItem = String(codeItem || "").trim().toUpperCase();
 
-  var data = tableSheet.getDataRange().getValues();
-
-  for (var i = 1; i < data.length; i++) {
-    var tableCode = String(data[i][4] || "").trim().toUpperCase();
-
-    if (tableCode === codeItem) {
-      var jumlahPembelian = data[i][2];
-      var jenisPembayaran = data[i][0];
-      var jenisItem = data[i][1];
-      var membership = data[i][5];
-      var modal = data[i][6];
-
-      recordSheet.getRange(row, 5, 1, 5).setValues([[
-        jumlahPembelian,
-        jenisPembayaran,
-        jenisItem,
-        membership,
-        modal
-      ]]);
-
-      var rowValues = recordSheet.getRange(row, 1, 1, 11).getDisplayValues()[0];
-
-      processKeuntungan(
-        row,
-        rowValues,
-        jumlahPembelian,
-        jenisPembayaran,
-        jenisItem,
-        membership
-      );
-
-      return;
-    }
+  var lastTableRow = tableSheet.getLastRow();
+  if (lastTableRow < 2) {
+    recordSheet.getRange(row, 14).setValue("failed").setFontColor("red");
+    return;
   }
 
-  recordSheet.getRange(row, 13).setValue("failed").setFontColor("red");
+  // Cari code tepat dalam column E sahaja. Ini jauh lebih ringan daripada
+  // memuatkan keseluruhan KeuntunganTable bagi setiap order.
+  var codeCell = tableSheet
+    .getRange(2, 5, lastTableRow - 1, 1)
+    .createTextFinder(codeItem)
+    .matchCase(false)
+    .matchEntireCell(true)
+    .findNext();
+
+  if (codeCell) {
+    var data = tableSheet.getRange(codeCell.getRow(), 1, 1, 7).getValues()[0];
+    var jumlahPembelian = data[2];
+    var jenisPembayaran = data[0];
+    var jenisItem = data[1];
+    var profitValue = data[3];
+    var membership = data[5];
+    var modal = data[6];
+
+    // E hingga J ditulis sekali, termasuk keuntungan di column J.
+    recordSheet.getRange(row, 5, 1, 6).setValues([[
+      jumlahPembelian,
+      jenisPembayaran,
+      jenisItem,
+      membership,
+      modal,
+      Number(profitValue)
+    ]]);
+
+    var rowValues = recordSheet.getRange(row, 1, 1, 12).getDisplayValues()[0];
+    processKeuntungan(
+      row,
+      rowValues,
+      jumlahPembelian,
+      jenisPembayaran,
+      jenisItem,
+      membership,
+      profitValue
+    );
+    return;
+  }
+
+  recordSheet.getRange(row, 14).setValue("failed").setFontColor("red");
 }
 
-function processKeuntungan(row, rowValues, jumlahPembelian, jenisPembayaran, jenisItem, membership) {
+function processKeuntungan(row, rowValues, jumlahPembelian, jenisPembayaran, jenisItem, membership, knownProfitValue) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var profitSheet = ss.getSheetByName("Keuntungan");
   var recordSheet = ss.getSheetByName("RecordOrder");
@@ -138,22 +222,19 @@ function processKeuntungan(row, rowValues, jumlahPembelian, jenisPembayaran, jen
 
   var numberSiri = rowValues[0];
   var idCustomer = rowValues[2];
-  var masa = rowValues[9];
-  var tarikh = rowValues[10];
+  var masa = rowValues[10];
+  var tarikh = rowValues[11];
 
-  if (isDuplicateEntry(numberSiri, idCustomer, tarikh, masa)) {
-    recordSheet.getRange(row, 13).setValue("successful").setFontColor("blue");
-    return;
-  }
-
-  var profitValue = getProfitFromTable(
-    jumlahPembelian,
-    jenisPembayaran,
-    jenisItem,
-    membership
-  );
+  var profitValue = typeof knownProfitValue !== "undefined"
+    ? knownProfitValue
+    : getProfitFromTable(jumlahPembelian, jenisPembayaran, jenisItem, membership);
 
   if (profitValue !== null) {
+    if (isDuplicateEntry(numberSiri, idCustomer, tarikh, masa)) {
+      recordSheet.getRange(row, 14).setValue("successful").setFontColor("blue");
+      return;
+    }
+
     profitSheet.appendRow([
       numberSiri,
       tarikh,
@@ -167,30 +248,27 @@ function processKeuntungan(row, rowValues, jumlahPembelian, jenisPembayaran, jen
       membership
     ]);
 
-    recordSheet.getRange(row, 13).setValue("successful").setFontColor("blue");
+    recordSheet.getRange(row, 14).setValue("successful").setFontColor("blue");
   } else {
-    recordSheet.getRange(row, 13).setValue("failed").setFontColor("red");
+    recordSheet.getRange(row, 14).setValue("failed").setFontColor("red");
   }
 }
 
 function isDuplicateEntry(numberSiri, idCustomer, tarikh, masa) {
   var profitSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Keuntungan");
   if (!profitSheet) return false;
+  var serial = String(numberSiri || "").trim();
+  var lastRow = profitSheet.getLastRow();
+  if (!serial || lastRow < 2) return false;
 
-  var data = profitSheet.getDataRange().getDisplayValues();
-
-  for (var i = 1; i < data.length; i++) {
-    if (
-      String(data[i][0]).trim() == String(numberSiri).trim() &&
-      String(data[i][1]).trim() == String(tarikh).trim() &&
-      String(data[i][2]).trim() == String(masa).trim() &&
-      String(data[i][3]).trim() == String(idCustomer).trim()
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  // S/N adalah unik. Cari satu cell tepat di column A tanpa memindahkan lebih
+  // 12,000 baris Keuntungan ke memori pada setiap klik PROSES.
+  return profitSheet
+    .getRange(2, 1, lastRow - 1, 1)
+    .createTextFinder(serial)
+    .matchCase(false)
+    .matchEntireCell(true)
+    .findNext() !== null;
 }
 
 function getProfitFromTable(jumlahPembelian, jenisPembayaran, jenisItem, membership) {
@@ -296,7 +374,7 @@ function processPasteOrder() {
         "",
         order.id,
         order.code,
-        "", "", "", "", "",
+        "", "", "", "", "", "",
         order.time,
         order.date,
         "",
@@ -304,7 +382,7 @@ function processPasteOrder() {
       ];
     });
 
-    recordSheet.getRange(startRow, 2, rows.length, 12).setValues(rows);
+    recordSheet.getRange(startRow, 2, rows.length, 13).setValues(rows);
     SpreadsheetApp.flush();
 
     processPendingOrders();
@@ -1383,7 +1461,7 @@ function applyIndoSuffixToCodes(codes, text) {
 
 function getNextRecordOrderRow(recordSheet) {
   var maxRows = recordSheet.getMaxRows();
-  var values = recordSheet.getRange(2, 2, maxRows - 1, 12).getDisplayValues();
+  var values = recordSheet.getRange(2, 2, maxRows - 1, 13).getDisplayValues();
   var lastUsed = 1;
 
   for (var i = 0; i < values.length; i++) {
@@ -1401,7 +1479,7 @@ function countExistingPasteOrder(recordSheet, order) {
   var lastRow = recordSheet.getLastRow();
   if (lastRow < 2) return 0;
 
-  var data = recordSheet.getRange(2, 3, lastRow - 1, 9).getDisplayValues();
+  var data = recordSheet.getRange(2, 3, lastRow - 1, 10).getDisplayValues();
 
   var targetId = String(order.id || "").trim();
   var targetCode = String(order.code || "").trim().toUpperCase();
@@ -1413,8 +1491,8 @@ function countExistingPasteOrder(recordSheet, order) {
   for (var i = 0; i < data.length; i++) {
     var id = String(data[i][0] || "").trim();
     var code = String(data[i][1] || "").trim().toUpperCase();
-    var time = String(data[i][7] || "").trim();
-    var date = String(data[i][8] || "").trim();
+    var time = String(data[i][8] || "").trim();
+    var date = String(data[i][9] || "").trim();
 
     if (
       id === targetId &&

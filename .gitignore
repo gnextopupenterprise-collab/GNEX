@@ -1,1 +1,6 @@
 scrim-db-config.php
+scrim-password-config.php
+api/analytics-config.php
+.vscode/sftp.json
+data/sessions/*
+!data/sessions/.gitkeep

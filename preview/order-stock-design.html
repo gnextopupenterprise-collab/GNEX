@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3f7fc">
+  <title>GNEX — Kiraan Stok</title>
+  <link rel="stylesheet" href="order-stock-design.css">
+</head>
+<body>
+  <main class="stock-app">
+    <header class="topbar">
+      <button class="back" type="button" aria-label="Kembali">←</button>
+      <div class="brand">
+        <h1>Order Record</h1>
+        <p>Kiraan dan laporan baki stok</p>
+      </div>
+      <span class="live"><i></i> LIVE</span>
+    </header>
+
+    <section class="content">
+      <div class="page-title">
+        <div>
+          <span class="eyebrow">STOK SEMASA</span>
+          <h2>Kiraan Stok</h2>
+          <p>Semak penggunaan shell dan modal web.</p>
+        </div>
+        <button class="date-button" type="button"><span>10</span>AUG</button>
+      </div>
+
+      <section class="headline-grid" aria-label="Ringkasan stok">
+        <article class="headline shell">
+          <div class="headline-icon">◆</div>
+          <div><small>GAR​ENA SHELL</small><strong>859</strong><p>Baki fizikal semasa</p></div>
+        </article>
+        <article class="headline web">
+          <div class="headline-icon">RM</div>
+          <div><small>MODAL WEB</small><strong>RM554.00</strong><p>Baki duit semasa</p></div>
+        </article>
+      </section>
+
+      <section class="status-card danger">
+        <div><span>!</span><div><small>PERBEZAAN STOK</small><b>Tak cukup 25,752 shell</b></div></div>
+        <button type="button">SEMAK</button>
+      </section>
+
+      <section class="ledger-grid">
+        <article class="ledger-card">
+          <header><div><span class="dot blue"></span><h3>Garena Shell</h3></div><button type="button">EDIT</button></header>
+          <div class="ledger-list">
+            <div><span>Stok awal</span><b>2,297</b></div>
+            <div class="positive"><span>Tambah stok</span><b>+ 0</b></div>
+            <div class="negative"><span>Digunakan</span><b>− 27,190</b></div>
+            <div class="book"><span>Baki sistem</span><b>−24,893</b></div>
+          </div>
+          <div class="actual"><div><small>SHELL SEBENAR</small><strong>859</strong></div><button type="button">KEMAS KINI</button></div>
+        </article>
+
+        <article class="ledger-card">
+          <header><div><span class="dot green"></span><h3>Modal Web</h3></div><button type="button">EDIT</button></header>
+          <div class="ledger-list">
+            <div><span>Modal awal</span><b>RM444.21</b></div>
+            <div class="positive"><span>Tambah modal</span><b>+ RM0.00</b></div>
+            <div class="negative"><span>Digunakan</span><b>− RM3,866.30</b></div>
+            <div class="book"><span>Baki sistem</span><b>−RM3,422.09</b></div>
+          </div>
+          <div class="actual"><div><small>RM SEBENAR</small><strong>RM554.00</strong></div><button type="button">KEMAS KINI</button></div>
+        </article>
+      </section>
+
+      <section class="wallet-section">
+        <div class="section-heading"><div><span class="eyebrow">PECAHAN BAKI</span><h3>Akaun & SIM</h3></div><button type="button">+ LAPOR BAKI</button></div>
+        <div class="wallet-grid">
+          <article><span class="wallet-mark tng">T1</span><div><small>TNG 1</small><b>RM1,136.71</b><p>Masuk RM838.34 · Keluar RM1,245.20</p></div></article>
+          <article><span class="wallet-mark tng">T2</span><div><small>TNG 2</small><b>RM456.90</b><p>Masuk RM60.00 · Keluar RM0.00</p></div></article>
+          <article><span class="wallet-mark digi">D</span><div><small>SIM DIGI</small><b>RM166.81</b><p>Baki dilaporkan hari ini</p></div></article>
+          <article><span class="wallet-mark celcom">C</span><div><small>SIM CELCOM</small><b>RM516.00</b><p>Baki dilaporkan hari ini</p></div></article>
+        </div>
+      </section>
+
+      <section class="history">
+        <div class="section-heading"><div><span class="eyebrow">AKTIVITI TERKINI</span><h3>Rekod Stok Harian</h3></div><button type="button">LIHAT SEMUA</button></div>
+        <div class="history-table">
+          <div class="history-head"><span>Tarikh</span><span>Jenis</span><span>Perubahan</span><span>Baki</span></div>
+          <div class="history-row"><span><b>10 Aug</b><small>11:48 AM</small></span><span><i class="tag shell-tag">SHELL</i></span><span class="negative">− 550</span><span>859</span></div>
+          <div class="history-row"><span><b>10 Aug</b><small>11:43 AM</small></span><span><i class="tag web-tag">WEB</i></span><span class="negative">− RM15.88</span><span>RM554.00</span></div>
+          <div class="history-row"><span><b>10 Aug</b><small>10:20 AM</small></span><span><i class="tag add-tag">TAMBAH</i></span><span class="positive">+ 1,000</span><span>1,409</span></div>
+        </div>
+      </section>
+    </section>
+
+    <nav class="bottom-nav">
+      <button type="button"><i>💬</i><span>CHAT</span></button>
+      <button type="button"><i>☷</i><span>ALL ORDER</span></button>
+      <button type="button"><i>▣</i><span>HARIAN</span></button>
+      <button class="active" type="button"><i>◈</i><span>STOK</span></button>
+    </nav>
+  </main>
+</body>
+</html>

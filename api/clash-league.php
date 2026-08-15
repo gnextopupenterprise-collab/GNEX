@@ -58,6 +58,13 @@ if (!is_file($dbConfigPath)) {
     ], 500);
 }
 $dbConfig = require $dbConfigPath;
+$passwordConfigPath = $rootDir . DIRECTORY_SEPARATOR . 'scrim-password-config.php';
+if (is_file($passwordConfigPath)) {
+    $passwordConfig = require $passwordConfigPath;
+    if (is_array($passwordConfig)) {
+        $dbConfig = array_merge($dbConfig, $passwordConfig);
+    }
+}
 $pushConfigPath = $rootDir . DIRECTORY_SEPARATOR . 'scrim-push-config.php';
 $pushConfig = is_file($pushConfigPath) ? require $pushConfigPath : [];
 
@@ -80,11 +87,36 @@ try {
     ], 500);
 }
 
-ensure_schema_once($pdo, $rootDir, (string) ($dbConfig['database'] ?? 'clash'));
-seed_admin($pdo, $dbConfig);
-seed_web_tester($pdo);
-
 $action = (string) ($_GET['action'] ?? $_POST['action'] ?? '');
+
+// Restore the saved identity before running schema maintenance, seed jobs and
+// tournament queries. The home screen only needs this small response to stop
+// showing LOGIN; the full state continues loading separately afterward.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'authState') {
+    $authTeam = current_team($pdo);
+    $authAdmin = current_admin($pdo);
+    refresh_persistent_login($pdo);
+    $authChatTeam = $authTeam ?: current_chat_team($pdo);
+    $authDeviceToken = ($authTeam || $authAdmin) ? device_login_token_from_request() : '';
+    if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+    json_response([
+        'ok' => true,
+        'team' => $authTeam,
+        'admin' => $authAdmin,
+        'chat_team' => $authChatTeam,
+        'viewing_as_team' => !empty($_SESSION['cl_admin_view_as_team']),
+        'device_login_token' => $authDeviceToken !== '' ? $authDeviceToken : null,
+    ]);
+}
+
+ensure_schema_once($pdo, $rootDir, (string) ($dbConfig['database'] ?? 'clash'));
+ensure_live_schema_compatibility($pdo);
+seed_admin($pdo, $dbConfig);
+seed_stock_worker($pdo);
+seed_allocation_user($pdo);
+repair_shared_admin_unread_history_once($pdo);
+seed_web_tester($pdo);
+seed_web_test_rival_match($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'teams') {
     json_response(['ok' => true, 'teams' => get_public_teams($pdo)]);
@@ -92,6 +124,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'teams') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'state') {
     json_response(get_state($pdo));
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'resumeOrderRecord') {
+    $resumedOrderAdmin = current_admin($pdo);
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Location: ' . ($resumedOrderAdmin ? '../order-record/' : '../order-record/?resume=1'));
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderRecords') {
+    get_order_records($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderAccess') {
+    $orderAccessAdmin=current_admin($pdo);
+    if (!$orderAccessAdmin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    json_response(['ok'=>true,'user'=>$orderAccessAdmin]);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderSimAccounts') {
+    get_order_sim_accounts($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderMoney') {
+    get_order_money($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderTodo') {
+    get_order_todo($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderBalances') {
+    get_order_balances($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderStock') {
+    get_order_stock($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'orderSheetData') {
+    get_order_sheet_data($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'chatUpdates') {
+    json_response(get_chat_updates($pdo));
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'pushConfig') {
@@ -119,6 +196,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'registrations') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'registerTeam') {
     register_team($pdo, $rootDir);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'adminCreateTeam') {
+    admin_create_team($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'createOrderRecord') {
+    create_order_record($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'setOrderRecordStatus') {
+    set_order_record_status($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderCodeRule') {
+    save_order_code_rule($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderBalances') {
+    save_order_balances($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderStock') {
+    save_order_stock($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderSimAccounts') {
+    save_order_sim_accounts($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveProcessedSimBalance') {
+    save_processed_sim_balance($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderMoney') {
+    save_order_money($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveOrderTodoTask') {
+    save_order_todo_task($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'toggleOrderTodo') {
+    toggle_order_todo($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'deleteOrderTodoTask') {
+    delete_order_todo_task($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'savePushSubscription') {
@@ -177,12 +302,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'adminSetMatchResult') 
     admin_set_match_result($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveQualifierFinalEntry') {
+    save_qualifier_final_entry($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'updateMatchTeams') {
     update_match_teams($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'login') {
     login_user($pdo, $dbConfig);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'adminViewAsTeam') {
+    admin_view_as_team($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'orderRecordLogin') {
+    login_order_record_admin($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'changeTeamPassword') {
@@ -209,11 +346,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'markRoomRead') {
     mark_room_read($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'setRoomAdminCheck') {
+    set_room_admin_check($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'setRoomReportMatch') {
+    set_room_report_match($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'confirmMatchAttendance') {
     confirm_match_attendance($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'openMatchRoomNow') {
+    open_match_room_now($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'cancelMatchAttendance') {
+    cancel_match_attendance($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'logout') {
+    if (!empty($_SESSION['cl_admin_view_as_team']) && !empty($_SESSION['cl_admin_id'])) {
+        unset($_SESSION['cl_team_id'], $_SESSION['cl_admin_view_as_team']);
+        json_response(get_state($pdo) + [
+            'message' => 'Kembali ke akaun admin.',
+            'returned_to_admin' => true,
+        ]);
+    }
     forget_persistent_login($pdo);
     $_SESSION = [];
     session_destroy();
@@ -228,12 +388,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'sendMessage') {
     send_message($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'reactMessage') {
+    react_message($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'deleteMessage') {
+    delete_chat_message($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'editMessage') {
+    edit_chat_message($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submitResult') {
     submit_result($pdo, $rootDir);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveRules') {
     save_rules($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveTimeline') {
+    save_timeline($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'savePinnedInfo') {
@@ -291,6 +467,7 @@ function ensure_schema(PDO $pdo): void
             admin_checked TINYINT(1) NOT NULL DEFAULT 0,
             notification_checked TINYINT(1) NOT NULL DEFAULT 0,
             is_test_account TINYINT(1) NOT NULL DEFAULT 0,
+            admin_added TINYINT(1) NOT NULL DEFAULT 0,
             last_seen_at DATETIME NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NULL,
@@ -316,6 +493,13 @@ function ensure_schema(PDO $pdo): void
     if (!column_exists($pdo, 'cl_teams', 'is_test_account')) {
         $pdo->exec('ALTER TABLE cl_teams ADD COLUMN is_test_account TINYINT(1) NOT NULL DEFAULT 0 AFTER notification_checked');
     }
+    if (!column_exists($pdo, 'cl_teams', 'profile_update_required')) {
+        $pdo->exec('ALTER TABLE cl_teams ADD COLUMN profile_update_required TINYINT(1) NOT NULL DEFAULT 0 AFTER is_test_account');
+    }
+    if (!column_exists($pdo, 'cl_teams', 'admin_added')) {
+        $pdo->exec('ALTER TABLE cl_teams ADD COLUMN admin_added TINYINT(1) NOT NULL DEFAULT 0 AFTER is_test_account');
+        $pdo->exec('UPDATE cl_teams SET admin_added=1 WHERE is_test_account=0 AND admin_checked=1 AND profile_update_required=1 AND status="accepted"');
+    }
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_players (
@@ -331,11 +515,77 @@ function ensure_schema(PDO $pdo): void
     ");
 
     $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_order_records (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            game_id VARCHAR(80) NOT NULL,
+            carrier VARCHAR(30) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            process_code VARCHAR(80) NOT NULL,
+            raw_message TEXT NOT NULL,
+            status ENUM('queued','processed','cancelled') NOT NULL DEFAULT 'queued',
+            created_by_admin_id INT NOT NULL,
+            processed_by_admin_id INT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            processed_at DATETIME NULL,
+            INDEX idx_cl_order_status_created (status,created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_order_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message TEXT NOT NULL,
+            status ENUM('normal','processed','pending','unrecorded') NOT NULL DEFAULT 'normal',
+            created_by_admin_id INT NOT NULL,
+            updated_by_admin_id INT NULL,
+            paired_message_id INT NULL,
+            process_code VARCHAR(80) NULL,
+            sheet_sync_status VARCHAR(20) NOT NULL DEFAULT 'none',
+            sheet_row INT NULL,
+            sheet_synced_at DATETIME NULL,
+            sheet_error VARCHAR(500) NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME NULL,
+            INDEX idx_cl_order_message_status (status,created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_order_code_rules (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message_key VARCHAR(500) NOT NULL,
+            raw_example TEXT NOT NULL,
+            process_code VARCHAR(80) NOT NULL,
+            created_by_admin_id INT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_order_code_message (message_key),
+            FOREIGN KEY (created_by_admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    $orderMessageColumns = [
+        'paired_message_id' => 'INT NULL AFTER updated_by_admin_id',
+        'process_code' => 'VARCHAR(80) NULL AFTER paired_message_id',
+        'sheet_sync_status' => 'VARCHAR(20) NOT NULL DEFAULT "none" AFTER process_code',
+        'sheet_row' => 'INT NULL AFTER sheet_sync_status',
+        'sheet_synced_at' => 'DATETIME NULL AFTER sheet_row',
+        'sheet_error' => 'VARCHAR(500) NULL AFTER sheet_synced_at',
+    ];
+    foreach ($orderMessageColumns as $columnName => $definition) {
+        if (!column_exists($pdo, 'cl_order_messages', $columnName)) {
+            $pdo->exec("ALTER TABLE cl_order_messages ADD COLUMN {$columnName} {$definition}");
+        }
+    }
+    $orderMessageStatusColumn=$pdo->query("SHOW COLUMNS FROM cl_order_messages LIKE 'status'")->fetch();
+    if (!$orderMessageStatusColumn || strpos((string)($orderMessageStatusColumn['Type'] ?? ''),"'unrecorded'") === false) {
+        $pdo->exec("ALTER TABLE cl_order_messages MODIFY status ENUM('normal','processed','pending','unrecorded') NOT NULL DEFAULT 'normal'");
+    }
+
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_rooms (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            room_type ENUM('admin','deal','match','group') NOT NULL DEFAULT 'admin',
+            room_type ENUM('admin','deal','match','group','info') NOT NULL DEFAULT 'admin',
             team_a_id INT NULL,
             team_b_id INT NULL,
+            match_id INT NULL,
             status ENUM('open','closed') NOT NULL DEFAULT 'open',
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NULL,
@@ -344,8 +594,18 @@ function ensure_schema(PDO $pdo): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
     $roomTypeColumn = $pdo->query("SHOW COLUMNS FROM cl_rooms LIKE 'room_type'")->fetch();
-    if (!$roomTypeColumn || strpos((string) ($roomTypeColumn['Type'] ?? ''), "'group'") === false) {
-        $pdo->exec("ALTER TABLE cl_rooms MODIFY room_type ENUM('admin','deal','match','group') NOT NULL DEFAULT 'admin'");
+    if (!$roomTypeColumn || strpos((string) ($roomTypeColumn['Type'] ?? ''), "'info'") === false) {
+        $pdo->exec("ALTER TABLE cl_rooms MODIFY room_type ENUM('admin','deal','match','group','info') NOT NULL DEFAULT 'admin'");
+    }
+    if (!column_exists($pdo, 'cl_rooms', 'admin_checked')) {
+        $pdo->exec('ALTER TABLE cl_rooms ADD COLUMN admin_checked TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+    }
+    if (!column_exists($pdo, 'cl_rooms', 'report_match')) {
+        $pdo->exec('ALTER TABLE cl_rooms ADD COLUMN report_match TINYINT(1) NOT NULL DEFAULT 0 AFTER admin_checked');
+    }
+    if (!column_exists($pdo, 'cl_rooms', 'match_id')) {
+        $pdo->exec('ALTER TABLE cl_rooms ADD COLUMN match_id INT NULL AFTER team_b_id');
+        $pdo->exec('ALTER TABLE cl_rooms ADD INDEX idx_cl_rooms_match_id (match_id)');
     }
 
     $pdo->exec("
@@ -377,6 +637,24 @@ function ensure_schema(PDO $pdo): void
     if (!column_exists($pdo, 'cl_messages', 'action_target')) {
         $pdo->exec('ALTER TABLE cl_messages ADD COLUMN action_target VARCHAR(20) NULL AFTER reply_to_message_id');
     }
+    if (!column_exists($pdo, 'cl_messages', 'image_url')) {
+        $pdo->exec('ALTER TABLE cl_messages ADD COLUMN image_url VARCHAR(500) NULL AFTER message');
+    }
+    if (!column_exists($pdo, 'cl_messages', 'edited_at')) {
+        $pdo->exec('ALTER TABLE cl_messages ADD COLUMN edited_at TIMESTAMP NULL DEFAULT NULL AFTER image_url');
+    }
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_message_reactions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            message_id INT NOT NULL,
+            team_id INT NOT NULL,
+            emoji VARCHAR(12) NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_cl_message_team_reaction (message_id, team_id),
+            FOREIGN KEY (message_id) REFERENCES cl_messages(id) ON DELETE CASCADE,
+            FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_matches (
@@ -414,6 +692,25 @@ function ensure_schema(PDO $pdo): void
             INDEX idx_cl_match_results_status (status, created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
+    if (!column_exists($pdo, 'cl_matches', 'stage_code')) {
+        $pdo->exec('ALTER TABLE cl_matches ADD COLUMN stage_code VARCHAR(64) NULL AFTER match_name');
+        $pdo->exec('ALTER TABLE cl_matches ADD INDEX idx_cl_matches_stage_code (stage_code, status)');
+    }
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_match_advancements (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            source_match_id INT NOT NULL,
+            winner_team_id INT NOT NULL,
+            next_match_id INT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_cl_advancement_source (source_match_id),
+            INDEX idx_cl_advancement_winner (winner_team_id, next_match_id),
+            FOREIGN KEY (source_match_id) REFERENCES cl_matches(id) ON DELETE CASCADE,
+            FOREIGN KEY (winner_team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+            FOREIGN KEY (next_match_id) REFERENCES cl_matches(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_match_attendance (
@@ -429,12 +726,47 @@ function ensure_schema(PDO $pdo): void
     ");
 
     $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_qualifier_final_entries (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            bracket_no TINYINT NOT NULL,
+            slot_no TINYINT NOT NULL,
+            team_id INT NULL,
+            points INT NULL,
+            placement TINYINT NULL,
+            updated_at DATETIME NULL,
+            UNIQUE KEY uniq_cl_qf_bracket_slot (bracket_no, slot_no),
+            UNIQUE KEY uniq_cl_qf_team (team_id),
+            FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_admin_users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(80) NOT NULL UNIQUE,
             password_hash VARCHAR(255) NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    if (!column_exists($pdo, 'cl_admin_users', 'access_scope')) {
+        $pdo->exec("ALTER TABLE cl_admin_users ADD COLUMN access_scope VARCHAR(30) NOT NULL DEFAULT 'admin' AFTER password_hash");
+    }
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_stock_updates (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            source_message_id INT NULL,
+            phone VARCHAR(30) NULL,
+            sim_label VARCHAR(40) NULL,
+            amount_rm DECIMAL(10,2) NOT NULL DEFAULT 0,
+            shell_amount DECIMAL(12,2) NULL,
+            change_sim TINYINT(1) NOT NULL DEFAULT 0,
+            raw_message TEXT NOT NULL,
+            created_by_admin_id INT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_cl_stock_source_message (source_message_id),
+            INDEX idx_cl_stock_created (created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
 
@@ -552,6 +884,21 @@ function ensure_schema(PDO $pdo): void
     ");
 
     $pdo->exec("
+        CREATE TABLE IF NOT EXISTS cl_match_day_notifications (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            match_id INT NOT NULL,
+            team_id INT NOT NULL,
+            event_id INT NULL,
+            dispatched_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_cl_match_day_team (match_id, team_id),
+            INDEX idx_cl_match_day_dispatched (dispatched_at),
+            FOREIGN KEY (match_id) REFERENCES cl_matches(id) ON DELETE CASCADE,
+            FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE,
+            FOREIGN KEY (event_id) REFERENCES cl_push_events(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
+    $pdo->exec("
         CREATE TABLE IF NOT EXISTS cl_notification_acknowledgements (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
             event_id INT NOT NULL,
@@ -603,7 +950,7 @@ function ensure_schema(PDO $pdo): void
 
 function ensure_schema_once(PDO $pdo, string $rootDir, string $databaseName): void
 {
-    $schemaVersion = '20260731-web-tester-v10';
+    $schemaVersion = '20260810-admin-access-scope-v23';
     $markerId = hash('sha256', $rootDir . '|' . $databaseName);
     $markerPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
         . DIRECTORY_SEPARATOR . 'gnex-clash-schema-' . $markerId . '.txt';
@@ -617,6 +964,9 @@ function ensure_schema_once(PDO $pdo, string $rootDir, string $databaseName): vo
     if ($lock === false) {
         ensure_schema($pdo);
         cleanup_premature_auto_finals($pdo);
+        normalize_stable_tournament_timeline($pdo);
+        backfill_match_stage_codes($pdo);
+        repair_match_room_timeline_links($pdo);
         return;
     }
 
@@ -624,18 +974,470 @@ function ensure_schema_once(PDO $pdo, string $rootDir, string $databaseName): vo
         if (!flock($lock, LOCK_EX)) {
             ensure_schema($pdo);
             cleanup_premature_auto_finals($pdo);
+            normalize_stable_tournament_timeline($pdo);
+            backfill_match_stage_codes($pdo);
+            repair_match_room_timeline_links($pdo);
             return;
         }
         clearstatcache(true, $markerPath);
         if (!is_file($markerPath) || trim((string) @file_get_contents($markerPath)) !== $schemaVersion) {
             ensure_schema($pdo);
             cleanup_premature_auto_finals($pdo);
+            normalize_stable_tournament_timeline($pdo);
+            backfill_match_stage_codes($pdo);
+            repair_match_room_timeline_links($pdo);
             @file_put_contents($markerPath, $schemaVersion, LOCK_EX);
         }
     } finally {
         @flock($lock, LOCK_UN);
         @fclose($lock);
     }
+}
+
+function ensure_live_schema_compatibility(PDO $pdo): void
+{
+    $column = $pdo->query("SHOW COLUMNS FROM cl_rooms LIKE 'room_type'")->fetch();
+    $type = strtolower((string) ($column['Type'] ?? ''));
+    $schemaIsStale = !$column || strpos($type, "'info'") === false;
+    if (!$pdo->query("SHOW TABLES LIKE 'cl_order_records'")->fetchColumn()
+        || !$pdo->query("SHOW TABLES LIKE 'cl_order_messages'")->fetchColumn()) {
+        $schemaIsStale = true;
+    }
+    $orderStatusColumn=$pdo->query("SHOW COLUMNS FROM cl_order_messages LIKE 'status'")->fetch();
+    $orderStatusType=strtolower((string)($orderStatusColumn['Type'] ?? ''));
+    if (!$orderStatusColumn || strpos($orderStatusType,"'unrecorded'") === false) {
+        $schemaIsStale=true;
+    }
+
+    $requiredColumns = [
+        ['cl_admin_users', 'access_scope'],
+        ['cl_teams', 'notification_checked'],
+        ['cl_teams', 'is_test_account'],
+        ['cl_teams', 'admin_added'],
+        ['cl_teams', 'profile_update_required'],
+        ['cl_teams', 'last_seen_at'],
+        ['cl_rooms', 'admin_checked'],
+        ['cl_rooms', 'report_match'],
+        ['cl_rooms', 'match_id'],
+        ['cl_messages', 'guest_name'],
+        ['cl_messages', 'reply_to_message_id'],
+        ['cl_messages', 'action_target'],
+        ['cl_messages', 'image_url'],
+        ['cl_messages', 'edited_at'],
+        ['cl_matches', 'stage_code'],
+        ['cl_order_messages', 'sheet_sync_status'],
+        ['cl_order_messages', 'process_code'],
+    ];
+    foreach ($requiredColumns as [$table, $requiredColumn]) {
+        if (!column_exists($pdo, $table, $requiredColumn)) {
+            $schemaIsStale = true;
+            break;
+        }
+    }
+
+    if ($schemaIsStale) {
+        // A version marker can survive a database restore/replacement. Re-run the
+        // idempotent migration against the actual database before serving data.
+        ensure_schema($pdo);
+    }
+    ensure_active_match_uniqueness_guard($pdo);
+}
+
+function ensure_active_match_uniqueness_guard(PDO $pdo): void
+{
+    $pdo->exec('
+        CREATE TABLE IF NOT EXISTS cl_active_match_teams (
+            team_id INT NOT NULL PRIMARY KEY,
+            match_id INT NOT NULL,
+            side CHAR(1) NOT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_cl_active_match_id (match_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ');
+
+    $triggerNames = $pdo->query('
+        SELECT TRIGGER_NAME FROM information_schema.TRIGGERS
+        WHERE TRIGGER_SCHEMA = DATABASE()
+          AND TRIGGER_NAME IN ("cl_match_active_after_insert", "cl_match_active_after_update", "cl_match_active_after_delete")
+    ')->fetchAll(PDO::FETCH_COLUMN);
+    $existing = array_fill_keys(array_map('strval', $triggerNames), true);
+
+    if (!isset($existing['cl_match_active_after_insert'])) {
+        $pdo->exec('
+            CREATE TRIGGER cl_match_active_after_insert AFTER INSERT ON cl_matches FOR EACH ROW
+            BEGIN
+                IF NEW.status IN ("up_next", "live") THEN
+                    IF NEW.team_a_id IS NOT NULL THEN
+                        INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_a_id, NEW.id, "A");
+                    END IF;
+                    IF NEW.team_b_id IS NOT NULL THEN
+                        INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_b_id, NEW.id, "B");
+                    END IF;
+                END IF;
+            END
+        ');
+    }
+    if (!isset($existing['cl_match_active_after_update'])) {
+        $pdo->exec('
+            CREATE TRIGGER cl_match_active_after_update AFTER UPDATE ON cl_matches FOR EACH ROW
+            BEGIN
+                DELETE FROM cl_active_match_teams WHERE match_id = OLD.id;
+                IF NEW.status IN ("up_next", "live") THEN
+                    IF NEW.team_a_id IS NOT NULL THEN
+                        INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_a_id, NEW.id, "A");
+                    END IF;
+                    IF NEW.team_b_id IS NOT NULL THEN
+                        INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_b_id, NEW.id, "B");
+                    END IF;
+                END IF;
+            END
+        ');
+    }
+    if (!isset($existing['cl_match_active_after_delete'])) {
+        $pdo->exec('
+            CREATE TRIGGER cl_match_active_after_delete AFTER DELETE ON cl_matches FOR EACH ROW
+            BEGIN
+                DELETE FROM cl_active_match_teams WHERE match_id = OLD.id;
+            END
+        ');
+    }
+
+    // Rebuild the guard only when it is empty. A duplicate here is deliberate:
+    // it stops startup loudly instead of silently allowing two active matches.
+    if ((int) $pdo->query('SELECT COUNT(*) FROM cl_active_match_teams')->fetchColumn() === 0) {
+        $pdo->exec('
+            INSERT INTO cl_active_match_teams(team_id, match_id, side)
+            SELECT team_a_id, id, "A" FROM cl_matches
+            WHERE status IN ("up_next", "live") AND team_a_id IS NOT NULL
+        ');
+        $pdo->exec('
+            INSERT INTO cl_active_match_teams(team_id, match_id, side)
+            SELECT team_b_id, id, "B" FROM cl_matches
+            WHERE status IN ("up_next", "live") AND team_b_id IS NOT NULL
+        ');
+    }
+}
+
+function friendly_match_write_error(Throwable $error): string
+{
+    if ($error instanceof PDOException && (string) $error->getCode() === '23000'
+        && str_contains((string) $error->getMessage(), 'cl_active_match_teams')) {
+        return 'Jadual ditolak: salah satu team sudah mempunyai match aktif. Selesaikan atau tutup match lama dahulu.';
+    }
+    return $error->getMessage();
+}
+
+function normalize_qualifier_fasa_one_timeline(PDO $pdo): void
+{
+    $timeline = get_timeline($pdo);
+    $changed = false;
+    $titlesByDate = [
+        '5 august 2026' => 'Qualifier 1 / Fasa 1 / Group 1 / BO3',
+        '7 august 2026' => 'Qualifier 1 / Fasa 1 / Group 2 / BO3',
+        '8 august 2026' => 'Qualifier 2 / Group 1 VS Group 2 / BO3',
+        '9 august 2026' => 'Qualifier 1 / Fasa 1 / Group 3 / BO3',
+        '11 august 2026' => 'Qualifier 1 / Fasa 1 / Group 4 / BO3',
+        '12 august 2026' => 'Qualifier 2 / Group 3 VS Group 4 / BO3',
+        '14 august 2026' => 'Qualifier 3 / Winner Q2A VS Winner Q2B / BO3',
+        '15 august 2026' => 'Qualifier Final / Round 2 / Secure Round',
+        '16 august 2026' => 'Qualifier Final / Last Chance',
+    ];
+    foreach ($timeline as &$item) {
+        $date = strtolower(trim((string) ($item['date'] ?? '')));
+        $date = str_replace('ogos', 'august', $date);
+        if (isset($titlesByDate[$date])) {
+            if ((string) ($item['title'] ?? '') !== $titlesByDate[$date]) {
+                $item['title'] = $titlesByDate[$date];
+                $changed = true;
+            }
+        }
+    }
+    unset($item);
+    $existingDates = array_map(static fn(array $item): string => str_replace('ogos', 'august', strtolower(trim((string) ($item['date'] ?? '')))), $timeline);
+    foreach ([
+        ['after' => '7 august 2026', 'date' => '8 August 2026'],
+        ['after' => '11 august 2026', 'date' => '12 August 2026'],
+        ['after' => '12 august 2026', 'date' => '14 August 2026'],
+        ['after' => '14 august 2026', 'date' => '15 August 2026'],
+        ['after' => '15 august 2026', 'date' => '16 August 2026'],
+    ] as $newSlot) {
+        $normalizedDate = strtolower($newSlot['date']);
+        if (in_array($normalizedDate, $existingDates, true)) continue;
+        $afterIndex = array_search($newSlot['after'], $existingDates, true);
+        $insertAt = $afterIndex === false ? count($timeline) : ((int) $afterIndex + 1);
+        array_splice($timeline, $insertAt, 0, [[
+            'date' => $newSlot['date'],
+            'title' => $titlesByDate[$normalizedDate],
+            'note' => '9:30 PM',
+            'final' => false,
+        ]]);
+        array_splice($existingDates, $insertAt, 0, [$normalizedDate]);
+        $changed = true;
+    }
+    $roundOneTitle = 'Qualifier Final / Round 1';
+    $hasRoundOne = false;
+    foreach ($timeline as $item) {
+        if (strcasecmp(trim((string) ($item['title'] ?? '')), $roundOneTitle) === 0) {
+            $hasRoundOne = true;
+            break;
+        }
+    }
+    if (!$hasRoundOne) {
+        $insertAt = count($timeline);
+        foreach ($timeline as $index => $item) {
+            if (str_replace('ogos', 'august', strtolower(trim((string) ($item['date'] ?? '')))) === '14 august 2026') {
+                $insertAt = $index + 1;
+            }
+        }
+        array_splice($timeline, $insertAt, 0, [[
+            'date' => '14 August 2026',
+            'title' => $roundOneTitle,
+            'note' => '9:30 PM · 4 bracket × 8 team',
+            'final' => false,
+        ]]);
+        $changed = true;
+    }
+    if ($changed) {
+        $encoded = json_encode(array_values($timeline), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $stmt = $pdo->prepare('
+            INSERT INTO cl_settings (setting_key, setting_value, updated_at)
+            VALUES ("timeline_json", ?, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP
+        ');
+        $stmt->execute([$encoded]);
+    }
+
+    $matches = $pdo->query('
+        SELECT id, match_name, DATE(match_time) AS match_date FROM cl_matches
+        WHERE DATE(match_time) IN ("2026-08-05", "2026-08-07", "2026-08-08", "2026-08-09", "2026-08-11", "2026-08-12")
+    ')->fetchAll();
+    $matchPrefixesByDate = [
+        '2026-08-05' => 'Qualifier 1 / Fasa 1 / Group 1 / BO3',
+        '2026-08-07' => 'Qualifier 1 / Fasa 1 / Group 2 / BO3',
+        '2026-08-08' => 'Qualifier 2 / Group 1 VS Group 2 / BO3',
+        '2026-08-09' => 'Qualifier 1 / Fasa 1 / Group 3 / BO3',
+        '2026-08-11' => 'Qualifier 1 / Fasa 1 / Group 4 / BO3',
+        '2026-08-12' => 'Qualifier 2 / Group 3 VS Group 4 / BO3',
+    ];
+    $update = $pdo->prepare('UPDATE cl_matches SET match_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+    foreach ($matches as $match) {
+        $name = (string) $match['match_name'];
+        $matchDate = (string) ($match['match_date'] ?? '');
+        $prefix = $matchPrefixesByDate[$matchDate] ?? '';
+        $normalized = $prefix === '' ? $name : preg_replace('/^Qualifier\s*1\s*\/\s*Fasa\s*[1-4](?:\s*\/\s*Group\s*[^\/]+)?\s*\/\s*BO3/i', $prefix, $name);
+        if (is_string($normalized) && $normalized !== $name) {
+            $update->execute([$normalized, (int) $match['id']]);
+        }
+    }
+}
+
+function stable_tournament_schedule(): array
+{
+    return [
+        ['stage_code'=>'q2_f1','date'=>'13 August 2026','title'=>'Qualifier 2 / Fasa 1 / BO3','note'=>'9:30 PM','final'=>false],
+        ['stage_code'=>'q2_f2','date'=>'14 August 2026','title'=>'Qualifier 2 / Fasa 2 / BO3','note'=>'9:30 PM','final'=>false],
+        ['stage_code'=>'q3_f1','date'=>'15 August 2026','title'=>'Qualifier 3 / Fasa 1 / BO3','note'=>'9:30 PM','final'=>false],
+        ['stage_code'=>'qf_b1','date'=>'16 August 2026','title'=>'Qualifier Final / Bracket 1 / BO3','note'=>'9:00 PM · 8 team → Top 3 layak','final'=>false],
+        ['stage_code'=>'qf_b2','date'=>'17 August 2026','title'=>'Qualifier Final / Bracket 2 / BO3','note'=>'9:00 PM · 8 team → Top 3 layak','final'=>false],
+        ['stage_code'=>'qf_b3','date'=>'18 August 2026','title'=>'Qualifier Final / Bracket 3 / BO3','note'=>'9:00 PM · 8 team → Top 3 layak','final'=>false],
+        ['stage_code'=>'qf_b4','date'=>'19 August 2026','title'=>'Qualifier Final / Bracket 4 / BO3','note'=>'9:00 PM · 8 team → Top 3 layak','final'=>false],
+        ['stage_code'=>'gs_d1','date'=>'21 August 2026','title'=>'Group Stage Day 1','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'gs_d2','date'=>'22 August 2026','title'=>'Group Stage Day 2','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'gs_d3','date'=>'23 August 2026','title'=>'Group Stage Day 3','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'gs_d4','date'=>'24 August 2026','title'=>'Group Stage Day 4','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'gs_d5','date'=>'25 August 2026','title'=>'Group Stage Day 5','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'gs_d6','date'=>'26 August 2026','title'=>'Group Stage Day 6','note'=>'9:00 PM','final'=>false],
+        ['stage_code'=>'ko_m1_m2','date'=>'1 September 2026','title'=>'Knockout Stage (M1 - M2)','note'=>'10:00 PM · Phase 1 · Best of 3 · 11 Round','final'=>false],
+        ['stage_code'=>'ko_m3_m4','date'=>'2 September 2026','title'=>'Knockout Stage (M3 - M4)','note'=>'10:00 PM · Phase 1 · Best of 3 · 11 Round','final'=>false],
+        ['stage_code'=>'ko_m5_m6','date'=>'4 September 2026','title'=>'Knockout Stage (M5 - M6)','note'=>'10:00 PM · Phase 2 · Best of 3 · 11 Round','final'=>false],
+        ['stage_code'=>'ko_ubf','date'=>'6 September 2026','title'=>'Knockout Stage (UBF)','note'=>'10:00 PM · Phase 3 · Best of 7 · 11 Round','final'=>false],
+        ['stage_code'=>'lb_m7_m8','date'=>'8 September 2026','title'=>'Lower Bracket (M7 - M8)','note'=>'10:00 PM · Phase 1 · Best of 3 · 11 Round','final'=>false],
+        ['stage_code'=>'lb_m9_m10','date'=>'9 September 2026','title'=>'Lower Bracket (M9 - M10)','note'=>'10:00 PM · Phase 2 · Best of 3 · 11 Round','final'=>false],
+        ['stage_code'=>'lb_m11','date'=>'11 September 2026','title'=>'Lower Bracket (M11)','note'=>'10:00 PM · Phase 3 · Best of 7 · 11 Round','final'=>false],
+        ['stage_code'=>'lb_lbf','date'=>'12 September 2026','title'=>'Lower Bracket (LBF)','note'=>'10:00 PM · Phase 4 · Best of 7 · 11 Round','final'=>false],
+        ['stage_code'=>'grand_final','date'=>'15 September 2026','title'=>'Grandfinal Match! 👑','note'=>'10:00 PM · Last Fight! · Best of 7 · 11 Round','final'=>true],
+    ];
+}
+
+function infer_stage_code(string $name, ?string $matchTime = null): string
+{
+    $date = $matchTime ? substr($matchTime, 0, 10) : '';
+    $byDate = ['2026-08-05'=>'q1_g1','2026-08-07'=>'q1_g2','2026-08-09'=>'q1_g3','2026-08-11'=>'q1_g4','2026-08-13'=>'q2_f1','2026-08-14'=>'q2_f2','2026-08-15'=>'q3_f1','2026-08-16'=>'qf_b1','2026-08-17'=>'qf_b2','2026-08-18'=>'qf_b3','2026-08-19'=>'qf_b4'];
+    if (isset($byDate[$date])) return $byDate[$date];
+    $n = strtolower($name);
+    if (str_contains($n,'qualifier 1')) foreach ([1,2,3,4] as $g) if (str_contains($n,'group '.$g)) return 'q1_g'.$g;
+    return '';
+}
+
+function normalize_stable_tournament_timeline(PDO $pdo): void
+{
+    $applied = $pdo->query('SELECT setting_value FROM cl_settings WHERE setting_key="stable_timeline_v19_applied" LIMIT 1')->fetchColumn();
+    $timeline = get_timeline($pdo);
+    if ($applied === false) {
+        $kept = [];
+        foreach ($timeline as $item) {
+            $dateText = strtolower(str_ireplace('Ogos','August',trim((string)($item['date'] ?? ''))));
+            $isRegistration = str_contains($dateText, 'july') || $dateText === '2 august 2026';
+            $isProtectedQualifier = in_array($dateText, ['5 august 2026','7 august 2026','9 august 2026','11 august 2026'], true);
+            if ($isRegistration || $isProtectedQualifier) $kept[] = $item;
+        }
+        $timeline = array_merge($kept, stable_tournament_schedule());
+    }
+    foreach ($timeline as &$item) {
+        if (!empty($item['stage_code'])) continue;
+        $dt = timeline_item_datetime($item);
+        $item['stage_code'] = infer_stage_code((string)($item['title'] ?? ''), $dt);
+    }
+    unset($item);
+    $encoded = json_encode(array_values($timeline), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $stmt = $pdo->prepare('INSERT INTO cl_settings(setting_key,setting_value,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute(['timeline_json',$encoded]);
+    $stmt->execute(['stable_timeline_v19_applied','1']);
+}
+
+function backfill_match_stage_codes(PDO $pdo): void
+{
+    $rows = $pdo->query('SELECT id,match_name,match_time FROM cl_matches WHERE stage_code IS NULL OR stage_code=""')->fetchAll();
+    $update = $pdo->prepare('UPDATE cl_matches SET stage_code=? WHERE id=?');
+    foreach ($rows as $row) {
+        $code = infer_stage_code((string)$row['match_name'], (string)($row['match_time'] ?? ''));
+        if ($code !== '') $update->execute([$code,(int)$row['id']]);
+    }
+}
+
+function repair_match_room_timeline_links(PDO $pdo): void
+{
+    // Jadual awal Qualifier 2 pernah menggunakan 8/12 Ogos. Timeline rasmi
+    // baharu memindahkan slot tersebut ke 13/14 Ogos. Jalankan sekali dan
+    // hanya sentuh rekod legacy yang masih belum mempunyai stage yang betul.
+    $repairs = [
+        ['old' => '2026-08-08', 'new' => '2026-08-13 21:30:00', 'stage' => 'q2_f1'],
+        ['old' => '2026-08-12', 'new' => '2026-08-14 21:30:00', 'stage' => 'q2_f2'],
+    ];
+    $repairMatch = $pdo->prepare('UPDATE cl_matches SET match_time=?, stage_code=?, updated_at=CURRENT_TIMESTAMP WHERE DATE(match_time)=? AND (stage_code IS NULL OR stage_code="" OR stage_code=?)');
+    foreach ($repairs as $repair) {
+        $repairMatch->execute([$repair['new'], $repair['stage'], $repair['old'], $repair['stage']]);
+    }
+
+    // Room lama tiada foreign key ke match. Padankan room dan match satu-ke-satu
+    // supaya rematch pasangan team yang sama tidak lagi mengambil tarikh silap.
+    $matches = $pdo->query('SELECT id,team_a_id,team_b_id,status FROM cl_matches WHERE team_a_id IS NOT NULL AND team_b_id IS NOT NULL ORDER BY id DESC')->fetchAll();
+    $findLinkedRoom = $pdo->prepare('SELECT id,status FROM cl_rooms WHERE room_type="match" AND match_id=? ORDER BY id DESC LIMIT 1');
+    $findRoom = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id IS NULL AND ((team_a_id=? AND team_b_id=?) OR (team_a_id=? AND team_b_id=?)) ORDER BY id DESC LIMIT 1');
+    $linkRoom = $pdo->prepare('UPDATE cl_rooms SET match_id=? WHERE id=? AND match_id IS NULL');
+    $openRoom = $pdo->prepare('UPDATE cl_rooms SET team_a_id=?,team_b_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $createRoom = $pdo->prepare('INSERT INTO cl_rooms (room_type,team_a_id,team_b_id,match_id,status,updated_at) VALUES ("match",?,?,?,"open",CURRENT_TIMESTAMP)');
+    foreach ($matches as $match) {
+        $matchId = (int)$match['id'];
+        $teamAId = (int)$match['team_a_id'];
+        $teamBId = (int)$match['team_b_id'];
+        $findLinkedRoom->execute([$matchId]);
+        $linkedRoom = $findLinkedRoom->fetch();
+        if ($linkedRoom) {
+            if (in_array((string)$match['status'], ['up_next','live'], true)) {
+                $openRoom->execute([$teamAId,$teamBId,(int)$linkedRoom['id']]);
+            }
+            continue;
+        }
+        $findRoom->execute([(int)$match['team_a_id'], (int)$match['team_b_id'], (int)$match['team_b_id'], (int)$match['team_a_id']]);
+        $roomId = (int)($findRoom->fetchColumn() ?: 0);
+        if ($roomId > 0) {
+            $linkRoom->execute([$matchId, $roomId]);
+            if (in_array((string)$match['status'], ['up_next','live'], true)) {
+                $openRoom->execute([$teamAId,$teamBId,$roomId]);
+            }
+        } elseif (in_array((string)$match['status'], ['up_next','live'], true)) {
+            $createRoom->execute([$teamAId,$teamBId,$matchId]);
+        }
+    }
+}
+
+function ensure_active_match_rooms(PDO $pdo): void
+{
+    $locked = (int)($pdo->query("SELECT GET_LOCK('gnex_cl_active_match_rooms',2)")->fetchColumn() ?: 0) === 1;
+    if (!$locked) return;
+    try {
+    $matches = $pdo->query('
+        SELECT id,team_a_id,team_b_id
+        FROM cl_matches
+        WHERE status IN ("up_next","live")
+          AND team_a_id IS NOT NULL AND team_b_id IS NOT NULL
+        ORDER BY id ASC
+    ')->fetchAll();
+    if (!$matches) return;
+
+    $findLinked = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id=? ORDER BY id DESC LIMIT 1');
+    $findLegacy = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id IS NULL AND ((team_a_id=? AND team_b_id=?) OR (team_a_id=? AND team_b_id=?)) ORDER BY id DESC LIMIT 1');
+    $activate = $pdo->prepare('UPDATE cl_rooms SET team_a_id=?,team_b_id=?,match_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $create = $pdo->prepare('INSERT INTO cl_rooms(room_type,team_a_id,team_b_id,match_id,status,updated_at) VALUES("match",?,?,?,"open",CURRENT_TIMESTAMP)');
+
+    foreach ($matches as $match) {
+        $matchId = (int)$match['id'];
+        $teamAId = (int)$match['team_a_id'];
+        $teamBId = (int)$match['team_b_id'];
+        $findLinked->execute([$matchId]);
+        $roomId = (int)($findLinked->fetchColumn() ?: 0);
+        if ($roomId <= 0) {
+            $findLegacy->execute([$teamAId,$teamBId,$teamBId,$teamAId]);
+            $roomId = (int)($findLegacy->fetchColumn() ?: 0);
+        }
+        if ($roomId > 0) {
+            $activate->execute([$teamAId,$teamBId,$matchId,$roomId]);
+        } else {
+            $create->execute([$teamAId,$teamBId,$matchId]);
+        }
+    }
+    } finally {
+        $pdo->query("SELECT RELEASE_LOCK('gnex_cl_active_match_rooms')");
+    }
+}
+
+function open_match_room_now(PDO $pdo): void
+{
+    $team = current_team($pdo);
+    $admin = current_admin($pdo);
+    if (!$team && !$admin) {
+        json_response(['ok' => false, 'message' => 'Login diperlukan untuk buka Group Match.'], 401);
+    }
+    if ($team && (!empty($team['profile_incomplete']) || (string)$team['status'] !== 'accepted')) {
+        json_response(['ok' => false, 'message' => 'Lengkapkan profile dan pastikan slot team sudah confirmed dahulu.'], 403);
+    }
+
+    $matchId = (int)($_POST['match_id'] ?? 0);
+    $stmt = $pdo->prepare('SELECT id,team_a_id,team_b_id,status FROM cl_matches WHERE id=? AND status!="hidden" LIMIT 1');
+    $stmt->execute([$matchId]);
+    $match = $stmt->fetch();
+    if (!$match || empty($match['team_a_id']) || empty($match['team_b_id'])) {
+        json_response(['ok' => false, 'message' => 'Kedua-dua team untuk match ini belum lengkap.'], 422);
+    }
+    $teamAId = (int)$match['team_a_id'];
+    $teamBId = (int)$match['team_b_id'];
+    if ($team && !in_array((int)$team['id'], [$teamAId,$teamBId], true)) {
+        json_response(['ok' => false, 'message' => 'Team anda bukan peserta match ini.'], 403);
+    }
+
+    $find = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id=? ORDER BY id DESC LIMIT 1');
+    $find->execute([$matchId]);
+    $roomId = (int)($find->fetchColumn() ?: 0);
+    if ($roomId <= 0) {
+        $legacy = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id IS NULL AND ((team_a_id=? AND team_b_id=?) OR (team_a_id=? AND team_b_id=?)) ORDER BY id DESC LIMIT 1');
+        $legacy->execute([$teamAId,$teamBId,$teamBId,$teamAId]);
+        $roomId = (int)($legacy->fetchColumn() ?: 0);
+    }
+    if ($roomId > 0) {
+        $update = $pdo->prepare('UPDATE cl_rooms SET team_a_id=?,team_b_id=?,match_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $update->execute([$teamAId,$teamBId,$matchId,$roomId]);
+    } else {
+        $insert = $pdo->prepare('INSERT INTO cl_rooms(room_type,team_a_id,team_b_id,match_id,status,updated_at) VALUES("match",?,?,?,"open",CURRENT_TIMESTAMP)');
+        $insert->execute([$teamAId,$teamBId,$matchId]);
+        $roomId = (int)$pdo->lastInsertId();
+    }
+
+    json_response(array_merge(get_state($pdo), [
+        'room_id' => $roomId,
+        'opened_match_id' => $matchId,
+        'message' => 'Group Match sudah dibuka.',
+    ]));
 }
 
 function cleanup_premature_auto_finals(PDO $pdo): void
@@ -720,6 +1522,44 @@ function seed_admin(PDO $pdo, array $dbConfig): void
     }
 }
 
+function seed_stock_worker(PDO $pdo): void
+{
+    $username = 'izwan';
+    $password = 'GnexStok186700371877';
+    $stmt = $pdo->prepare('SELECT id,password_hash,access_scope FROM cl_admin_users WHERE username=? LIMIT 1');
+    $stmt->execute([$username]);
+    $worker = $stmt->fetch();
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    if (!$worker) {
+        $stmt = $pdo->prepare('INSERT INTO cl_admin_users (username,password_hash,access_scope) VALUES (?,? ,"stock")');
+        $stmt->execute([$username,$hash]);
+        return;
+    }
+    if (!password_verify($password,(string)$worker['password_hash']) || (string)($worker['access_scope'] ?? '') !== 'stock') {
+        $stmt = $pdo->prepare('UPDATE cl_admin_users SET password_hash=?,access_scope="stock",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $stmt->execute([$hash,(int)$worker['id']]);
+    }
+}
+
+function seed_allocation_user(PDO $pdo): void
+{
+    $username = 'nizam';
+    $password = 'Gnexnizam1845549264442';
+    $stmt = $pdo->prepare('SELECT id,password_hash,access_scope FROM cl_admin_users WHERE username=? LIMIT 1');
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    if (!$user) {
+        $stmt = $pdo->prepare('INSERT INTO cl_admin_users (username,password_hash,access_scope) VALUES (?,? ,"allocation")');
+        $stmt->execute([$username,$hash]);
+        return;
+    }
+    if (!password_verify($password,(string)$user['password_hash']) || (string)($user['access_scope'] ?? '') !== 'allocation') {
+        $stmt = $pdo->prepare('UPDATE cl_admin_users SET password_hash=?,access_scope="allocation",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $stmt->execute([$hash,(int)$user['id']]);
+    }
+}
+
 function seed_web_tester(PDO $pdo): void
 {
     $teamName = 'GNEX WEB TESTER';
@@ -749,6 +1589,116 @@ function seed_web_tester(PDO $pdo): void
         WHERE id = ?
     ');
     $stmt->execute([$nextPasswordHash, $teamId]);
+}
+
+function seed_web_test_rival_match(PDO $pdo): void
+{
+    $testerName = 'GNEX WEB TESTER';
+    $legacyRivalName = 'GNEX TEST RIVAL';
+    $rivalName = 'GNEX TEST TDB';
+    $rivalPassword = 'GnexRival2!';
+
+    $findTeam = $pdo->prepare('SELECT id, password_hash FROM cl_teams WHERE team_name = ? LIMIT 1');
+    $findTeam->execute([$rivalName]);
+    $rival = $findTeam->fetch();
+    if (!$rival) {
+        $findTeam->execute([$legacyRivalName]);
+        $rival = $findTeam->fetch();
+    }
+    $rivalId = (int) ($rival['id'] ?? 0);
+
+    if ($rivalId <= 0) {
+        $insertTeam = $pdo->prepare('
+            INSERT INTO cl_teams
+                (team_name, phone, password_hash, status, slot_no, admin_checked, notification_checked, is_test_account)
+            VALUES (?, ?, ?, "accepted", NULL, 1, 1, 1)
+        ');
+        $insertTeam->execute([$rivalName, 'WEB-TEST-RIVAL', password_hash($rivalPassword, PASSWORD_DEFAULT)]);
+        $rivalId = (int) $pdo->lastInsertId();
+    } else {
+        $passwordHash = (string) ($rival['password_hash'] ?? '');
+        $nextPasswordHash = $passwordHash !== '' && password_verify($rivalPassword, $passwordHash)
+            ? $passwordHash
+            : password_hash($rivalPassword, PASSWORD_DEFAULT);
+        $updateTeam = $pdo->prepare('
+            UPDATE cl_teams
+            SET team_name = ?, password_hash = ?, is_test_account = 1, status = "accepted", slot_no = NULL, admin_checked = 1
+            WHERE id = ?
+        ');
+        $updateTeam->execute([$rivalName, $nextPasswordHash, $rivalId]);
+    }
+
+    $findTeam->execute([$testerName]);
+    $testerId = (int) ($findTeam->fetchColumn() ?: 0);
+    if ($testerId <= 0 || $rivalId <= 0) {
+        return;
+    }
+
+    // Remove test accounts from official tournament matches. The real opponent remains
+    // in place and waits for its actual qualifier winner instead of a tester.
+    $detachTest = $pdo->prepare('
+        UPDATE cl_matches
+        SET team_a_id = IF(team_a_id IN (?, ?), NULL, team_a_id),
+            team_b_id = IF(team_b_id IN (?, ?), NULL, team_b_id),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE stage_code NOT LIKE "test\\_%"
+          AND ((team_a_id IN (?, ?) AND team_b_id NOT IN (?, ?))
+            OR (team_b_id IN (?, ?) AND team_a_id NOT IN (?, ?)))
+    ');
+    $detachTest->execute([
+        $testerId, $rivalId, $testerId, $rivalId,
+        $testerId, $rivalId, $testerId, $rivalId,
+        $testerId, $rivalId, $testerId, $rivalId,
+    ]);
+
+    $officialTestMatchName = 'Qualifier 1 / Fasa 1 / BO3';
+    $findMatch = $pdo->prepare('
+        SELECT id FROM cl_matches
+        WHERE status != "hidden"
+          AND ((team_a_id = ? AND team_b_id = ?) OR (team_a_id = ? AND team_b_id = ?))
+        ORDER BY id ASC LIMIT 1
+    ');
+    $findMatch->execute([$testerId, $rivalId, $rivalId, $testerId]);
+    $testMatchId = (int) ($findMatch->fetchColumn() ?: 0);
+    if ($testMatchId <= 0) {
+        $insertMatch = $pdo->prepare('
+            INSERT INTO cl_matches (team_a_id, team_b_id, match_name, stage_code, match_time, status, updated_at)
+            VALUES (?, ?, ?, "test_q1", "2026-08-04 21:00:00", "up_next", CURRENT_TIMESTAMP)
+        ');
+        $insertMatch->execute([$testerId, $rivalId, $officialTestMatchName]);
+    } else {
+        $updateMatchName = $pdo->prepare('
+            UPDATE cl_matches SET match_name = ?, stage_code = "test_q1", updated_at = CURRENT_TIMESTAMP WHERE id = ?
+        ');
+        $updateMatchName->execute([$officialTestMatchName, $testMatchId]);
+    }
+
+    // A completely isolated Qualifier 2 playground. It behaves like a real match,
+    // but both accounts are excluded from tournament counts and official routing.
+    $findTestQ2 = $pdo->prepare('SELECT id FROM cl_matches WHERE stage_code = "test_q2" LIMIT 1');
+    $findTestQ2->execute();
+    if (!(int)($findTestQ2->fetchColumn() ?: 0)) {
+        $insertTestQ2 = $pdo->prepare('
+            INSERT INTO cl_matches (team_a_id, team_b_id, match_name, stage_code, match_time, status, updated_at)
+            VALUES (?, ?, "Qualifier 2 / Fasa 1 / BO3", "test_q2", "2026-08-13 21:30:00", "up_next", CURRENT_TIMESTAMP)
+        ');
+        $insertTestQ2->execute([$testerId, $rivalId]);
+    }
+
+    $findRoom = $pdo->prepare('
+        SELECT id FROM cl_rooms
+        WHERE room_type IN ("match", "deal")
+          AND ((team_a_id = ? AND team_b_id = ?) OR (team_a_id = ? AND team_b_id = ?))
+        LIMIT 1
+    ');
+    $findRoom->execute([$testerId, $rivalId, $rivalId, $testerId]);
+    if (!(int) ($findRoom->fetchColumn() ?: 0)) {
+        $insertRoom = $pdo->prepare('
+            INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, status, updated_at)
+            VALUES ("match", ?, ?, "open", CURRENT_TIMESTAMP)
+        ');
+        $insertRoom->execute([$testerId, $rivalId]);
+    }
 }
 
 function remember_cookie_options(int $expires): array
@@ -890,6 +1840,48 @@ function clean_text(?string $value, int $max = 120): string
 {
     $value = trim(preg_replace('/\s+/', ' ', (string) $value) ?? '');
     return mb_substr($value, 0, $max);
+}
+
+function clean_multiline_text(?string $value, int $max = 700): string
+{
+    $value = str_replace(["\r\n", "\r"], "\n", (string) $value);
+    $value = preg_replace('/[ \t]+/u', ' ', $value) ?? '';
+    $value = preg_replace('/ *\n */u', "\n", $value) ?? '';
+    $value = preg_replace('/\n{3,}/u', "\n\n", $value) ?? '';
+    return mb_substr(trim($value), 0, $max);
+}
+
+function contains_external_contact(string $message): bool
+{
+    $lower = mb_strtolower($message);
+    if (preg_match('~(?:https?://)?(?:wa\.me|api\.whatsapp\.com|whatsapp\.com/send)|\b(?:tel|phone)\s*:~iu', $lower)) {
+        return true;
+    }
+    // Nombor telefon Malaysia: 01X-XXXXXXX/XXXXXXXX atau +60/60 1X-XXXXXXX.
+    if (preg_match('/(?<!\d)(?:\+?6\s*0|6\s*0|0)[\s().-]*1[0-9](?:[\s().-]*[0-9]){7,8}(?!\d)/u', $message)) {
+        return true;
+    }
+    // Cuba kesan nombor yang dieja untuk mengelak bypass seperti "kosong satu dua...".
+    $wordMap = [
+        'kosong' => '0', 'zero' => '0', 'satu' => '1', 'one' => '1',
+        'dua' => '2', 'two' => '2', 'tiga' => '3', 'three' => '3',
+        'empat' => '4', 'four' => '4', 'lima' => '5', 'five' => '5',
+        'enam' => '6', 'six' => '6', 'tujuh' => '7', 'seven' => '7',
+        'lapan' => '8', 'eight' => '8', 'sembilan' => '9', 'nine' => '9',
+    ];
+    $tokens = preg_split('/[^\p{L}\d]+/u', $lower, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $run = '';
+    foreach ($tokens as $token) {
+        if (isset($wordMap[$token])) {
+            $run .= $wordMap[$token];
+        } elseif (preg_match('/^\d$/', $token)) {
+            $run .= $token;
+        } else {
+            if (preg_match('/^(?:01\d{7,8}|601\d{7,8})$/', $run)) return true;
+            $run = '';
+        }
+    }
+    return (bool) preg_match('/^(?:01\d{7,8}|601\d{7,8})$/', $run);
 }
 
 function to_upper_text(string $value): string
@@ -1102,6 +2094,60 @@ function merge_push_summary(array $base, array $next): array
     $base['failed'] = (int) ($base['failed'] ?? 0) + (int) ($next['failed'] ?? 0);
     $base['statuses'] = array_merge($base['statuses'] ?? [], $next['statuses'] ?? []);
     return $base;
+}
+
+function dispatch_due_match_day_notifications(PDO $pdo, array $pushConfig, int $limit = 4): void
+{
+    static $ran = false;
+    if ($ran || $limit <= 0) return;
+    $ran = true;
+
+    $stmt = $pdo->query('
+        SELECT m.id, m.match_name, m.match_time,
+               m.team_a_id, m.team_b_id,
+               ta.team_name AS team_a_name, tb.team_name AS team_b_name
+        FROM cl_matches m
+        LEFT JOIN cl_teams ta ON ta.id = m.team_a_id
+        LEFT JOIN cl_teams tb ON tb.id = m.team_b_id
+        WHERE DATE(m.match_time) = CURDATE()
+          AND LOWER(m.match_name) NOT LIKE "%final%"
+          AND LOWER(m.match_name) REGEXP "qualifier[[:space:]]*[123]"
+          AND m.status != "completed"
+        ORDER BY m.match_time ASC, m.id ASC
+    ');
+    $matches = $stmt->fetchAll();
+    $reserve = $pdo->prepare('INSERT IGNORE INTO cl_match_day_notifications (match_id, team_id) VALUES (?, ?)');
+    $saveEvent = $pdo->prepare('UPDATE cl_match_day_notifications SET event_id = ? WHERE match_id = ? AND team_id = ?');
+    $sent = 0;
+
+    foreach ($matches as $match) {
+        foreach ([
+            [(int) ($match['team_a_id'] ?? 0), (string) ($match['team_b_name'] ?? 'TBD')],
+            [(int) ($match['team_b_id'] ?? 0), (string) ($match['team_a_name'] ?? 'TBD')],
+        ] as [$teamId, $opponent]) {
+            if ($teamId <= 0 || $sent >= $limit) continue;
+            $reserve->execute([(int) $match['id'], $teamId]);
+            if ($reserve->rowCount() !== 1) continue;
+            $matchTime = new DateTimeImmutable((string) $match['match_time']);
+            $body = 'Match anda hari ini menentang ' . $opponent . ' pada ' . $matchTime->format('h:i A') . '. Buka Deal Room dan baca Cara Bermain.';
+            $eventId = queue_push_event(
+                $pdo,
+                'team',
+                $teamId,
+                null,
+                'Match Clash League Hari Ini!',
+                $body,
+                'clash-league.html#deal',
+                'clash-match-day-' . (int) $match['id'] . '-' . $teamId
+            );
+            $saveEvent->execute([$eventId, (int) $match['id'], $teamId]);
+            if (!empty($pushConfig['public_key']) && !empty($pushConfig['private_key'])) {
+                send_push_to_owner($pdo, $pushConfig, 'team', $teamId, null, $eventId);
+            }
+            $sent++;
+        }
+        if ($sent >= $limit) break;
+    }
 }
 
 function save_push_subscription(PDO $pdo): void
@@ -1410,9 +2456,1264 @@ function save_result_screenshot(array $file, string $teamName, int $matchId, str
     return [$relativePath, public_upload_url($relativePath)];
 }
 
+function get_order_records(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $rows=$pdo->query('SELECT m.id,m.message,m.status,m.created_by_admin_id,m.updated_by_admin_id,m.paired_message_id,m.process_code,m.sheet_sync_status,m.sheet_row,m.sheet_synced_at,m.sheet_error,m.created_at,m.updated_at,COALESCE(a.username,"GNEX") AS created_by_name FROM cl_order_messages m LEFT JOIN cl_admin_users a ON a.id=m.created_by_admin_id ORDER BY m.id ASC LIMIT 1000')->fetchAll();
+    json_response(['ok'=>true,'current_user'=>['id'=>(int)$admin['id'],'username'=>(string)$admin['username']],'orders'=>array_map(static function(array $row): array {
+        $row['id']=(int)$row['id'];
+        $row['paired_message_id']=$row['paired_message_id'] === null ? null : (int)$row['paired_message_id'];
+        $row['sheet_row']=$row['sheet_row'] === null ? null : (int)$row['sheet_row'];
+        return $row;
+    },$rows)]);
+}
+
+function get_order_balances(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') json_response(['ok'=>false,'message'=>'Akses baki akaun tidak dibenarkan.'],403);
+    $stmt=$pdo->prepare('SELECT setting_value,updated_at FROM cl_settings WHERE setting_key=? LIMIT 1');
+    $stmt->execute(['order_wallet_balances']);
+    $row=$stmt->fetch();
+    $stored=$row ? json_decode((string)($row['setting_value'] ?? ''),true) : null;
+    if (!is_array($stored)) $stored=[];
+    $walletUpdatedAt=is_array($stored['updated_at'] ?? null) ? $stored['updated_at'] : [];
+    $walletUpdatedBy=is_array($stored['updated_by_wallet'] ?? null) ? $stored['updated_by_wallet'] : [];
+    $legacyUpdatedAt=(string)($row['updated_at'] ?? '');
+    foreach (['tng','digi','celcom'] as $wallet) {
+        if (empty($walletUpdatedAt[$wallet]) && $legacyUpdatedAt !== '') $walletUpdatedAt[$wallet]=$legacyUpdatedAt;
+        if (empty($walletUpdatedBy[$wallet]) && !empty($stored['updated_by'])) $walletUpdatedBy[$wallet]=(string)$stored['updated_by'];
+    }
+    json_response([
+        'ok'=>true,
+        'balances'=>[
+            'tng'=>round((float)($stored['tng'] ?? 0),2),
+            'digi'=>round((float)($stored['digi'] ?? 0),2),
+            'celcom'=>round((float)($stored['celcom'] ?? 0),2),
+        ],
+        'updated_at'=>$walletUpdatedAt,
+        'updated_by'=>$walletUpdatedBy,
+    ]);
+}
+
+function save_order_balances(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') json_response(['ok'=>false,'message'=>'Akses baki akaun tidak dibenarkan.'],403);
+    $stmt=$pdo->prepare('SELECT setting_value,updated_at FROM cl_settings WHERE setting_key=? LIMIT 1');
+    $stmt->execute(['order_wallet_balances']);
+    $existingRow=$stmt->fetch();
+    $existing=$existingRow ? json_decode((string)($existingRow['setting_value'] ?? ''),true) : null;
+    if (!is_array($existing)) $existing=[];
+    $balances=[];
+    foreach (['tng','digi','celcom'] as $wallet) {
+        $raw=trim((string)($_POST[$wallet] ?? ''));
+        if ($raw === '' || !preg_match('/^\d{1,7}(?:\.\d{1,2})?$/',$raw)) {
+            json_response(['ok'=>false,'message'=>'Masukkan baki '.$wallet.' yang sah.'],422);
+        }
+        $value=(float)$raw;
+        if ($value < 0 || $value > 9999999.99) {
+            json_response(['ok'=>false,'message'=>'Nilai baki '.$wallet.' di luar julat.'],422);
+        }
+        $balances[$wallet]=round($value,2);
+    }
+    $editor=(string)($admin['username'] ?? $admin['display_name'] ?? 'Admin');
+    $updatedAt=is_array($existing['updated_at'] ?? null) ? $existing['updated_at'] : [];
+    $updatedByWallet=is_array($existing['updated_by_wallet'] ?? null) ? $existing['updated_by_wallet'] : [];
+    $legacyUpdatedAt=(string)($existingRow['updated_at'] ?? '');
+    $now=(new DateTimeImmutable('now',new DateTimeZone('Asia/Kuala_Lumpur')))->format('Y-m-d H:i:s');
+    foreach (['tng','digi','celcom'] as $wallet) {
+        $oldValue=round((float)($existing[$wallet] ?? 0),2);
+        if (!array_key_exists($wallet,$updatedAt) && $legacyUpdatedAt !== '') $updatedAt[$wallet]=$legacyUpdatedAt;
+        if (abs($oldValue-$balances[$wallet])>=0.005 || empty($updatedAt[$wallet])) {
+            $updatedAt[$wallet]=$now;
+            $updatedByWallet[$wallet]=$editor;
+        }
+    }
+    $numericBalances=$balances;
+    $balances['updated_at']=$updatedAt;
+    $balances['updated_by_wallet']=$updatedByWallet;
+    $balances['updated_by']=$editor;
+    $json=json_encode($balances,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    if ($json === false) json_response(['ok'=>false,'message'=>'Baki gagal disimpan.'],500);
+    $stmt=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES (?,?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute(['order_wallet_balances',$json]);
+    json_response(['ok'=>true,'message'=>'Baki berjaya dikemas kini.','balances'=>$numericBalances,'updated_at'=>$updatedAt,'updated_by'=>$updatedByWallet]);
+}
+
+function get_order_stock(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') json_response(['ok'=>false,'message'=>'Akses halaman stok tidak dibenarkan.'],403);
+    $stmt=$pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key="order_stock_state" LIMIT 1');
+    $stmt->execute();
+    $stored=json_decode((string)($stmt->fetchColumn() ?: '{}'),true);
+    if (!is_array($stored)) $stored=[];
+    $pdo->exec('UPDATE cl_stock_updates SET shell_amount=ROUND(amount_rm*(1300/108),2) WHERE shell_amount IS NULL');
+    $updates=$pdo->query('SELECT s.id,s.phone,s.sim_label,s.amount_rm,s.shell_amount,s.change_sim,s.raw_message,s.created_at,a.username FROM cl_stock_updates s LEFT JOIN cl_admin_users a ON a.id=s.created_by_admin_id ORDER BY s.id DESC LIMIT 50')->fetchAll();
+    $autoAddedShell=(float)$pdo->query('SELECT COALESCE(SUM(shell_amount),0) FROM cl_stock_updates')->fetchColumn();
+    $manualAddedShell=round((float)($stored['manual_added_shell'] ?? 0),2);
+    $pendingRm=(float)$pdo->query('SELECT COALESCE(SUM(amount_rm),0) FROM cl_stock_updates WHERE shell_amount IS NULL')->fetchColumn();
+    json_response(['ok'=>true,'user'=>$admin,'stock'=>[
+        'initial_shell'=>round((float)($stored['initial_shell'] ?? 0),2),
+        'initial_web'=>round((float)($stored['initial_web'] ?? 0),2),
+        'actual_shell'=>round((float)($stored['actual_shell'] ?? 0),2),
+        'actual_web'=>round((float)($stored['actual_web'] ?? 0),2),
+        'added_web'=>round((float)($stored['added_web'] ?? 0),2),
+        'usage_start_date'=>(string)($stored['usage_start_date'] ?? ''),
+        'usage_start_key'=>(string)($stored['usage_start_key'] ?? ''),
+        'usage_start_at'=>(string)($stored['usage_start_at'] ?? ''),
+        'auto_added_shell'=>round($autoAddedShell,2),
+        'manual_added_shell'=>$manualAddedShell,
+        'added_shell'=>round($autoAddedShell+$manualAddedShell,2),'pending_rm'=>round($pendingRm,2),
+        'shell_rate'=>round(1300/108,8),
+    ],'updates'=>$updates]);
+}
+
+function save_order_stock(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') json_response(['ok'=>false,'message'=>'Akses kemas kini stok tidak dibenarkan.'],403);
+    $storedStmt=$pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key="order_stock_state" LIMIT 1');
+    $storedStmt->execute();
+    $stored=json_decode((string)($storedStmt->fetchColumn() ?: '{}'),true);
+    if (!is_array($stored)) $stored=[];
+    $values=[];
+    foreach (['initial_shell','initial_web','actual_shell','actual_web','added_web'] as $field) {
+        $raw=trim((string)($_POST[$field] ?? ''));
+        if ($raw==='' || !preg_match('/^\d{1,9}(?:\.\d{1,2})?$/',$raw)) json_response(['ok'=>false,'message'=>'Nilai stok tidak sah.'],422);
+        $values[$field]=round((float)$raw,2);
+    }
+    $targetRaw=trim((string)($_POST['added_shell_target'] ?? ''));
+    if ($targetRaw!=='') {
+        if (!preg_match('/^\d{1,9}(?:\.\d{1,2})?$/',$targetRaw)) json_response(['ok'=>false,'message'=>'Nilai tambah stok shell tidak sah.'],422);
+        $currentAuto=(float)$pdo->query('SELECT COALESCE(SUM(shell_amount),0) FROM cl_stock_updates')->fetchColumn();
+        // Pelarasan menukar angka semasa tanpa memadam rekod update Izwan.
+        $values['manual_added_shell']=round((float)$targetRaw-$currentAuto,2);
+    } else {
+        $values['manual_added_shell']=round((float)($stored['manual_added_shell'] ?? 0),2);
+    }
+    $startDate=trim((string)($_POST['usage_start_date'] ?? ''));
+    if ($startDate!=='' && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$startDate)) json_response(['ok'=>false,'message'=>'Tarikh mula kira tidak sah.'],422);
+    $values['usage_start_date']=$startDate;
+    $startKey=trim((string)($_POST['usage_start_key'] ?? ''));
+    $keepNew=$startKey==='KEEP_NEW';
+    if ($keepNew) $startKey=(string)($stored['usage_start_key'] ?? 'NEW');
+    if (strlen($startKey)>500 || preg_match('/[\x00-\x1F\x7F]/',$startKey)) json_response(['ok'=>false,'message'=>'Rekod mula kira tidak sah.'],422);
+    $values['usage_start_key']=$startKey;
+    $startAt=$keepNew ? (string)($stored['usage_start_at'] ?? '') : trim((string)($_POST['usage_start_at'] ?? ''));
+    if (!$keepNew && str_starts_with($startKey,'NEW|') && $startAt==='') $startKey='NEW';
+    if ($startKey==='NEW') {
+        if ($startAt==='') $startAt=(new DateTimeImmutable('now',new DateTimeZone('Asia/Kuala_Lumpur')))->format('Y-m-d\TH:i:s');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/',$startAt)) json_response(['ok'=>false,'message'=>'Masa mula kira NEW tidak sah.'],422);
+    } else {
+        $startAt='';
+    }
+    $values['usage_start_at']=$startAt;
+    $values['updated_by']=(string)$admin['username'];
+    $values['updated_at']=date('Y-m-d H:i:s');
+    $json=json_encode($values,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    $stmt=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES ("order_stock_state",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute([$json]);
+    json_response(['ok'=>true,'message'=>'Stok berjaya disimpan.']);
+}
+
+function default_order_sim_accounts(): array
+{
+    $file=dirname(__DIR__).DIRECTORY_SEPARATOR.'order-record.html';
+    $html=is_file($file) ? (string)file_get_contents($file) : '';
+    if ($html==='' || !preg_match_all('/<div class="sim-row"\s+data-sim-row\s+data-baki="([^"]*)"\s+data-rgg="([^"]*)"\s+data-shell="([^"]*)">(.*?)<\/div>/is',$html,$matches,PREG_SET_ORDER)) return [];
+    $accounts=[];
+    foreach ($matches as $match) {
+        $content=(string)$match[4];
+        preg_match('/<b>(.*?)<\/b>/is',$content,$name);
+        preg_match('/<span class="number">(.*?)<\/span>/is',$content,$number);
+        preg_match('/<span class="last[^"]*">(.*?)<\/span>/is',$content,$last);
+        preg_match('/<span class="updated">(.*?)<\/span>/is',$content,$updated);
+        $accounts[]=[
+            'name'=>trim(html_entity_decode(strip_tags((string)($name[1] ?? '')),ENT_QUOTES|ENT_HTML5,'UTF-8')),
+            'number'=>trim(html_entity_decode(strip_tags((string)($number[1] ?? '')),ENT_QUOTES|ENT_HTML5,'UTF-8')),
+            'baki'=>round((float)$match[1],2),
+            'rgg'=>round((float)$match[2],2),
+            'shell'=>round((float)$match[3],2),
+            'last_used'=>trim(html_entity_decode(strip_tags((string)($last[1] ?? '')),ENT_QUOTES|ENT_HTML5,'UTF-8')),
+            'last_updated'=>trim(html_entity_decode(strip_tags((string)($updated[1] ?? '')),ENT_QUOTES|ENT_HTML5,'UTF-8')),
+            'stock_balance_initialized'=>false,
+        ];
+    }
+    return $accounts;
+}
+
+function load_order_sim_accounts_value(PDO $pdo, bool $forUpdate=false): array
+{
+    $sql='SELECT setting_value FROM cl_settings WHERE setting_key="order_sim_accounts" LIMIT 1'.($forUpdate?' FOR UPDATE':'');
+    $stmt=$pdo->prepare($sql);
+    $stmt->execute();
+    $accounts=json_decode((string)($stmt->fetchColumn() ?: '[]'),true);
+    if (!is_array($accounts) || !$accounts) $accounts=default_order_sim_accounts();
+    return $accounts;
+}
+
+function get_order_sim_accounts(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $stmt=$pdo->prepare('SELECT setting_value,updated_at FROM cl_settings WHERE setting_key="order_sim_accounts" LIMIT 1');
+    $stmt->execute();
+    $row=$stmt->fetch();
+    $accounts=$row ? json_decode((string)($row['setting_value'] ?? ''),true) : [];
+    if (!is_array($accounts) || !$accounts) $accounts=default_order_sim_accounts();
+    json_response(['ok'=>true,'accounts'=>array_values($accounts),'updated_at'=>(string)($row['updated_at'] ?? '')]);
+}
+
+function save_order_sim_accounts(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $decoded=json_decode((string)($_POST['accounts'] ?? ''),true);
+    if (!is_array($decoded) || count($decoded)>100) json_response(['ok'=>false,'message'=>'Data akaun SIM tidak sah.'],422);
+    $accounts=[];
+    foreach ($decoded as $item) {
+        if (!is_array($item)) continue;
+        $number=preg_replace('/[^0-9+ -]/','',clean_text($item['number'] ?? '',30));
+        $accounts[]=[
+            'name'=>clean_text($item['name'] ?? '',100),
+            'number'=>$number,
+            'baki'=>round(max(0,min(9999999.99,(float)($item['baki'] ?? 0))),2),
+            'rgg'=>round(max(0,min(9999999.99,(float)($item['rgg'] ?? 0))),2),
+            'shell'=>round(max(0,min(9999999.99,(float)($item['shell'] ?? 0))),2),
+            'last_used'=>clean_text($item['last_used'] ?? '',30),
+            'last_updated'=>clean_text($item['last_updated'] ?? '',30),
+            'stock_balance_initialized'=>!empty($item['stock_balance_initialized']),
+        ];
+    }
+    $json=json_encode($accounts,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    if ($json===false) json_response(['ok'=>false,'message'=>'Data SIM gagal diproses.'],500);
+    $stmt=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES ("order_sim_accounts",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute([$json]);
+    json_response(['ok'=>true,'message'=>'Maklumat SIM berjaya disimpan.','accounts'=>$accounts,'updated_by'=>(string)$admin['username']]);
+}
+
+function save_processed_sim_balance(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin || ($admin['access_scope'] ?? '') !== 'stock') json_response(['ok'=>false,'message'=>'Akaun Izwan diperlukan.'],403);
+    $messageId=(int)($_POST['message_id'] ?? 0);
+    $balance=filter_var($_POST['balance'] ?? null,FILTER_VALIDATE_FLOAT);
+    if ($messageId<=0 || $balance===false || $balance<0 || $balance>9999999.99) json_response(['ok'=>false,'message'=>'Masukkan baki SIM yang sah.'],422);
+    $stmt=$pdo->prepare('SELECT message,status,created_by_admin_id,created_at FROM cl_order_messages WHERE id=? LIMIT 1');
+    $stmt->execute([$messageId]);
+    $message=$stmt->fetch();
+    if (!$message || (int)$message['created_by_admin_id'] !== (int)$admin['id'] || $message['status']!=='processed') json_response(['ok'=>false,'message'=>'Mesej stok belum diproses atau tidak sah.'],422);
+    $stockUpdate=parse_stock_update_message((string)$message['message']);
+    if (!$stockUpdate || empty($stockUpdate['phone'])) json_response(['ok'=>false,'message'=>'Nombor SIM tidak dapat dikesan.'],422);
+    $pdo->beginTransaction();
+    try {
+        $accounts=load_order_sim_accounts_value($pdo,true);
+        $rows=is_array($accounts['accounts'] ?? null) ? $accounts['accounts'] : $accounts;
+        $matched=false;
+        foreach ($rows as &$account) {
+            if (!is_array($account) || preg_replace('/\D+/','',(string)($account['number'] ?? '')) !== $stockUpdate['phone']) continue;
+            if (!empty($account['stock_balance_initialized'])) {
+                $pdo->rollBack();
+                json_response(['ok'=>true,'message'=>'Baki asas SIM ini sudah pernah diisi.','already_saved'=>true]);
+            }
+            $account['baki']=round((float)$balance,2);
+            $account['stock_balance_initialized']=true;
+            $account['last_used']=date('d/m/Y',strtotime((string)$message['created_at']));
+            $matched=true;
+            break;
+        }
+        unset($account);
+        if (!$matched) throw new RuntimeException('Nombor SIM tidak ditemui dalam Senarai SIM.');
+        if (is_array($accounts['accounts'] ?? null)) $accounts['accounts']=$rows; else $accounts=$rows;
+        $json=json_encode($accounts,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        $save=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES ("order_sim_accounts",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+        $save->execute([$json]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
+    json_response(['ok'=>true,'message'=>'Baki asas SIM berjaya disimpan. Selepas ini sistem akan kira sendiri.']);
+}
+
+function get_order_money(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $stmt=$pdo->prepare('SELECT setting_value,updated_at FROM cl_settings WHERE setting_key="order_money_state" LIMIT 1');
+    $stmt->execute();
+    $row=$stmt->fetch();
+    $state=$row ? json_decode((string)($row['setting_value'] ?? ''),true) : [];
+    if (!is_array($state)) $state=[];
+    $state=link_order_money_accounts($pdo,$state);
+    json_response(['ok'=>true,'money'=>$state,'updated_at'=>(string)($row['updated_at'] ?? '')]);
+}
+
+function link_order_money_accounts(PDO $pdo, array $state): array
+{
+    $readSetting=static function(string $key) use ($pdo): array {
+        $stmt=$pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key=? LIMIT 1');
+        $stmt->execute([$key]);
+        $decoded=json_decode((string)($stmt->fetchColumn() ?: '{}'),true);
+        return is_array($decoded) ? $decoded : [];
+    };
+    $wallets=$readSetting('order_wallet_balances');
+    $simAccounts=$readSetting('order_sim_accounts');
+    $stock=$readSetting('order_stock_state');
+    $rggTotal=0.0;
+    $simBalanceTotal=0.0;
+    $simRows=is_array($simAccounts['accounts'] ?? null) ? $simAccounts['accounts'] : $simAccounts;
+    if ($simRows) {
+        foreach ($simRows as $sim) if (is_array($sim)) {
+            $rggTotal+=(float)($sim['rgg'] ?? 0);
+            $simBalanceTotal+=(float)($sim['baki'] ?? 0);
+        }
+    } else {
+        // Sebelum senarai SIM pernah disimpan melalui editor, paparan SIM masih
+        // menggunakan 21 baris asal dalam order-record.html. Gunakan sumber yang
+        // sama supaya jumlah Lokasi Duit sepadan dengan kad JUMLAH RGG.
+        $orderRecordHtml=dirname(__DIR__).DIRECTORY_SEPARATOR.'order-record.html';
+        $html=is_file($orderRecordHtml) ? (string)file_get_contents($orderRecordHtml) : '';
+        if ($html !== '' && preg_match_all('/\bdata-rgg="([0-9]+(?:\.[0-9]+)?)"/i',$html,$rggMatches)) {
+            foreach ($rggMatches[1] as $rggValue) $rggTotal+=(float)$rggValue;
+        }
+        if ($html !== '' && preg_match_all('/\bdata-baki="([0-9]+(?:\.[0-9]+)?)"/i',$html,$balanceMatches)) {
+            foreach ($balanceMatches[1] as $balanceValue) $simBalanceTotal+=(float)$balanceValue;
+        }
+    }
+    $simConversionRate=12.04/14.61;
+    $linked=[
+        'duit touch n go'=>['amount'=>(float)($wallets['tng'] ?? 0),'source'=>'Chat · TNG 1'],
+        'stok digi sim 1'=>['amount'=>(float)($wallets['digi'] ?? 0)*$simConversionRate,'source'=>'Chat Digi × 12.04 ÷ 14.61'],
+        'stok semua sim'=>['amount'=>$simBalanceTotal*$simConversionRate,'source'=>'Jumlah Baki SIM × 12.04 ÷ 14.61'],
+        'celcom sim 2'=>['amount'=>(float)($wallets['celcom'] ?? 0)*$simConversionRate,'source'=>'Chat Celcom × 12.04 ÷ 14.61'],
+        'stok rgg'=>['amount'=>$rggTotal*$simConversionRate,'source'=>'Jumlah RGG SIM × 12.04 ÷ 14.61'],
+        'stok garena shell'=>['amount'=>(float)($stock['actual_shell'] ?? 0)*108/1300,'source'=>'Shell semasa × 108 ÷ 1300'],
+        'stok web'=>['amount'=>(float)($stock['actual_web'] ?? 0),'source'=>'Stok web semasa'],
+    ];
+    $normalize=static function(string $name): string {
+        $name=mb_strtolower(str_replace(['’',"'"],'',$name),'UTF-8');
+        $name=preg_replace('/[^a-z0-9]+/u',' ',$name) ?? $name;
+        return trim((string)(preg_replace('/\s+/u',' ',$name) ?? $name));
+    };
+    $accounts=is_array($state['accounts'] ?? null) ? $state['accounts'] : [];
+    foreach ($accounts as &$account) {
+        if (!is_array($account)) continue;
+        $key=$normalize((string)($account['name'] ?? ''));
+        if (in_array($key,['stok digi sim pc','celcom sim 1'],true)) {
+            $rawAmount=(float)($account['raw_amount'] ?? $account['amount'] ?? 0);
+            $account['raw_amount']=round($rawAmount,2);
+            $account['amount']=round($rawAmount*$simConversionRate,2);
+            $account['converted']=true;
+            $account['source']=($key==='celcom sim 1'?'Celcom SIM 1':'Digi SIM PC').' × 12.04 ÷ 14.61';
+            continue;
+        }
+        if (!isset($linked[$key])) continue;
+        $account['amount']=round((float)$linked[$key]['amount'],2);
+        $account['linked']=true;
+        $account['source']=$linked[$key]['source'];
+    }
+    unset($account);
+    $state['accounts']=$accounts;
+    return $state;
+}
+
+function save_order_money(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') json_response(['ok'=>false,'message'=>'Akses kewangan tidak dibenarkan.'],403);
+    $input=json_decode((string)($_POST['money'] ?? ''),true);
+    if (!is_array($input)) json_response(['ok'=>false,'message'=>'Data kewangan tidak sah.'],422);
+    $cleanMoney=static fn($value): float=>round(max(-999999999.99,min(999999999.99,(float)$value)),2);
+    $allocations=[];
+    foreach (array_slice(is_array($input['allocations'] ?? null)?$input['allocations']:[],0,50) as $item) {
+        if (!is_array($item)) continue;
+        $allocations[]=['code'=>clean_text($item['code'] ?? '',6),'name'=>clean_text($item['name'] ?? '',80),'amount'=>$cleanMoney($item['amount'] ?? 0),'note'=>clean_text($item['note'] ?? '',2000)];
+    }
+    $accounts=[];
+    foreach (array_slice(is_array($input['accounts'] ?? null)?$input['accounts']:[],0,100) as $item) {
+        if (!is_array($item)) continue;
+        $name=clean_text($item['name'] ?? '',100);
+        $account=['name'=>$name,'amount'=>$cleanMoney($item['amount'] ?? 0)];
+        $accountKey=trim((string)(preg_replace('/\s+/u',' ',preg_replace('/[^a-z0-9]+/u',' ',mb_strtolower(str_replace(['’',"'"],'',$name),'UTF-8')) ?? '') ?? ''));
+        if ($accountKey==='stok digi sim pc') {
+            $rawAmount=$cleanMoney($item['raw_amount'] ?? $item['amount'] ?? 0);
+            $account['raw_amount']=$rawAmount;
+            $account['amount']=$rawAmount;
+        }
+        $accounts[]=$account;
+    }
+    $commitments=[];
+    foreach (array_slice(is_array($input['commitments'] ?? null)?$input['commitments']:[],0,100) as $item) {
+        if (!is_array($item)) continue;
+        $shares=[];
+        foreach (($item['shares'] ?? []) as $share) {
+            if (!is_array($share) || count($shares)>=20) continue;
+            $shares[]=['name'=>clean_text($share['name'] ?? '',80),'amount'=>$cleanMoney($share['amount'] ?? 0),'paid'=>!empty($share['paid'])];
+        }
+        $commitments[]=['name'=>clean_text($item['name'] ?? '',100),'date'=>clean_text($item['date'] ?? '',30),'amount'=>$cleanMoney($item['amount'] ?? 0),'paid'=>!empty($item['paid']),'payment'=>clean_text($item['payment'] ?? '',100),'note'=>clean_text($item['note'] ?? '',300),'shares'=>$shares];
+    }
+    $state=['month'=>clean_text($input['month'] ?? '',20),'current_total'=>$cleanMoney($input['current_total'] ?? 0),'allocations'=>$allocations,'accounts'=>$accounts,'commitments'=>$commitments,'updated_by'=>(string)$admin['username'],'updated_at'=>date('Y-m-d H:i:s')];
+    $json=json_encode($state,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    if ($json===false) json_response(['ok'=>false,'message'=>'Data kewangan gagal diproses.'],500);
+    $stmt=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES ("order_money_state",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute([$json]);
+    json_response(['ok'=>true,'message'=>'Maklumat kewangan berjaya disimpan.','money'=>link_order_money_accounts($pdo,$state)]);
+}
+
+function require_order_todo_nizam(PDO $pdo): array
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login diperlukan.'],401);
+    if (($admin['access_scope'] ?? '') !== 'allocation') json_response(['ok'=>false,'message'=>'Page TO DO hanya untuk akaun Nizam.'],403);
+    return $admin;
+}
+
+function read_order_todo_state(PDO $pdo): array
+{
+    $stmt=$pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key="order_todo_nizam" LIMIT 1');
+    $stmt->execute();
+    $state=json_decode((string)($stmt->fetchColumn() ?: '{}'),true);
+    if (!is_array($state)) $state=[];
+    if (!is_array($state['tasks'] ?? null)) $state['tasks']=[];
+    if (!is_array($state['checks'] ?? null)) $state['checks']=[];
+    return $state;
+}
+
+function write_order_todo_state(PDO $pdo,array $state): void
+{
+    $json=json_encode($state,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    if ($json===false) json_response(['ok'=>false,'message'=>'Data TO DO gagal diproses.'],500);
+    $stmt=$pdo->prepare('INSERT INTO cl_settings(setting_key,setting_value,updated_at) VALUES("order_todo_nizam",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+    $stmt->execute([$json]);
+}
+
+function get_order_todo(PDO $pdo): void
+{
+    require_order_todo_nizam($pdo);
+    $state=read_order_todo_state($pdo);
+    json_response(['ok'=>true,'todo'=>$state,'server_now'=>date('Y-m-d H:i:s')]);
+}
+
+function save_order_todo_task(PDO $pdo): void
+{
+    $admin=require_order_todo_nizam($pdo);
+    $state=read_order_todo_state($pdo);
+    $id=clean_text($_POST['id'] ?? '',40);
+    if ($id==='') $id='td_'.date('YmdHis').'_'.bin2hex(random_bytes(3));
+    $title=clean_text($_POST['title'] ?? '',180);
+    if ($title==='') json_response(['ok'=>false,'message'=>'Isi nama tugasan dahulu.'],422);
+    $type=clean_text($_POST['schedule_type'] ?? 'inbox',20);
+    if (!in_array($type,['once','daily','weekly','inbox'],true)) $type='inbox';
+    $date=clean_text($_POST['due_date'] ?? '',10);
+    if ($date!=='' && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$date)) $date='';
+    $time=clean_text($_POST['due_time'] ?? '',5);
+    if ($time!=='' && !preg_match('/^\d{2}:\d{2}$/',$time)) $time='';
+    $weekdays=array_values(array_unique(array_filter(array_map('intval',explode(',',(string)($_POST['weekdays'] ?? ''))),static fn($v)=>$v>=1&&$v<=7)));
+    $existing=null;
+    foreach ($state['tasks'] as $task) if (($task['id'] ?? '')===$id) {$existing=$task;break;}
+    $newTask=[
+        'id'=>$id,'title'=>$title,'notes'=>clean_text($_POST['notes'] ?? '',1000),
+        'place'=>clean_text($_POST['place'] ?? '',180),
+        'end_time'=>preg_match('/^\d{2}:\d{2}$/',(string)($_POST['end_time'] ?? ''))?(string)$_POST['end_time']:'',
+        'kind'=>(($_POST['kind'] ?? '')==='event'?'event':'task'),
+        'category'=>in_array((string)($_POST['category'] ?? ''),['important','training','learning','work','prayer','other'],true)?(string)$_POST['category']:'other',
+        'schedule_type'=>$type,'due_date'=>$date,'due_time'=>$time,'weekdays'=>$weekdays,
+        'active'=>true,'created_at'=>(string)($existing['created_at'] ?? date('Y-m-d H:i:s')),
+        'updated_at'=>date('Y-m-d H:i:s'),'updated_by'=>(string)$admin['username'],
+    ];
+    $replaced=false;
+    foreach ($state['tasks'] as $i=>$task) if (($task['id'] ?? '')===$id) {$state['tasks'][$i]=$newTask;$replaced=true;break;}
+    if (!$replaced) array_unshift($state['tasks'],$newTask);
+    write_order_todo_state($pdo,$state);
+    json_response(['ok'=>true,'message'=>'Tugasan berjaya disimpan.','todo'=>$state,'server_now'=>date('Y-m-d H:i:s')]);
+}
+
+function toggle_order_todo(PDO $pdo): void
+{
+    require_order_todo_nizam($pdo);
+    $state=read_order_todo_state($pdo);
+    $taskId=clean_text($_POST['task_id'] ?? '',40);
+    $date=clean_text($_POST['date'] ?? '',10);
+    if ($taskId==='' || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$date)) json_response(['ok'=>false,'message'=>'Rekod tugasan tidak sah.'],422);
+    $key=$taskId.'|'.$date;
+    if (!empty($_POST['done'])) $state['checks'][$key]=['status'=>'done','at'=>date('Y-m-d H:i:s')];
+    else unset($state['checks'][$key]);
+    write_order_todo_state($pdo,$state);
+    json_response(['ok'=>true,'todo'=>$state,'server_now'=>date('Y-m-d H:i:s')]);
+}
+
+function delete_order_todo_task(PDO $pdo): void
+{
+    require_order_todo_nizam($pdo);
+    $state=read_order_todo_state($pdo);
+    $id=clean_text($_POST['id'] ?? '',40);
+    foreach ($state['tasks'] as $i=>$task) if (($task['id'] ?? '')===$id) {
+        $state['tasks'][$i]['active']=false;
+        $state['tasks'][$i]['deleted_at']=date('Y-m-d H:i:s');
+        break;
+    }
+    write_order_todo_state($pdo,$state);
+    json_response(['ok'=>true,'todo'=>$state,'server_now'=>date('Y-m-d H:i:s')]);
+}
+
+function get_order_sheet_data(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    }
+    if (($admin['access_scope'] ?? 'admin') === 'stock') {
+        json_response(['ok'=>false,'message'=>'Akses rekod order tidak dibenarkan untuk akaun stok.'],403);
+    }
+
+    $configPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'order-record-sheet-config.php';
+    $config = is_file($configPath) ? require $configPath : [];
+    $publishedBase = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSGOLsGL_RFkbGIyYbL5ec84eik9ptz7kf07QqbdqBy2tu90HFrTfkqq0gQvlXjuYsXgxp7K6cn8IFP/pub';
+    $allUrl = trim((string) ($config['all_csv_url'] ?? ($publishedBase . '?gid=0&single=true&output=csv')));
+    $dailyUrl = trim((string) ($config['daily_csv_url'] ?? ($publishedBase . '?gid=357721629&single=true&output=csv')));
+
+    $readUrl = trim((string) ($config['read_url'] ?? ''));
+    if ($readUrl !== '') {
+        $json = fetch_order_sheet_json($readUrl);
+        if (!empty($json['ok'])) {
+            json_response($json['data']);
+        }
+    }
+
+    $all = fetch_order_sheet_csv($allUrl);
+    $daily = fetch_order_sheet_csv($dailyUrl);
+    if (empty($all['ok']) && empty($daily['ok'])) {
+        $reason = (string) ($all['message'] ?? $daily['message'] ?? 'Google Sheet tidak dapat dicapai.');
+        json_response(['ok' => false, 'message' => $reason], 502);
+    }
+
+    json_response([
+        'ok' => true,
+        'all_rows' => !empty($all['ok']) ? $all['rows'] : [],
+        'daily_rows' => !empty($daily['ok']) ? $daily['rows'] : [],
+        'all_live' => !empty($all['ok']),
+        'daily_live' => !empty($daily['ok']),
+        'message' => !empty($all['ok']) && !empty($daily['ok'])
+            ? 'Google Sheet live.'
+            : 'Sebahagian paparan Google Sheet belum tersedia.',
+    ]);
+}
+
+function fetch_order_sheet_json(string $url): array
+{
+    if (!function_exists('curl_init')) {
+        return ['ok' => false, 'message' => 'PHP cURL belum aktif pada hosting.'];
+    }
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_USERAGENT => 'GNEX-Order-Record/1.0',
+    ]);
+    $body = curl_exec($curl);
+    $error = curl_error($curl);
+    $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    curl_close($curl);
+    if ($body === false || $error !== '' || $status < 200 || $status >= 300) {
+        return ['ok' => false, 'message' => $error ?: 'Apps Script tidak dapat dicapai.'];
+    }
+    $data = json_decode((string) $body, true);
+    if (!is_array($data) || empty($data['ok'])) {
+        return ['ok' => false, 'message' => (string) ($data['message'] ?? 'Respons Apps Script tidak sah.')];
+    }
+    return ['ok' => true, 'data' => $data];
+}
+
+function fetch_order_sheet_csv(string $url): array
+{
+    if (!function_exists('curl_init')) {
+        return ['ok' => false, 'message' => 'PHP cURL belum aktif pada hosting.'];
+    }
+
+    $curl = curl_init($url);
+    curl_setopt_array($curl, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_USERAGENT => 'GNEX-Order-Record/1.0',
+    ]);
+    $body = curl_exec($curl);
+    $error = curl_error($curl);
+    $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    curl_close($curl);
+    if ($body === false || $error !== '') {
+        return ['ok' => false, 'message' => $error ?: 'Google Sheet tidak dapat dicapai.'];
+    }
+    if ($status < 200 || $status >= 300) {
+        return ['ok' => false, 'message' => 'Google Sheet memberi HTTP ' . $status . '.'];
+    }
+
+    $rows = [];
+    $stream = fopen('php://temp', 'r+');
+    if ($stream === false) {
+        return ['ok' => false, 'message' => 'CSV Google Sheet tidak dapat dibaca.'];
+    }
+    fwrite($stream, (string) $body);
+    rewind($stream);
+    while (($row = fgetcsv($stream)) !== false) {
+        if (count(array_filter($row, static fn($value): bool => trim((string) $value) !== '')) > 0) {
+            $rows[] = array_map(static fn($value): string => (string) $value, $row);
+        }
+    }
+    fclose($stream);
+
+    return ['ok' => true, 'rows' => $rows];
+}
+
+function create_order_record(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $message=trim((string)($_POST['message'] ?? $_POST['raw_message'] ?? ''));
+    if ($message==='') json_response(['ok'=>false,'message'=>'Tulis mesej dahulu.'],422);
+    if (mb_strlen($message)>1000) json_response(['ok'=>false,'message'=>'Mesej terlalu panjang.'],422);
+    $stmt=$pdo->prepare('INSERT INTO cl_order_messages (message,status,created_by_admin_id) VALUES (?,"normal",?)');
+    $stmt->execute([$message,(int)$admin['id']]);
+    $messageId=(int)$pdo->lastInsertId();
+    $stockUpdate=parse_stock_update_message($message);
+    json_response(['ok'=>true,'message'=>$stockUpdate?'Mesej stok dihantar. Klik mesej dan tekan PROSES STOK.':'Mesej dihantar.','order_id'=>$messageId,'stock_update'=>(bool)$stockUpdate]);
+}
+
+function parse_stock_update_message(string $message): ?array
+{
+    $extractAmount=function (string $keyword) use ($message): float {
+        $number='([0-9]+(?:\.[0-9]{1,2})?)';
+        $word=preg_quote($keyword,'/');
+        $patterns=[
+            '/\brm\s*'.$number.'\s*'.$word.'\b/i',
+            '/\b'.$word.'\s*\brm\s*'.$number.'\b/i',
+            '/\brm\s*'.$word.'\s*'.$number.'\b/i',
+            '/\b'.$word.'\s*'.$number.'\s*\brm\b/i',
+            '/(?<![\d.])'.$number.'\s*\brm\s*'.$word.'\b/i',
+            '/(?<![\d.])'.$number.'\s*'.$word.'\s*\brm\b/i',
+        ];
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern,$message,$match)) return round((float)$match[1],2);
+        }
+        return 0.0;
+    };
+    preg_match('/(?<!\d)(01\d(?:[\s-]?\d){7,9})(?!\d)/',$message,$phoneMatch);
+    preg_match('/\bsim\s*([a-z0-9_-]+)/i',$message,$simMatch);
+    $phone=preg_replace('/\D+/','',(string)($phoneMatch[0] ?? ''));
+    $amount=$extractAmount('shell');
+    $rggAmount=$extractAmount('rgg');
+    if (($amount<=0 && $rggAmount<=0) || $amount>9999999.99 || $rggAmount>9999999.99) return null;
+    return [
+        'phone'=>$phone !== '' ? $phone : null,
+        'sim_label'=>isset($simMatch[1]) ? 'SIM '.strtoupper($simMatch[1]) : null,
+        'amount_rm'=>$amount,
+        'rgg_amount_rm'=>$rggAmount,
+        'change_sim'=>(bool)preg_match('/\btukar\s+sim\b/i',$message),
+    ];
+}
+
+function process_stock_update_message(PDO $pdo, int $messageId, array $admin): void
+{
+    $stmt=$pdo->prepare('SELECT id,message,status,created_by_admin_id,created_at FROM cl_order_messages WHERE id=? LIMIT 1');
+    $stmt->execute([$messageId]);
+    $message=$stmt->fetch();
+    if (!$message) json_response(['ok'=>false,'message'=>'Mesej stok tidak ditemui.'],404);
+    if ((int)$message['created_by_admin_id'] !== (int)$admin['id']) {
+        json_response(['ok'=>false,'message'=>'Izwan hanya boleh memproses mesej stok sendiri.'],403);
+    }
+    $stockUpdate=parse_stock_update_message((string)$message['message']);
+    if (!$stockUpdate) json_response(['ok'=>false,'message'=>'Format stok tidak lengkap. Pastikan ada nombor telefon serta kod RM + nilai + SHELL atau RGG.'],422);
+    if (empty($stockUpdate['phone'])) json_response(['ok'=>false,'message'=>'Nombor telefon SIM wajib dimasukkan sebelum proses stok.'],422);
+    $shellAmount=round((float)$stockUpdate['amount_rm']*(1300/108),2);
+    $simShellAmount=round((float)$stockUpdate['amount_rm'],2);
+    $rggAmount=round((float)($stockUpdate['rgg_amount_rm'] ?? 0),2);
+    $pdo->beginTransaction();
+    try {
+        $insert=$pdo->prepare('INSERT IGNORE INTO cl_stock_updates (source_message_id,phone,sim_label,amount_rm,shell_amount,change_sim,raw_message,created_by_admin_id) VALUES (?,?,?,?,?,?,?,?)');
+        $insert->execute([$messageId,$stockUpdate['phone'],$stockUpdate['sim_label'],$stockUpdate['amount_rm'],$shellAmount,$stockUpdate['change_sim'] ? 1 : 0,(string)$message['message'],(int)$admin['id']]);
+        if ($insert->rowCount()>0) {
+            $accounts=load_order_sim_accounts_value($pdo,true);
+            $rows=is_array($accounts['accounts'] ?? null) ? $accounts['accounts'] : $accounts;
+            $matched=false;
+            $requiresBalance=false;
+            foreach ($rows as &$account) {
+                if (!is_array($account)) continue;
+                $savedPhone=preg_replace('/\D+/','',(string)($account['number'] ?? ''));
+                if ($savedPhone !== (string)$stockUpdate['phone']) continue;
+                $account['rgg']=round((float)($account['rgg'] ?? 0)+$rggAmount,2);
+                // Nilai shell pada Senarai SIM mengikut nilai yang Izwan taip.
+                // Conversion 1300/108 hanya digunakan untuk ledger stok Garena.
+                $account['shell']=round((float)($account['shell'] ?? 0)+$simShellAmount,2);
+                $account['last_used']=date('d/m/Y',strtotime((string)$message['created_at']));
+                $requiresBalance=empty($account['stock_balance_initialized']);
+                $matched=true;
+                break;
+            }
+            unset($account);
+            if (!$matched) throw new RuntimeException('Nombor '.$stockUpdate['phone'].' tidak ditemui dalam Senarai SIM.');
+            if (is_array($accounts['accounts'] ?? null)) $accounts['accounts']=$rows; else $accounts=$rows;
+            $json=json_encode($accounts,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            if ($json===false) throw new RuntimeException('Data SIM gagal diproses.');
+            $save=$pdo->prepare('INSERT INTO cl_settings (setting_key,setting_value,updated_at) VALUES ("order_sim_accounts",?,CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),updated_at=CURRENT_TIMESTAMP');
+            $save->execute([$json]);
+        }
+        $pdo->prepare('UPDATE cl_order_messages SET status="processed",updated_by_admin_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([(int)$admin['id'],$messageId]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
+    json_response(['ok'=>true,'message'=>'Data stok berjaya diproses daripada satu mesej.','stock_update'=>true,'requires_sim_balance'=>$requiresBalance ?? false,'phone'=>$stockUpdate['phone'],'rgg_amount_rm'=>$rggAmount,'sim_shell_amount'=>$simShellAmount,'stock_shell_amount'=>$shellAmount,'already_processed'=>$insert->rowCount()===0]);
+}
+
+function set_order_record_status(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    $id=(int)($_POST['order_id'] ?? 0);
+    $status=clean_text($_POST['status'] ?? '',20);
+    if ($id<=0 || !in_array($status,['normal','processed','pending','unrecorded'],true)) json_response(['ok'=>false,'message'=>'Status mesej tidak sah.'],422);
+    if (($admin['access_scope'] ?? 'admin') === 'stock') {
+        if ($status!=='processed') json_response(['ok'=>false,'message'=>'Akaun Izwan hanya boleh memproses mesej stok.'],403);
+        process_stock_update_message($pdo,$id,$admin);
+    }
+    if ($status === 'unrecorded') {
+        // Schema version lama mungkin masih dicache pada server. Pastikan nilai
+        // baharu tersedia tepat sebelum butang TAK BOLEH BACA menyimpan status.
+        $statusColumn=$pdo->query("SHOW COLUMNS FROM cl_order_messages LIKE 'status'")->fetch();
+        $statusType=strtolower((string)($statusColumn['Type'] ?? ''));
+        if (!$statusColumn || strpos($statusType,"'unrecorded'") === false) {
+            $pdo->exec("ALTER TABLE cl_order_messages MODIFY status ENUM('normal','processed','pending','unrecorded') NOT NULL DEFAULT 'normal'");
+        }
+    }
+    if ($status === 'processed') {
+        process_order_message_to_sheet($pdo, $id, (int)$admin['id']);
+    }
+
+    $current=$pdo->prepare('SELECT sheet_sync_status FROM cl_order_messages WHERE id=? LIMIT 1');
+    $current->execute([$id]);
+    $row=$current->fetch();
+    if (!$row) json_response(['ok'=>false,'message'=>'Mesej tidak ditemui.'],404);
+    if ($status !== 'processed' && ($row['sheet_sync_status'] ?? 'none') === 'synced') {
+        json_response(['ok'=>false,'message'=>'Order ini sudah masuk Google Sheet dan tidak boleh dibuang tandanya.'],409);
+    }
+
+    $stmt=$pdo->prepare('UPDATE cl_order_messages SET status=?,updated_by_admin_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $stmt->execute([$status,(int)$admin['id'],$id]);
+    json_response(['ok'=>true,'message'=>$status==='processed'
+        ? 'Order berjaya dihantar ke Google Sheet.'
+        : ($status==='pending'
+            ? 'Mesej ditanda pending.'
+            : ($status==='unrecorded' ? 'Order manual ditanda belum masuk record.' : 'Status mesej dibuang.'))]);
+}
+
+function process_order_message_to_sheet(PDO $pdo, int $messageId, int $adminId): void
+{
+    $selected=$pdo->prepare('SELECT * FROM cl_order_messages WHERE id=? LIMIT 1');
+    $selected->execute([$messageId]);
+    $message=$selected->fetch();
+    if (!$message) json_response(['ok'=>false,'message'=>'Mesej tidak ditemui.'],404);
+    if (($message['sheet_sync_status'] ?? 'none') === 'synced') {
+        json_response(['ok'=>true,'message'=>'Order ini memang sudah ada dalam Google Sheet.','already_synced'=>true]);
+    }
+
+    $idMessage=null;
+    $orderMessage=null;
+    $selectedText=trim((string)$message['message']);
+    $selectedPlayerId=order_player_id($selectedText);
+    $selectedCodes=order_process_codes($selectedText);
+    $forceWebsiteFullWeb=false;
+
+    // Order panjang daripada website dihantar dahulu, kemudian arahan ringkas
+    // pada mesej tepat di bawahnya. "web" bermaksud seluruh order guna web.
+    // Jika marker itu tiada, order panjang kekal menggunakan formula biasa.
+    $previousStmt=$pdo->prepare('SELECT * FROM cl_order_messages WHERE id < ? ORDER BY id DESC LIMIT 1');
+    $previousStmt->execute([$messageId]);
+    $previous=$previousStmt->fetch() ?: null;
+    $nextStmt=$pdo->prepare('SELECT * FROM cl_order_messages WHERE id > ? ORDER BY id ASC LIMIT 1');
+    $nextStmt->execute([$messageId]);
+    $next=$nextStmt->fetch() ?: null;
+
+    if ($selectedPlayerId !== null && $selectedCodes !== [] && $next && order_full_web_marker((string)$next['message']) && ($next['sheet_sync_status'] ?? 'none') !== 'synced') {
+        $idMessage=$message;
+        $orderMessage=$next;
+        $forceWebsiteFullWeb=true;
+    } elseif (order_full_web_marker($selectedText) && $previous && ($previous['sheet_sync_status'] ?? 'none') !== 'synced') {
+        $previousPlayerId=order_player_id((string)$previous['message']);
+        $previousCodes=order_process_codes((string)$previous['message']);
+        if ($previousPlayerId !== null && $previousCodes !== []) {
+            $idMessage=$previous;
+            $orderMessage=$message;
+            $forceWebsiteFullWeb=true;
+        }
+    }
+
+    // A complete website order contains its own Player ID, payment and price.
+    if ($idMessage === null && $selectedPlayerId !== null && $selectedCodes !== []) {
+        $idMessage=$message;
+        $orderMessage=$message;
+    } elseif ($idMessage === null) {
+        // Short chat orders must be consecutive and in this exact direction:
+        // Player ID first, then the payment/code message directly below it.
+        if ($selectedPlayerId !== null && $next && ($next['sheet_sync_status'] ?? 'none') !== 'synced' && order_process_codes((string)$next['message']) !== []) {
+            $idMessage=$message;
+            $orderMessage=$next;
+        } elseif ($selectedCodes !== [] && $previous && ($previous['sheet_sync_status'] ?? 'none') !== 'synced' && order_player_id((string)$previous['message']) !== null) {
+            $idMessage=$previous;
+            $orderMessage=$message;
+        }
+    }
+
+    if ($idMessage === null || $orderMessage === null) {
+        json_response(['ok'=>false,'message'=>'Order tidak lengkap. Untuk format ringkas, ID mesti berada tepat di atas mesej payment.'],422);
+    }
+    $normalizedPlayerId=order_player_id((string)$idMessage['message']);
+    if ($normalizedPlayerId === null) json_response(['ok'=>false,'message'=>'Player ID tidak dapat dikenal pasti.'],422);
+    $processCodes=$forceWebsiteFullWeb
+        ? array_map('order_full_web_code',order_process_codes((string)$idMessage['message']))
+        : order_process_codes((string)$orderMessage['message']);
+    if ($processCodes === []) json_response(['ok'=>false,'message'=>'Code order tidak dapat dikenal pasti.'],422);
+    $processCode=implode('+',$processCodes);
+
+    $configPath=dirname(__DIR__).DIRECTORY_SEPARATOR.'order-record-sheet-config.php';
+    $config=is_file($configPath) ? require $configPath : [];
+    $webAppUrl=trim((string)($config['web_app_url'] ?? ''));
+    $token=(string)($config['token'] ?? '');
+    if ($webAppUrl === '' || $token === '') {
+        json_response(['ok'=>false,'message'=>'Sambungan Google Sheet belum dikonfigurasi.'],503);
+    }
+
+    $sheetRows=[];
+    foreach ($processCodes as $codeIndex=>$singleProcessCode) {
+        $result=post_order_to_sheet($webAppUrl, [
+            'action'=>'appendOrder',
+            'token'=>$token,
+            'id'=>$normalizedPlayerId,
+            'code'=>$singleProcessCode,
+        ]);
+        if (!empty($result['ok'])) {
+            if (isset($result['row'])) $sheetRows[]=(int)$result['row'];
+            continue;
+        }
+
+        $reason=clean_text((string)($result['message'] ?? 'Google Sheet tidak memberi pengesahan.'),350);
+        if ($codeIndex > 0) {
+            $completed=implode(', ',array_slice($processCodes,0,$codeIndex));
+            $reason='Sebahagian order sudah masuk ('.$completed.'). Order seterusnya gagal: '.$reason;
+        }
+        $failed=$pdo->prepare('UPDATE cl_order_messages SET sheet_sync_status="failed",sheet_error=?,updated_by_admin_id=?,updated_at=CURRENT_TIMESTAMP WHERE id IN (?,?)');
+        $failed->execute([$reason,$adminId,(int)$idMessage['id'],(int)$orderMessage['id']]);
+        json_response(['ok'=>false,'message'=>'Gagal hantar ke Google Sheet: '.$reason],502);
+    }
+
+    $sheetRow=$sheetRows[0] ?? null;
+    $update=$pdo->prepare('UPDATE cl_order_messages SET status="processed",paired_message_id=?,process_code=?,sheet_sync_status="synced",sheet_row=?,sheet_synced_at=CURRENT_TIMESTAMP,sheet_error=NULL,updated_by_admin_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $update->execute([(int)$orderMessage['id'],$processCode,$sheetRow,$adminId,(int)$idMessage['id']]);
+    if ((int)$orderMessage['id'] !== (int)$idMessage['id']) {
+        $update->execute([(int)$idMessage['id'],$processCode,$sheetRow,$adminId,(int)$orderMessage['id']]);
+    }
+}
+
+function order_full_web_marker(string $message): bool
+{
+    $message=mb_strtolower(trim(normalize_order_message_spacing($message)),'UTF-8');
+    return (bool)preg_match('/^(?:web|full\s*web|guna\s*web)$/iu',$message);
+}
+
+function order_player_id(string $message): ?string
+{
+    $message=normalize_order_message_spacing($message);
+    $candidate='';
+    if (preg_match('/PLAYER\s*ID\s*:\s*([0-9][0-9 ()-]{4,40})/iu', $message, $labelled)) {
+        $candidate=$labelled[1];
+        if (preg_match('/SERVER\s*ID\s*:\s*(\d{1,12})/iu',$message,$serverLabelled)) {
+            $candidate.=$serverLabelled[1];
+        }
+    } elseif (preg_match('/^\s*(\d{5,20}(?:\s*\(\s*\d{1,12}\s*\))?)(?=\s|$)/u', $message, $plain)) {
+        $candidate=$plain[1];
+    } else {
+        return null;
+    }
+    $digits=preg_replace('/\D+/', '', $candidate) ?? '';
+    return strlen($digits) >= 5 && strlen($digits) <= 32 ? $digits : null;
+}
+
+function normalize_order_message_spacing(string $message): string
+{
+    $normalized=preg_replace('/[\x{00A0}\x{1680}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}]/u', ' ', $message);
+    return $normalized === null ? str_replace("\xC2\xA0", ' ', $message) : $normalized;
+}
+
+function order_message_quantity(string $message): array
+{
+    $quantity=1;
+    if (preg_match('/(?<!\d)([1-5])\s*(?:X|×)(?![A-Z0-9])/iu',$message,$match)) {
+        $quantity=(int)$match[1];
+        $clean=preg_replace('/(?<!\d)[1-5]\s*(?:X|×)(?![A-Z0-9])/iu',' ',$message,1);
+        if ($clean !== null) $message=$clean;
+    }
+    return [trim($message),$quantity];
+}
+
+function order_process_codes(string $message): array
+{
+    $message=normalize_order_message_spacing($message);
+    global $pdo;
+    if ($pdo instanceof PDO) {
+        ensure_order_code_rules_table($pdo);
+        $messageKey=mb_strtolower(trim((string)(preg_replace('/\s+/u',' ',$message) ?? $message)),'UTF-8');
+        $rule=$pdo->prepare('SELECT process_code FROM cl_order_code_rules WHERE message_key=? LIMIT 1');
+        $rule->execute([$messageKey]);
+        $savedCode=trim((string)($rule->fetchColumn() ?: ''));
+        if ($savedCode !== '') return array_values(array_filter(array_map('trim',explode('+',$savedCode))));
+    }
+    // WEB pada hujung mesej memaksa kaedah full-web dan menghasilkan code FW.
+    // Simpan flag sebelum mesej dipecahkan supaya format quantity/gabungan juga konsisten.
+    $forceFullWeb=(bool)preg_match('/\bWEB\s*$/iu',trim($message));
+    if ($forceFullWeb) {
+        $withoutWeb=preg_replace('/\bWEB\s*$/iu',' ',trim($message));
+        if ($withoutWeb !== null) $message=trim($withoutWeb);
+    }
+    // "Cara isi: 57+57" menerangkan pecahan UC PUBG, bukannya dua order.
+    // Buang baris metadata ini sebelum mentafsir tanda + sebagai pemisah order.
+    $parseMessage=preg_replace('/^\s*CARA\s+ISI\s*:[^\r\n]*/imu',' ',$message);
+    if ($parseMessage !== null) $message=$parseMessage;
+    if (strpos($message,'+') === false) {
+        [$singleMessage,$quantity]=order_message_quantity($message);
+        $singleCode=order_process_code($singleMessage);
+        if ($singleCode !== null && $forceFullWeb) $singleCode=order_full_web_code($singleCode);
+        return $singleCode === null ? [] : array_fill(0,$quantity,$singleCode);
+    }
+
+    $parts=preg_split('/\s*\+\s*/u',$message);
+    if (!is_array($parts) || count($parts)<2) return [];
+    foreach ($parts as $part) {
+        if (trim((string)$part) === '') return [];
+    }
+
+    $fullText=strtoupper($message);
+    $context=[];
+    if (preg_match('/\b(?:TNG|TOUCH\s*(?:N|AND|&)\s*GO|ONLINE\s+BANKING|T)\b/i',$fullText)) $context[]='T';
+    elseif (preg_match('/\b(?:DIGI|DG|D)\b/i',$fullText)) $context[]='D';
+    elseif (preg_match('/\b(?:CELCOM|C)\b/i',$fullText)) $context[]='C';
+
+    if (preg_match('/\b(?:MOBILE\s+LEGENDS?|MLBB|ML|M)\b/i',$fullText)) $context[]='ML';
+    elseif (preg_match('/\b(?:PUBG\s+MOBILE|PUBG|P)\b/i',$fullText)) $context[]='PUBG';
+    elseif (preg_match('/\b(?:FREE\s+FIRE|FF|F)\b/i',$fullText)) $context[]='FF';
+
+    $contextText=implode(' ',$context);
+    $codes=[];
+    foreach ($parts as $part) {
+        [$cleanPart,$quantity]=order_message_quantity((string)$part);
+        $candidate=trim($cleanPart.' '.$contextText);
+        $code=order_process_code($candidate);
+        if ($code === null) return [];
+        if ($forceFullWeb) $code=order_full_web_code($code);
+        for ($copy=0;$copy<$quantity;$copy++) $codes[]=$code;
+    }
+    return $codes;
+}
+
+function order_full_web_code(string $code): string
+{
+    $code=strtoupper(trim($code));
+    if (str_ends_with($code,'FW')) return $code;
+    // WB menandakan formula web/hybrid lama. Untuk full web, gantikan dengan FW.
+    if (str_ends_with($code,'WB')) return substr($code,0,-2).'FW';
+    return $code.'FW';
+}
+
+function save_order_code_rule(PDO $pdo): void
+{
+    $admin=current_admin($pdo);
+    if (!$admin) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    if (!in_array((string)($admin['access_scope'] ?? 'admin'),['admin','allocation'],true)) json_response(['ok'=>false,'message'=>'Hanya GNEX dan Nizam boleh mengubah bacaan code.'],403);
+    ensure_order_code_rules_table($pdo);
+    $messageId=(int)($_POST['message_id'] ?? 0);
+    $code=strtoupper(trim(clean_text($_POST['process_code'] ?? '',80)));
+    if ($messageId<=0 || $code==='' || !preg_match('/^[A-Z0-9.]+(?:\+[A-Z0-9.]+)*$/',$code)) json_response(['ok'=>false,'message'=>'Code pembetulan tidak sah.'],422);
+    $stmt=$pdo->prepare('SELECT message FROM cl_order_messages WHERE id=? LIMIT 1');
+    $stmt->execute([$messageId]);
+    $message=trim((string)($stmt->fetchColumn() ?: ''));
+    if ($message==='') json_response(['ok'=>false,'message'=>'Mesej tidak ditemui.'],404);
+    $messageKey=mb_strtolower(trim((string)(preg_replace('/\s+/u',' ',normalize_order_message_spacing($message)) ?? $message)),'UTF-8');
+    $save=$pdo->prepare('INSERT INTO cl_order_code_rules (message_key,raw_example,process_code,created_by_admin_id) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE raw_example=VALUES(raw_example),process_code=VALUES(process_code),created_by_admin_id=VALUES(created_by_admin_id),updated_at=CURRENT_TIMESTAMP');
+    $save->execute([$messageKey,$message,$code,(int)$admin['id']]);
+    $pdo->prepare('UPDATE cl_order_messages SET process_code=?,updated_by_admin_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$code,(int)$admin['id'],$messageId]);
+    json_response(['ok'=>true,'message'=>'Cara bacaan disimpan. Mesej sama selepas ini akan dibaca sebagai '.$code.'.','process_code'=>$code]);
+}
+
+function ensure_order_code_rules_table(PDO $pdo): void
+{
+    static $ready=false;
+    if ($ready) return;
+    $pdo->exec('CREATE TABLE IF NOT EXISTS cl_order_code_rules (id INT AUTO_INCREMENT PRIMARY KEY,message_key VARCHAR(500) NOT NULL,raw_example TEXT NOT NULL,process_code VARCHAR(80) NOT NULL,created_by_admin_id INT NOT NULL,created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,UNIQUE KEY uniq_order_code_message (message_key),INDEX idx_order_code_admin (created_by_admin_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+    $ready=true;
+}
+
+function order_process_code(string $message): ?string
+{
+    $text=strtoupper(trim(normalize_order_message_spacing($message)));
+    $compact=preg_replace('/\s+/u', '', $text) ?? '';
+
+    // A compact message such as "mdf" is shorthand, not an already ordered
+    // product code: M=monthly, D=Digi, F=Free Fire. Accept the three parts in
+    // any order, then always emit the canonical game-payment-product order.
+    $compactGames=[
+        'F'=>['F','FF'],
+        'M'=>['M','ML','MLBB'],
+        'P'=>['P','PUBG'],
+    ];
+    $compactPayments=['T'=>['T'],'D'=>['D'],'C'=>['C']];
+    $compactMemberships=['W'=>['W'],'WL'=>['WL'],'M'=>['M'],'CM'=>['CM']];
+    foreach ($compactGames as $compactGameCode=>$gameAliases) {
+        foreach ($compactPayments as $compactPaymentCode=>$paymentAliases) {
+            foreach ($compactMemberships as $compactMembershipCode=>$membershipAliases) {
+                foreach ($gameAliases as $gameAlias) {
+                    foreach ($paymentAliases as $paymentAlias) {
+                        foreach ($membershipAliases as $membershipAlias) {
+                            $orders=[
+                                $gameAlias.$paymentAlias.$membershipAlias,
+                                $gameAlias.$membershipAlias.$paymentAlias,
+                                $paymentAlias.$gameAlias.$membershipAlias,
+                                $paymentAlias.$membershipAlias.$gameAlias,
+                                $membershipAlias.$gameAlias.$paymentAlias,
+                                $membershipAlias.$paymentAlias.$gameAlias,
+                            ];
+                            if (in_array($compact,$orders,true)) {
+                                return $compactGameCode.$compactPaymentCode.$compactMembershipCode.($compactGameCode === 'M' ? 'WB' : '');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (preg_match('/^[FMP][TDC][A-Z0-9]{1,20}$/', $compact)) {
+        return $compact;
+    }
+
+    $paymentCode=null;
+    if (preg_match('/\b(?:TNG|TOUCH\s*(?:N|AND|&)\s*GO|ONLINE\s+BANKING|QR\s+TRANSFER|T)\b/i', $text)) $paymentCode='T';
+    elseif (preg_match('/\b(?:DIGI|DG|D)\b/i', $text)) $paymentCode='D';
+    elseif (preg_match('/\b(?:CELCOM|C)\b/i', $text)) $paymentCode='C';
+    elseif (
+        preg_match('/\bHELLO\s+GNEX\b/i',$text) &&
+        preg_match('/\bPACKAGE\s*:/i',$text) &&
+        preg_match('/\bPLAYER\s*ID\s*:/i',$text) &&
+        preg_match('/\bPUBG\b/i',$text)
+    ) $paymentCode='T';
+    if ($paymentCode === null) return null;
+
+    $amount=null;
+    if (preg_match('/\bHARGA\s*:\s*(?:MYR|RM)\s*(\d+(?:\.\d{1,2})?)/i', $text, $priceMatch)) {
+        $amount=(float)$priceMatch[1];
+    } elseif (preg_match('/\b(?:MYR|RM)\s*(\d+(?:\.\d{1,2})?)/i', $text, $rmMatch)) {
+        $amount=(float)$rmMatch[1];
+    } elseif (preg_match('/\b(\d+(?:\.\d{1,2})?)\s*(?:TNG|TOUCH\s*(?:N|AND|&)\s*GO|ONLINE\s+BANKING|DIGI|DG|CELCOM|T|D|C)\b/i', $text, $numberMatch)) {
+        $amount=(float)$numberMatch[1];
+    }
+    if ($amount !== null && $amount <= 0) return null;
+
+    $membershipCode=null;
+    if (preg_match('/\b(?:WEEKLY\s+LITE|WL|LITE)\b/i', $text)) $membershipCode='WL';
+    elseif (preg_match('/\b(?:COMBO|CM)\b/i', $text)) $membershipCode='CM';
+    elseif (preg_match('/\b(?:WEEKLY|W)\b/i', $text)) $membershipCode='W';
+    elseif (preg_match('/\b(?:MONTHLY|MONTH)\b/i', $text)) $membershipCode='M';
+
+    $gameCode='F';
+    $hasExplicitMl=(bool)preg_match('/\b(?:MOBILE\s+LEGENDS?|MLBB|ML)\b/i', $text);
+    if ($hasExplicitMl) $gameCode='M';
+    elseif (preg_match('/\b(?:PUBG\s+MOBILE|PUBG|P)\b/i', $text)) $gameCode='P';
+    elseif (preg_match('/\b(?:FREE\s+FIRE|FF|F)\b/i', $text)) $gameCode='F';
+
+    $hasSingleM=(bool)preg_match('/\bM\b/i', $text);
+    if (!$hasExplicitMl && $hasSingleM) {
+        if ($membershipCode !== null || $amount !== null) {
+            $gameCode='M';
+        } else {
+            $membershipCode='M';
+        }
+    }
+
+    if ($membershipCode === null && $amount === null) return null;
+    $productCode=$membershipCode;
+    if ($productCode === null && $amount !== null) {
+        $productCode=fmod($amount,1.0) === 0.0
+            ? (string)(int)$amount
+            : rtrim(rtrim(number_format($amount,2,'.',''),'0'),'.');
+    }
+
+    $needsWeb=false;
+    if ($gameCode === 'M') {
+        $needsWeb=true;
+    } elseif ($gameCode === 'F' && $membershipCode === null && $amount !== null) {
+        $usesDigiShell=$paymentCode === 'D' && $amount >= 5 && $amount <= 25;
+        $usesTngShell=$paymentCode === 'T' && $amount >= 1 && $amount <= 19;
+        $needsWeb=!$usesDigiShell && !$usesTngShell;
+    }
+
+    return $gameCode.$paymentCode.$productCode.($needsWeb ? 'WB' : '');
+}
+
+function post_order_to_sheet(string $url, array $payload): array
+{
+    if (!function_exists('curl_init')) return ['ok'=>false,'message'=>'PHP cURL belum aktif pada hosting.'];
+    $curl=curl_init($url);
+    curl_setopt_array($curl,[
+        CURLOPT_POST=>true,
+        CURLOPT_POSTFIELDS=>json_encode($payload,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),
+        CURLOPT_HTTPHEADER=>['Content-Type: text/plain;charset=utf-8'],
+        CURLOPT_RETURNTRANSFER=>true,
+        CURLOPT_FOLLOWLOCATION=>true,
+        CURLOPT_CONNECTTIMEOUT=>10,
+        CURLOPT_TIMEOUT=>30,
+    ]);
+    $body=curl_exec($curl);
+    $error=curl_error($curl);
+    $status=(int)curl_getinfo($curl,CURLINFO_RESPONSE_CODE);
+    curl_close($curl);
+    if ($body === false || $error !== '') return ['ok'=>false,'message'=>$error ?: 'Google Sheet tidak dapat dicapai.'];
+    $decoded=json_decode((string)$body,true);
+    if (!is_array($decoded)) return ['ok'=>false,'message'=>'Respons Apps Script tidak sah (HTTP '.$status.').'];
+    if ($status < 200 || $status >= 300) return ['ok'=>false,'message'=>(string)($decoded['message'] ?? 'HTTP '.$status)];
+    return $decoded;
+}
+
+function admin_create_team(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan untuk tambah team.'], 401);
+    }
+
+    $teamName = to_upper_text(clean_text($_POST['team_name'] ?? '', 100));
+    $phone = clean_text($_POST['phone'] ?? '', 40);
+    $password = (string) ($_POST['team_password'] ?? '');
+    if ($teamName === '' || $phone === '' || $password === '') {
+        json_response(['ok' => false, 'message' => 'Nama team, nombor telefon dan password wajib diisi.'], 422);
+    }
+    if (!is_valid_team_name($teamName)) {
+        json_response(['ok' => false, 'message' => 'Nama team tidak boleh mempunyai simbol.'], 422);
+    }
+    if (!is_valid_team_password($password)) {
+        json_response(['ok' => false, 'message' => 'Password mesti mempunyai sekurang-kurangnya 1 huruf besar, 1 nombor dan 1 simbol.'], 422);
+    }
+
+    $duplicate = $pdo->prepare('SELECT id,team_name,phone FROM cl_teams WHERE status != "removed" AND (LOWER(team_name)=LOWER(?) OR phone=?) LIMIT 1');
+    $duplicate->execute([$teamName, $phone]);
+    $existing = $duplicate->fetch();
+    if ($existing) {
+        $message = strcasecmp((string)$existing['team_name'], $teamName) === 0
+            ? 'Nama team ini sudah digunakan.'
+            : 'Nombor telefon ini sudah digunakan oleh team lain.';
+        json_response(['ok' => false, 'message' => $message], 409);
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Lock semua accepted team dahulu supaya slot baharu sentiasa unik dan
+        // terus wujud walaupun proses membuat jadual selepas ini bermasalah.
+        $pdo->query('SELECT id FROM cl_teams WHERE status="accepted" FOR UPDATE')->fetchAll();
+        $slotNo = (int)$pdo->query('SELECT COALESCE(MAX(slot_no),0)+1 FROM cl_teams WHERE status="accepted" AND is_test_account=0')->fetchColumn();
+        $insert = $pdo->prepare('INSERT INTO cl_teams (team_name,phone,password_hash,status,slot_no,admin_checked,admin_added,profile_update_required,updated_at) VALUES (?,?,?,"accepted",?,1,1,1,CURRENT_TIMESTAMP)');
+        $insert->execute([$teamName, $phone, password_hash($password, PASSWORD_DEFAULT), $slotNo]);
+        $teamId = (int)$pdo->lastInsertId();
+        $room = $pdo->prepare('INSERT INTO cl_rooms (room_type,team_a_id,status,updated_at) VALUES ("admin",?,"open",CURRENT_TIMESTAMP)');
+        $room->execute([$teamId]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
+
+    $scheduleMessage = '';
+    try {
+        sync_admin_added_team_schedule($pdo);
+    } catch (Throwable $scheduleError) {
+        error_log('Clash League late-team schedule gagal untuk team '.$teamId.': '.$scheduleError->getMessage());
+        $scheduleMessage = ' Team sudah masuk Slot '.$slotNo.', tetapi jadual belum berjaya dibuat dan boleh dicuba semula kemudian.';
+    }
+
+    json_response(get_state($pdo) + [
+        'created_team_id' => $teamId,
+        'created_team_slot' => $slotNo,
+        'message' => 'Team berjaya ditambah sebagai Slot '.$slotNo.'.'.$scheduleMessage.' Selepas login, team wajib lengkapkan IGN dan ID untuk P1 hingga P4.',
+    ]);
+}
+
+function sync_admin_added_team_schedule(PDO $pdo): void
+{
+    $pdo->beginTransaction();
+    try {
+        $waitingMatch = $pdo->query('
+            SELECT id,team_a_id FROM cl_matches
+            WHERE stage_code="late_q1" AND status IN ("up_next","live")
+              AND team_a_id IS NOT NULL AND team_b_id IS NULL
+            ORDER BY id ASC LIMIT 1 FOR UPDATE
+        ')->fetch();
+        $teams = $pdo->query('
+            SELECT t.id FROM cl_teams t
+            WHERE t.status="accepted" AND t.is_test_account=0 AND t.admin_added=1
+              AND NOT EXISTS (SELECT 1 FROM cl_matches m WHERE m.team_a_id=t.id OR m.team_b_id=t.id)
+            ORDER BY t.created_at ASC,t.id ASC FOR UPDATE
+        ')->fetchAll(PDO::FETCH_COLUMN);
+        if (!$teams) {
+            $pdo->commit();
+            return;
+        }
+
+        $updateWaiting = $pdo->prepare('UPDATE cl_matches SET team_b_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $updateRoom = $pdo->prepare('UPDATE cl_rooms SET team_b_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE match_id=? AND room_type="match"');
+        if ($waitingMatch) {
+            $incoming = (int)array_shift($teams);
+            $updateWaiting->execute([$incoming,(int)$waitingMatch['id']]);
+            $updateRoom->execute([$incoming,(int)$waitingMatch['id']]);
+        }
+
+        $count = (int)$pdo->query('SELECT COUNT(*) FROM cl_matches WHERE stage_code="late_q1"')->fetchColumn();
+        $insertMatch = $pdo->prepare('
+            INSERT INTO cl_matches (team_a_id,team_b_id,match_name,stage_code,match_time,status,updated_at)
+            VALUES (?, ?, ?, "late_q1", "2026-08-11 21:30:00", "up_next", CURRENT_TIMESTAMP)
+        ');
+        $insertRoom = $pdo->prepare('INSERT INTO cl_rooms (room_type,team_a_id,team_b_id,match_id,status,updated_at) VALUES ("match",?,?,?,"open",CURRENT_TIMESTAMP)');
+        for ($i=0; $i<count($teams); $i+=2) {
+            $teamA=(int)$teams[$i];
+            $teamB=isset($teams[$i+1]) ? (int)$teams[$i+1] : null;
+            $count++;
+            $insertMatch->execute([$teamA,$teamB,'TEAM BARU / KELAYAKAN SLOT / BO3 '.$count]);
+            $matchId=(int)$pdo->lastInsertId();
+            $insertRoom->execute([$teamA,$teamB,$matchId]);
+        }
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
+}
+
 function register_team(PDO $pdo, string $rootDir): void
 {
     global $pushConfig;
+
+    $registrationClosesAt = new DateTimeImmutable('2026-08-03 23:00:00', new DateTimeZone('Asia/Kuala_Lumpur'));
+    $now = new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));
+    if ($now >= $registrationClosesAt) {
+        json_response([
+            'ok' => false,
+            'message' => 'Pendaftaran telah ditutup pada 3 Ogos 2026, 11:00 PM.',
+        ], 403);
+    }
 
     $teamName = to_upper_text(clean_text($_POST['team_name'] ?? '', 100));
     $phone = clean_text($_POST['phone'] ?? '', 40);
@@ -1555,7 +3856,7 @@ function register_team(PDO $pdo, string $rootDir): void
 function get_public_teams(PDO $pdo): array
 {
     $stmt = $pdo->query('
-        SELECT t.id, t.team_name, t.logo_url, t.slot_no, t.status, t.phone, t.coach_name, t.manager_name,
+        SELECT t.id, t.team_name, t.logo_url, t.slot_no, t.status, t.phone, t.coach_name, t.manager_name, t.profile_update_required,
                t.last_seen_at,
                t.admin_note, t.admin_checked, t.notification_checked, t.updated_at,
                EXISTS(
@@ -1600,6 +3901,14 @@ function serialize_team(PDO $pdo, array $team): array
         ];
     }
 
+    $completeMainPlayers = 0;
+    foreach ($players as $player) {
+        $slot = (int) preg_replace('/\D+/', '', (string) $player['slot']);
+        if ($slot >= 1 && $slot <= 4 && trim($player['ign']) !== '' && trim($player['id']) !== '') {
+            $completeMainPlayers++;
+        }
+    }
+
     $status = (string) $team['status'];
     return [
         'team_id' => (string) $team['id'],
@@ -1615,8 +3924,9 @@ function serialize_team(PDO $pdo, array $team): array
         'admin_note' => (string) ($team['admin_note'] ?? ''),
         'admin_checked' => !empty($team['admin_checked']),
         'notification_checked' => !empty($team['notification_checked']),
+        'is_test_account' => !empty($team['is_test_account']),
         'has_schedule' => !empty($team['has_schedule']),
-        'online' => !empty($team['last_seen_at']) && strtotime((string) $team['last_seen_at']) >= time() - 90,
+        'online' => !empty($team['last_seen_at']) && strtotime((string) $team['last_seen_at']) >= time() - 120,
         'last_seen_at' => (string) ($team['last_seen_at'] ?? ''),
         'notification' => [
             'devices' => (int) ($team['push_devices'] ?? 0),
@@ -1625,6 +3935,7 @@ function serialize_team(PDO $pdo, array $team): array
             'ready' => (int) ($team['push_tested_devices'] ?? 0) > 0 && (int) ($team['push_healthy_devices'] ?? 0) > 0,
         ],
         'players' => $players,
+        'profile_incomplete' => !empty($team['profile_update_required']) && $completeMainPlayers < 4,
     ];
 }
 
@@ -1670,7 +3981,7 @@ function current_team(PDO $pdo): ?array
     }
 
     $stmt = $pdo->prepare('
-        SELECT id, team_name, logo_url, slot_no, status, phone, coach_name, manager_name, admin_note, updated_at
+        SELECT id, team_name, logo_url, slot_no, status, phone, coach_name, manager_name, admin_note, is_test_account, profile_update_required, updated_at
         FROM cl_teams
         WHERE id = ? AND status != "removed"
     ');
@@ -1681,15 +3992,24 @@ function current_team(PDO $pdo): ?array
 
 function current_admin(PDO $pdo): ?array
 {
+    if (!empty($_SESSION['cl_admin_view_as_team'])) {
+        return null;
+    }
+    return current_real_admin($pdo);
+}
+
+function current_real_admin(PDO $pdo): ?array
+{
     restore_persistent_login($pdo);
     if (empty($_SESSION['cl_admin_id'])) {
         return null;
     }
 
-    $stmt = $pdo->prepare('SELECT id, username FROM cl_admin_users WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT id, username, access_scope FROM cl_admin_users WHERE id = ?');
     $stmt->execute([(int) $_SESSION['cl_admin_id']]);
     $admin = $stmt->fetch();
-    return $admin ? ['id' => (int) $admin['id'], 'username' => (string) $admin['username']] : null;
+    if ($admin) $_SESSION['cl_admin_access_scope']=(string)($admin['access_scope'] ?? 'admin');
+    return $admin ? ['id' => (int) $admin['id'], 'username' => (string) $admin['username'], 'access_scope' => (string)($admin['access_scope'] ?? 'admin')] : null;
 }
 
 function current_chat_team(PDO $pdo): ?array
@@ -1717,6 +4037,14 @@ function get_group_room_id(PDO $pdo): int
     return (int) $pdo->lastInsertId();
 }
 
+function get_info_room_id(PDO $pdo): int
+{
+    $roomId = (int) ($pdo->query('SELECT id FROM cl_rooms WHERE room_type = "info" AND status = "open" ORDER BY id LIMIT 1')->fetchColumn() ?: 0);
+    if ($roomId > 0) return $roomId;
+    $pdo->exec('INSERT INTO cl_rooms (room_type, status, updated_at) VALUES ("info", "open", CURRENT_TIMESTAMP)');
+    return (int) $pdo->lastInsertId();
+}
+
 function require_team(PDO $pdo): array
 {
     $team = current_team($pdo);
@@ -1725,6 +4053,9 @@ function require_team(PDO $pdo): array
     }
     if ($team['status'] !== 'accepted') {
         json_response(['ok' => false, 'message' => 'Team belum confirm slot. Tunggu admin approve dulu.'], 403);
+    }
+    if (!empty($team['profile_incomplete'])) {
+        json_response(['ok' => false, 'code' => 'profile_incomplete', 'message' => 'Lengkapkan IGN dan ID P1 hingga P4 di Profile sebelum menggunakan fungsi tournament.'], 403);
     }
     return $team;
 }
@@ -1754,7 +4085,8 @@ function get_team_matches(PDO $pdo, ?array $team, ?array $admin = null): array
             SELECT m.*, 
                    ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
                    ta.status AS team_a_status, ta.slot_no AS team_a_slot, ta.last_seen_at AS team_a_last_seen,
-                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo, tb.last_seen_at AS team_b_last_seen,
+                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
+                   tb.slot_no AS team_b_slot, tb.last_seen_at AS team_b_last_seen,
                    tb.status AS team_b_status
             FROM cl_matches m
             LEFT JOIN cl_teams ta ON ta.id = m.team_a_id
@@ -1786,11 +4118,12 @@ function get_team_matches(PDO $pdo, ?array $team, ?array $admin = null): array
             'team_a_id' => $match['team_a_id'] === null || $teamARemoved ? 0 : (int) $match['team_a_id'],
             'team_b_id' => $match['team_b_id'] === null || $teamBRemoved ? 0 : (int) $match['team_b_id'],
             'match_name' => (string) $match['match_name'],
+            'stage_code' => (string) ($match['stage_code'] ?? ''),
             'match_time' => (string) ($match['match_time'] ?? ''),
             'status' => (string) $match['status'],
-            'team_a_name' => $teamARemoved ? 'TBD' : (string) ($match['team_a_name'] ?? ($team['team_name'] ?? 'TBD')),
+            'team_a_name' => $teamARemoved ? 'TBD' : public_team_name((string) ($match['team_a_name'] ?? ($team['team_name'] ?? 'TBD'))),
             'team_a_logo' => $teamARemoved ? '' : (string) ($match['team_a_logo'] ?? ($team['logo_url'] ?? '')),
-            'team_b_name' => $teamBRemoved ? 'TBD' : (string) ($match['team_b_name'] ?? 'TBD'),
+            'team_b_name' => $teamBRemoved ? 'TBD' : public_team_name((string) ($match['team_b_name'] ?? 'TBD')),
             'team_b_logo' => $teamBRemoved ? '' : (string) ($match['team_b_logo'] ?? ''),
             'team_a_point' => $match['team_a_point'],
             'team_b_point' => $match['team_b_point'],
@@ -1799,6 +4132,11 @@ function get_team_matches(PDO $pdo, ?array $team, ?array $admin = null): array
     }
 
     return $matches;
+}
+
+function public_team_name(string $name): string
+{
+    return strcasecmp(trim($name), 'GNEX TEST TDB') === 0 ? 'TDB' : $name;
 }
 
 function team_result_exists(PDO $pdo, int $matchId, int $teamId): bool
@@ -1854,9 +4192,9 @@ function get_match_results(PDO $pdo, ?array $team, ?array $admin): array
             'submitter_logo' => (string) ($result['submitter_logo'] ?? ''),
             'match_name' => (string) $result['match_name'],
             'match_time' => (string) ($result['match_time'] ?? ''),
-            'team_a_name' => (string) ($result['team_a_name'] ?? 'Team A'),
+            'team_a_name' => public_team_name((string) ($result['team_a_name'] ?? 'Team A')),
             'team_a_logo' => (string) ($result['team_a_logo'] ?? ''),
-            'team_b_name' => (string) ($result['team_b_name'] ?? 'Team B'),
+            'team_b_name' => public_team_name((string) ($result['team_b_name'] ?? 'Team B')),
             'team_b_logo' => (string) ($result['team_b_logo'] ?? ''),
             'team_a_point' => (int) $result['team_a_point'],
             'team_b_point' => (int) $result['team_b_point'],
@@ -1872,6 +4210,7 @@ function get_match_results(PDO $pdo, ?array $team, ?array $admin): array
 function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPersonal = false): array
 {
     $groupRoomId = get_group_room_id($pdo);
+    $infoRoomId = get_info_room_id($pdo);
     if ($admin) {
         initialize_admin_room_reads($pdo, (int) $admin['id']);
     }
@@ -1880,32 +4219,42 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
         : ($team
             ? '(SELECT rr.last_message_id FROM cl_room_reads rr WHERE rr.room_id = r.id AND rr.owner_type = "team" AND rr.team_id = ' . (int) $team['id'] . ' LIMIT 1)'
             : '0');
+    $incomingUnreadSql = $admin
+        ? '(SELECT COUNT(*) FROM cl_messages unread_cm WHERE unread_cm.room_id = r.id AND unread_cm.id > COALESCE(' . $ownerReadSql . ', 0) AND unread_cm.sender_type = "team")'
+        : ($team
+            ? '(SELECT COUNT(*) FROM cl_messages unread_cm WHERE unread_cm.room_id = r.id AND unread_cm.id > COALESCE(' . $ownerReadSql . ', 0) AND (unread_cm.sender_type IN ("admin", "system") OR unread_cm.sender_team_id IS NULL OR unread_cm.sender_team_id != ' . (int) $team['id'] . '))'
+            : '0');
     $selectSql = '
-        SELECT r.id, r.room_type, r.team_a_id, r.team_b_id, r.status,
+        SELECT r.id, r.room_type, r.team_a_id, r.team_b_id, r.status, r.admin_checked, r.report_match,
                    ta.team_name AS team_a_name, ta.logo_url AS team_a_logo,
                    ta.status AS team_a_status, ta.slot_no AS team_a_slot, ta.last_seen_at AS team_a_last_seen,
-                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo, tb.last_seen_at AS team_b_last_seen,
+                   tb.team_name AS team_b_name, tb.logo_url AS team_b_logo,
+                   tb.slot_no AS team_b_slot, tb.last_seen_at AS team_b_last_seen,
                    (SELECT message FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message,
                    (SELECT id FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_message_id,
                    (SELECT sender_type FROM cl_messages cm WHERE cm.room_id = r.id ORDER BY cm.id DESC LIMIT 1) AS last_sender_type,
+                   (SELECT MAX(id) FROM cl_messages cm WHERE cm.room_id = r.id AND cm.sender_type = "team") AS last_team_message_id,
+                   (SELECT MAX(id) FROM cl_messages cm WHERE cm.room_id = r.id AND cm.sender_type = "admin") AS last_admin_message_id,
                    ' . $ownerReadSql . ' AS seen_message_id,
-                   (SELECT m.match_name FROM cl_matches m
+                   ' . $incomingUnreadSql . ' AS unread_count,
+                   COALESCE(linked_match.match_name, (SELECT m.match_name FROM cl_matches m
                     WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
                        OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
-                    ORDER BY m.id DESC LIMIT 1) AS match_name,
-                   (SELECT m.match_time FROM cl_matches m
+                    ORDER BY m.id DESC LIMIT 1)) AS match_name,
+                   COALESCE(linked_match.match_time, (SELECT m.match_time FROM cl_matches m
                     WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
                        OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
-                    ORDER BY m.id DESC LIMIT 1) AS match_time,
-                    (SELECT m.id FROM cl_matches m
+                    ORDER BY m.id DESC LIMIT 1)) AS match_time,
+                    COALESCE(linked_match.id, (SELECT m.id FROM cl_matches m
                      WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
                         OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
-                     ORDER BY m.id DESC LIMIT 1) AS match_id,
-                    (SELECT m.status FROM cl_matches m
+                     ORDER BY m.id DESC LIMIT 1)) AS match_id,
+                    COALESCE(linked_match.status, (SELECT m.status FROM cl_matches m
                      WHERE (m.team_a_id = r.team_a_id AND m.team_b_id = r.team_b_id)
                         OR (m.team_a_id = r.team_b_id AND m.team_b_id = r.team_a_id)
-                     ORDER BY m.id DESC LIMIT 1) AS match_status
+                     ORDER BY m.id DESC LIMIT 1)) AS match_status
             FROM cl_rooms r
+            LEFT JOIN cl_matches linked_match ON linked_match.id = r.match_id
             LEFT JOIN cl_teams ta ON ta.id = r.team_a_id
             LEFT JOIN cl_teams tb ON tb.id = r.team_b_id
     ';
@@ -1913,7 +4262,7 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
         $stmt = $pdo->prepare($selectSql . '
             ORDER BY
                 FIELD(r.status, "open", "closed"),
-                FIELD(r.room_type, "group", "admin", "deal", "match"),
+                FIELD(r.room_type, "info", "group", "admin", "deal", "match"),
                 r.updated_at DESC,
                 r.id DESC
         ');
@@ -1921,13 +4270,13 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
     } elseif ($allowPersonal) {
         $teamId = (int) $team['id'];
         $stmt = $pdo->prepare($selectSql . '
-            WHERE r.status = "open" AND (r.id = ? OR r.team_a_id = ? OR r.team_b_id = ?)
-            ORDER BY FIELD(r.room_type, "group", "admin", "deal", "match"), r.updated_at DESC, r.id DESC
+            WHERE r.status = "open" AND (r.id IN (?, ?) OR r.team_a_id = ? OR r.team_b_id = ?)
+            ORDER BY FIELD(r.room_type, "info", "group", "admin", "deal", "match"), r.updated_at DESC, r.id DESC
         ');
-        $stmt->execute([$groupRoomId, $teamId, $teamId]);
+        $stmt->execute([$groupRoomId, $infoRoomId, $teamId, $teamId]);
     } else {
-        $stmt = $pdo->prepare($selectSql . ' WHERE r.id = ? AND r.status = "open"');
-        $stmt->execute([$groupRoomId]);
+        $stmt = $pdo->prepare($selectSql . ' WHERE r.id IN (?, ?) AND r.status = "open" ORDER BY FIELD(r.room_type, "info", "group")');
+        $stmt->execute([$groupRoomId, $infoRoomId]);
     }
 
     $rawRooms = $stmt->fetchAll();
@@ -1936,6 +4285,28 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
         $rawRooms
     ))));
     $attendanceByMatch = [];
+    $resultsByMatch = [];
+    $latestTeamMessageByRoom = [];
+    $roomIds = array_values(array_unique(array_filter(array_map(
+        static fn(array $room): int => (int) ($room['id'] ?? 0),
+        $rawRooms
+    ))));
+    if ($roomIds) {
+        $roomPlaceholders = implode(',', array_fill(0, count($roomIds), '?'));
+        $messageStmt = $pdo->prepare("
+            SELECT room_id, sender_team_id, MAX(created_at) AS latest_message_at
+            FROM cl_messages
+            WHERE room_id IN ($roomPlaceholders)
+              AND sender_type = 'team'
+              AND sender_team_id IS NOT NULL
+            GROUP BY room_id, sender_team_id
+        ");
+        $messageStmt->execute($roomIds);
+        foreach ($messageStmt->fetchAll() as $messageRow) {
+            $latestTeamMessageByRoom[(int) $messageRow['room_id']][(int) $messageRow['sender_team_id']]
+                = (string) $messageRow['latest_message_at'];
+        }
+    }
     if ($matchIds) {
         $attendancePlaceholders = implode(',', array_fill(0, count($matchIds), '?'));
         $attendanceStmt = $pdo->prepare("
@@ -1947,11 +4318,25 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
         foreach ($attendanceStmt->fetchAll() as $attendance) {
             $attendanceByMatch[(int) $attendance['match_id']][(int) $attendance['team_id']] = (string) $attendance['confirmed_at'];
         }
+        $resultStmt = $pdo->prepare("
+            SELECT match_id, team_id, team_a_point, team_b_point, status
+            FROM cl_match_results
+            WHERE match_id IN ($attendancePlaceholders)
+        ");
+        $resultStmt->execute($matchIds);
+        foreach ($resultStmt->fetchAll() as $result) {
+            $resultsByMatch[(int) $result['match_id']][(int) $result['team_id']] = [
+                'team_a_point' => (int) $result['team_a_point'],
+                'team_b_point' => (int) $result['team_b_point'],
+                'status' => (string) $result['status'],
+            ];
+        }
     }
 
     $rooms = [];
     foreach ($rawRooms as $room) {
         $isGroupRoom = $room['room_type'] === 'group';
+        $isInfoRoom = $room['room_type'] === 'info';
         $isAdminRoom = $room['room_type'] === 'admin';
         $teamName = (string) ($room['team_a_name'] ?? 'Team');
         $teamStatus = (string) ($room['team_a_status'] ?? '');
@@ -1972,8 +4357,36 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
             $attendanceClosed = $now > $matchAt;
         }
         $roomAttendance = $attendanceByMatch[$matchId] ?? [];
-        $title = $isGroupRoom ? 'PERTANYAAN / QUESTION' : ($isAdminRoom ? ($admin ? $teamDisplayName : 'ADMIN') : ($teamName . ' vs ' . (string) ($room['team_b_name'] ?? 'TBD')));
-        $avatar = $isGroupRoom ? 'Q' : ($isAdminRoom ? ($admin ? make_initials($teamName) : 'AD') : 'VS');
+        $roomResults = $resultsByMatch[$matchId] ?? [];
+        $teamAId = (int) ($room['team_a_id'] ?? 0);
+        $teamBId = (int) ($room['team_b_id'] ?? 0);
+        $roomReadiness = [];
+        foreach (array_filter([$teamAId, $teamBId]) as $participantId) {
+            $confirmedAt = (string) ($roomAttendance[$participantId] ?? '');
+            $latestMessageAt = (string) ($latestTeamMessageByRoom[(int) $room['id']][$participantId] ?? '');
+            $roomReadiness[$participantId] = $confirmedAt !== ''
+                && $latestMessageAt !== ''
+                && strtotime($latestMessageAt) > strtotime($confirmedAt)
+                ? $latestMessageAt
+                : '';
+        }
+        $teamAResult = $roomResults[$teamAId] ?? null;
+        $teamBResult = $roomResults[$teamBId] ?? null;
+        $resultState = 'none';
+        if ($teamAResult || $teamBResult) {
+            $resultState = 'waiting';
+        }
+        if ($teamAResult && $teamBResult) {
+            $resultState = ((int) $teamAResult['team_a_point'] === (int) $teamBResult['team_a_point']
+                && (int) $teamAResult['team_b_point'] === (int) $teamBResult['team_b_point'])
+                ? 'matched'
+                : 'disputed';
+        }
+        if ((string) ($room['match_status'] ?? '') === 'completed') {
+            $resultState = 'approved';
+        }
+        $title = $isInfoRoom ? 'INFO TOUR' : ($isGroupRoom ? 'PERTANYAAN / QUESTION' : ($isAdminRoom ? ($admin ? $teamDisplayName : 'ADMIN') : ($teamName . ' vs ' . (string) ($room['team_b_name'] ?? 'TBD'))));
+        $avatar = $isInfoRoom ? 'INFO' : ($isGroupRoom ? 'Q' : ($isAdminRoom ? ($admin ? make_initials($teamName) : 'AD') : 'VS'));
         $rooms[] = [
             'id' => (int) $room['id'],
             'room_type' => (string) $room['room_type'],
@@ -1984,27 +4397,41 @@ function get_deal_rooms(PDO $pdo, ?array $team, ?array $admin, bool $allowPerson
             'team_b_id' => (int) ($room['team_b_id'] ?? 0),
             'team_a_name' => (string) ($room['team_a_name'] ?? 'TBD'),
             'team_b_name' => (string) ($room['team_b_name'] ?? 'TBD'),
-            'team_a_online' => !empty($room['team_a_last_seen']) && strtotime((string) $room['team_a_last_seen']) >= time() - 90,
-            'team_b_online' => !empty($room['team_b_last_seen']) && strtotime((string) $room['team_b_last_seen']) >= time() - 90,
+            'team_a_slot' => (int) ($room['team_a_slot'] ?? 0),
+            'team_b_slot' => (int) ($room['team_b_slot'] ?? 0),
+            'team_a_online' => !empty($room['team_a_last_seen']) && strtotime((string) $room['team_a_last_seen']) >= time() - 120,
+            'team_b_online' => !empty($room['team_b_last_seen']) && strtotime((string) $room['team_b_last_seen']) >= time() - 120,
+            'team_a_last_seen' => (string) ($room['team_a_last_seen'] ?? ''),
+            'team_b_last_seen' => (string) ($room['team_b_last_seen'] ?? ''),
             'title' => $title,
-            'subtitle' => $isGroupRoom ? 'Pertanyaan awam · semua boleh chat' : ($isAdminRoom ? ($admin ? 'Chat ke admin' : $teamName) : 'Clash League Deal'),
+            'subtitle' => $isInfoRoom ? 'Pengumuman rasmi tournament' : ($isGroupRoom ? 'Pertanyaan awam · semua boleh chat' : ($isAdminRoom ? ($admin ? 'Chat ke admin' : $teamName) : 'Clash League Deal')),
             'avatar' => $avatar,
-            'avatar_logo' => $isGroupRoom ? '/images/question-chat-profile.png?v=20260726-2' : ($isAdminRoom && $admin ? $teamLogo : ''),
+            'avatar_logo' => $isInfoRoom ? '/images/clash-league.png' : ($isGroupRoom ? '/images/question-chat-profile.png?v=20260726-2' : ($isAdminRoom && $admin ? $teamLogo : '')),
             'status' => (string) $room['status'],
+            'admin_checked' => !empty($room['admin_checked']),
+            'report_match' => !empty($room['report_match']),
             'last_message' => (string) ($room['last_message'] ?? 'Belum ada chat.'),
             'last_message_id' => (int) ($room['last_message_id'] ?? 0),
             'last_sender_type' => (string) ($room['last_sender_type'] ?? ''),
+            'awaiting_admin_reply' => $admin
+                && (int) ($room['last_team_message_id'] ?? 0) > (int) ($room['last_admin_message_id'] ?? 0),
             'seen_message_id' => (int) ($room['seen_message_id'] ?? 0),
+            'unread_count' => (int) ($room['unread_count'] ?? 0),
             'match_name' => (string) ($room['match_name'] ?? ''),
             'match_id' => $matchId,
             'match_status' => (string) ($room['match_status'] ?? ''),
             'match_time' => $matchTime,
             'match_date' => $matchTime !== '' ? substr($matchTime, 0, 10) : '',
             'attendance' => $roomAttendance,
+            'readiness_messages' => $roomReadiness,
+            'team_a_result_submitted' => $teamAResult !== null,
+            'team_b_result_submitted' => $teamBResult !== null,
+            'result_state' => $resultState,
             'attendance_opens_at' => $attendanceOpensAt,
             'attendance_open' => $attendanceOpen,
             'attendance_closed' => $attendanceClosed,
             'my_attendance' => $team ? (string) ($roomAttendance[(int) $team['id']] ?? '') : '',
+            'my_readiness_message' => $team ? (string) ($roomReadiness[(int) $team['id']] ?? '') : '',
         ];
     }
 
@@ -2021,12 +4448,76 @@ function initialize_admin_room_reads(PDO $pdo, int $adminId): void
 
     $stmt = $pdo->prepare('
         INSERT INTO cl_room_reads (owner_type, admin_id, room_id, last_message_id, updated_at)
-        SELECT "admin", ?, r.id, COALESCE(MAX(m.id), 0), CURRENT_TIMESTAMP
+        SELECT "admin", ?, r.id, 0, CURRENT_TIMESTAMP
         FROM cl_rooms r
-        LEFT JOIN cl_messages m ON m.room_id = r.id
-        GROUP BY r.id
     ');
     $stmt->execute([$adminId]);
+}
+
+function repair_shared_admin_unread_history_once(PDO $pdo): void
+{
+    $repairKey = 'shared_admin_unread_history_v1';
+    $stmt = $pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute([$repairKey]);
+    if ((string) ($stmt->fetchColumn() ?: '') === 'complete') {
+        return;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        // Older initialization treated every existing chat as already read.
+        // Restore those messages once for full admin accounts. Stock-only
+        // accounts are intentionally excluded from tournament chat history.
+        $pdo->exec('
+            UPDATE cl_room_reads rr
+            INNER JOIN cl_admin_users au ON au.id = rr.admin_id
+            SET rr.last_message_id = 0, rr.updated_at = CURRENT_TIMESTAMP
+            WHERE rr.owner_type = "admin"
+              AND COALESCE(au.access_scope, "admin") = "admin"
+        ');
+        $marker = $pdo->prepare('
+            INSERT INTO cl_settings (setting_key, setting_value, updated_at)
+            VALUES (?, "complete", CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE setting_value = "complete", updated_at = CURRENT_TIMESTAMP
+        ');
+        $marker->execute([$repairKey]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
+}
+
+function repair_shared_admin_unread_history_for_admin_once(PDO $pdo, int $adminId): void
+{
+    if ($adminId <= 0) return;
+    $repairKey = 'shared_admin_unread_history_v2_admin_' . $adminId;
+    $stmt = $pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key = ? LIMIT 1');
+    $stmt->execute([$repairKey]);
+    if ((string) ($stmt->fetchColumn() ?: '') === 'complete') return;
+
+    $pdo->beginTransaction();
+    try {
+        // Target the account that is actually logged in. Legacy databases may
+        // contain a blank or non-standard access_scope, so role-based repair
+        // can miss the real tournament admin account.
+        $reset = $pdo->prepare('
+            UPDATE cl_room_reads
+            SET last_message_id = 0, updated_at = CURRENT_TIMESTAMP
+            WHERE owner_type = "admin" AND admin_id = ?
+        ');
+        $reset->execute([$adminId]);
+        $marker = $pdo->prepare('
+            INSERT INTO cl_settings (setting_key, setting_value, updated_at)
+            VALUES (?, "complete", CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE setting_value = "complete", updated_at = CURRENT_TIMESTAMP
+        ');
+        $marker->execute([$repairKey]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $error;
+    }
 }
 
 function mark_room_read(PDO $pdo): void
@@ -2062,6 +4553,52 @@ function mark_room_read(PDO $pdo): void
     $stmt->execute([$ownerType, $teamId, $adminId, $roomId, $lastMessageId]);
 
     json_response(['ok' => true, 'room_id' => $roomId, 'last_message_id' => $lastMessageId]);
+}
+
+function set_room_admin_check(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Admin login diperlukan.'], 401);
+    }
+    $roomId = (int) ($_POST['room_id'] ?? 0);
+    $checked = filter_var($_POST['checked'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    if ($roomId <= 0) {
+        json_response(['ok' => false, 'message' => 'Room tidak valid.'], 422);
+    }
+    $stmt = $pdo->prepare('UPDATE cl_rooms SET admin_checked = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND room_type IN ("match", "deal")');
+    $stmt->execute([$checked ? 1 : 0, $roomId]);
+    if ($stmt->rowCount() === 0) {
+        $check = $pdo->prepare('SELECT COUNT(*) FROM cl_rooms WHERE id = ? AND room_type IN ("match", "deal")');
+        $check->execute([$roomId]);
+        if ((int) $check->fetchColumn() === 0) {
+            json_response(['ok' => false, 'message' => 'Group Match tidak dijumpai.'], 404);
+        }
+    }
+    json_response(get_state($pdo) + ['message' => $checked ? 'Group Match ditanda checked.' : 'Tanda checked dibuang.']);
+}
+
+function set_room_report_match(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Admin login diperlukan.'], 401);
+    }
+    $roomId = (int) ($_POST['room_id'] ?? 0);
+    $marked = filter_var($_POST['marked'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    if ($roomId <= 0) {
+        json_response(['ok' => false, 'message' => 'Chat tidak valid.'], 422);
+    }
+    $stmt = $pdo->prepare('UPDATE cl_rooms SET report_match = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND room_type != "info"');
+    $stmt->execute([$marked ? 1 : 0, $roomId]);
+    if ($stmt->rowCount() === 0) {
+        $check = $pdo->prepare('SELECT COUNT(*) FROM cl_rooms WHERE id = ? AND room_type != "info"');
+        $check->execute([$roomId]);
+        if ((int) $check->fetchColumn() === 0) {
+            json_response(['ok' => false, 'message' => 'Chat tidak dijumpai.'], 404);
+        }
+    }
+    json_response(get_state($pdo) + ['message' => $marked
+        ? 'Chat ditanda sebagai Report Match dan dimasukkan ke Checking.'
+        : 'Tanda Report Match dibuang daripada chat.']);
 }
 
 function confirm_match_attendance(PDO $pdo): void
@@ -2109,27 +4646,78 @@ function confirm_match_attendance(PDO $pdo): void
     json_response(get_state($pdo) + ['message' => 'Kehadiran team berjaya disahkan. Ada wakil.']);
 }
 
-function get_messages(PDO $pdo, array $rooms): array
+function cancel_match_attendance(PDO $pdo): void
+{
+    $team = require_team($pdo);
+    $matchId = (int) ($_POST['match_id'] ?? 0);
+    $teamId = (int) ($team['id'] ?? 0);
+    if (empty($team['is_test_account']) || (string) ($team['team_name'] ?? '') !== 'GNEX WEB TESTER') {
+        json_response(['ok' => false, 'message' => 'Cancel hadir hanya tersedia untuk GNEX WEB TESTER.'], 403);
+    }
+    if ($matchId <= 0) {
+        json_response(['ok' => false, 'message' => 'Match tidak valid.'], 422);
+    }
+
+    $participant = $pdo->prepare('SELECT COUNT(*) FROM cl_matches WHERE id = ? AND (team_a_id = ? OR team_b_id = ?)');
+    $participant->execute([$matchId, $teamId, $teamId]);
+    if ((int) $participant->fetchColumn() === 0) {
+        json_response(['ok' => false, 'message' => 'Team tester bukan peserta match ini.'], 403);
+    }
+
+    $stmt = $pdo->prepare('DELETE FROM cl_match_attendance WHERE match_id = ? AND team_id = ?');
+    $stmt->execute([$matchId, $teamId]);
+    json_response(get_state($pdo) + ['message' => 'Kehadiran tester dibatalkan. Ulang semula tick hadir dan test mesej.']);
+}
+
+function get_messages(PDO $pdo, array $rooms, int $sinceMessageId = 0): array
 {
     if (!$rooms) {
         return [];
     }
     $roomIds = array_map(static fn($room) => (int) $room['id'], $rooms);
     $placeholders = implode(',', array_fill(0, count($roomIds), '?'));
+    // Group/INFO history is included during polling so edits to older messages
+    // reach devices that already have a newer message id.
+    $sinceSql = $sinceMessageId > 0 ? ' AND (cm.id > ? OR cr.room_type IN ("group", "info"))' : '';
     $stmt = $pdo->prepare("
-        SELECT m.id, m.room_id, m.sender_type, m.sender_team_id, m.guest_name, m.reply_to_message_id, m.action_target, m.message, m.created_at,
+        SELECT m.id, m.room_id, m.sender_type, m.sender_team_id, m.guest_name, m.reply_to_message_id, m.action_target, m.message, m.image_url, m.created_at, m.edited_at,
                t.team_name AS sender_team_name, t.status AS sender_team_status, t.slot_no AS sender_team_slot,
                rm.message AS reply_message, rm.sender_type AS reply_sender_type, rm.guest_name AS reply_guest_name,
                rt.team_name AS reply_team_name, rt.status AS reply_team_status, rt.slot_no AS reply_team_slot
-        FROM cl_messages m
+        FROM (
+            SELECT cm.*,
+                   cr.room_type,
+                   ROW_NUMBER() OVER (PARTITION BY cm.room_id ORDER BY cm.id DESC) AS message_rank
+            FROM cl_messages cm
+            INNER JOIN cl_rooms cr ON cr.id = cm.room_id
+            WHERE cm.room_id IN ($placeholders)$sinceSql
+        ) m
         LEFT JOIN cl_teams t ON t.id = m.sender_team_id
         LEFT JOIN cl_messages rm ON rm.id = m.reply_to_message_id AND rm.room_id = m.room_id
         LEFT JOIN cl_teams rt ON rt.id = rm.sender_team_id
-        WHERE m.room_id IN ($placeholders)
+        -- Keep login/state payload small enough for mobile. Messages remain in
+        -- the database; only the initial history window is limited here.
+        WHERE m.message_rank <= CASE WHEN m.room_type IN ('group','info') THEN 100 ELSE 10 END
         ORDER BY m.id ASC
     ");
-    $stmt->execute($roomIds);
-    return $stmt->fetchAll();
+    $messageParams = $roomIds;
+    if ($sinceMessageId > 0) $messageParams[] = $sinceMessageId;
+    $stmt->execute($messageParams);
+    $messages = $stmt->fetchAll();
+    if (!$messages) return [];
+    $messageIds = array_map(static fn(array $message): int => (int) $message['id'], $messages);
+    $reactionPlaceholders = implode(',', array_fill(0, count($messageIds), '?'));
+    $reactionStmt = $pdo->prepare("SELECT message_id, emoji, COUNT(*) AS total FROM cl_message_reactions WHERE message_id IN ($reactionPlaceholders) GROUP BY message_id, emoji");
+    $reactionStmt->execute($messageIds);
+    $reactions = [];
+    foreach ($reactionStmt->fetchAll() as $reaction) {
+        $reactions[(int) $reaction['message_id']][] = ['emoji' => (string) $reaction['emoji'], 'count' => (int) $reaction['total']];
+    }
+    foreach ($messages as &$message) {
+        $message['reactions'] = $reactions[(int) $message['id']] ?? [];
+    }
+    unset($message);
+    return $messages;
 }
 
 function get_rules_text(PDO $pdo): string
@@ -2163,7 +4751,7 @@ function get_pinned_action_target(PDO $pdo): string
     $stmt = $pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key = "pinned_info_action_target" LIMIT 1');
     $stmt->execute();
     $target = trim((string) ($stmt->fetchColumn() ?: ''));
-    if (in_array($target, ['jadual', 'rules', 'profile', 'all-team', 'deal'], true)) {
+    if (in_array($target, ['jadual', 'rules', 'profile', 'all-team', 'deal', 'cara-bermain', 'report-match'], true)) {
         return $target;
     }
     $pinnedInfo = get_pinned_info($pdo);
@@ -2177,7 +4765,7 @@ function get_pinned_action_target(PDO $pdo): string
     ');
     $fallback->execute([$pinnedInfo]);
     $target = (string) ($fallback->fetchColumn() ?: '');
-    return in_array($target, ['jadual', 'rules', 'profile', 'all-team', 'deal'], true) ? $target : '';
+    return in_array($target, ['jadual', 'rules', 'profile', 'all-team', 'deal', 'cara-bermain', 'report-match'], true) ? $target : '';
 }
 
 function get_pinned_acknowledgement_state(PDO $pdo, ?array $team, ?array $chatTeam): array
@@ -2208,6 +4796,156 @@ function get_pinned_acknowledgement_state(PDO $pdo, ?array $team, ?array $chatTe
     ];
 }
 
+function get_winner_pool(PDO $pdo, ?array $admin): array
+{
+    if (!$admin) {
+        return ['count' => 0, 'teams' => []];
+    }
+    $stmt = $pdo->query('
+        SELECT m.id AS source_match_id, m.match_name, m.team_a_point, m.team_b_point,
+               CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END AS winner_team_id,
+               CASE WHEN m.team_a_point > m.team_b_point THEN ta.team_name ELSE tb.team_name END AS winner_team_name,
+               CASE WHEN m.team_a_point > m.team_b_point THEN ta.logo_url ELSE tb.logo_url END AS winner_team_logo
+        FROM cl_matches m
+        LEFT JOIN cl_teams ta ON ta.id = m.team_a_id
+        LEFT JOIN cl_teams tb ON tb.id = m.team_b_id
+        LEFT JOIN cl_match_advancements a ON a.source_match_id = m.id
+        LEFT JOIN cl_matches next_match ON next_match.id = a.next_match_id
+        WHERE m.status = "completed"
+          AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL
+          AND m.team_a_point IS NOT NULL AND m.team_b_point IS NOT NULL
+          AND m.team_a_point <> m.team_b_point
+          AND (
+              a.id IS NULL
+              OR next_match.id IS NULL
+              OR next_match.status = "hidden"
+              OR (
+                  COALESCE(next_match.team_a_id, 0) <> (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                  AND COALESCE(next_match.team_b_id, 0) <> (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+              )
+          )
+          AND NOT EXISTS (
+              SELECT 1 FROM cl_matches active_match
+              WHERE active_match.status IN ("up_next", "live")
+                AND (
+                    active_match.team_a_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                    OR active_match.team_b_id = (CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END)
+                )
+          )
+        ORDER BY COALESCE(m.updated_at, m.created_at) ASC, m.id ASC
+    ');
+    $teamsById = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $teamId = (int) $row['winner_team_id'];
+        if ($teamId <= 0 || isset($teamsById[$teamId])) continue;
+        $teamsById[$teamId] = [
+            'source_match_id' => (int) $row['source_match_id'],
+            'match_name' => (string) $row['match_name'],
+            'team_id' => (int) $row['winner_team_id'],
+            'team_name' => (string) ($row['winner_team_name'] ?? 'Team'),
+            'team_logo' => (string) ($row['winner_team_logo'] ?? ''),
+            'score' => (int) $row['team_a_point'] . ' - ' . (int) $row['team_b_point'],
+        ];
+    }
+    $teams = array_values($teamsById);
+    return ['count' => count($teams), 'teams' => $teams];
+}
+
+function get_qualifier_final_entries(PDO $pdo, ?array $admin): array
+{
+    if (!$admin) return ['brackets' => [], 'qualified_count' => 0];
+    $stmt = $pdo->query('
+        SELECT e.bracket_no, e.slot_no, e.team_id, e.points, e.placement,
+               t.team_name, t.logo_url, t.slot_no AS registration_slot
+        FROM cl_qualifier_final_entries e
+        LEFT JOIN cl_teams t ON t.id = e.team_id
+        ORDER BY e.bracket_no ASC, e.slot_no ASC
+    ');
+    $saved = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $saved[(int) $row['bracket_no']][(int) $row['slot_no']] = [
+            'team_id' => $row['team_id'] === null ? 0 : (int) $row['team_id'],
+            'team_name' => (string) ($row['team_name'] ?? 'TBD'),
+            'team_logo' => (string) ($row['logo_url'] ?? ''),
+            'registration_slot' => $row['registration_slot'] === null ? 0 : (int) $row['registration_slot'],
+            'points' => $row['points'] === null ? null : (int) $row['points'],
+            'placement' => $row['placement'] === null ? null : (int) $row['placement'],
+        ];
+    }
+    $brackets = [];
+    $qualifiedCount = 0;
+    for ($bracket = 1; $bracket <= 4; $bracket++) {
+        $entries = [];
+        for ($slot = 1; $slot <= 8; $slot++) {
+            $entry = $saved[$bracket][$slot] ?? [
+                'team_id' => 0, 'team_name' => 'TBD', 'team_logo' => '',
+                'registration_slot' => 0, 'points' => null, 'placement' => null,
+            ];
+            $entry['slot_no'] = $slot;
+            $entry['qualified'] = $entry['team_id'] > 0 && $entry['placement'] !== null && $entry['placement'] <= 3;
+            if ($entry['qualified']) $qualifiedCount++;
+            $entries[] = $entry;
+        }
+        $brackets[] = ['bracket_no' => $bracket, 'entries' => $entries];
+    }
+    return ['brackets' => $brackets, 'qualified_count' => $qualifiedCount];
+}
+
+function save_qualifier_final_entry(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    }
+    $bracket = (int) ($_POST['bracket_no'] ?? 0);
+    $slot = (int) ($_POST['slot_no'] ?? 0);
+    $teamId = (int) ($_POST['team_id'] ?? 0);
+    $pointsRaw = trim((string) ($_POST['points'] ?? ''));
+    $placementRaw = trim((string) ($_POST['placement'] ?? ''));
+    $points = $pointsRaw === '' ? null : (int) $pointsRaw;
+    $placement = $placementRaw === '' ? null : (int) $placementRaw;
+    if ($bracket < 1 || $bracket > 4 || $slot < 1 || $slot > 8) {
+        json_response(['ok' => false, 'message' => 'Bracket atau slot tidak valid.'], 422);
+    }
+    if ($points !== null && ($points < 0 || $points > 9999)) {
+        json_response(['ok' => false, 'message' => 'Point tidak valid.'], 422);
+    }
+    if ($placement !== null && ($placement < 1 || $placement > 8)) {
+        json_response(['ok' => false, 'message' => 'Kedudukan mesti antara 1 hingga 8.'], 422);
+    }
+    if ($teamId > 0) {
+        $check = $pdo->prepare('SELECT COUNT(*) FROM cl_teams WHERE id = ? AND status = "accepted"');
+        $check->execute([$teamId]);
+        if ((int) $check->fetchColumn() !== 1) {
+            json_response(['ok' => false, 'message' => 'Team tidak aktif atau belum confirm.'], 422);
+        }
+    }
+    if ($teamId > 0 && $placement !== null) {
+        $rankCheck = $pdo->prepare('SELECT COUNT(*) FROM cl_qualifier_final_entries WHERE bracket_no = ? AND placement = ? AND slot_no != ?');
+        $rankCheck->execute([$bracket, $placement, $slot]);
+        if ((int) $rankCheck->fetchColumn() > 0) {
+            json_response(['ok' => false, 'message' => 'Rank ' . $placement . ' sudah digunakan dalam bracket ini.'], 409);
+        }
+    }
+    $pdo->beginTransaction();
+    try {
+        if ($teamId > 0) {
+            $clear = $pdo->prepare('UPDATE cl_qualifier_final_entries SET team_id = NULL, points = NULL, placement = NULL, updated_at = CURRENT_TIMESTAMP WHERE team_id = ? AND NOT (bracket_no = ? AND slot_no = ?)');
+            $clear->execute([$teamId, $bracket, $slot]);
+        }
+        $stmt = $pdo->prepare('
+            INSERT INTO cl_qualifier_final_entries (bracket_no, slot_no, team_id, points, placement, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE team_id = VALUES(team_id), points = VALUES(points), placement = VALUES(placement), updated_at = CURRENT_TIMESTAMP
+        ');
+        $stmt->execute([$bracket, $slot, $teamId > 0 ? $teamId : null, $teamId > 0 ? $points : null, $teamId > 0 ? $placement : null]);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        $pdo->rollBack();
+        json_response(['ok' => false, 'message' => $error->getMessage()], 409);
+    }
+    json_response(get_state($pdo) + ['message' => 'Slot Qualifier Final berjaya disimpan.']);
+}
+
 function get_state(PDO $pdo): array
 {
     global $pushConfig, $dbConfig;
@@ -2215,21 +4953,44 @@ function get_state(PDO $pdo): array
     $team = current_team($pdo);
     $admin = current_admin($pdo);
     refresh_persistent_login($pdo);
+    // Let an installed iOS Home Screen app backfill its own local device token
+    // after authentication was restored from Safari's persistent cookie.
+    $restoredDeviceLoginToken = ($team || $admin) ? device_login_token_from_request() : '';
+    $chatTeam = $team ?: current_chat_team($pdo);
+    $presenceTeam = $team ?: $chatTeam;
+
+    // Release PHP's session-file lock before the heavier state queries. iOS
+    // Safari can leave a polling request in flight while the user submits the
+    // login form; without this, the login POST waits behind that GET and looks
+    // stuck on "Logging in..." even though the credentials are correct.
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
+    // Everything below can be slow but no longer blocks another tab/device
+    // from restoring the same saved login session.
+    dispatch_due_match_day_notifications($pdo, $pushConfig, 4);
+    if ($admin && (string) ($admin['username'] ?? '') !== 'izwan') {
+        repair_shared_admin_unread_history_for_admin_once($pdo, (int) $admin['id']);
+    }
     if ($admin) {
         repair_legacy_tbd_schedule($pdo);
     }
-    $chatTeam = $team ?: current_chat_team($pdo);
-    $presenceTeam = $team ?: $chatTeam;
+
     if ($presenceTeam) {
         $presenceStmt = $pdo->prepare('
             UPDATE cl_teams SET last_seen_at = CURRENT_TIMESTAMP
-            WHERE id = ? AND (last_seen_at IS NULL OR last_seen_at < CURRENT_TIMESTAMP - INTERVAL 20 SECOND)
+            WHERE id = ? AND (last_seen_at IS NULL OR last_seen_at < CURRENT_TIMESTAMP - INTERVAL 60 SECOND)
         ');
         $presenceStmt->execute([(int) $presenceTeam['id']]);
     }
     if ($team && $team['status'] === 'accepted') {
         get_or_create_admin_room($pdo, (int) $team['id']);
     }
+
+    // Match next round boleh lengkap selepas migration asal sudah selesai.
+    // Pastikan room sentiasa wujud pada setiap state refresh.
+    ensure_active_match_rooms($pdo);
 
     $rooms = get_deal_rooms($pdo, $chatTeam, $admin, $team !== null);
     $notificationOwner = $admin ? 'admin' : ($team ? 'team' : '');
@@ -2246,18 +5007,62 @@ function get_state(PDO $pdo): array
         'team' => $team,
         'admin' => $admin,
         'chat_team' => $chatTeam,
+        'viewing_as_team' => !empty($_SESSION['cl_admin_view_as_team']),
         'teams' => get_public_teams($pdo),
         'matches' => get_team_matches($pdo, $team, $admin),
         'results' => get_match_results($pdo, $team, $admin),
+        'winner_pool' => get_winner_pool($pdo, $admin),
+        'qualifier_final' => get_qualifier_final_entries($pdo, $admin),
         'password_requests' => get_password_change_requests($pdo, $admin, $dbConfig),
         'rooms' => $rooms,
         'messages' => get_messages($pdo, $rooms),
+        'timeline' => get_timeline($pdo),
         'rules_text' => get_rules_text($pdo),
         'pinned_info' => get_pinned_info($pdo),
         'pinned_info_action_target' => get_pinned_action_target($pdo),
         'pinned_acknowledgement' => get_pinned_acknowledgement_state($pdo, $team, $chatTeam),
         'push_public_key' => $pushConfig['public_key'] ?? null,
         'notification_readiness' => $notificationReadiness,
+        'device_login_token' => $restoredDeviceLoginToken !== '' ? $restoredDeviceLoginToken : null,
+    ];
+}
+
+function get_chat_updates(PDO $pdo): array
+{
+    $team = current_team($pdo);
+    $admin = current_admin($pdo);
+    if ($admin && (string) ($admin['username'] ?? '') !== 'izwan') {
+        repair_shared_admin_unread_history_for_admin_once($pdo, (int) $admin['id']);
+    }
+    refresh_persistent_login($pdo);
+    $chatTeam = $team ?: current_chat_team($pdo);
+    ensure_active_match_rooms($pdo);
+    $deviceToken = ($team || $admin) ? device_login_token_from_request() : '';
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
+    $rooms = get_deal_rooms($pdo, $chatTeam, $admin, $team !== null);
+    $sinceMessageId = max(0, (int) ($_GET['since_message_id'] ?? 0));
+    $messages = get_messages($pdo, $rooms, $sinceMessageId);
+
+    return [
+        'ok' => true,
+        'chat_update' => true,
+        'auth' => [
+            'team_id' => (int) ($team['id'] ?? 0),
+            'chat_team_id' => (int) ($chatTeam['id'] ?? 0),
+            'admin_id' => (int) ($admin['id'] ?? 0),
+        ],
+        'rooms' => $rooms,
+        // The Deal view polls this endpoint instead of full state. Include the
+        // current fixtures so an admin opponent change reaches every team.
+        'matches' => get_team_matches($pdo, $team, $admin),
+        'messages' => $messages,
+        'pinned_info' => get_pinned_info($pdo),
+        'pinned_info_action_target' => get_pinned_action_target($pdo),
+        'pinned_acknowledgement' => get_pinned_acknowledgement_state($pdo, $team, $chatTeam),
+        'device_login_token' => $deviceToken !== '' ? $deviceToken : null,
     ];
 }
 
@@ -2310,6 +5115,7 @@ function repair_legacy_tbd_schedule(PDO $pdo): void
             ')->execute([(int) $match['id'], (int) $match['id'], (int) $match['id']]);
         }
 
+        /* Legacy automatic TBD consolidation disabled.
         while (true) {
             $vacancy = $pdo->query('
                 SELECT id, team_a_id, team_b_id
@@ -2359,6 +5165,10 @@ function repair_legacy_tbd_schedule(PDO $pdo): void
                 WHERE room_type = "match" AND team_a_id <=> ? AND team_b_id <=> ?
             ')->execute([$donorA, $donorB]);
         }
+        */
+        // TBD pairing is now handled only by explicit admin actions. Running it
+        // during a state read could mutate official fixtures and conflict with
+        // the database anti-double-match guard.
         $pdo->commit();
     } catch (Throwable $error) {
         $pdo->rollBack();
@@ -2544,6 +5354,17 @@ function update_team_info(PDO $pdo, string $rootDir): void
         }
     }
 
+    if (!$admin && !empty($loggedTeam['profile_incomplete'])) {
+        $playersBySlot = [];
+        foreach ($players as $player) $playersBySlot[(int)$player['slot']] = $player;
+        for ($slot = 1; $slot <= 4; $slot++) {
+            $player = $playersBySlot[$slot] ?? null;
+            if (!$player || trim((string)$player['ign']) === '' || trim((string)$player['id']) === '') {
+                json_response(['ok' => false, 'message' => 'Lengkapkan IGN dan ID untuk P1 hingga P4 sebelum teruskan.'], 422);
+            }
+        }
+    }
+
     if (count($playerIds) !== count(array_unique($playerIds))) {
         json_response(['ok' => false, 'code' => 'duplicate_player_id', 'message' => 'Player ID yang sama tidak boleh digunakan dua kali dalam satu team.'], 409);
     }
@@ -2608,6 +5429,11 @@ function update_team_info(PDO $pdo, string $rootDir): void
             foreach ($players as $player) {
                 $stmt->execute([$teamId, $player['slot'], $player['ign'], $player['id']]);
             }
+        }
+
+        if (!$admin && !empty($loggedTeam['profile_incomplete'])) {
+            $stmt = $pdo->prepare('UPDATE cl_teams SET profile_update_required=0, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+            $stmt->execute([$teamId]);
         }
 
         renumber_accepted_slots($pdo);
@@ -2763,38 +5589,77 @@ function generate_random_matches(PDO $pdo): void
     repair_legacy_tbd_schedule($pdo);
 
     $limit = max(1, min(128, (int) ($_POST['team_limit'] ?? 10)));
+    $teamPool = clean_text($_POST['team_pool'] ?? 'new', 20);
+    if (!in_array($teamPool, ['new', 'winners'], true)) {
+        json_response(['ok' => false, 'message' => 'Kumpulan team tidak valid.'], 422);
+    }
     $prefix = clean_text($_POST['match_prefix'] ?? 'Qualifier Match', 120);
     if ($prefix === '') {
         $prefix = 'Qualifier Match';
     }
+    $allowedMatchNames = [];
+    $stageCodeByName = [];
+    foreach (get_timeline($pdo) as $timelineItem) {
+        $title = trim((string) ($timelineItem['title'] ?? ''));
+        if ($title !== '') {
+            $allowedMatchNames[$title] = true;
+            $stageCodeByName[$title] = trim((string)($timelineItem['stage_code'] ?? ''));
+        }
+    }
+    foreach (clash_timeline_match_slots() as $timelineSlot) {
+        $allowedMatchNames[(string) $timelineSlot['name']] = true;
+    }
+    if (!isset($allowedMatchNames[$prefix])) {
+        json_response(['ok' => false, 'message' => 'Nama match mesti dipilih daripada Timeline Jadual.'], 422);
+    }
+    $selectedStageCode = $stageCodeByName[$prefix] ?? '';
 
     $matchTimeSql = normalize_match_time($_POST['match_time'] ?? '');
 
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('
-            SELECT t.id
-            FROM cl_teams t
-            WHERE t.status = "accepted" AND t.is_test_account = 0
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM cl_matches m
-                  WHERE m.team_a_id = t.id OR m.team_b_id = t.id
-              )
-            ORDER BY COALESCE(t.slot_no, 999999), t.created_at ASC, t.id ASC
-            LIMIT ?
-            FOR UPDATE
-        ');
+        $sourceMatchByTeam = [];
+        if ($teamPool === 'winners') {
+            $stmt = $pdo->prepare('
+                SELECT m.id AS source_match_id,
+                       CASE WHEN m.team_a_point > m.team_b_point THEN m.team_a_id ELSE m.team_b_id END AS id
+                FROM cl_matches m
+                LEFT JOIN cl_match_advancements a ON a.source_match_id = m.id
+                WHERE m.status = "completed"
+                  AND m.team_a_id IS NOT NULL AND m.team_b_id IS NOT NULL
+                  AND m.team_a_point IS NOT NULL AND m.team_b_point IS NOT NULL
+                  AND m.team_a_point <> m.team_b_point AND a.id IS NULL
+                ORDER BY COALESCE(m.updated_at, m.created_at) ASC, m.id ASC
+                LIMIT ? FOR UPDATE
+            ');
+        } else {
+            $stmt = $pdo->prepare('
+                SELECT t.id, NULL AS source_match_id
+                FROM cl_teams t
+                WHERE t.status = "accepted" AND t.is_test_account = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM cl_matches m WHERE m.team_a_id = t.id OR m.team_b_id = t.id
+                  )
+                ORDER BY COALESCE(t.slot_no, 999999), t.created_at ASC, t.id ASC
+                LIMIT ? FOR UPDATE
+            ');
+        }
         $stmt->bindValue(1, $limit, PDO::PARAM_INT);
         $stmt->execute();
-        $teamIds = array_map(static fn($row) => (int) $row['id'], $stmt->fetchAll());
+        $selectedRows = $stmt->fetchAll();
+        $teamIds = [];
+        foreach ($selectedRows as $row) {
+            $teamId = (int) $row['id'];
+            $teamIds[] = $teamId;
+            if (!empty($row['source_match_id'])) $sourceMatchByTeam[$teamId] = (int) $row['source_match_id'];
+        }
 
         if (count($teamIds) < $limit) {
             $available = count($teamIds);
             $pdo->rollBack();
             json_response([
                 'ok' => false,
-                'message' => 'Batch belum cukup. Ada ' . $available . ' team baharu, perlukan ' . $limit . ' team untuk proses.',
+                'message' => 'Batch belum cukup. Ada ' . $available . ($teamPool === 'winners' ? ' team layak' : ' team baharu') . ', perlukan ' . $limit . ' team untuk proses.',
             ], 422);
         }
 
@@ -2802,7 +5667,7 @@ function generate_random_matches(PDO $pdo): void
         $processedCount = count($teamIds);
         $filledTbd = 0;
 
-        while ($teamIds) {
+        while ($teamPool === 'new' && $teamIds) {
             $tbdStmt = $pdo->query('
                 SELECT id, team_a_id, team_b_id
                 FROM cl_matches
@@ -2841,16 +5706,16 @@ function generate_random_matches(PDO $pdo): void
             $roomId = (int) ($roomLookup->fetchColumn() ?: 0);
             if ($roomId > 0) {
                 $updateRoom = $pdo->prepare('
-                    UPDATE cl_rooms SET team_a_id = ?, team_b_id = ?, status = "open", updated_at = CURRENT_TIMESTAMP
+                    UPDATE cl_rooms SET team_a_id = ?, team_b_id = ?, match_id = ?, status = "open", updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                 ');
-                $updateRoom->execute([$teamA, $teamB, $roomId]);
+                $updateRoom->execute([$teamA, $teamB, $matchId, $roomId]);
             } else {
                 $createRoom = $pdo->prepare('
-                    INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, status, updated_at)
-                    VALUES ("match", ?, ?, "open", CURRENT_TIMESTAMP)
+                    INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, match_id, status, updated_at)
+                    VALUES ("match", ?, ?, ?, "open", CURRENT_TIMESTAMP)
                 ');
-                $createRoom->execute([$teamA, $teamB]);
+                $createRoom->execute([$teamA, $teamB, $matchId]);
             }
             $filledTbd++;
         }
@@ -2867,20 +5732,31 @@ function generate_random_matches(PDO $pdo): void
         $matchNo = $highestMatchNo + 1;
 
         $matchStmt = $pdo->prepare('
-            INSERT INTO cl_matches (team_a_id, team_b_id, match_name, match_time, status, updated_at)
-            VALUES (?, ?, ?, ?, "up_next", CURRENT_TIMESTAMP)
+            INSERT INTO cl_matches (team_a_id, team_b_id, match_name, stage_code, match_time, status, updated_at)
+            VALUES (?, ?, ?, ?, ?, "up_next", CURRENT_TIMESTAMP)
         ');
         $roomStmt = $pdo->prepare('
-            INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, status, updated_at)
-            VALUES ("match", ?, ?, "open", CURRENT_TIMESTAMP)
+            INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, match_id, status, updated_at)
+            VALUES ("match", ?, ?, ?, "open", CURRENT_TIMESTAMP)
+        ');
+        $advanceStmt = $pdo->prepare('
+            INSERT INTO cl_match_advancements (source_match_id, winner_team_id, next_match_id)
+            VALUES (?, ?, ?)
         ');
 
         for ($index = 0; $index < count($teamIds); $index += 2) {
             $teamA = $teamIds[$index];
             $teamB = $teamIds[$index + 1] ?? null;
             $matchName = $prefix . ' ' . $matchNo;
-            $matchStmt->execute([$teamA, $teamB, $matchName, $matchTimeSql]);
-            $roomStmt->execute([$teamA, $teamB]);
+            $matchStmt->execute([$teamA, $teamB, $matchName, $selectedStageCode ?: null, $matchTimeSql]);
+            $newMatchId = (int) $pdo->lastInsertId();
+            $roomStmt->execute([$teamA, $teamB, $newMatchId]);
+            if ($teamPool === 'winners') {
+                foreach (array_filter([$teamA, $teamB]) as $winnerTeamId) {
+                    $sourceMatchId = (int) ($sourceMatchByTeam[(int) $winnerTeamId] ?? 0);
+                    if ($sourceMatchId > 0) $advanceStmt->execute([$sourceMatchId, (int) $winnerTeamId, $newMatchId]);
+                }
+            }
             $matchNo++;
         }
         $pdo->commit();
@@ -2892,7 +5768,7 @@ function generate_random_matches(PDO $pdo): void
     json_response(get_state($pdo) + [
         'message' => $filledTbd > 0
             ? 'Batch ' . $processedCount . ' team berjaya diproses. ' . $filledTbd . ' slot TBD telah diisi.'
-            : 'Batch ' . $processedCount . ' team baharu berjaya dibuat. Jika seorang sahaja, jadual ditetapkan sebagai vs TBD.',
+            : 'Batch ' . $processedCount . ($teamPool === 'winners' ? ' team layak' : ' team baharu') . ' berjaya dibuat. Jika seorang sahaja, jadual ditetapkan sebagai vs TBD.',
     ]);
 }
 
@@ -3053,6 +5929,7 @@ function approve_match_result(PDO $pdo): void
             WHERE match_id = ? AND team_id IN (?, ?)
         ');
         $stmt->execute([$matchId, $match['team_a_id'], $match['team_b_id']]);
+        route_qualifier_winner($pdo, $match, $teamAPoint, $teamBPoint);
         $pdo->commit();
     } catch (Throwable $error) {
         $pdo->rollBack();
@@ -3079,7 +5956,7 @@ function admin_set_match_result(PDO $pdo): void
 
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('SELECT id, match_time FROM cl_matches WHERE id = ? FOR UPDATE');
+        $stmt = $pdo->prepare('SELECT * FROM cl_matches WHERE id = ? FOR UPDATE');
         $stmt->execute([$matchId]);
         $match = $stmt->fetch();
         if (!$match) {
@@ -3091,7 +5968,8 @@ function admin_set_match_result(PDO $pdo): void
         }
         $matchStartsAt = new DateTimeImmutable($matchTime, new DateTimeZone('Asia/Kuala_Lumpur'));
         $now = new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));
-        if ($now < $matchStartsAt) {
+        $isTestMatch = str_starts_with((string)($match['stage_code'] ?? ''), 'test_');
+        if (!$isTestMatch && $now < $matchStartsAt) {
             throw new RuntimeException('Admin hanya boleh update point selepas match bermula pada ' . $matchStartsAt->format('d/m/Y, h:i A') . '.');
         }
 
@@ -3107,6 +5985,7 @@ function admin_set_match_result(PDO $pdo): void
             WHERE match_id = ?
         ');
         $stmt->execute([$matchId]);
+        route_qualifier_winner($pdo, $match, $teamAPoint, $teamBPoint);
         $pdo->commit();
     } catch (Throwable $error) {
         $pdo->rollBack();
@@ -3114,6 +5993,286 @@ function admin_set_match_result(PDO $pdo): void
     }
 
     json_response(get_state($pdo) + ['message' => 'Point kedua-dua team berjaya ditetapkan oleh admin.']);
+}
+
+function route_qualifier_winner(PDO $pdo, array $sourceMatch, int $teamAPoint, int $teamBPoint): void
+{
+    $sourceId = (int) ($sourceMatch['id'] ?? 0);
+    $teamAId = (int) ($sourceMatch['team_a_id'] ?? 0);
+    $teamBId = (int) ($sourceMatch['team_b_id'] ?? 0);
+    $sourceName = trim((string) ($sourceMatch['match_name'] ?? ''));
+    $sourceCode = trim((string) ($sourceMatch['stage_code'] ?? '')) ?: infer_stage_code($sourceName, (string)($sourceMatch['match_time'] ?? ''));
+    if ($sourceId <= 0 || $teamAId <= 0 || $teamBId <= 0 || $teamAPoint === $teamBPoint) return;
+
+    $winnerId = $teamAPoint > $teamBPoint ? $teamAId : $teamBId;
+
+    // Tester progression is intentionally isolated from every official qualifier.
+    // TDB is a real test-team row so admin can exercise the complete point flow.
+    if (str_starts_with($sourceCode, 'test_')) {
+        $testRoutes = [
+            'test_q1' => ['target_code' => 'test_q2', 'timeline_code' => 'q2_f1'],
+            'test_q2' => ['target_code' => 'test_q3', 'timeline_code' => 'q3_f1'],
+        ];
+        $testRoute = $testRoutes[$sourceCode] ?? null;
+        if (!$testRoute) return;
+
+        $targetItem = timeline_item_by_stage($pdo, $testRoute['timeline_code']);
+        $targetTime = $targetItem ? timeline_item_datetime($targetItem) : null;
+        if (!$targetItem || $targetTime === null) return;
+
+        $existingAdvance = $pdo->prepare('SELECT next_match_id FROM cl_match_advancements WHERE source_match_id = ? LIMIT 1 FOR UPDATE');
+        $existingAdvance->execute([$sourceId]);
+        $existingTargetId = (int)($existingAdvance->fetchColumn() ?: 0);
+        $opponentId = $winnerId === $teamAId ? $teamBId : $teamAId;
+
+        $targetStmt = $pdo->prepare('SELECT id FROM cl_matches WHERE stage_code = ? LIMIT 1 FOR UPDATE');
+        $targetStmt->execute([$testRoute['target_code']]);
+        $targetId = (int)($targetStmt->fetchColumn() ?: 0);
+        if ($targetId <= 0) {
+            $insert = $pdo->prepare('INSERT INTO cl_matches (team_a_id, team_b_id, match_name, stage_code, match_time, status, updated_at) VALUES (?, ?, ?, ?, ?, "up_next", CURRENT_TIMESTAMP)');
+            $insert->execute([$winnerId, $opponentId, (string)$targetItem['title'], $testRoute['target_code'], $targetTime]);
+            $targetId = (int)$pdo->lastInsertId();
+        } else {
+            $update = $pdo->prepare('UPDATE cl_matches SET team_a_id=?, team_b_id=?, match_name=?, match_time=?, status="up_next", team_a_point=NULL, team_b_point=NULL, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+            $update->execute([$winnerId, $opponentId, (string)$targetItem['title'], $targetTime, $targetId]);
+        }
+
+        if ($existingTargetId <= 0) {
+            $advance = $pdo->prepare('INSERT INTO cl_match_advancements (source_match_id, winner_team_id, next_match_id) VALUES (?, ?, ?)');
+            $advance->execute([$sourceId, $winnerId, $targetId]);
+        } else {
+            $advance = $pdo->prepare('UPDATE cl_match_advancements SET winner_team_id=?, next_match_id=? WHERE source_match_id=?');
+            $advance->execute([$winnerId, $targetId, $sourceId]);
+        }
+        return;
+    }
+
+    if ($sourceCode === 'late_q1') {
+        route_late_entry_winner($pdo, $sourceId, $winnerId);
+        return;
+    }
+    if (str_starts_with($sourceCode, 'late_playoff_')) {
+        $challengedQ2Id = (int)substr($sourceCode, strlen('late_playoff_'));
+        route_late_playoff_winner($pdo, $sourceId, $challengedQ2Id, $winnerId);
+        return;
+    }
+
+    $routes = [
+        'q1_g1'=>['target_code'=>'q2_f1','side'=>'a'], 'q1_g2'=>['target_code'=>'q2_f1','side'=>'b'],
+        'q1_g3'=>['target_code'=>'q2_f2','side'=>'a'], 'q1_g4'=>['target_code'=>'q2_f2','side'=>'b'],
+        'q2_f1'=>['target_code'=>'q3_f1','side'=>'a'], 'q2_f2'=>['target_code'=>'q3_f1','side'=>'b'],
+    ];
+    $route = $routes[$sourceCode] ?? null;
+    if (!$route) return;
+    $targetItem = timeline_item_by_stage($pdo, $route['target_code']);
+    if (!$targetItem) return;
+    $route['name'] = (string)$targetItem['title'];
+    $route['time'] = timeline_item_datetime($targetItem);
+    if ($route['time'] === null) return;
+
+    $existingAdvance = $pdo->prepare('SELECT next_match_id FROM cl_match_advancements WHERE source_match_id = ? LIMIT 1 FOR UPDATE');
+    $existingAdvance->execute([$sourceId]);
+    if ($existingAdvance->fetchColumn()) return;
+
+    $ordinalStmt = $pdo->prepare('SELECT COUNT(*) FROM cl_matches WHERE stage_code=? AND id <= ?');
+    $ordinalStmt->execute([$sourceCode, $sourceId]);
+    $ordinal = max(1, (int) $ordinalStmt->fetchColumn());
+    $targetName = $route['name'] . ' ' . $ordinal;
+
+    $targetStmt = $pdo->prepare('SELECT * FROM cl_matches WHERE stage_code=? AND match_name LIKE ? LIMIT 1 FOR UPDATE');
+    $targetStmt->execute([$route['target_code'], '% '.$ordinal]);
+    $target = $targetStmt->fetch();
+    if (!$target) {
+        $insert = $pdo->prepare('INSERT INTO cl_matches (team_a_id, team_b_id, match_name, stage_code, match_time, status, updated_at) VALUES (?, ?, ?, ?, ?, "up_next", CURRENT_TIMESTAMP)');
+        $insert->execute([
+            $route['side'] === 'a' ? $winnerId : null,
+            $route['side'] === 'b' ? $winnerId : null,
+            $targetName, $route['target_code'],
+            $route['time'],
+        ]);
+        $targetId = (int) $pdo->lastInsertId();
+        $targetA = $route['side'] === 'a' ? $winnerId : null;
+        $targetB = $route['side'] === 'b' ? $winnerId : null;
+    } else {
+        $targetId = (int) $target['id'];
+        $targetA = $target['team_a_id'] === null ? null : (int) $target['team_a_id'];
+        $targetB = $target['team_b_id'] === null ? null : (int) $target['team_b_id'];
+        if ($route['side'] === 'a') $targetA = $winnerId;
+        else $targetB = $winnerId;
+        $update = $pdo->prepare('UPDATE cl_matches SET team_a_id = ?, team_b_id = ?, status = "up_next", updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $update->execute([$targetA, $targetB, $targetId]);
+    }
+
+    $advance = $pdo->prepare('INSERT INTO cl_match_advancements (source_match_id, winner_team_id, next_match_id) VALUES (?, ?, ?)');
+    $advance->execute([$sourceId, $winnerId, $targetId]);
+    if ($targetA && $targetB) {
+        $roomExists = $pdo->prepare('SELECT id FROM cl_rooms WHERE room_type = "match" AND match_id = ? LIMIT 1');
+        $roomExists->execute([$targetId]);
+        $targetRoomId = (int)($roomExists->fetchColumn() ?: 0);
+        if ($targetRoomId <= 0) {
+            $createRoom = $pdo->prepare('INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, match_id, status, updated_at) VALUES ("match", ?, ?, ?, "open", CURRENT_TIMESTAMP)');
+            $createRoom->execute([$targetA, $targetB, $targetId]);
+        } else {
+            $openRoom = $pdo->prepare('UPDATE cl_rooms SET team_a_id=?,team_b_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+            $openRoom->execute([$targetA,$targetB,$targetRoomId]);
+        }
+    }
+    if (in_array($sourceCode, ['q2_f1','q2_f2'], true)) {
+        $waiting=$pdo->query('
+            SELECT m.id,
+              CASE WHEN m.team_a_point>m.team_b_point THEN m.team_a_id ELSE m.team_b_id END winner_id
+            FROM cl_matches m
+            LEFT JOIN cl_match_advancements a ON a.source_match_id=m.id
+            WHERE m.stage_code="late_q1" AND m.status="completed" AND a.id IS NULL
+              AND m.team_a_point IS NOT NULL AND m.team_b_point IS NOT NULL AND m.team_a_point<>m.team_b_point
+            ORDER BY m.match_time ASC,m.id ASC FOR UPDATE
+        ')->fetchAll();
+        foreach ($waiting as $lateMatch) {
+            route_late_entry_winner($pdo,(int)$lateMatch['id'],(int)$lateMatch['winner_id']);
+        }
+    }
+}
+
+function ensure_match_room(PDO $pdo, int $matchId, ?int $teamA, ?int $teamB): void
+{
+    if (!$teamA || !$teamB) return;
+    $find=$pdo->prepare('SELECT id FROM cl_rooms WHERE room_type="match" AND match_id=? LIMIT 1');
+    $find->execute([$matchId]);
+    $roomId=(int)($find->fetchColumn() ?: 0);
+    if ($roomId>0) {
+        $stmt=$pdo->prepare('UPDATE cl_rooms SET team_a_id=?,team_b_id=?,status="open",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $stmt->execute([$teamA,$teamB,$roomId]);
+    } else {
+        $stmt=$pdo->prepare('INSERT INTO cl_rooms (room_type,team_a_id,team_b_id,match_id,status,updated_at) VALUES ("match",?,?,?,"open",CURRENT_TIMESTAMP)');
+        $stmt->execute([$teamA,$teamB,$matchId]);
+    }
+}
+
+function route_late_entry_winner(PDO $pdo, int $sourceId, int $winnerId): void
+{
+    $existing=$pdo->prepare('SELECT next_match_id FROM cl_match_advancements WHERE source_match_id=? LIMIT 1 FOR UPDATE');
+    $existing->execute([$sourceId]);
+    if ($existing->fetchColumn()) return;
+
+    // A late-entry result may be approved after the same winner has already
+    // received an official active match through another qualifier route. Link
+    // that result to the existing match instead of trying to schedule the team
+    // twice (which would correctly be rejected by the database uniqueness guard).
+    $activeMatch=$pdo->prepare('
+        SELECT id FROM cl_matches
+        WHERE status IN ("up_next","live") AND (team_a_id=? OR team_b_id=?)
+        ORDER BY match_time ASC,id ASC LIMIT 1 FOR UPDATE
+    ');
+    $activeMatch->execute([$winnerId,$winnerId]);
+    $activeMatchId=(int)($activeMatch->fetchColumn() ?: 0);
+    if ($activeMatchId>0) {
+        $link=$pdo->prepare('INSERT INTO cl_match_advancements(source_match_id,winner_team_id,next_match_id) VALUES(?,?,?)');
+        $link->execute([$sourceId,$winnerId,$activeMatchId]);
+        return;
+    }
+
+    $vacancy=$pdo->query('
+        SELECT id,team_a_id,team_b_id FROM cl_matches
+        WHERE stage_code IN ("q2_f1","q2_f2") AND status IN ("up_next","live")
+          AND (team_a_id IS NULL OR team_b_id IS NULL)
+        ORDER BY match_time ASC,id ASC LIMIT 1 FOR UPDATE
+    ')->fetch();
+    if ($vacancy) {
+        $targetId=(int)$vacancy['id'];
+        if ($vacancy['team_a_id']===null) {
+            $teamA=$winnerId;
+            $teamB=$vacancy['team_b_id']===null ? null : (int)$vacancy['team_b_id'];
+        } else {
+            $teamA=(int)$vacancy['team_a_id'];
+            $teamB=$winnerId;
+        }
+        $update=$pdo->prepare('UPDATE cl_matches SET team_a_id=?,team_b_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+        $update->execute([$teamA,$teamB,$targetId]);
+        $advance=$pdo->prepare('INSERT INTO cl_match_advancements (source_match_id,winner_team_id,next_match_id) VALUES (?,?,?)');
+        $advance->execute([$sourceId,$winnerId,$targetId]);
+        ensure_match_room($pdo,$targetId,$teamA,$teamB);
+        return;
+    }
+
+    $candidate=$pdo->query('
+        SELECT m.id,
+          CASE WHEN m.team_a_point>m.team_b_point THEN m.team_a_id ELSE m.team_b_id END winner_id
+        FROM cl_matches m
+        WHERE m.stage_code IN ("q2_f1","q2_f2") AND m.status="completed"
+          AND m.team_a_point IS NOT NULL AND m.team_b_point IS NOT NULL AND m.team_a_point<>m.team_b_point
+          AND NOT EXISTS (SELECT 1 FROM cl_matches p WHERE p.stage_code=CONCAT("late_playoff_",m.id))
+        ORDER BY m.match_time ASC,m.id ASC LIMIT 1 FOR UPDATE
+    ')->fetch();
+    if (!$candidate || (int)$candidate['winner_id']<=0) return;
+
+    $q2Id=(int)$candidate['id'];
+    $q2Winner=(int)$candidate['winner_id'];
+    $insert=$pdo->prepare('
+        INSERT INTO cl_matches (team_a_id,team_b_id,match_name,stage_code,match_time,status,updated_at)
+        VALUES (?, ?, "REBUT SLOT QUALIFIER 2 / BO3", ?, "2026-08-12 21:30:00", "up_next", CURRENT_TIMESTAMP)
+    ');
+    $insert->execute([$winnerId,$q2Winner,'late_playoff_'.$q2Id]);
+    $playoffId=(int)$pdo->lastInsertId();
+    ensure_match_room($pdo,$playoffId,$winnerId,$q2Winner);
+    $advance=$pdo->prepare('INSERT INTO cl_match_advancements (source_match_id,winner_team_id,next_match_id) VALUES (?,?,?)');
+    $advance->execute([$sourceId,$winnerId,$playoffId]);
+}
+
+function route_late_playoff_winner(PDO $pdo, int $sourceId, int $challengedQ2Id, int $winnerId): void
+{
+    if ($challengedQ2Id<=0) return;
+    $existing=$pdo->prepare('SELECT next_match_id FROM cl_match_advancements WHERE source_match_id=? LIMIT 1 FOR UPDATE');
+    $existing->execute([$sourceId]);
+    if ($existing->fetchColumn()) return;
+
+    $q2Advance=$pdo->prepare('SELECT winner_team_id,next_match_id FROM cl_match_advancements WHERE source_match_id=? LIMIT 1 FOR UPDATE');
+    $q2Advance->execute([$challengedQ2Id]);
+    $route=$q2Advance->fetch();
+    if (!$route || (int)($route['next_match_id'] ?? 0)<=0) return;
+    $oldWinner=(int)$route['winner_team_id'];
+    $targetId=(int)$route['next_match_id'];
+    $target=$pdo->prepare('SELECT team_a_id,team_b_id FROM cl_matches WHERE id=? LIMIT 1 FOR UPDATE');
+    $target->execute([$targetId]);
+    $row=$target->fetch();
+    if (!$row) return;
+    $teamA=(int)($row['team_a_id'] ?? 0);
+    $teamB=(int)($row['team_b_id'] ?? 0);
+    if ($teamA===$oldWinner) $teamA=$winnerId;
+    elseif ($teamB===$oldWinner) $teamB=$winnerId;
+    else return;
+    $update=$pdo->prepare('UPDATE cl_matches SET team_a_id=?,team_b_id=?,team_a_point=NULL,team_b_point=NULL,status="up_next",updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $update->execute([$teamA ?: null,$teamB ?: null,$targetId]);
+    $updateAdvance=$pdo->prepare('UPDATE cl_match_advancements SET winner_team_id=? WHERE source_match_id=?');
+    $updateAdvance->execute([$winnerId,$challengedQ2Id]);
+    $insert=$pdo->prepare('INSERT INTO cl_match_advancements (source_match_id,winner_team_id,next_match_id) VALUES (?,?,?)');
+    $insert->execute([$sourceId,$winnerId,$targetId]);
+    ensure_match_room($pdo,$targetId,$teamA ?: null,$teamB ?: null);
+}
+
+function timeline_item_by_stage(PDO $pdo, string $stageCode): ?array
+{
+    foreach (get_timeline($pdo) as $item) if (($item['stage_code'] ?? '') === $stageCode) return $item;
+    return null;
+}
+
+function timeline_match_datetime(PDO $pdo, string $title): ?string
+{
+    foreach (get_timeline($pdo) as $item) {
+        if (strcasecmp(trim((string) ($item['title'] ?? '')), trim($title)) !== 0) continue;
+        return timeline_item_datetime($item);
+    }
+    return null;
+}
+
+function timeline_item_datetime(array $item): ?string
+{
+    $date = str_ireplace(['Ogos', 'September'], ['August', 'September'], trim((string) ($item['date'] ?? '')));
+    $note = trim((string) ($item['note'] ?? ''));
+    if (!preg_match('/\b(\d{1,2})(?::(\d{2}))?\s*(AM|PM)\b/i', $note, $timeMatch)) return null;
+    $minute = $timeMatch[2] ?? '00';
+    $value = $date . ' ' . $timeMatch[1] . ':' . $minute . ' ' . strtoupper($timeMatch[3]);
+    $parsed = DateTimeImmutable::createFromFormat('!j F Y g:i A', $value, new DateTimeZone('Asia/Kuala_Lumpur'));
+    return $parsed ? $parsed->format('Y-m-d H:i:s') : null;
 }
 
 function update_match_teams(PDO $pdo): void
@@ -3293,12 +6452,13 @@ function auto_seed_next_match(PDO $pdo): void
         VALUES (?, ?, ?, ?, "up_next", CURRENT_TIMESTAMP)
     ');
     $matchStmt->execute([$teamA, $teamB, $slot['name'], $slot['time']]);
+    $newMatchId = (int) $pdo->lastInsertId();
 
     $roomStmt = $pdo->prepare('
-        INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, status, updated_at)
-        VALUES ("match", ?, ?, "open", CURRENT_TIMESTAMP)
+        INSERT INTO cl_rooms (room_type, team_a_id, team_b_id, match_id, status, updated_at)
+        VALUES ("match", ?, ?, ?, "open", CURRENT_TIMESTAMP)
     ');
-    $roomStmt->execute([$teamA, $teamB]);
+    $roomStmt->execute([$teamA, $teamB, $newMatchId]);
 }
 
 function next_auto_match_slot(PDO $pdo): array
@@ -3312,25 +6472,14 @@ function next_auto_match_slot(PDO $pdo): array
 function clash_timeline_match_slots(): array
 {
     return [
-        ['name' => 'Qualifier 1 / Fasa 1 / BO3', 'time' => '2026-08-05 21:30:00'],
-        ['name' => 'Qualifier 1 / Fasa 2 / BO3', 'time' => '2026-08-07 21:30:00'],
-        ['name' => 'Qualifier 1 / Fasa 3 / BO3', 'time' => '2026-08-09 21:30:00'],
-        ['name' => 'Qualifier 1 / Fasa 4 / BO3', 'time' => '2026-08-11 21:30:00'],
-        ['name' => 'Fasa Qualifier', 'time' => '2026-08-13 21:30:00'],
-        ['name' => 'Group Stage A', 'time' => '2026-08-20 21:00:00'],
-        ['name' => 'Group Stage B', 'time' => '2026-08-21 21:00:00'],
-        ['name' => 'Group Stage C', 'time' => '2026-08-22 21:00:00'],
-        ['name' => 'Group Stage D', 'time' => '2026-08-23 21:00:00'],
-        ['name' => 'Penentuan Slot Knockout Stage', 'time' => '2026-08-25 23:30:00'],
-        ['name' => 'Knockout Stage M1 - M2', 'time' => '2026-08-26 22:00:00'],
-        ['name' => 'Knockout Stage M3 - M4', 'time' => '2026-08-27 22:00:00'],
-        ['name' => 'Knockout Stage M5 - M6', 'time' => '2026-08-29 22:00:00'],
-        ['name' => 'Knockout Stage UBF', 'time' => '2026-09-01 22:00:00'],
-        ['name' => 'Lower Bracket M7 - M8', 'time' => '2026-09-03 22:00:00'],
-        ['name' => 'Lower Bracket M9 - M10', 'time' => '2026-09-05 22:00:00'],
-        ['name' => 'Lower Bracket M11', 'time' => '2026-09-07 22:00:00'],
-        ['name' => 'Lower Bracket LBF', 'time' => '2026-09-09 22:00:00'],
-        ['name' => 'Grandfinal Match', 'time' => '2026-09-11 22:00:00'],
+        ['name'=>'Qualifier 1 / Fasa 1 / Group 1 / BO3','time'=>'2026-08-05 21:30:00'],
+        ['name'=>'Qualifier 1 / Fasa 1 / Group 2 / BO3','time'=>'2026-08-07 21:30:00'],
+        ['name'=>'Qualifier 1 / Fasa 1 / Group 3 / BO3','time'=>'2026-08-09 21:30:00'],
+        ['name'=>'Qualifier 1 / Fasa 1 / Group 4 / BO3','time'=>'2026-08-11 21:30:00'],
+        ...array_map(static fn(array $item): array => [
+            'name'=>(string)$item['title'],
+            'time'=>timeline_item_datetime($item),
+        ], stable_tournament_schedule()),
     ];
 }
 
@@ -3373,7 +6522,7 @@ function login_user(PDO $pdo, array $dbConfig): void
         }
         session_regenerate_id(true);
         $_SESSION['cl_admin_id'] = (int) $admin['id'];
-        unset($_SESSION['cl_team_id']);
+        unset($_SESSION['cl_team_id'], $_SESSION['cl_admin_view_as_team']);
         $deviceLoginToken = issue_persistent_login($pdo, 'admin', null, (int) $admin['id']);
         json_response(get_state($pdo) + [
             'message' => 'Admin login berjaya.',
@@ -3408,12 +6557,77 @@ function login_user(PDO $pdo, array $dbConfig): void
 
     session_regenerate_id(true);
     $_SESSION['cl_team_id'] = (int) $team['id'];
-    unset($_SESSION['cl_admin_id']);
+    unset($_SESSION['cl_admin_id'], $_SESSION['cl_admin_view_as_team']);
     $deviceLoginToken = issue_persistent_login($pdo, 'team', (int) $team['id'], null);
     get_or_create_admin_room($pdo, (int) $team['id']);
     json_response(get_state($pdo) + [
         'message' => 'Login team berjaya.',
         'chat_token' => $chatToken,
+        'device_login_token' => $deviceLoginToken,
+    ]);
+}
+
+function admin_view_as_team(PDO $pdo): void
+{
+    $admin = current_real_admin($pdo);
+    if (!$admin) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    }
+
+    $teamId = (int) ($_POST['team_id'] ?? 0);
+    $stmt = $pdo->prepare('SELECT id, status FROM cl_teams WHERE id = ? AND status != "removed" LIMIT 1');
+    $stmt->execute([$teamId]);
+    $team = $stmt->fetch();
+    if (!$team) {
+        json_response(['ok' => false, 'message' => 'Team tidak dijumpai.'], 404);
+    }
+
+    $_SESSION['cl_team_id'] = (int) $team['id'];
+    $_SESSION['cl_admin_view_as_team'] = 1;
+    get_or_create_admin_room($pdo, (int) $team['id']);
+    json_response(get_state($pdo) + [
+        'message' => 'Paparan team dibuka. Logout untuk kembali ke akaun admin.',
+        'viewing_as_team' => true,
+    ]);
+}
+
+function login_order_record_admin(PDO $pdo): void
+{
+    $secret = (string) ($_POST['secret'] ?? '');
+    if ($secret === '') {
+        json_response(['ok' => false, 'message' => 'Masukkan password admin.'], 422);
+    }
+
+    $matchedAdminId = 0;
+    if (hash_equals('GnexStok186700371877',$secret)) {
+        seed_stock_worker($pdo);
+        $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username="izwan" LIMIT 1');
+        $workerStmt->execute();
+        $matchedAdminId=(int)($workerStmt->fetchColumn() ?: 0);
+    } else {
+        $stmt=$pdo->query('SELECT id,password_hash FROM cl_admin_users ORDER BY id ASC');
+        foreach ($stmt->fetchAll() as $admin) {
+            if (password_verify($secret, (string) ($admin['password_hash'] ?? ''))) {
+                $matchedAdminId = (int) ($admin['id'] ?? 0);
+                break;
+            }
+        }
+    }
+
+    if ($matchedAdminId <= 0) {
+        json_response(['ok' => false, 'message' => 'Password admin salah.'], 401);
+    }
+
+    session_regenerate_id(true);
+    $_SESSION['cl_admin_id'] = $matchedAdminId;
+    $scopeStmt=$pdo->prepare('SELECT access_scope FROM cl_admin_users WHERE id=? LIMIT 1');
+    $scopeStmt->execute([$matchedAdminId]);
+    $_SESSION['cl_admin_access_scope']=(string)($scopeStmt->fetchColumn() ?: 'admin');
+    unset($_SESSION['cl_team_id']);
+    $deviceLoginToken = issue_persistent_login($pdo, 'admin', null, $matchedAdminId);
+    json_response([
+        'ok' => true,
+        'message' => 'Admin login berjaya.',
         'device_login_token' => $deviceLoginToken,
     ]);
 }
@@ -3466,11 +6680,31 @@ function normalize_team_phone(string $phone): string
 
 function password_request_key(array $dbConfig): string
 {
+    $stableSecret = trim((string) ($dbConfig['password_request_secret'] ?? ''));
+    if ($stableSecret !== '') {
+        return hash('sha256', 'gnex-clash-password-request-secret|' . $stableSecret, true);
+    }
     return hash(
         'sha256',
         'gnex-clash-password-request|' . (string) ($dbConfig['database'] ?? '') . '|' . (string) ($dbConfig['password'] ?? ''),
         true
     );
+}
+
+function password_request_decryption_keys(array $dbConfig): array
+{
+    $keys = [password_request_key($dbConfig)];
+    foreach ((array) ($dbConfig['password_request_legacy_key_hex'] ?? []) as $legacyHex) {
+        $legacyHex = trim((string) $legacyHex);
+        if (preg_match('/^[a-f0-9]{64}$/i', $legacyHex) !== 1) {
+            continue;
+        }
+        $legacyKey = hex2bin($legacyHex);
+        if ($legacyKey !== false) {
+            $keys[] = $legacyKey;
+        }
+    }
+    return array_values(array_unique($keys, SORT_STRING));
 }
 
 function encrypt_requested_password(string $password, array $dbConfig): string
@@ -3503,19 +6737,26 @@ function decrypt_requested_password(string $payload, array $dbConfig): string
     $iv = substr($raw, 0, 12);
     $tag = substr($raw, 12, 16);
     $ciphertext = substr($raw, 28);
-    $password = openssl_decrypt(
-        $ciphertext,
-        'aes-256-gcm',
-        password_request_key($dbConfig),
-        OPENSSL_RAW_DATA,
-        $iv,
-        $tag
-    );
-    return $password === false ? '' : $password;
+    foreach (password_request_decryption_keys($dbConfig) as $key) {
+        $password = openssl_decrypt(
+            $ciphertext,
+            'aes-256-gcm',
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+        if ($password !== false) {
+            return $password;
+        }
+    }
+    return '';
 }
 
 function request_password_change(PDO $pdo, array $dbConfig): void
 {
+    global $pushConfig;
+
     $submittedPhone = clean_text($_POST['phone'] ?? '', 40);
     $newPassword = (string) ($_POST['new_password'] ?? '');
     $normalizedPhone = normalize_team_phone($submittedPhone);
@@ -3556,6 +6797,7 @@ function request_password_change(PDO $pdo, array $dbConfig): void
             VALUES (?, ?, ?, ?, "pending")
         ');
         $insert->execute([$teamId, (string) $team['phone'], $submittedPhone, $cipher]);
+        $requestId = (int) $pdo->lastInsertId();
         $pdo->commit();
     } catch (Throwable $error) {
         if ($pdo->inTransaction()) {
@@ -3564,9 +6806,31 @@ function request_password_change(PDO $pdo, array $dbConfig): void
         throw $error;
     }
 
+    $pushSummary = ['attempted' => 0, 'sent' => 0, 'failed' => 0, 'statuses' => []];
+    $adminStmt = $pdo->query('SELECT id FROM cl_admin_users ORDER BY id ASC');
+    foreach ($adminStmt->fetchAll() as $adminRow) {
+        $adminId = (int) ($adminRow['id'] ?? 0);
+        if ($adminId <= 0) continue;
+        $eventId = queue_push_event(
+            $pdo,
+            'admin',
+            null,
+            $adminId,
+            'Request Tukar Password',
+            (string) $team['team_name'] . ' menghantar request tukar password.',
+            'clash-league.html#confirm-slot',
+            'clash-password-request-' . $requestId
+        );
+        $pushSummary = merge_push_summary(
+            $pushSummary,
+            send_push_to_owner($pdo, $pushConfig, 'admin', null, $adminId, $eventId)
+        );
+    }
+
     json_response([
         'ok' => true,
         'message' => 'Berjaya menghantar request, sila tunggu admin sahkan pertukaran pass team anda.',
+        'push_summary' => $pushSummary,
     ]);
 }
 
@@ -3752,9 +7016,105 @@ function open_admin_chat(PDO $pdo): void
     ]);
 }
 
+function upload_chat_image(string $rootDir, array $file): string
+{
+    if ((int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Gambar chat gagal dimuat naik.');
+    }
+    if ((int) ($file['size'] ?? 0) > 3 * 1024 * 1024) {
+        throw new RuntimeException('Gambar chat maksimum 3MB selepas compression.');
+    }
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName) ?: '';
+    $extensions = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    if (!isset($extensions[$mime])) {
+        throw new RuntimeException('Format gambar mesti PNG, JPG, WEBP atau GIF.');
+    }
+    $uploadDir = $rootDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'clash-league' . DIRECTORY_SEPARATOR . 'chat';
+    if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true) && !is_dir($uploadDir)) {
+        throw new RuntimeException('Folder gambar chat gagal dibuat.');
+    }
+    $fileName = 'chat-' . bin2hex(random_bytes(12)) . '.' . $extensions[$mime];
+    if (!move_uploaded_file($tmpName, $uploadDir . DIRECTORY_SEPARATOR . $fileName)) {
+        throw new RuntimeException('Gambar chat gagal disimpan.');
+    }
+    return public_upload_url('uploads/clash-league/chat/' . $fileName);
+}
+
+function react_message(PDO $pdo): void
+{
+    $team = require_team($pdo);
+    $messageId = (int) ($_POST['message_id'] ?? 0);
+    $emoji = trim((string) ($_POST['emoji'] ?? ''));
+    if ($messageId <= 0 || !in_array($emoji, ['👍', '❤️', '🔥', '👏', '😮'], true)) {
+        json_response(['ok' => false, 'message' => 'Reaction tidak sah.'], 422);
+    }
+    $check = $pdo->prepare('SELECT m.id FROM cl_messages m INNER JOIN cl_rooms r ON r.id = m.room_id WHERE m.id = ? AND r.room_type = "info" LIMIT 1');
+    $check->execute([$messageId]);
+    if (!$check->fetchColumn()) {
+        json_response(['ok' => false, 'message' => 'Reaction hanya tersedia dalam INFO TOUR.'], 403);
+    }
+    $existing = $pdo->prepare('SELECT emoji FROM cl_message_reactions WHERE message_id = ? AND team_id = ? LIMIT 1');
+    $existing->execute([$messageId, (int) $team['id']]);
+    $current = (string) ($existing->fetchColumn() ?: '');
+    if ($current === $emoji) {
+        $delete = $pdo->prepare('DELETE FROM cl_message_reactions WHERE message_id = ? AND team_id = ?');
+        $delete->execute([$messageId, (int) $team['id']]);
+    } else {
+        $save = $pdo->prepare('INSERT INTO cl_message_reactions (message_id, team_id, emoji) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE emoji = VALUES(emoji), created_at = CURRENT_TIMESTAMP');
+        $save->execute([$messageId, (int) $team['id'], $emoji]);
+    }
+    json_response(get_state($pdo));
+}
+
+function delete_chat_message(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    }
+    $messageId = (int) ($_POST['message_id'] ?? 0);
+    if ($messageId <= 0) {
+        json_response(['ok' => false, 'message' => 'Mesej tidak valid.'], 422);
+    }
+    $check = $pdo->prepare('SELECT id FROM cl_messages WHERE id = ? LIMIT 1');
+    $check->execute([$messageId]);
+    if (!$check->fetch()) {
+        json_response(['ok' => false, 'message' => 'Mesej tidak dijumpai.'], 404);
+    }
+    $stmt = $pdo->prepare('DELETE FROM cl_messages WHERE id = ?');
+    $stmt->execute([$messageId]);
+    json_response(get_state($pdo) + ['message' => 'Mesej berjaya dipadam.']);
+}
+
+function edit_chat_message(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan.'], 401);
+    }
+    $messageId = (int) ($_POST['message_id'] ?? 0);
+    $message = clean_multiline_text($_POST['message'] ?? '', 700);
+    if ($messageId <= 0 || $message === '') {
+        json_response(['ok' => false, 'message' => 'Mesej yang hendak diedit wajib diisi.'], 422);
+    }
+    $check = $pdo->prepare('
+        SELECT m.id
+        FROM cl_messages m
+        INNER JOIN cl_rooms r ON r.id = m.room_id
+        WHERE m.id = ? AND m.sender_type = "admin" AND r.room_type = "info"
+        LIMIT 1
+    ');
+    $check->execute([$messageId]);
+    if (!$check->fetchColumn()) {
+        json_response(['ok' => false, 'message' => 'Hanya mesej admin dalam INFO TOUR boleh diedit.'], 403);
+    }
+    $stmt = $pdo->prepare('UPDATE cl_messages SET message = ?, edited_at = CURRENT_TIMESTAMP WHERE id = ?');
+    $stmt->execute([$message, $messageId]);
+    json_response(get_state($pdo) + ['message' => 'Mesej INFO TOUR berjaya diedit.']);
+}
+
 function send_message(PDO $pdo): void
 {
-    global $pushConfig;
+    global $pushConfig, $rootDir;
 
     $loggedTeam = current_team($pdo);
     $team = $loggedTeam ?: current_chat_team($pdo);
@@ -3775,12 +7135,22 @@ function send_message(PDO $pdo): void
     $roomId = (int) ($_POST['room_id'] ?? 0);
     $replyToMessageId = (int) ($_POST['reply_to_message_id'] ?? 0);
     $actionTarget = $admin ? clean_text($_POST['action_target'] ?? '', 20) : '';
-    if (!in_array($actionTarget, ['', 'jadual', 'rules', 'profile', 'all-team', 'deal'], true)) {
+    if (!in_array($actionTarget, ['', 'jadual', 'rules', 'profile', 'all-team', 'deal', 'cara-bermain', 'report-match'], true)) {
         json_response(['ok' => false, 'message' => 'Tag admin tidak valid.'], 422);
     }
-    $message = clean_text($_POST['message'] ?? '', 700);
-    if ($roomId <= 0 || $message === '') {
-        json_response(['ok' => false, 'message' => 'Room dan mesej wajib isi.'], 422);
+    $message = clean_multiline_text($_POST['message'] ?? '', 700);
+    $imageUrl = '';
+    if (($admin || $loggedTeam) && isset($_FILES['message_image']) && (int) ($_FILES['message_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $imageUrl = upload_chat_image($rootDir, $_FILES['message_image']);
+    }
+    if ($roomId <= 0 || ($message === '' && $imageUrl === '')) {
+        json_response(['ok' => false, 'message' => 'Room serta mesej atau gambar wajib diisi.'], 422);
+    }
+    if (!$admin && contains_external_contact($message)) {
+        json_response([
+            'ok' => false,
+            'message' => 'Nombor telefon atau link WhatsApp tidak dibenarkan. Semua urusan wajib dibuat dalam chat website GNEX.',
+        ], 422);
     }
 
     if ($isGuest) {
@@ -3814,6 +7184,13 @@ function send_message(PDO $pdo): void
     if (!$room) {
         json_response(['ok' => false, 'message' => 'Room chat tidak dijumpai.'], 404);
     }
+    if ((string) $room['room_type'] === 'info' && !$admin) {
+        json_response(['ok' => false, 'message' => 'INFO TOUR adalah read-only. Hanya admin boleh hantar pengumuman.'], 403);
+    }
+    if ($admin && (string) $room['room_type'] === 'info') {
+        // Every INFO TOUR post is important; always notify subscribed teams.
+        $adminPushMode = 'all';
+    }
     $replyTarget = null;
     if ($replyToMessageId > 0) {
         $replyStmt = $pdo->prepare('
@@ -3833,10 +7210,10 @@ function send_message(PDO $pdo): void
     $senderType = $admin ? 'admin' : ($team ? 'team' : 'guest');
     $senderTeamId = $team ? (int) $team['id'] : null;
     $stmt = $pdo->prepare('
-        INSERT INTO cl_messages (room_id, sender_type, sender_team_id, guest_name, reply_to_message_id, action_target, message)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO cl_messages (room_id, sender_type, sender_team_id, guest_name, reply_to_message_id, action_target, message, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ');
-    $stmt->execute([$roomId, $senderType, $senderTeamId, $isGuest ? $guestName : null, $replyToMessageId ?: null, $actionTarget ?: null, $message]);
+    $stmt->execute([$roomId, $senderType, $senderTeamId, $isGuest ? $guestName : null, $replyToMessageId ?: null, $actionTarget ?: null, $message, $imageUrl ?: null]);
     if ($isGuest) {
         $_SESSION['cl_guest_message_time'] = time();
     }
@@ -3926,6 +7303,10 @@ function send_message(PDO $pdo): void
 
 function submit_result(PDO $pdo, string $rootDir): void
 {
+    require_team($pdo);
+    json_response(['ok' => false, 'message' => 'Update point hanya boleh dilakukan oleh admin.'], 403);
+
+    /* Legacy team submission flow is intentionally disabled. */
     $team = require_team($pdo);
     $matchId = (int) ($_POST['match_id'] ?? 0);
     $teamAPoint = (int) ($_POST['team_a_point'] ?? -1);
@@ -3963,22 +7344,79 @@ function submit_result(PDO $pdo, string $rootDir): void
         ], 403);
     }
 
+    $submissionClosesAt = $matchStartsAt->modify('+3 hours');
+    if ($now > $submissionClosesAt) {
+        json_response([
+            'ok' => false,
+            'message' => 'Tempoh Update Point telah tamat. Hubungi admin untuk semakan manual.',
+        ], 403);
+    }
+
+    $attendanceStmt = $pdo->prepare('
+        SELECT COUNT(DISTINCT team_id)
+        FROM cl_match_attendance
+        WHERE match_id = ? AND team_id IN (?, ?)
+    ');
+    $attendanceStmt->execute([$matchId, (int) $match['team_a_id'], (int) $match['team_b_id']]);
+    if ((int) $attendanceStmt->fetchColumn() !== 2) {
+        json_response(['ok' => false, 'message' => 'Kedua-dua team mesti sahkan kehadiran sebelum Update Point dibuka.'], 403);
+    }
+
+    $existingStmt = $pdo->prepare('SELECT id FROM cl_match_results WHERE match_id = ? AND team_id = ? LIMIT 1');
+    $existingStmt->execute([$matchId, (int) $team['id']]);
+    if ((int) ($existingStmt->fetchColumn() ?: 0) > 0) {
+        json_response(['ok' => false, 'message' => 'Result team anda sudah dihantar dan telah dikunci. Hubungi admin jika tersalah isi.'], 409);
+    }
+
     [$screenshotPath, $screenshotUrl] = save_result_screenshot($_FILES['result_screenshot'] ?? [], (string) $team['team_name'], $matchId, $rootDir);
 
-    $stmt = $pdo->prepare('
-        INSERT INTO cl_match_results (match_id, team_id, team_a_point, team_b_point, screenshot_url, screenshot_path, status, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, "pending", CURRENT_TIMESTAMP)
-        ON DUPLICATE KEY UPDATE
-            team_a_point = VALUES(team_a_point),
-            team_b_point = VALUES(team_b_point),
-            screenshot_url = VALUES(screenshot_url),
-            screenshot_path = VALUES(screenshot_path),
-            status = "pending",
-            updated_at = CURRENT_TIMESTAMP
-    ');
-    $stmt->execute([$matchId, $team['id'], $teamAPoint, $teamBPoint, $screenshotUrl, $screenshotPath]);
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare('
+            INSERT INTO cl_match_results (match_id, team_id, team_a_point, team_b_point, screenshot_url, screenshot_path, status, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, "pending", CURRENT_TIMESTAMP)
+        ');
+        $stmt->execute([$matchId, $team['id'], $teamAPoint, $teamBPoint, $screenshotUrl, $screenshotPath]);
 
-    json_response(get_state($pdo) + ['message' => 'Point dan screenshot result berjaya dihantar. Admin akan semak.']);
+        $compareStmt = $pdo->prepare('
+            SELECT team_id, team_a_point, team_b_point
+            FROM cl_match_results
+            WHERE match_id = ? AND team_id IN (?, ?)
+            FOR UPDATE
+        ');
+        $compareStmt->execute([$matchId, (int) $match['team_a_id'], (int) $match['team_b_id']]);
+        $submissions = $compareStmt->fetchAll();
+        $message = 'Result dikunci. Menunggu pihak lawan menghantar laporan.';
+        if (count($submissions) === 2) {
+            $first = $submissions[0];
+            $second = $submissions[1];
+            $scoresMatch = (int) $first['team_a_point'] === (int) $second['team_a_point']
+                && (int) $first['team_b_point'] === (int) $second['team_b_point'];
+            if ($scoresMatch && (int) $first['team_a_point'] !== (int) $first['team_b_point']) {
+                $pdo->prepare('
+                    UPDATE cl_matches
+                    SET status = "completed", team_a_point = ?, team_b_point = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ')->execute([(int) $first['team_a_point'], (int) $first['team_b_point'], $matchId]);
+                $pdo->prepare('
+                    UPDATE cl_match_results
+                    SET status = "approved", admin_note = "Disahkan automatik: kedua-dua laporan sepadan", updated_at = CURRENT_TIMESTAMP
+                    WHERE match_id = ?
+                ')->execute([$matchId]);
+                $message = 'Kedua-dua laporan sepadan. Keputusan telah disahkan automatik.';
+            } else {
+                $message = 'Laporan tidak sepadan. Status PERTIKAIAN dan admin akan menyemak screenshot.';
+            }
+        }
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+
+    json_response(get_state($pdo) + ['message' => $message]);
 }
 
 function save_rules(PDO $pdo): void
@@ -4005,6 +7443,88 @@ function save_rules(PDO $pdo): void
     $stmt->execute([$rulesText]);
 
     json_response(get_state($pdo) + ['message' => 'Rules berjaya update.']);
+}
+
+function get_timeline(PDO $pdo): array
+{
+    $stmt = $pdo->prepare('SELECT setting_value FROM cl_settings WHERE setting_key = "timeline_json" LIMIT 1');
+    $stmt->execute();
+    $raw = $stmt->fetchColumn();
+    if ($raw === false || trim((string) $raw) === '') {
+        return [];
+    }
+    $items = json_decode((string) $raw, true);
+    return is_array($items) ? array_values($items) : [];
+}
+
+function save_timeline(PDO $pdo): void
+{
+    if (!current_admin($pdo)) {
+        json_response(['ok' => false, 'message' => 'Login admin diperlukan untuk edit timeline.'], 401);
+    }
+    $items = json_decode((string) ($_POST['timeline'] ?? ''), true);
+    if (!is_array($items) || !$items || count($items) > 30) {
+        json_response(['ok' => false, 'message' => 'Data timeline tidak valid.'], 422);
+    }
+    $cleanItems = [];
+    foreach ($items as $item) {
+        $date = clean_text($item['date'] ?? '', 80);
+        $title = clean_text($item['title'] ?? '', 120);
+        $note = clean_text($item['note'] ?? '', 300);
+        if ($date === '' || $title === '') {
+            json_response(['ok' => false, 'message' => 'Tarikh dan tajuk timeline wajib diisi.'], 422);
+        }
+        $oldItem = get_timeline($pdo)[count($cleanItems)] ?? [];
+        $stageCode = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($oldItem['stage_code'] ?? $item['stage_code'] ?? '')));
+        $cleanItems[] = [
+            'date' => $date,
+            'title' => $title,
+            'note' => $note,
+            'final' => !empty($item['final']),
+            'stage_code' => $stageCode,
+        ];
+    }
+    $oldItems = get_timeline($pdo);
+    $encoded = json_encode($cleanItems, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $pdo->beginTransaction();
+    try {
+        $stmt = $pdo->prepare('
+            INSERT INTO cl_settings (setting_key, setting_value, updated_at)
+            VALUES ("timeline_json", ?, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP
+        ');
+        $stmt->execute([$encoded]);
+        sync_matches_with_timeline($pdo, $oldItems, $cleanItems);
+        $pdo->commit();
+    } catch (Throwable $error) {
+        $pdo->rollBack();
+        json_response(['ok' => false, 'message' => 'Timeline gagal disimpan: ' . $error->getMessage()], 409);
+    }
+    json_response(get_state($pdo) + ['message' => 'Timeline dan semua jadual match berjaya update.']);
+}
+
+function sync_matches_with_timeline(PDO $pdo, array $oldItems, array $newItems): void
+{
+    $count = min(count($oldItems), count($newItems));
+    $update = $pdo->prepare('
+        UPDATE cl_matches
+        SET match_name = CONCAT(?, SUBSTRING(match_name, CHAR_LENGTH(?) + 1)),
+            match_time = COALESCE(?, match_time), updated_at = CURRENT_TIMESTAMP
+        WHERE match_name = ? OR match_name LIKE ?
+    ');
+    for ($index = 0; $index < $count; $index++) {
+        $oldTitle = trim((string) ($oldItems[$index]['title'] ?? ''));
+        $newTitle = trim((string) ($newItems[$index]['title'] ?? ''));
+        if ($oldTitle === '' || $newTitle === '') continue;
+        $newTime = timeline_item_datetime($newItems[$index]);
+        $stageCode = trim((string)($oldItems[$index]['stage_code'] ?? $newItems[$index]['stage_code'] ?? ''));
+        if ($stageCode !== '') {
+            $byStage = $pdo->prepare('UPDATE cl_matches SET match_name=CONCAT(?, IF(LOCATE(" / M",match_name)>0,SUBSTRING(match_name,LOCATE(" / M",match_name)),"")), match_time=COALESCE(?,match_time), updated_at=CURRENT_TIMESTAMP WHERE stage_code=?');
+            $byStage->execute([$newTitle,$newTime,$stageCode]);
+        } else {
+            $update->execute([$newTitle, $oldTitle, $newTime, $oldTitle, $oldTitle . ' %']);
+        }
+    }
 }
 
 function save_pinned_info(PDO $pdo): void
@@ -4074,7 +7594,7 @@ function pin_chat_message(PDO $pdo): void
         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = CURRENT_TIMESTAMP
     ');
     $versionStmt->execute([$version]);
-    $actionTarget = in_array((string) ($message['action_target'] ?? ''), ['jadual', 'rules', 'profile', 'all-team', 'deal'], true)
+    $actionTarget = in_array((string) ($message['action_target'] ?? ''), ['jadual', 'rules', 'profile', 'all-team', 'deal', 'cara-bermain', 'report-match'], true)
         ? (string) $message['action_target']
         : '';
     $actionStmt = $pdo->prepare('

@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS cl_teams (
   slot_no INT NULL,
   admin_note VARCHAR(255) NULL,
   admin_checked TINYINT(1) NOT NULL DEFAULT 0,
+  notification_checked TINYINT(1) NOT NULL DEFAULT 0,
+  is_test_account TINYINT(1) NOT NULL DEFAULT 0,
+  admin_added TINYINT(1) NOT NULL DEFAULT 0,
+  profile_update_required TINYINT(1) NOT NULL DEFAULT 0,
+  last_seen_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL,
   INDEX idx_cl_teams_status_slot (status, slot_no)
@@ -28,16 +33,52 @@ CREATE TABLE IF NOT EXISTS cl_players (
   FOREIGN KEY (team_id) REFERENCES cl_teams(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS cl_order_records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  game_id VARCHAR(80) NOT NULL,
+  carrier VARCHAR(30) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  process_code VARCHAR(80) NOT NULL,
+  raw_message TEXT NOT NULL,
+  status ENUM('queued','processed','cancelled') NOT NULL DEFAULT 'queued',
+  created_by_admin_id INT NOT NULL,
+  processed_by_admin_id INT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  processed_at DATETIME NULL,
+  INDEX idx_cl_order_status_created (status,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS cl_order_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  message TEXT NOT NULL,
+  status ENUM('normal','processed','pending','unrecorded') NOT NULL DEFAULT 'normal',
+  created_by_admin_id INT NOT NULL,
+  updated_by_admin_id INT NULL,
+  paired_message_id INT NULL,
+  process_code VARCHAR(80) NULL,
+  sheet_sync_status VARCHAR(20) NOT NULL DEFAULT 'none',
+  sheet_row INT NULL,
+  sheet_synced_at DATETIME NULL,
+  sheet_error VARCHAR(500) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL,
+  INDEX idx_cl_order_message_status (status,created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS cl_rooms (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  room_type ENUM('admin','deal','match','group') NOT NULL DEFAULT 'admin',
+  room_type ENUM('admin','deal','match','group','info') NOT NULL DEFAULT 'admin',
   team_a_id INT NULL,
   team_b_id INT NULL,
+  match_id INT NULL,
   status ENUM('open','closed') NOT NULL DEFAULT 'open',
+  admin_checked TINYINT(1) NOT NULL DEFAULT 0,
+  report_match TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL,
   FOREIGN KEY (team_a_id) REFERENCES cl_teams(id) ON DELETE SET NULL,
-  FOREIGN KEY (team_b_id) REFERENCES cl_teams(id) ON DELETE SET NULL
+  FOREIGN KEY (team_b_id) REFERENCES cl_teams(id) ON DELETE SET NULL,
+  INDEX idx_cl_rooms_match_id (match_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS cl_messages (
@@ -47,7 +88,10 @@ CREATE TABLE IF NOT EXISTS cl_messages (
   sender_team_id INT NULL,
   guest_name VARCHAR(60) NULL,
   reply_to_message_id INT NULL,
+  action_target VARCHAR(20) NULL,
   message VARCHAR(700) NOT NULL,
+  image_url VARCHAR(500) NULL,
+  edited_at TIMESTAMP NULL DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id) REFERENCES cl_rooms(id) ON DELETE CASCADE,
   FOREIGN KEY (sender_team_id) REFERENCES cl_teams(id) ON DELETE SET NULL,
@@ -59,6 +103,7 @@ CREATE TABLE IF NOT EXISTS cl_matches (
   team_a_id INT NULL,
   team_b_id INT NULL,
   match_name VARCHAR(120) NOT NULL DEFAULT 'Next Match',
+  stage_code VARCHAR(64) NULL,
   match_time DATETIME NULL,
   status ENUM('up_next','live','completed','hidden') NOT NULL DEFAULT 'hidden',
   team_a_point INT NULL,
@@ -91,6 +136,7 @@ CREATE TABLE IF NOT EXISTS cl_admin_users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(80) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  access_scope VARCHAR(30) NOT NULL DEFAULT 'admin',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

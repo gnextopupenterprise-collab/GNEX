@@ -1,0 +1,430 @@
+<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7fafc"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="GNEX Order"><link rel="apple-touch-icon" sizes="192x192" href="images/gnex-home-192.png?v=20260810-1"><link rel="icon" type="image/png" sizes="192x192" href="images/gnex-home-192.png?v=20260810-1"><link rel="manifest" href="order-record.webmanifest?v=20260810-1"><link rel="stylesheet" href="order-record-accounts.css?v=20260810-2"><link rel="stylesheet" href="order-record-money.css?v=20260811-2"><title>GNEX Order Record</title><style>
+.bubble.unrecorded{border-color:#efc36b!important;background:#fff8e8!important}.bubble.unrecorded .state{color:#a45e00!important}.menu .unreadable{border-color:#efc36b;color:#a45e00;background:#fffaf0}.logout{padding:7px 9px;border:1px solid #efb1b9;border-radius:999px;background:#fff2f3;color:#c83245;font-size:8px;font-weight:1000;cursor:pointer}.logout:disabled{opacity:.55;cursor:wait}.bubble.received{margin-left:0;margin-right:auto;border-radius:17px 17px 17px 5px;background:#e8f1ff}.bubble .sender{display:block;margin:0 0 4px;color:#2563eb;font-size:8px;font-weight:1000;text-transform:uppercase}.bubble.mine .sender{color:#078b56}
+:root{--blue:#2563eb;--navy:#17233c;--muted:#728099;--line:#dce4ee;--bg:#f2f6fb;--green:#13a66a;--red:#e44858;--amber:#e69a19}*{box-sizing:border-box}body{margin:0;background:#eaf0f7;color:var(--navy);font-family:Inter,Arial,sans-serif}.app{width:min(820px,100%);height:100dvh;margin:auto;display:grid;grid-template-rows:auto 1fr auto;background:var(--bg);box-shadow:0 0 40px #8090a522}.top{display:flex;align-items:center;gap:12px;padding:calc(13px + env(safe-area-inset-top,0px)) 16px 13px;border-bottom:1px solid var(--line);background:#fff}.back{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid #cbd7e5;border-radius:14px;background:#f7fafe;color:#334a6b;text-decoration:none;font-size:20px}.top div{min-width:0;flex:1}.top h1{margin:0;font-size:18px}.top p{margin:3px 0 0;color:var(--muted);font-size:11px}.sync{padding:7px 9px;border-radius:999px;background:#eef3fa;color:#78869b;font-size:9px;font-weight:900}.view{display:none;min-height:0;overflow:auto}.view.active{display:flex;flex-direction:column}.chat-log{flex:1;overflow:auto;padding:18px 14px 8px;background:linear-gradient(#eef4fa,#f8fafc)}.empty{display:grid;place-items:center;min-height:46vh;padding:30px;text-align:center;color:var(--muted)}.empty span{display:block;margin:auto auto 12px;width:52px;height:52px;border-radius:18px;background:#e4ebf4;color:#8695a9;font-size:25px;line-height:52px}.bubble{width:max-content;max-width:86%;margin:0 0 11px auto;padding:11px 13px;border:1px solid #d5dee9;border-radius:17px 17px 5px 17px;background:#fff;box-shadow:0 5px 16px #8695a91c;cursor:pointer;user-select:text}.bubble.processed{border-color:#8fdcbc;background:#eafaf2}.bubble.pending{border-color:#f1a5ad;background:#fff0f1}.bubble p{margin:0;white-space:pre-wrap;color:#18243a;font-size:16px;line-height:1.38}.bubble small{display:block;margin-top:5px;color:#8b98aa;font-size:9px}.state{margin-left:7px;color:var(--green);font-weight:900}.pending .state{color:var(--red)}.menu{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid #d8e0e9}.menu button{padding:7px 9px;border:1px solid #d2dce8;border-radius:999px;background:#fff;color:#52627a;font-size:9px;font-weight:900}.menu .done{border-color:#7ed5b1;color:#078b56}.menu .wait{border-color:#efa0a9;color:#d53446}.composer{padding:9px 12px 10px;border-top:1px solid var(--line);background:#fff}.compose-row{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px}.compose-row textarea{height:58px;resize:none;border:1px solid #ccd8e6;border-radius:17px;background:#f8fafc;color:#17233c;padding:11px;font:inherit;outline:none}.compose-row textarea:focus{border-color:#60a5fa;box-shadow:0 0 0 3px #dbeafe}.send{border:0;border-radius:16px;background:var(--blue);color:#fff;font-weight:1000}.loading{opacity:.6;pointer-events:none}.page{padding:16px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}.page-head h2{margin:0;font-size:22px}.page-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.sheet-pill{padding:7px 9px;border-radius:999px;background:#fff3dc;color:#ac6900;font-size:9px;font-weight:900}.search{width:100%;height:45px;margin-bottom:12px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:0 14px;font:inherit}.table-card{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#fff}.table-head,.order-row{display:grid;grid-template-columns:minmax(90px,1fr) minmax(105px,1fr) 80px 80px;gap:8px;align-items:center;padding:11px 13px}.table-head{background:#f7f9fc;color:#7b899d;font-size:9px;font-weight:900;text-transform:uppercase}.table-empty{padding:50px 20px;text-align:center;color:var(--muted)}.date-picker{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:14px}.date-picker input{height:46px;border:1px solid var(--line);border-radius:13px;background:#fff;padding:0 13px;color:var(--navy);font:inherit}.date-picker button{padding:0 16px;border:0;border-radius:13px;background:var(--blue);color:#fff;font-weight:900}.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}.summary article{padding:14px;border:1px solid var(--line);border-radius:15px;background:#fff}.summary small{color:var(--muted);font-size:9px;font-weight:900;text-transform:uppercase}.summary b{display:block;margin-top:7px;font-size:24px}.summary .green{color:var(--green)}.summary .red{color:var(--red)}.bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:7px 10px calc(7px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}.bottom button{display:grid;place-items:center;gap:3px;min-height:54px;border:0;border-radius:14px;background:transparent;color:#8491a4;font-size:9px;font-weight:900}.bottom button i{font-style:normal;font-size:20px}.bottom button.active{background:#eaf2ff;color:var(--blue)}@media(min-width:650px){.summary{grid-template-columns:repeat(4,1fr)}.bottom{width:440px;margin:0 auto 8px;border:1px solid var(--line);border-radius:18px}}
+</style></head><body><main class="app"><header class="top"><a class="back" href="clash-league.html#profile" aria-label="Back">&larr;</a><div><h1>Order Record</h1><p data-subtitle>Chat kerja admin</p></div><span class="sync">SHEET BELUM CONNECT</span><button class="logout" type="button" data-logout>LOG OUT</button></header>
+<section class="view active" data-view="chat"><form class="balance-strip" data-balance-form><label class="balance-card tng"><span>TOUCH 'N GO</span><span class="balance-input"><i>RM</i><input name="tng" type="number" min="0" max="9999999.99" step="0.01" inputmode="decimal" value="0.00" aria-label="Baki Touch 'n Go"></span><small data-balance-time="tng">Belum dikemas kini</small></label><label class="balance-card digi"><span>DIGI</span><span class="balance-input"><i>RM</i><input name="digi" type="number" min="0" max="9999999.99" step="0.01" inputmode="decimal" value="0.00" aria-label="Baki Digi"></span><small data-balance-time="digi">Belum dikemas kini</small></label><label class="balance-card celcom"><span>CELCOM</span><span class="balance-input"><i>RM</i><input name="celcom" type="number" min="0" max="9999999.99" step="0.01" inputmode="decimal" value="0.00" aria-label="Baki Celcom"></span><small data-balance-time="celcom">Belum dikemas kini</small></label><button class="balance-save" type="submit" aria-label="Simpan baki">SIMPAN</button><small data-balance-note>BAKI SEMASA</small></form><div class="chat-log" data-log><div class="empty"><div><span>✉</span>Belum ada mesej order.</div></div></div><form class="composer" data-form><div class="compose-row"><textarea name="message" placeholder="Hantar ID atau RM50 DIGI secara berasingan" required></textarea><button class="send">SEND</button></div></form></section>
+<section class="view page" data-view="all"><div class="page-head"><div><h2>All Order</h2><p>Semua rekod yang akan dibaca daripada Google Sheet.</p></div><span class="sheet-pill">PREVIEW</span></div><div class="all-order-tools"><input class="search" placeholder="Cari ID atau code order…" disabled><input type="date" data-all-date aria-label="Pilih tarikh rekod"><button type="button" data-all-date-check>SEMAK</button><button type="button" data-all-date-reset>SEMUA</button></div><div class="all-order-summary" data-all-summary hidden><article><small>JUMLAH ORDER</small><b data-all-count>0</b></article><article class="modal-web"><small>MODAL WEB</small><b data-all-modal>RM0.00</b></article><article class="profit"><small>KEUNTUNGAN</small><b data-all-profit>RM0.00</b></article></div><div class="table-card"><div class="table-head"><span>ID</span><span>Code</span><span>RM</span><span>Status</span></div><div class="table-empty">Google Sheet belum disambungkan.<br>Rekod penuh akan dipaparkan di sini.</div></div></section>
+<section class="view page" data-view="daily"><div class="page-head"><div><h2>Order Harian</h2><p>Pilih tarikh untuk semak prestasi harian.</p></div><span class="sheet-pill">PREVIEW</span></div><div class="date-picker"><input type="date" data-date><button type="button" data-check-date>LIHAT</button></div><div class="summary"><article><small>Jumlah Order</small><b data-total-orders>0</b></article><article class="digi"><small>Digi</small><b data-total-digi>RM0.00</b></article><article class="celcom"><small>Celcom</small><b data-total-celcom>RM0.00</b></article><article class="tng"><small>Touch 'n Go</small><b data-total-tng>RM0.00</b></article><article class="grand"><small>Jumlah RM</small><b data-total-all>RM0.00</b></article></div><div class="table-card"><div class="table-head"><span>ID</span><span>Item</span><span>Payment</span><span>Pembelian</span><span>Keuntungan</span></div><div class="table-empty">Pilih tarikh selepas sambungan Sheet diaktifkan.</div></div></section>
+<section class="view page stock-page" data-view="stock"><div class="stock-page-title"><div><span>STOK SEMASA</span><h2>Kiraan Stok</h2><p>Semak penggunaan shell dan modal web.</p></div><button type="button"><b>—</b>TARIKH</button></div><div class="stock-headlines"><article><i>◆</i><div><small>GARENA SHELL</small><strong>—</strong><p>Baki fizikal semasa</p></div></article><article class="web"><i>RM</i><div><small>MODAL WEB</small><strong>—</strong><p>Baki duit semasa</p></div></article></div><div class="stock-alert"><i>!</i><div><small>PERBEZAAN STOK</small><b>Belum ada laporan</b></div><button type="button">SEMAK</button></div><div class="stock-ledgers"><article class="stock-ledger"><header><div><i class="blue"></i><h3>Garena Shell</h3></div><button type="button">EDIT</button></header><div class="stock-ledger-list"><div><span>Stok awal</span><b>—</b></div><div class="plus"><span>Tambah stok</span><b>—</b></div><div class="minus"><span>Digunakan</span><b>—</b></div><div class="stock-book"><span>Baki sistem</span><b>—</b></div></div><footer><div><small>SHELL SEBENAR</small><strong>—</strong></div><button type="button">KEMAS KINI</button></footer></article><article class="stock-ledger"><header><div><i class="green"></i><h3>Modal Web</h3></div><button type="button">EDIT</button></header><div class="stock-ledger-list"><div><span>Modal awal</span><b>—</b></div><div class="plus"><span>Tambah modal</span><b>—</b></div><div class="minus"><span>Digunakan</span><b>—</b></div><div class="stock-book"><span>Baki sistem</span><b>—</b></div></div><footer><div><small>RM SEBENAR</small><strong>—</strong></div><button type="button">KEMAS KINI</button></footer></article></div><section class="stock-wallets"><header><div><span>PECAHAN BAKI</span><h3>Akaun &amp; SIM</h3></div><button type="button">+ LAPOR BAKI</button></header><div><article><i>T1</i><div><small>TNG 1</small><b>—</b><p>Belum ada laporan</p></div></article><article><i>T2</i><div><small>TNG 2</small><b>—</b><p>Belum ada laporan</p></div></article><article class="digi"><i>D</i><div><small>SIM DIGI</small><b>—</b><p>Belum ada laporan</p></div></article><article class="celcom"><i>C</i><div><small>SIM CELCOM</small><b>—</b><p>Belum ada laporan</p></div></article></div></section><section class="stock-history"><header><div><span>AKTIVITI TERKINI</span><h3>Rekod Stok Harian</h3></div><button type="button">LIHAT SEMUA</button></header><div class="stock-history-empty">Belum ada rekod stok.</div></section></section>
+<section class="view page money-page" data-view="money"><div class="money-title"><div><span>KEWANGAN SEMASA</span><h2>Jumlah Duit</h2><p>Ringkasan agihan, akaun dan komitmen bulanan.</p></div><button type="button"><b>—</b>BULAN</button></div><article class="money-hero"><small>JUMLAH DUIT SEMASA</small><strong>—</strong><p>Jumlah semua akaun dan baki stok</p><button type="button">KEMAS KINI</button></article><div class="money-summary"><article><small>JUMLAH AGIHAN</small><b>—</b><p>Duit yang telah diperuntukkan</p></article><article><small>DUIT &amp; STOK</small><b>—</b><p>Jumlah duit sebenar</p></article><article class="difference"><small>PERBEZAAN</small><b>—</b><p>Belum ada pengiraan</p></article></div><section class="money-section allocation"><header><div><span>PECAHAN BAJET</span><h3>Agihan Duit</h3></div><button type="button">+ TAMBAH</button></header><div class="allocation-grid"><article><i>EM</i><small>EVENT MARKETING</small><b>—</b><p>Belum ada rekod</p></article><article><i>SY</i><small>SYARIKAT</small><b>—</b><p>Belum ada rekod</p></article><article><i>GJ</i><small>GAJI</small><b>—</b><p>Belum ada rekod</p></article><article><i>IN</i><small>INDIVIDU</small><b>—</b><p>Belum ada rekod</p></article><article><i>10</i><small>SIMPANAN 10%</small><b>—</b><p>Belum ada rekod</p></article></div></section><section class="money-section accounts"><header><div><span>LOKASI DUIT</span><h3>Akaun &amp; Stok</h3></div><button type="button">EDIT AKAUN</button></header><div class="account-card"><div><span>Duit Touch 'n Go</span><b>—</b></div><div><span>Duit Bank Rakyat</span><b>—</b></div><div><span>Stok Digi SIM 1</span><b>—</b></div><div><span>Stok semua SIM</span><b>—</b></div><div><span>Stok Digi SIM PC</span><b>—</b></div><div><span>Celcom SIM 1</span><b>—</b></div><div><span>Celcom SIM 2</span><b>—</b></div><div><span>Stok pre-order</span><b>—</b></div><div><span>Stok RGG</span><b>—</b></div><div><span>Stok Garena Shell</span><b>—</b></div><div><span>Stok web</span><b>—</b></div><footer><span>TOTAL DUIT SHELL</span><strong>—</strong></footer></div></section><section class="money-section commitments"><header><div><span>BAYARAN BERULANG</span><h3>Komitmen Bulanan</h3></div><button type="button">+ TAMBAH</button></header><div class="commitment-card"><div class="commitment-head"><span>Nama</span><span>Tarikh</span><span>Jumlah</span><span>Bayar</span></div><div><b>Netflix</b><span>—</span><span>—</span><i></i></div><div><b>PlayStation</b><span>—</span><span>—</span><i></i></div><div><b>YT Music</b><span>—</span><span>—</span><i></i></div><div><b>Wikiloc</b><span>—</span><span>—</span><i></i></div><div><b>TikTok Pay</b><span>—</span><span>—</span><i></i></div><div><b>Internet</b><span>—</span><span>—</span><i></i></div><div><b>AI</b><span>—</span><span>—</span><i></i></div></div></section></section>
+<section class="view page sim-page" data-view="sim"><div class="sim-title"><div><span>AKAUN TOPUP</span><h2>Senarai SIM</h2><p>Semak baki, shell dan tarikh terakhir setiap akaun.</p></div><button type="button"><b>21</b>AKAUN</button></div><div class="sim-summary"><article><small>JUMLAH AKAUN</small><b data-sim-count>21</b></article><article><small>JUMLAH BAKI</small><b data-sim-baki>RM0.00</b></article><article><small>JUMLAH RGG</small><b data-sim-rgg>RM0.00</b></article><article><small>JUMLAH SHELL</small><b data-sim-shell>RM0.00</b></article></div><div class="sim-tools"><input class="sim-search" type="search" placeholder="Cari nama atau nombor…" data-sim-search><button class="sim-filter" type="button" data-sim-reset>SEMUA</button></div><div class="sim-list" data-sim-list><div class="sim-row sim-row-head"><span>Nama akaun</span><span>Number</span><span>Baki</span><span>RGG</span><span>Shell</span><span>Last guna</span><span>Tarikh last</span><span>Edit</span></div>
+<div class="sim-row" data-sim-row data-baki="3.37" data-rgg="0" data-shell="502.20"><b>MUHAMMAD IZWAN BIN AZMI</b><span class="number">016-7185801</span><span class="baki money">RM3.37</span><span class="rgg money">RM0.00</span><span class="shell money">RM502.20</span><span class="last date-old">21/7/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="4.95" data-rgg="0" data-shell="507.60"><b>MUHAMMAD IZWAN BIN AZMI</b><span class="number">016-7114191</span><span class="baki money">RM4.95</span><span class="rgg money">RM0.00</span><span class="shell money">RM507.60</span><span class="last">28/6/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="1.45" data-rgg="0" data-shell="259.20"><b>MUHAMMAD ASYRAF BIN ZAKARIA</b><span class="number">011-51495020</span><span class="baki money">RM1.45</span><span class="rgg money">RM0.00</span><span class="shell money">RM259.20</span><span class="last">29/7/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="4.75" data-rgg="3.37" data-shell="0"><b>—</b><span class="number">010-9441091</span><span class="baki money">RM4.75</span><span class="rgg money">RM3.37</span><span class="shell money">RM0.00</span><span class="last">10/3/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="0" data-rgg="0.57" data-shell="405"><b>—</b><span class="number">011-51495027</span><span class="baki money">—</span><span class="rgg money">RM0.57</span><span class="shell money">RM405.00</span><span class="last">17/3/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="0.84" data-rgg="3.91" data-shell="124.20"><b>SIT NUR AYUNI BINTI SYAMSUDDINOR</b><span class="number">011-51494992</span><span class="baki money">RM0.84</span><span class="rgg money">RM3.91</span><span class="shell money">RM124.20</span><span class="last">07/07/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="0.41" data-rgg="3.37" data-shell="0"><b>SYAMSUL ARIFF BIN AHMAD SUHAIMI</b><span class="number">016-6636132</span><span class="baki money">RM0.41</span><span class="rgg money">RM3.37</span><span class="shell money">RM0.00</span><span class="last">14/6/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="1.38" data-rgg="0.73" data-shell="216"><b>NUR ADRIANA SYAMIMI</b><span class="number">016-3119231</span><span class="baki money">RM1.38</span><span class="rgg money">RM0.73</span><span class="shell money">RM216.00</span><span class="last">23/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="1.60" data-rgg="4.35" data-shell="275.40"><b>NOR ALYA ATHIRAH BINTI AMRAN</b><span class="number">011-51495009</span><span class="baki money">RM1.60</span><span class="rgg money">RM4.35</span><span class="shell money">RM275.40</span><span class="last">1/8/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="3.40" data-rgg="0" data-shell="577.80"><b>—</b><span class="number">011-51495016</span><span class="baki money">RM3.40</span><span class="rgg money">RM0.00</span><span class="shell money">RM577.80</span><span class="last">2/6/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="3.50" data-rgg="0.76" data-shell="0"><b>—</b><span class="number">016-5112146</span><span class="baki money">RM3.50</span><span class="rgg money">RM0.76</span><span class="shell money">RM0.00</span><span class="last date-old">4/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="5.36" data-rgg="0" data-shell="54"><b>—</b><span class="number">016-5311261</span><span class="baki money">RM5.36</span><span class="rgg money">RM0.00</span><span class="shell money">RM54.00</span><span class="last date-old">15/7/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="2.05" data-rgg="4.35" data-shell="86.40"><b>—</b><span class="number">011-51495009</span><span class="baki money">RM2.05</span><span class="rgg money">RM4.35</span><span class="shell money">RM86.40</span><span class="last date-old">28/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="4.71" data-rgg="0" data-shell="237.60"><b>—</b><span class="number">011-51495027</span><span class="baki money">RM4.71</span><span class="rgg money">RM0.00</span><span class="shell money">RM237.60</span><span class="last date-old">6/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="3.59" data-rgg="1.65" data-shell="324"><b>—</b><span class="number">016-9211361</span><span class="baki money">RM3.59</span><span class="rgg money">RM1.65</span><span class="shell money">RM324.00</span><span class="last date-old">3/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="0.13" data-rgg="5.12" data-shell="459"><b>—</b><span class="number">016-7113041</span><span class="baki money">RM0.13</span><span class="rgg money">RM5.12</span><span class="shell money">RM459.00</span><span class="last">20/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="2.40" data-rgg="0.60" data-shell="13.20"><b>—</b><span class="number">011-51494908</span><span class="baki money">RM2.40</span><span class="rgg money">RM0.60</span><span class="shell money">RM13.20</span><span class="last">17/5/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="2.31" data-rgg="0" data-shell="847.80"><b>—</b><span class="number">011-51495027</span><span class="baki money">RM2.31</span><span class="rgg money">RM0.00</span><span class="shell money">RM847.80</span><span class="last">13/3/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="0" data-rgg="0" data-shell="432.80"><b>—</b><span class="number">011-16817564</span><span class="baki money">—</span><span class="rgg money">RM0.00</span><span class="shell money">RM432.80</span><span class="last date-old">14/6/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="1.60" data-rgg="0.90" data-shell="102.60"><b>—</b><span class="number">016-5311851</span><span class="baki money">RM1.60</span><span class="rgg money">RM0.90</span><span class="shell money">RM102.60</span><span class="last">19/6/2026</span><span class="updated">—</span></div>
+<div class="sim-row" data-sim-row data-baki="1.41" data-rgg="3.59" data-shell="496.80"><b>—</b><span class="number">016-6636132</span><span class="baki money">RM1.41</span><span class="rgg money">RM3.59</span><span class="shell money">RM496.80</span><span class="last">24/3/2026</span><span class="updated">—</span></div><div class="sim-empty" data-sim-empty>Tiada akaun dijumpai.</div></div></section>
+<nav class="bottom"><button class="active" data-nav="chat"><i>💬</i>CHAT</button><button data-nav="all"><i>☷</i>ORDER</button><button data-nav="daily"><i>▣</i>HARIAN</button><button data-nav="stock"><i>◈</i>STOK</button><button data-nav="money"><i>RM</i>DUIT</button><button data-nav="sim"><i>SIM</i>AKAUN</button></nav></main><script>
+const api='api/clash-league.php',log=document.querySelector('[data-log]'),form=document.querySelector('[data-form]'),input=form.message,subtitle=document.querySelector('[data-subtitle]');let messages=[],selected=0,currentUserId=0;const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));document.querySelector('.back').onclick=e=>{e.preventDefault();location.href='clash-league.html#profile'};document.querySelector('[data-date]').value=new Date().toISOString().slice(0,10);
+async function request(action,body){const res=await fetch(`${api}?action=${action}&_=${Date.now()}`,body?{method:'POST',body}:{method:'GET'});const data=await res.json();if(!res.ok||!data.ok)throw Error(data.message||'Request gagal');return data}function menu(m){if(selected!==m.id)return'';if(document.body.classList.contains('stock-worker'))return`<div class="menu"><button data-copy="${m.id}">COPY</button></div>`;const locked=m.sheet_sync_status==='synced';return`<div class="menu"><button data-copy="${m.id}">COPY</button>${locked?'':`<button class="done" data-status="processed" data-id="${m.id}">✓ PROSES</button><button class="wait" data-status="pending" data-id="${m.id}">PENDING</button><button data-status="normal" data-id="${m.id}">BUANG TANDA</button>`}</div>`}function render(autoScroll=true){log.innerHTML=messages.length?messages.map(m=>{const mine=Number(m.created_by_admin_id)===currentUserId,sender=String(m.created_by_name||'GNEX');return`<article class="bubble ${esc(m.status)} ${mine?'mine':'received'}" data-message="${m.id}"><b class="sender">${esc(mine?'ANDA':sender.toUpperCase())}</b><p>${esc(m.message)}</p><small>${esc(m.created_at)}${m.sheet_sync_status==='synced'?`<span class="state">✓ SHEET${m.sheet_row?` #${m.sheet_row}`:''}</span>`:m.status!=='normal'?`<span class="state">${m.status==='processed'?'✓ DIPROSES':'● PENDING'}</span>`:''}</small>${menu(m)}</article>`}).join(''):'<div class="empty"><div><span>✉</span>Belum ada mesej.</div></div>';if(autoScroll)log.scrollTop=log.scrollHeight}async function load(keepPosition=false){const oldTop=log.scrollTop;try{const d=await request('orderRecords');currentUserId=Number(d.current_user?.id)||0;messages=d.orders||[];render(!keepPosition);if(keepPosition)log.scrollTop=oldTop}catch(e){if(/login/i.test(e.message))location.href='clash-league.html#login';else log.innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
+form.onsubmit=async e=>{e.preventDefault();const text=input.value.trim();if(!text)return;const fd=new FormData();fd.set('action','createOrderRecord');fd.set('message',text);form.classList.add('loading');try{await request('createOrderRecord',fd);input.value='';await load()}catch(x){alert(x.message)}finally{form.classList.remove('loading')}};log.onclick=async e=>{const copy=e.target.closest('[data-copy]');if(copy){const m=messages.find(x=>x.id===Number(copy.dataset.copy));if(m){await navigator.clipboard.writeText(m.message);copy.textContent='COPIED'}return}const status=e.target.closest('[data-status]');if(status){const fd=new FormData();fd.set('action','setOrderRecordStatus');fd.set('order_id',status.dataset.id);fd.set('status',status.dataset.status);status.disabled=true;try{const result=await request('setOrderRecordStatus',fd);selected=0;await load();if(status.dataset.status==='processed'&&!result.already_synced)alert(result.message)}catch(error){alert(error.message);status.disabled=false}return}const bubble=e.target.closest('[data-message]');if(bubble){selected=selected===Number(bubble.dataset.message)?0:Number(bubble.dataset.message);render()}};
+const titles={chat:'Chat kerja admin',all:'Rekod penuh Google Sheet',daily:'Semakan order mengikut tarikh',stock:'Kiraan dan laporan baki stok',money:'Ringkasan jumlah duit semasa',sim:'Senarai akaun dan baki SIM'};document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-nav]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-view]').forEach(v=>v.classList.toggle('active',v.dataset.view===b.dataset.nav));subtitle.textContent=titles[b.dataset.nav]});document.querySelector('[data-check-date]').onclick=()=>alert('Design siap. Data tarikh akan aktif selepas Google Sheet disambungkan.');const simRows=[...document.querySelectorAll('[data-sim-row]')],simMoney=n=>'RM'+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});document.querySelector('[data-sim-count]').textContent=simRows.length;document.querySelector('[data-sim-baki]').textContent=simMoney(simRows.reduce((n,r)=>n+Number(r.dataset.baki||0),0));document.querySelector('[data-sim-rgg]').textContent=simMoney(simRows.reduce((n,r)=>n+Number(r.dataset.rgg||0),0));document.querySelector('[data-sim-shell]').textContent=simMoney(simRows.reduce((n,r)=>n+Number(r.dataset.shell||0),0));const simSearch=document.querySelector('[data-sim-search]'),simEmpty=document.querySelector('[data-sim-empty]');function filterSim(){const q=simSearch.value.trim().toLowerCase();let shown=0;simRows.forEach(r=>{const visible=!q||r.textContent.toLowerCase().includes(q);r.hidden=!visible;if(visible)shown++});simEmpty.style.display=shown?'none':'block'}simSearch.addEventListener('input',filterSim);document.querySelector('[data-sim-reset]').onclick=()=>{simSearch.value='';filterSim();simSearch.focus()};load();setInterval(()=>{if(document.querySelector('[data-view="chat"]').classList.contains('active'))load(true)},2000);
+document.querySelector('[data-logout]').onclick=async e=>{const button=e.currentTarget;if(!confirm('Log keluar daripada Order Record?'))return;button.disabled=true;button.textContent='...';const body=new FormData();body.set('action','logout');try{const response=await fetch(api,{method:'POST',body,cache:'no-store'}),data=await response.json();if(!response.ok||!data.ok)throw Error(data.message||'Logout gagal');location.replace('order-record/?resume=1')}catch(error){alert(error.message||'Logout gagal');button.disabled=false;button.textContent='LOG OUT'}};
+</script><script>
+(() => {
+  const chatLog = document.querySelector('[data-log]');
+  if (!chatLog || typeof request !== 'function' || typeof load !== 'function') return;
+  let processingOrderId = 0, noteTimer = 0;
+  const note = document.createElement('div');
+  note.className = 'order-process-note';
+  note.setAttribute('role', 'status');
+  note.setAttribute('aria-live', 'polite');
+  document.body.appendChild(note);
+
+  const showProcessNote = (message, isError = false) => {
+    clearTimeout(noteTimer);
+    note.textContent = message;
+    note.classList.toggle('error', isError);
+    note.classList.add('show');
+    noteTimer = setTimeout(() => note.classList.remove('show'), 2500);
+  };
+
+  input.placeholder = '';
+  input.setAttribute('enterkeyhint', 'send');
+  input.setAttribute('autocomplete', 'off');
+
+  const clipboardSuggestion = document.createElement('button');
+  clipboardSuggestion.type = 'button';
+  clipboardSuggestion.className = 'clipboard-suggestion';
+  clipboardSuggestion.hidden = true;
+  form.insertBefore(clipboardSuggestion, form.firstChild);
+  let suggestedClipboardText = '';
+  let lastCopiedText = '';
+
+  const hideClipboardSuggestion = () => {
+    clipboardSuggestion.hidden = true;
+    suggestedClipboardText = '';
+  };
+
+  const showClipboardSuggestion = async () => {
+    let clipboardText = lastCopiedText;
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+        clipboardText = (await navigator.clipboard.readText()).trim() || clipboardText;
+      }
+    } catch (_) {}
+    if (!clipboardText || clipboardText === input.value.trim()) {
+      hideClipboardSuggestion();
+      return;
+    }
+    suggestedClipboardText = clipboardText;
+    const preview = clipboardText.replace(/\s+/g, ' ');
+    clipboardSuggestion.textContent = `PASTE: ${preview.length > 70 ? `${preview.slice(0, 70)}…` : preview}`;
+    clipboardSuggestion.hidden = false;
+  };
+
+  clipboardSuggestion.onclick = () => {
+    input.value = suggestedClipboardText;
+    hideClipboardSuggestion();
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  };
+
+  input.addEventListener('click', showClipboardSuggestion);
+  input.addEventListener('input', hideClipboardSuggestion);
+  input.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.isComposing) return;
+    event.preventDefault();
+    hideClipboardSuggestion();
+    if (input.value.trim()) form.requestSubmit();
+  });
+
+  const appShell = document.querySelector('.app');
+  const visualViewport = window.visualViewport;
+  let keyboardScrollTimers = [];
+  const dailyView = document.querySelector('[data-view="daily"]');
+  const dailySummary = dailyView?.querySelector('.summary');
+  const dailyTable = dailyView?.querySelector('.table-card');
+  let dailyProfitTotal = dailyView?.querySelector('[data-total-profit]');
+  if (dailySummary && !dailyProfitTotal) {
+    const profitCard = document.createElement('article');
+    profitCard.className = 'profit';
+    profitCard.style.cssText = 'background:#eafaf2;border-color:#9bdfc1;grid-column:auto';
+    profitCard.innerHTML = '<small>Jumlah Keuntungan</small><b data-total-profit style="color:#078b56">RM0.00</b>';
+    dailySummary.appendChild(profitCard);
+    dailySummary.querySelector('.grand')?.style.setProperty('grid-column', 'auto');
+    dailyProfitTotal = profitCard.querySelector('[data-total-profit]');
+    const fitDailySummary = () => {
+      dailySummary.style.gridTemplateColumns = window.matchMedia('(max-width:560px)').matches
+        ? 'repeat(2,minmax(0,1fr))'
+        : 'repeat(6,minmax(0,1fr))';
+    };
+    fitDailySummary();
+    window.addEventListener('resize', fitDailySummary);
+  }
+  const updateDailyProfitTotal = () => {
+    if (!dailyProfitTotal || !dailyTable) return;
+    const total = Array.from(dailyTable.querySelectorAll('.order-row span[data-label="Keuntungan"]'))
+      .reduce((sum, cell) => sum + (Number(String(cell.textContent || '').replace(/[^0-9.-]/g, '')) || 0), 0);
+    dailyProfitTotal.textContent = `RM${total.toFixed(2)}`;
+  };
+  if (dailyTable) {
+    new MutationObserver(updateDailyProfitTotal).observe(dailyTable, {childList: true, subtree: true});
+    updateDailyProfitTotal();
+  }
+  const syncKeyboardLayout = (scrollToLatest = false) => {
+    if (!document.body.classList.contains('chat-keyboard-open')) return;
+    const visibleHeight = visualViewport ? visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--chat-visible-height', `${Math.round(visibleHeight)}px`);
+    if (scrollToLatest) requestAnimationFrame(() => { chatLog.scrollTop = chatLog.scrollHeight; });
+  };
+  const openKeyboardLayout = () => {
+    document.body.classList.add('chat-keyboard-open');
+    appShell?.classList.add('keyboard-open');
+    keyboardScrollTimers.forEach(clearTimeout);
+    keyboardScrollTimers = [];
+    // Opening/resizing the keyboard must never move the user's chat position.
+    syncKeyboardLayout(false);
+  };
+  const closeKeyboardLayout = () => {
+    setTimeout(() => {
+      if (document.activeElement === input) return;
+      document.body.classList.remove('chat-keyboard-open');
+      appShell?.classList.remove('keyboard-open');
+      document.documentElement.style.removeProperty('--chat-visible-height');
+      keyboardScrollTimers.forEach(clearTimeout);
+      keyboardScrollTimers = [];
+    }, 120);
+  };
+  input.addEventListener('focus', openKeyboardLayout);
+  input.addEventListener('blur', closeKeyboardLayout);
+  visualViewport?.addEventListener('resize', () => syncKeyboardLayout(false));
+  visualViewport?.addEventListener('scroll', () => syncKeyboardLayout(false));
+
+  document.addEventListener('keydown', event => {
+    if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+    const active = document.activeElement;
+    if (active && (active.matches('input,textarea,select,button') || active.isContentEditable)) return;
+    if (!document.querySelector('[data-view="chat"]').classList.contains('active')) return;
+    event.preventDefault();
+    input.focus();
+    input.value += event.key;
+    input.setSelectionRange(input.value.length, input.value.length);
+  });
+
+  document.addEventListener('pointerdown', event => {
+    if (event.target !== input && event.target !== clipboardSuggestion) hideClipboardSuggestion();
+  });
+
+  menu = message => {
+    if (selected !== message.id) return '';
+    const locked = message.sheet_sync_status === 'synced';
+    const busy = processingOrderId === message.id;
+    return `<div class="menu"><button data-copy="${message.id}">COPY</button>${locked ? '' : `<button class="done" data-status="processed" data-id="${message.id}" ${busy ? 'disabled' : ''}>${busy ? 'LOADING...' : '✓ PROSES'}</button><button class="wait" data-status="pending" data-id="${message.id}" ${busy ? 'disabled' : ''}>PENDING</button><button data-status="normal" data-id="${message.id}" ${busy ? 'disabled' : ''}>BUANG TANDA</button>`}</div>`;
+  };
+
+  const menuWithUnreadableStatus = menu;
+  menu = message => menuWithUnreadableStatus(message).replace(
+    '<button data-status="normal"',
+    `<button class="unreadable" data-status="unrecorded" data-id="${message.id}">TAK BOLEH BACA</button><button data-status="normal"`
+  );
+
+  const menuWithCodeRule = menu;
+  menu = message => {
+    const html = menuWithCodeRule(message);
+    if (document.body.classList.contains('stock-worker')) {
+      if (selected !== message.id) return '';
+      const processed = message.status === 'processed';
+      return `<div class="menu"><button data-copy="${message.id}">COPY</button>${processed ? '' : `<button class="done" data-status="processed" data-id="${message.id}">✓ PROSES STOK</button>`}</div>`;
+    }
+    return html.replace('<button data-copy=', `<button class="code-rule" data-code-rule="${message.id}" title="Betulkan bacaan code">+ CODE</button><button data-copy=`);
+  };
+
+  const renderWithUnreadableStatus = render;
+  render = (autoScroll = true) => {
+    renderWithUnreadableStatus(autoScroll);
+    messages.forEach(message => {
+      if (message.status !== 'unrecorded') return;
+      const bubble = chatLog.querySelector(`[data-message="${message.id}"]`);
+      const state = bubble && bubble.querySelector('.state');
+      if (state) state.textContent = '● BELUM RECORD';
+    });
+  };
+
+  chatLog.onclick = async event => {
+    const codeRule = event.target.closest('[data-code-rule]');
+    if (codeRule) {
+      const message = messages.find(item => item.id === Number(codeRule.dataset.codeRule));
+      if (!message) return;
+      const code = prompt(`Betulkan bacaan sistem untuk:\n\n${message.message}\n\nMasukkan code sebenar:`, message.process_code || '');
+      if (code === null || !code.trim()) return;
+      const formData = new FormData();
+      formData.set('action', 'saveOrderCodeRule');
+      formData.set('message_id', message.id);
+      formData.set('process_code', code.trim().toUpperCase());
+      codeRule.disabled = true;
+      codeRule.textContent = '...';
+      try { const result = await request('saveOrderCodeRule', formData); await load(); alert(result.message); }
+      catch (error) { alert(error.message); codeRule.disabled = false; codeRule.textContent = '+ CODE'; }
+      return;
+    }
+    const copy = event.target.closest('[data-copy]');
+    if (copy) {
+      const message = messages.find(item => item.id === Number(copy.dataset.copy));
+      if (message) {
+        lastCopiedText = message.message;
+        try { await navigator.clipboard.writeText(message.message); } catch (_) {}
+        copy.textContent = 'COPIED';
+      }
+      return;
+    }
+
+    const status = event.target.closest('[data-status]');
+    if (status) {
+      const orderId = Number(status.dataset.id);
+      const isProcess = status.dataset.status === 'processed';
+      const formData = new FormData();
+      formData.set('action', 'setOrderRecordStatus');
+      formData.set('order_id', orderId);
+      formData.set('status', status.dataset.status);
+      if (isProcess) {
+        processingOrderId = orderId;
+        render(false);
+      } else {
+        status.disabled = true;
+      }
+      try {
+        const result = await request('setOrderRecordStatus', formData);
+        if (isProcess && document.body.classList.contains('stock-worker') && result.requires_sim_balance) {
+          let balanceSaved = false;
+          while (!balanceSaved) {
+            const entered = prompt(`WAJIB ISI BAKI SIM\n\nNombor: ${result.phone || '-'}\nMasukkan baki SIM semasa (RM):`, '');
+            if (entered === null) {
+              alert('Baki SIM wajib diisi sekali sebelum meneruskan.');
+              continue;
+            }
+            const normalized = entered.trim().replace(/^rm\s*/i, '').replace(/,/g, '');
+            const balance = Number(normalized);
+            if (!Number.isFinite(balance) || balance < 0) {
+              alert('Masukkan jumlah baki SIM yang sah. Contoh: 1 atau 1.50');
+              continue;
+            }
+            const balanceForm = new FormData();
+            balanceForm.set('action', 'saveProcessedSimBalance');
+            balanceForm.set('message_id', orderId);
+            balanceForm.set('balance', balance.toFixed(2));
+            try {
+              const saved = await request('saveProcessedSimBalance', balanceForm);
+              balanceSaved = true;
+              showProcessNote(saved.message);
+            } catch (balanceError) {
+              alert(balanceError.message || 'Baki SIM gagal disimpan. Cuba lagi.');
+            }
+          }
+        }
+        processingOrderId = 0;
+        selected = 0;
+        await load();
+        if (!isProcess && status.dataset.status === 'unrecorded') showProcessNote('Ditanda BELUM RECORD.');
+        if (isProcess) showProcessNote(result.already_synced ? 'Order ini sudah ada dalam Sheet.' : '✓ Berjaya diproses ke Sheet.');
+      } catch (error) {
+        processingOrderId = 0;
+        render(false);
+        showProcessNote(error.message || 'Proses gagal.', true);
+      }
+      return;
+    }
+
+    const bubble = event.target.closest('[data-message]');
+    if (bubble) {
+      selected = selected === Number(bubble.dataset.message) ? 0 : Number(bubble.dataset.message);
+      render(false);
+    }
+  };
+})();
+</script><script>
+(() => {
+  let fastChatLoading = false;
+  let userReadingOlderMessages = false;
+  let desktopScrollLocked = false;
+  let lastChatScrollTop = log.scrollTop;
+  let messageSignature = JSON.stringify(messages);
+  let sendScrollTimers = [];
+  const cancelSendAutoScroll = () => {
+    sendScrollTimers.forEach(clearTimeout);
+    sendScrollTimers = [];
+  };
+  const cancelKeyboardAutoScroll = () => {
+    keyboardScrollTimers.forEach(clearTimeout);
+    keyboardScrollTimers = [];
+  };
+  const markManualChatScroll = () => {
+    cancelKeyboardAutoScroll();
+    cancelSendAutoScroll();
+    userReadingOlderMessages = true;
+  };
+  log.addEventListener('touchmove', markManualChatScroll, { passive: true });
+  log.addEventListener('wheel', event => {
+    if (event.deltaY < 0) {
+      desktopScrollLocked = true;
+      markManualChatScroll();
+    } else if (log.scrollHeight - log.scrollTop - log.clientHeight <= 2) {
+      desktopScrollLocked = false;
+      userReadingOlderMessages = false;
+    }
+  }, { passive: true });
+  log.addEventListener('scroll', () => {
+    const movingUp = log.scrollTop < lastChatScrollTop - 1;
+    const distanceFromBottom = log.scrollHeight - log.scrollTop - log.clientHeight;
+    if (movingUp) {
+      cancelKeyboardAutoScroll();
+      desktopScrollLocked = true;
+      userReadingOlderMessages = true;
+    } else if (distanceFromBottom <= 2) {
+      desktopScrollLocked = false;
+      userReadingOlderMessages = false;
+    }
+    lastChatScrollTop = log.scrollTop;
+  }, { passive: true });
+  load = async (keepPosition = true) => {
+    if (fastChatLoading) return;
+    const savedTop = log.scrollTop;
+    fastChatLoading = true;
+    try {
+      const data = await request('orderRecords');
+      const nextMessages = data.orders || [];
+      const nextSignature = JSON.stringify(nextMessages);
+      currentUserId = Number(data.current_user?.id) || 0;
+      // Polling must not rebuild the message DOM when nothing changed.
+      if (nextSignature === messageSignature) return;
+      messages = nextMessages;
+      messageSignature = nextSignature;
+      render(false);
+      if (keepPosition) {
+        log.scrollTop = savedTop;
+        requestAnimationFrame(() => { log.scrollTop = savedTop; });
+      } else {
+        log.scrollTop = Math.max(0, log.scrollHeight - log.clientHeight);
+      }
+    }
+    catch (error) {
+      if (/login/i.test(error.message)) location.href = 'clash-league.html#login';
+    }
+    finally { fastChatLoading = false; }
+  };
+
+  form.onsubmit = async event => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    const temporaryId = -Date.now();
+    const body = new FormData();
+    body.set('action', 'createOrderRecord');
+    body.set('message', text);
+    input.value = '';
+    messages.push({
+      id: temporaryId,
+      message: text,
+      status: 'normal',
+      created_by_admin_id: currentUserId,
+      created_by_name: 'ANDA',
+      created_at: 'Menghantar...'
+    });
+    userReadingOlderMessages = false;
+    desktopScrollLocked = false;
+    render(false);
+    const scrollLatest = () => {
+      log.scrollTop = Math.max(0, log.scrollHeight - log.clientHeight);
+      lastChatScrollTop = log.scrollTop;
+    };
+    scrollLatest();
+    try {
+      await request('createOrderRecord', body);
+      messageSignature = '';
+      await load(false);
+      userReadingOlderMessages = false;
+      desktopScrollLocked = false;
+      scrollLatest();
+      requestAnimationFrame(scrollLatest);
+      sendScrollTimers.push(setTimeout(scrollLatest, 100));
+      sendScrollTimers.push(setTimeout(scrollLatest, 300));
+    } catch (error) {
+      cancelSendAutoScroll();
+      messages = messages.filter(message => message.id !== temporaryId);
+      input.value = text;
+      render();
+      alert(error.message);
+    }
+  };
+
+  setInterval(() => {
+    const chat = document.querySelector('[data-view="chat"]');
+    if (document.visibilityState === 'visible' && chat && chat.classList.contains('active')) load(true);
+  }, 1200);
+})();
+</script><script src="order-record-money.js?v=20260812-5"></script></body></html>

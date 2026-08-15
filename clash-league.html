@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260801-question-compact-v20">
+<link rel="stylesheet" href="clash-league.css?v=20260813-mobile-chat-scroll-v70">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260731-notification-v2";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260814-login-point-fix-v57";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -59,23 +59,6 @@ if ("serviceWorker" in navigator) {
     if (document.visibilityState === "visible") checkClashAppUpdate();
   });
 }
-(function(){
-  const isLocalPreview = ["127.0.0.1", "localhost"].includes(window.location.hostname);
-  const flushKey = "clash-league-sw-cache-flushed-v7";
-  if (!isLocalPreview || sessionStorage.getItem(flushKey)) return;
-
-  sessionStorage.setItem(flushKey, "1");
-  Promise.all([
-    "serviceWorker" in navigator
-      ? navigator.serviceWorker.getRegistrations().then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-      : Promise.resolve(),
-    "caches" in window
-      ? caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith("gnex-")).map((key) => caches.delete(key))))
-      : Promise.resolve()
-  ]).then(() => {
-    window.location.replace(window.location.pathname + "?fresh=20260701-php-api" + window.location.hash);
-  }).catch(() => {});
-})();
 </script>
 </head>
 <body>
@@ -97,7 +80,7 @@ if ("serviceWorker" in navigator) {
     <a href="#all-team" data-panel-target="all-team">Team</a>
     <a href="#rules" data-panel-target="rules">Rules</a>
     <a href="#update-point" data-panel-target="update-point" data-team-nav hidden>Point</a>
-    <a href="#confirm-slot" data-panel-target="confirm-slot" data-admin-nav hidden>Confirm</a>
+    <a href="#confirm-slot" data-panel-target="confirm-slot" data-admin-nav hidden>Confirm <span class="nav-badge" data-confirm-badge hidden>0</span></a>
     <a href="#result-check" data-panel-target="result-check" data-admin-nav hidden>Result</a>
   </nav>
 
@@ -473,35 +456,27 @@ if ("serviceWorker" in navigator) {
     </div>
 
     <div data-schedule-list>
-    <article class="match-card next-match-card">
-      <p class="next-match-label">Next Match</p>
-      <div class="next-match-row">
-        <div class="next-team">
-          <img id="nextTeamALogo" src="imagelogo/OG.png" alt="Team A logo">
-          <p id="nextTeamA">50G</p>
+      <article class="team-roster-item team-roster-message" aria-live="polite">
+        <span class="team-roster-logo">...</span>
+        <div>
+          <h3>Memuatkan jadual Clash League</h3>
+          <p>Next match akan dipaparkan mengikut jadual rasmi team anda.</p>
         </div>
-
-        <div class="next-center">
-          <p id="nextMatchStatus" class="next-status">Up Next</p>
-          <strong>VS</strong>
-          <p id="nextMatchName" class="next-stage">Grand Final</p>
-          <p id="nextMatchTime" class="next-time">1 Jun / 9:00-11:00 PM</p>
-        </div>
-
-        <div class="next-team">
-          <img id="nextTeamBLogo" src="imagelogo/ng.png" alt="Team B logo">
-          <p id="nextTeamB">NGAZ</p>
-        </div>
-      </div>
-          </article>
-        </div>
+        <strong>Loading</strong>
+      </article>
+    </div>
 
         <section class="official-schedule" aria-label="Schedule rasmi Clash League">
           <div class="official-schedule-head">
-            <p class="section-tag">Schedule / Jadual</p>
-            <h3>Timeline Clash League</h3>
+            <div><p class="section-tag">Schedule / Jadual</p><h3>Timeline Clash League</h3></div>
+            <div class="timeline-admin-actions" data-timeline-actions hidden>
+              <button type="button" data-timeline-edit>Edit Timeline</button>
+              <button type="button" data-timeline-save hidden>Save All</button>
+              <button type="button" data-timeline-cancel hidden>Cancel</button>
+              <small data-timeline-status></small>
+            </div>
           </div>
-          <div class="official-schedule-list">
+          <div class="official-schedule-list" data-timeline-list>
             <article class="official-schedule-item">
               <time>1 July - 1 August 2026</time>
               <div>
@@ -518,28 +493,42 @@ if ("serviceWorker" in navigator) {
             <article class="official-schedule-item">
               <time>5 August 2026</time>
               <div>
-                <h4>Qualifier 1 / Fasa 1 / BO3</h4>
+                <h4>Qualifier 1 / Fasa 1 / Group 1 / BO3</h4>
                 <p>9:30 PM</p>
               </div>
             </article>
             <article class="official-schedule-item">
               <time>7 August 2026</time>
               <div>
-                <h4>Qualifier 1 / Fasa 2 / BO3</h4>
+                <h4>Qualifier 1 / Fasa 1 / Group 2 / BO3</h4>
+                <p>9:30 PM</p>
+              </div>
+            </article>
+            <article class="official-schedule-item">
+              <time>8 August 2026</time>
+              <div>
+                <h4>Qualifier 2 / Group 1 VS Group 2 / BO3</h4>
                 <p>9:30 PM</p>
               </div>
             </article>
             <article class="official-schedule-item">
               <time>9 August 2026</time>
               <div>
-                <h4>Qualifier 1 / Fasa 3 / BO3</h4>
+                <h4>Qualifier 1 / Fasa 1 / Group 3 / BO3</h4>
                 <p>9:30 PM</p>
               </div>
             </article>
             <article class="official-schedule-item">
               <time>11 August 2026</time>
               <div>
-                <h4>Qualifier 1 / Fasa 4 / BO3</h4>
+                <h4>Qualifier 1 / Fasa 1 / Group 4 / BO3</h4>
+                <p>9:30 PM</p>
+              </div>
+            </article>
+            <article class="official-schedule-item">
+              <time>12 August 2026</time>
+              <div>
+                <h4>Qualifier 2 / Group 3 VS Group 4 / BO3</h4>
                 <p>9:30 PM</p>
               </div>
             </article>
@@ -657,6 +646,7 @@ if ("serviceWorker" in navigator) {
 <section id="update-point" class="view-panel update-point-section" aria-hidden="true">
   <div class="panel-backdrop" data-panel-close></div>
   <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="update-point-title">
+    <button class="update-point-mobile-back" type="button" data-panel-close aria-label="Kembali ke halaman utama">&#8592; Back</button>
     <div class="section-head">
       <p class="section-tag">Result Match</p>
       <h2 id="update-point-title">Update Point</h2>
@@ -698,8 +688,14 @@ if ("serviceWorker" in navigator) {
   <div class="panel-backdrop" data-panel-close></div>
   <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="result-check-title">
     <div class="section-head">
+      <button class="admin-back-group-match" type="button" data-result-back-group hidden>&larr; BACK TO GROUP MATCH</button>
       <p class="section-tag">Admin</p>
       <h2 id="result-check-title">Cek Result</h2>
+    </div>
+    <section class="qualifier-final-admin" data-qualifier-final-admin></section>
+    <div class="admin-result-search">
+      <label for="admin-result-team-search">Cari team</label>
+      <input id="admin-result-team-search" type="search" data-result-team-search placeholder="Taip nama team..." autocomplete="off" spellcheck="false">
     </div>
     <div class="team-roster-list" data-result-roster>
       <article class="team-roster-item team-roster-message">
@@ -719,9 +715,7 @@ if ("serviceWorker" in navigator) {
   <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="deal-title">
     <div class="deal-view-head">
       <div>
-        <p class="section-tag">Room Deal</p>
         <h2 id="deal-title">Room deal</h2>
-        <p>Room chat aktif untuk setiap match yang sudah dapat slot. Update room, masa dan confirmation di sini.</p>
       </div>
     </div>
 
@@ -764,16 +758,44 @@ if ("serviceWorker" in navigator) {
 
       <section class="deal-chat-screen" aria-label="Deal chat room">
         <div class="deal-chat-screen-head">
-          <button class="deal-chat-back" type="button" data-deal-back aria-label="Back to team list">&lt;</button>
+          <button class="deal-chat-back" type="button" data-deal-back aria-label="Kembali ke senarai chat"><span aria-hidden="true">&#8592;</span></button>
           <span class="deal-contact-avatar" data-deal-chat-avatar>AD</span>
           <div>
             <h3 data-deal-chat-name>ADMIN</h3>
             <p data-deal-chat-subtitle>Clash League Support</p>
           </div>
+          <div class="match-head-actions">
+            <button class="chat-report-match-button" type="button" data-admin-report-match hidden>Report</button>
+            <button class="personal-match-room-button" type="button" data-personal-match-room hidden>Group Match</button>
+            <button class="match-admin-point-button" type="button" data-match-admin-point hidden>Update Point</button>
+            <button class="match-how-to-button" type="button" data-match-how-to hidden>Cara Bermain</button>
+          </div>
           <span class="deal-status-pill" data-deal-chat-status>online</span>
         </div>
 
         <aside class="deal-match-attendance" data-match-attendance hidden></aside>
+
+        <section class="match-how-to-view" data-match-how-to-view hidden>
+          <header>
+            <button type="button" data-match-how-to-back aria-label="Kembali ke group match">&#8592;</button>
+            <div><small>Panduan Grouping Awal</small><h3>Cara Bermain</h3></div>
+          </header>
+          <div class="match-how-to-card">
+            <span class="match-how-to-format">Format: Main Sendiri</span>
+            <ol>
+              <li><b>Deal dalam Group Match</b><p>Kedua-dua team berbincang dan tentukan siapa yang akan membuat room.</p></li>
+              <li><b>Hantar ID atau invite</b><p>Team yang membuat room perlu beri ID room atau invite pihak lawan masuk.</p></li>
+              <li><b>Main ikut rules tournament</b><p>Pastikan kedua-dua team bersedia sebelum match dimulakan.</p></li>
+              <li><b>Update keputusan dalam Group Match</b><p>Selepas match, beritahu nama pemenang, skor akhir dan hantar bukti screenshot dalam Group Match. Hanya admin boleh mengemas kini point rasmi.</p></li>
+            </ol>
+            <section class="match-how-to-room-settings" data-match-room-settings aria-label="Setting Room"></section>
+            <p class="match-how-to-note">Simpan semua perbincangan dan keputusan dalam Group Match ini sebagai rujukan admin.</p>
+            <div class="match-how-to-actions">
+              <button type="button" data-how-to-open-group>Buka Group Match</button>
+              <button type="button" class="is-report" data-report-match>Report Match</button>
+            </div>
+          </div>
+        </section>
 
         <aside class="deal-pinned-info" data-pinned-info hidden>
           <div class="deal-pinned-view">
@@ -818,9 +840,12 @@ if ("serviceWorker" in navigator) {
             <button type="button" data-chat-tag="profile">Profile</button>
             <button type="button" data-chat-tag="all-team">Team</button>
             <button type="button" data-chat-tag="deal">Deal</button>
+            <button type="button" data-chat-tag="cara-bermain">Cara Bermain</button>
+            <button type="button" data-chat-tag="report-match">Report Match</button>
           </div>
           <input class="deal-guest-name" name="guest_name" autocomplete="name" maxlength="60" placeholder="Nama anda" aria-label="Nama anda" hidden>
-          <input name="message" autocomplete="off" placeholder="Tulis mesej..." aria-label="Tulis mesej">
+          <label class="info-image-picker" data-info-image-picker hidden title="Pilih gambar" aria-label="Pilih gambar"><input type="file" name="message_image" accept="image/png,image/jpeg,image/webp"><span aria-hidden="true">+ IMG</span></label>
+          <textarea name="message" rows="1" maxlength="700" autocomplete="off" placeholder="Tulis mesej..." aria-label="Tulis mesej"></textarea>
           <button class="btn primary chat-send-button" type="submit" value="none">Send</button>
           <button class="btn chat-important-button" type="submit" value="all" data-important-send aria-label="Send penting dan push kepada semua team" title="Send penting: push kepada semua team" hidden>Send</button>
         </form>
@@ -850,7 +875,7 @@ if ("serviceWorker" in navigator) {
         </ul>
       </div>
       <figure>
-        <img src="images/1773761090821996-0.png?v=20260731" alt="Contoh akaun Free Fire yang layak bermain GNEX Laga CS" loading="lazy" decoding="async">
+        <img src="images/gnex-laga-cs-account-example.png?v=20260803" alt="Contoh akaun Free Fire yang layak bermain GNEX Laga CS" loading="lazy" decoding="async">
         <figcaption>Contoh akaun yang layak bermain</figcaption>
       </figure>
     </article>
@@ -874,7 +899,7 @@ if ("serviceWorker" in navigator) {
         </div>
       </div>
       <figure>
-        <img src="images/1773434057098366-0.jpg?v=20260731" alt="Contoh preset pemilihan skill character GNEX Laga CS" loading="lazy" decoding="async">
+        <img src="images/gnex-laga-cs-character-skill.jpg?v=20260803" alt="Contoh preset pemilihan skill character GNEX Laga CS" loading="lazy" decoding="async">
         <figcaption>Preset skill character yang dibenarkan</figcaption>
       </figure>
     </article>
@@ -894,11 +919,11 @@ if ("serviceWorker" in navigator) {
       </div>
       <div class="rule-room-gallery">
         <figure>
-          <img src="images/1773434054463522-1%20(1).png?v=20260731" alt="Setting room GNEX Laga CS bahagian pertama" loading="lazy" decoding="async">
+          <img src="images/gnex-laga-cs-room-setting-1.png?v=20260803" alt="Setting room GNEX Laga CS bahagian pertama" loading="lazy" decoding="async">
           <figcaption>Setting Room — Bahagian 1</figcaption>
         </figure>
         <figure>
-          <img src="images/1773434050940256-2.png?v=20260731" alt="Setting room GNEX Laga CS bahagian kedua" loading="lazy" decoding="async">
+          <img src="images/gnex-laga-cs-room-setting-2.png?v=20260803" alt="Setting room GNEX Laga CS bahagian kedua" loading="lazy" decoding="async">
           <figcaption>Setting Room — Bahagian 2</figcaption>
         </figure>
       </div>
@@ -975,7 +1000,7 @@ if ("serviceWorker" in navigator) {
         </div>
       </div>
       <figure>
-        <img src="images/1773429549285167-0.png?v=20260731" alt="Ilustrasi kedudukan lantai dan tingkat dalam GNEX Laga CS" loading="lazy" decoding="async">
+        <img src="images/gnex-laga-cs-placement-guide.png?v=20260803" alt="Ilustrasi kedudukan lantai dan tingkat dalam GNEX Laga CS" loading="lazy" decoding="async">
         <figcaption>Ilustrasi kedudukan player mengikut aras</figcaption>
       </figure>
       <div class="rule-placement-details">
@@ -1019,15 +1044,15 @@ if ("serviceWorker" in navigator) {
       </div>
       <div class="rule-structure-gallery">
         <figure>
-          <img src="images/1773429545783073-1.jpg?v=20260731" alt="Contoh tempat berstruktur yang boleh dan tidak boleh dipanjat" loading="lazy" decoding="async">
+            <img src="images/gnex-laga-cs-structure-area.jpg?v=20260803" alt="Contoh tempat berstruktur yang boleh dan tidak boleh dipanjat" loading="lazy" decoding="async">
           <figcaption><span class="is-green">Hijau boleh dipanjat</span><span class="is-red">Merah tidak boleh dipanjat</span></figcaption>
         </figure>
         <figure>
-          <img src="images/1773429540836186-2.jpg?v=20260731" alt="Rumah kecil yang melebihi paras gloo wall tidak boleh dipanjat" loading="lazy" decoding="async">
+            <img src="images/gnex-laga-cs-small-house-height.jpg?v=20260803" alt="Rumah kecil yang melebihi paras gloo wall tidak boleh dipanjat" loading="lazy" decoding="async">
           <figcaption><span class="is-red">Rumah kecil melebihi paras gloo wall tidak boleh dipanjat</span></figcaption>
         </figure>
         <figure>
-          <img src="images/1773429537130113-3.jpg?v=20260731" alt="Satu kontena boleh dipanjat tetapi dua kontena tidak boleh dipanjat" loading="lazy" decoding="async">
+            <img src="images/gnex-laga-cs-container-height.jpg?v=20260803" alt="Satu kontena boleh dipanjat tetapi dua kontena tidak boleh dipanjat" loading="lazy" decoding="async">
           <figcaption><span class="is-green">Satu kontena boleh dipanjat</span><span class="is-red">Dua kontena tidak boleh dipanjat</span></figcaption>
         </figure>
       </div>
@@ -1257,11 +1282,22 @@ if ("serviceWorker" in navigator) {
 
   <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="all-team-title">
     <div class="section-head">
+      <button class="admin-back-group-match" type="button" data-back-group-match hidden>&larr; BACK TO GROUP MATCH</button>
       <p class="section-tag">All Team</p>
       <h2 id="all-team-title">Team Registered</h2>
-      <h3 class="section-tag" style="padding-top: 10px;" ><span data-team-count>0</span> Teams</h3>
+      <h3 class="section-tag team-total"><span data-team-count>0</span> Teams</h3>
+      <button class="btn primary admin-add-team-button" type="button" data-admin-add-team-toggle hidden>ADD TEAM</button>
       <button class="btn secondary admin-notification-list-button" type="button" data-admin-notification-list-toggle hidden>NOTI</button>
     </div>
+
+    <form class="admin-add-team-form" data-admin-add-team-form hidden>
+      <div><p class="section-tag">Admin</p><h3>Tambah Team Baru</h3><small>Team wajib lengkapkan IGN dan ID P1–P4 selepas login pertama.</small></div>
+      <label><span>Nama Team</span><input name="team_name" maxlength="100" required placeholder="Contoh: GNEX ESPORT"></label>
+      <label><span>Nombor Telefon</span><input name="phone" maxlength="40" inputmode="tel" required placeholder="Contoh: 60123456789"></label>
+      <label><span>Password</span><input name="team_password" type="password" required placeholder="Huruf besar, nombor dan simbol"></label>
+      <div class="admin-add-team-actions"><button class="btn primary" type="submit">SIMPAN TEAM</button><button class="btn secondary" type="button" data-admin-add-team-cancel>CANCEL</button></div>
+      <p data-admin-add-team-status></p>
+    </form>
 
     <section class="admin-notification-list" data-admin-notification-list hidden>
       <header>
@@ -1284,11 +1320,12 @@ if ("serviceWorker" in navigator) {
       <div>
         <p class="section-tag">WhatsApp Team</p>
         <h3>Tulis Mesej</h3>
-        <p>Pilih template atau edit mesej sendiri. Gunakan <strong>{team}</strong> untuk masukkan nama team secara automatik.</p>
+        <p>Pilih template atau edit mesej sendiri. Pemboleh ubah: <strong>{team}</strong>, <strong>{match}</strong>, <strong>{tarikh}</strong>, <strong>{masa}</strong> dan <strong>{lawan}</strong>.</p>
       </div>
       <label>
         <span>Template Mesej</span>
         <select data-whatsapp-template>
+          <option value="ready">Tanda ready Group Deal</option>
           <option value="registered">Pendaftaran berjaya</option>
           <option value="confirmed">Slot telah disahkan</option>
           <option value="schedule">Semak jadual match</option>
@@ -1533,29 +1570,43 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
-            <aside
+<aside
   class="video-ad-card"
-  aria-label="Video iklan"
+  aria-label="Iklan GNEX dan Horizon Studio"
   style="position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:9999;display:block;width:min(calc(100vw - 24px),440px);height:clamp(58px,14vw,64px);min-height:58px;max-height:64px;padding:0;overflow:hidden;box-sizing:border-box;border-radius:18px;border:1px solid rgba(80,230,255,.35);background:#02060d;box-shadow:0 12px 28px rgba(0,0,0,.55),0 0 24px rgba(30,210,255,.12);"
 >
-  <a
-    class="video-ad-link"
-    href="https://gnexcenter.com/#price-list"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Pergi ke GNEX Topup"
-  >
-    <img
-      class="video-ad-image"
-      src="images/topup-ff-ml-banner.png?v=20260722b"
-      alt="GNEX Topup FF dan ML"
-      loading="lazy"
-      decoding="async"
-      style="position:absolute;inset:0;display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:cover;object-position:center;margin:0;padding:0;border:0;transform:none;pointer-events:none;"
-      onerror="if(!this.dataset.triedRoot){this.dataset.triedRoot='1';this.src='/images/topup-ff-ml-banner.png?v=20260722b'}else{this.closest('.video-ad-card')?.classList.add('is-missing')}"
-    >
-  </a>
+  <div class="video-ad-track">
+    <a class="video-ad-slide is-active" href="https://beacons.ai/horizonstudio" target="_blank" rel="noopener noreferrer" aria-label="Buka Horizon Studio">
+      <img class="video-ad-image" src="images/horizon-studio-banner.jpg?v=20260807c" alt="Servis design Horizon Studio" loading="eager" decoding="async">
+    </a>
+    <a class="video-ad-slide" href="https://gnexcenter.com" target="_blank" rel="noopener noreferrer" aria-label="Buka web utama GNEX">
+      <img class="video-ad-image" src="images/topup-ff-ml-banner.png?v=20260807c" alt="Servis topup GNEX" loading="eager" decoding="async">
+    </a>
+  </div>
+  <div class="video-ad-dots" aria-hidden="true"><i class="is-active"></i><i></i></div>
 </aside>
+
+<script>
+(() => {
+  const card = document.querySelector(".video-ad-card");
+  const slides = Array.from(card?.querySelectorAll(".video-ad-slide") || []);
+  const dots = Array.from(card?.querySelectorAll(".video-ad-dots i") || []);
+  if (!slides.length || card.dataset.carouselReady === "1") return;
+  card.dataset.carouselReady = "1";
+  let active = 0;
+  const show = (index) => {
+    active = ((index % slides.length) + slides.length) % slides.length;
+    slides.forEach((slide, i) => slide.classList.toggle("is-active", i === active));
+    dots.forEach((dot, i) => dot.classList.toggle("is-active", i === active));
+  };
+  const scheduleNext = () => window.setTimeout(() => {
+    if (!document.hidden) show(active + 1);
+    scheduleNext();
+  }, 5000);
+  show(0);
+  scheduleNext();
+})();
+</script>
 
 <nav class="bottom-nav" aria-label="Mobile bottom navigation">
   <a class="active" href="#home" data-home-link aria-label="Home">
@@ -1581,6 +1632,7 @@ if ("serviceWorker" in navigator) {
   </a>
   <a href="#confirm-slot" data-panel-target="confirm-slot" data-admin-nav hidden aria-label="Confirm Slot">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-5"/><rect x="4" y="4" width="16" height="16" rx="4"/></svg>
+    <span class="nav-badge" data-confirm-badge hidden>0</span>
     <span>Confirm</span>
   </a>
   <a href="#result-check" data-panel-target="result-check" data-admin-nav hidden aria-label="Cek Result">
@@ -1597,6 +1649,14 @@ if ("serviceWorker" in navigator) {
   const dealChatName = document.querySelector("[data-deal-chat-name]");
   const dealChatSubtitle = document.querySelector("[data-deal-chat-subtitle]");
   const dealChatStatus = document.querySelector("[data-deal-chat-status]");
+  const matchHowToButton = document.querySelector("[data-match-how-to]");
+  const matchAdminPointButton = document.querySelector("[data-match-admin-point]");
+  const adminReportMatchButton = document.querySelector("[data-admin-report-match]");
+  const matchHowToView = document.querySelector("[data-match-how-to-view]");
+  const matchHowToBack = document.querySelector("[data-match-how-to-back]");
+  const howToOpenGroupButton = document.querySelector("[data-how-to-open-group]");
+  const reportMatchButton = document.querySelector("[data-report-match]");
+  const matchUpdatePointButton = document.querySelector("[data-match-update-point]");
 
   function setActive(id){
     navItems.forEach((item) => {
@@ -1630,9 +1690,14 @@ if ("serviceWorker" in navigator) {
   }
 
   document.querySelectorAll("[data-panel-target]").forEach((trigger) => {
-    trigger.addEventListener("click", (event) => {
+    const activatePanel = (event) => {
       event.preventDefault();
       openPanel(trigger.dataset.panelTarget);
+    };
+    trigger.addEventListener("click", activatePanel);
+    trigger.addEventListener("pointerup", (event) => {
+      if (event.pointerType !== "touch") return;
+      activatePanel(event);
     });
   });
 
@@ -1805,6 +1870,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const notiGate = document.querySelector("[data-noti-gate]");
   const notiButton = document.querySelector("[data-noti-button]");
   const submitRegister = document.querySelector("[data-submit-register]");
+  const registrationClosesAt = Date.parse("2026-08-03T23:00:00+08:00");
   const roster = null;
   const profileLogo = document.querySelector("[data-profile-logo]");
   const profileSlot = document.querySelector("[data-profile-slot]");
@@ -1819,6 +1885,34 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const guideDetails = document.querySelector("[data-guide-details]");
   let cachedTeams = [];
   let teamsLoading = false;
+
+  function registrationIsClosed(){
+    return Date.now() >= registrationClosesAt;
+  }
+
+  function applyRegistrationDeadline(){
+    const closed = registrationIsClosed();
+    document.querySelectorAll('[data-panel-target="register"]').forEach((trigger) => {
+      trigger.classList.toggle("is-registration-closed", closed);
+      trigger.setAttribute("aria-disabled", closed ? "true" : "false");
+      if ("disabled" in trigger) trigger.disabled = closed;
+      if (closed && trigger.textContent.trim().toLowerCase() === "daftar") trigger.textContent = "Pendaftaran Tutup";
+    });
+    if (closed && submitRegister) {
+      submitRegister.disabled = true;
+      submitRegister.textContent = "Pendaftaran Ditutup";
+      setStatus("Pendaftaran telah ditutup pada 3 Ogos 2026, 11:00 PM.", "error");
+    }
+    return closed;
+  }
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest('[data-panel-target="register"]');
+    if (!trigger || !registrationIsClosed()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    applyRegistrationDeadline();
+  }, true);
 
   function setStatus(message, type){
     if (!registerStatus) return;
@@ -1982,10 +2076,12 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       notiButton.textContent = "Noti Sudah On";
       notiButton.disabled = true;
       submitRegister.disabled = false;
+      applyRegistrationDeadline();
       return;
     }
 
     submitRegister.disabled = false;
+    applyRegistrationDeadline();
 
     if (permission === "denied") {
       notiButton.textContent = "Noti Blocked";
@@ -2243,6 +2339,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   if (registerForm) {
     updateNotificationGate();
+    applyRegistrationDeadline();
+    window.setInterval(applyRegistrationDeadline, 30000);
     saveStoredRegistrationPush().catch(() => {});
     registerForm.querySelectorAll("[data-uppercase-input]").forEach((input) => {
       input.addEventListener("input", () => {
@@ -2264,6 +2362,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
     registerForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+
+      if (applyRegistrationDeadline()) return;
 
       if (!isApiReady) {
         setStatus("API belum connect. Pastikan api/clash-league.php sudah upload sekali.", "error");
@@ -2353,9 +2453,9 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 (function(){
   const API_URL = window.CLASH_LEAGUE_API_URL || "api/clash-league.php";
   const API_FALLBACK_URL = window.CLASH_LEAGUE_API_FALLBACK_URL || "/api/clash-league.php";
-  const state = {team:null, chatTeam:null, admin:null, teams:[], matches:[], results:[], passwordRequests:[], rooms:[], messages:[], selectedRoomId:null, rulesText:"", pinnedInfo:"", pinnedActionTarget:"", pinnedAcknowledgement:null, pushPublicKey:null, notificationReadiness:null, initialized:false};
+  const state = {team:null, chatTeam:null, admin:null, viewingAsTeam:false, teams:[], matches:[], results:[], winnerPool:{count:0,teams:[]}, qualifierFinal:{brackets:[],qualified_count:0}, passwordRequests:[], rooms:[], messages:[], timelineItems:[], selectedRoomId:null, rulesText:"", pinnedInfo:"", pinnedActionTarget:"", pinnedAcknowledgement:null, pushPublicKey:null, notificationReadiness:null, initialized:false};
   const scheduleDraft = {
-    random: {team_limit: "", match_prefix: "Qualifier Match", match_time: ""},
+    random: {team_pool: "new", team_limit: "", match_prefix: "", match_time: ""},
     matches: {}
   };
   const authSlot = document.querySelector("[data-auth-slot]");
@@ -2381,12 +2481,24 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const resultMatchSelect = document.querySelector("[data-result-match-select]");
   const resultHistory = document.querySelector("[data-result-history]");
   const resultRoster = document.querySelector("[data-result-roster]");
+  const resultTeamSearch = document.querySelector("[data-result-team-search]");
+  const qualifierFinalAdmin = document.querySelector("[data-qualifier-final-admin]");
   const dealApp = document.querySelector("[data-deal-app]");
   const dealSection = dealApp?.closest(".deal-section");
   const dealChatAvatar = document.querySelector("[data-deal-chat-avatar]");
   const dealChatName = document.querySelector("[data-deal-chat-name]");
   const dealChatSubtitle = document.querySelector("[data-deal-chat-subtitle]");
   const dealChatStatus = document.querySelector("[data-deal-chat-status]");
+  const personalMatchRoomButton = document.querySelector("[data-personal-match-room]");
+  const matchHowToButton = document.querySelector("[data-match-how-to]");
+  const matchAdminPointButton = document.querySelector("[data-match-admin-point]");
+  const adminReportMatchButton = document.querySelector("[data-admin-report-match]");
+  const matchHowToView = document.querySelector("[data-match-how-to-view]");
+  const matchRoomSettings = document.querySelector("[data-match-room-settings]");
+  const matchHowToBack = document.querySelector("[data-match-how-to-back]");
+  const howToOpenGroupButton = document.querySelector("[data-how-to-open-group]");
+  const reportMatchButton = document.querySelector("[data-report-match]");
+  const matchUpdatePointButton = document.querySelector("[data-match-update-point]");
   const matchAttendance = document.querySelector("[data-match-attendance]");
   const dealList = document.querySelector("[data-deal-list]");
   const dealMessages = document.querySelector("[data-deal-messages]");
@@ -2398,8 +2510,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const pinnedInfoForm = document.querySelector("[data-pinned-form]");
   const dealTitle = document.querySelector("#deal-title");
   const dealBadges = Array.from(document.querySelectorAll("[data-deal-badge]"));
+  const confirmBadges = Array.from(document.querySelectorAll("[data-confirm-badge]"));
   const allTeamTitle = document.querySelector("#all-team-title");
   const adminTeamSearch = document.querySelector("[data-admin-team-search]");
+  const backGroupMatchButton = document.querySelector("[data-back-group-match]");
+  const resultBackGroupButton = document.querySelector("[data-result-back-group]");
+  const adminAddTeamToggle = document.querySelector("[data-admin-add-team-toggle]");
+  const adminAddTeamForm = document.querySelector("[data-admin-add-team-form]");
+  const adminAddTeamStatus = document.querySelector("[data-admin-add-team-status]");
   const adminNotificationListToggle = document.querySelector("[data-admin-notification-list-toggle]");
   const adminNotificationList = document.querySelector("[data-admin-notification-list]");
   const adminNotificationRows = document.querySelector("[data-admin-notification-rows]");
@@ -2431,6 +2549,28 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   const teamPasswordStatus = document.querySelector("[data-team-password-status]");
   const rulesGrid = document.querySelector("[data-rules-grid]");
   const rulesStatus = document.querySelector("[data-rules-status]");
+  const timelineList = document.querySelector("[data-timeline-list]");
+  const timelineActions = document.querySelector("[data-timeline-actions]");
+  const timelineEditButton = document.querySelector("[data-timeline-edit]");
+  const timelineSaveButton = document.querySelector("[data-timeline-save]");
+  const timelineCancelButton = document.querySelector("[data-timeline-cancel]");
+  const timelineStatus = document.querySelector("[data-timeline-status]");
+  let matchHowToRoomId = 0;
+
+  function syncMatchRoomSettings(){
+    if (!matchRoomSettings || matchRoomSettings.dataset.ready === "1") return;
+    const source = document.querySelector("#rules .rule-room-card");
+    if (!source) return;
+    matchRoomSettings.innerHTML = source.innerHTML;
+    matchRoomSettings.dataset.ready = "1";
+  }
+  const defaultTimelineItems = timelineList ? Array.from(timelineList.querySelectorAll(".official-schedule-item")).map((item) => ({
+    date: item.querySelector("time")?.textContent?.trim() || "",
+    title: item.querySelector("h4")?.textContent?.trim() || "",
+    note: Array.from(item.querySelectorAll("p")).map((line) => line.textContent?.trim() || "").filter(Boolean).join("\n"),
+    final: item.classList.contains("is-final")
+  })) : [];
+  let editingTimeline = false;
   const cropModal = document.querySelector("[data-team-crop-modal]");
   const cropCanvas = document.querySelector("[data-crop-canvas]");
   const cropStage = document.querySelector("[data-crop-stage]");
@@ -2452,19 +2592,26 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   let expandedTeamId = null;
   let editingTeamId = null;
   let expandedResultId = null;
+  let editingResultMatchId = 0;
+  let activeQualifierFinalBracket = 1;
   let editingRuleIndex = null;
   let pushSyncOwner = "";
   let pushSyncAt = 0;
   let loginBusy = false;
+  let authStateVersion = 0;
+  let authGraceUntil = 0;
   let teamSearchQuery = "";
+  let returnToGroupRoomId = 0;
   let notificationListOpen = false;
   let dealRoomFilter = "all";
   let dealMatchDate = "";
   let dealMatchNumberQuery = "";
+  let dealFilterScrollLeft = 0;
   let replyToMessageId = null;
   let pinnedEditOpen = false;
   let renderedDealRoomId = null;
   let forceDealScrollToBottom = true;
+  let dealScrollInteractionUntil = 0;
   let questionIntroRoomId = null;
   let questionIntroVisibleUntil = 0;
   let questionIntroTimer = null;
@@ -2492,17 +2639,131 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     const isOpen = Boolean(dealApp?.classList.contains("chat-open"));
     if (dealSection) dealSection.classList.toggle("chat-room-open", isOpen);
     document.body.classList.toggle("deal-chat-active", isOpen);
+    if (isOpen && window.matchMedia("(pointer: fine)").matches) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const messageInput = chatForm?.querySelector('[name="message"]');
+        if (messageInput && !messageInput.hidden && !messageInput.disabled) {
+          messageInput.focus({preventScroll:true});
+        }
+      }));
+    }
   }
   if (dealApp) {
     new MutationObserver(syncDealChatOpenClass).observe(dealApp, {attributes:true, attributeFilter:["class"]});
     syncDealChatOpenClass();
   }
+  personalMatchRoomButton?.addEventListener("click", () => {
+    const roomId = Number(personalMatchRoomButton.dataset.roomId || 0);
+    if (!state.admin || !roomId || !state.rooms.some((room) => Number(room.id) === roomId)) {
+      alert("Group Match team ini belum tersedia.");
+      return;
+    }
+    state.selectedRoomId = roomId;
+    matchHowToRoomId = 0;
+    if (dealApp) dealApp.classList.add("chat-open");
+    markRoomSeen(roomId);
+    forceDealScrollToBottom = true;
+    renderDeal();
+  });
+  matchHowToButton?.addEventListener("click", () => {
+    matchHowToRoomId = Number(state.selectedRoomId || 0);
+    renderDeal();
+  });
+  matchHowToBack?.addEventListener("click", () => {
+    matchHowToRoomId = 0;
+    renderDeal();
+  });
+  howToOpenGroupButton?.addEventListener("click", () => {
+    matchHowToRoomId = 0;
+    renderDeal();
+    chatForm?.querySelector('[name="message"]')?.focus({preventScroll:true});
+  });
+  reportMatchButton?.addEventListener("click", () => {
+    const room = state.rooms.find((entry) => Number(entry.id) === Number(state.selectedRoomId));
+    const team = state.team || state.chatTeam;
+    if (!room || !team) {
+      alert("Login team dahulu untuk report match.");
+      return;
+    }
+    const teamId = Number(team.id || 0);
+    const isTeamA = teamId === Number(room.team_a_id || 0);
+    const opponent = isTeamA ? room.team_b_name : room.team_a_name;
+    const teamSlot = Number(team.slot_no || (isTeamA ? room.team_a_slot : room.team_b_slot) || 0);
+    const opponentSlot = Number((isTeamA ? room.team_b_slot : room.team_a_slot) || 0);
+    const schedule = formatScheduleDateTime(room.match_time || "");
+    const message = [
+      "*REPORT MATCH CLASH LEAGUE*", "",
+      "*TEAM YANG REPORT*",
+      `Nama Team: ${team.team_name || "Team"}`,
+      `Slot: ${teamSlot ? "#" + teamSlot : "Belum ada"}`, "",
+      "*DETAIL MATCH*",
+      `Match: ${room.match_name || "Match"}`,
+      `Lawan: ${opponent || "TBD"}`,
+      `Slot Lawan: ${opponentSlot ? "#" + opponentSlot : "Belum ada"}`,
+      `Tarikh: ${schedule.date}`,
+      `Masa: ${schedule.time}`, "",
+      "*MASALAH / LAPORAN:*", ""
+    ].join("\n");
+    window.open(`https://wa.me/60108275117?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  });
+  matchUpdatePointButton?.addEventListener("click", () => {
+    const room = state.rooms.find((entry) => Number(entry.id) === Number(state.selectedRoomId));
+    const matchId = Number(room?.match_id || 0);
+    if (!matchId) {
+      alert("Match ini belum mempunyai jadual Update Point.");
+      return;
+    }
+    renderUpdatePoint();
+    if (resultMatchSelect) resultMatchSelect.value = String(matchId);
+    openAppPanel("update-point");
+  });
+  matchAdminPointButton?.addEventListener("click", () => {
+    const room = state.rooms.find((entry) => Number(entry.id) === Number(state.selectedRoomId));
+    const matchId = Number(room?.match_id || 0);
+    if (!matchId) {
+      alert("Match ini belum mempunyai jadual point.");
+      return;
+    }
+    returnToGroupRoomId = Number(room.id || 0);
+    if (resultBackGroupButton) resultBackGroupButton.hidden = false;
+    editingResultMatchId = matchId;
+    if (resultTeamSearch) resultTeamSearch.value = String(room?.team_a_name || room?.team_b_name || "");
+    renderResultCheck();
+    openAppPanel("result-check");
+    window.setTimeout(() => {
+      const card = resultRoster?.querySelector(`[data-result-match-card="${matchId}"]`);
+      card?.scrollIntoView({behavior:"smooth", block:"center"});
+      card?.querySelector("input")?.focus();
+    }, 80);
+  });
+  adminReportMatchButton?.addEventListener("click", async () => {
+    const roomId = Number(state.selectedRoomId || 0);
+    const room = state.rooms.find((entry) => Number(entry.id) === roomId);
+    if (!state.admin || !roomId || !room || adminReportMatchButton.disabled) return;
+    const marked = !Boolean(room.report_match);
+    const data = new FormData();
+    data.set("action", "setRoomReportMatch");
+    data.set("room_id", String(roomId));
+    data.set("marked", marked ? "1" : "0");
+    try {
+      adminReportMatchButton.disabled = true;
+      adminReportMatchButton.textContent = "Simpan...";
+      const result = await apiPost(data);
+      setState(result);
+    } catch (error) {
+      alert(error.message || "Gagal simpan tanda Report Match.");
+      renderDeal();
+    } finally {
+      adminReportMatchButton.disabled = false;
+    }
+  });
 
   const WHATSAPP_TEMPLATES = {
+    ready: "Hi team {team}, sila tick nama team {team} di dalam Group Deal untuk tanda sebagai ready.\n\nMatch: {match}\nTarikh: {tarikh}\nMasa: {masa}\nLawan: {lawan}",
     registered: "Hi {team}, team anda telah berjaya mendaftar Tournament Clash League GNEX x HORIZON. Sila login untuk menerima maklumat tournament.",
     confirmed: "Hi {team}, slot team anda untuk Tournament Clash League GNEX x HORIZON telah disahkan. Sila login dan aktifkan notification untuk menerima update seterusnya.",
-    schedule: "Hi {team}, jadual match anda telah dikemas kini. Sila login ke Clash League dan semak bahagian Jadual untuk tarikh serta masa perlawanan.",
-    deal: "Hi {team}, sila login ke Clash League dan buka bahagian Deal untuk berbincang serta mengesahkan maklumat match bersama pihak lawan.",
+    schedule: "Hi {team}, jadual match anda telah dikemas kini.\n\nMatch: {match}\nTarikh: {tarikh}\nMasa: {masa}\nLawan: {lawan}\n\nSila login ke Clash League dan semak bahagian Jadual.",
+    deal: "Hi {team}, sila login ke Clash League dan buka bahagian Deal untuk berbincang bersama {lawan}.\n\nMatch: {match}\nTarikh: {tarikh}\nMasa: {masa}",
     reminder: "Hi {team}, ini peringatan daripada admin Clash League GNEX x HORIZON. Sila login untuk menyemak notification, jadual, room deal dan maklumat tournament terkini.",
     custom: ""
   };
@@ -2534,7 +2795,31 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       whatsappMessage?.focus();
       return;
     }
-    const message = source.replace(/\{team\}/gi, team.team_name || "Team");
+    const teamId = Number(team.id || team.team_id || 0);
+    const teamMatches = state.matches
+      .filter((match) => [Number(match.team_a_id || 0), Number(match.team_b_id || 0)].includes(teamId))
+      .sort((matchA, matchB) => {
+        const completedA = String(matchA.status || "") === "completed" ? 1 : 0;
+        const completedB = String(matchB.status || "") === "completed" ? 1 : 0;
+        if (completedA !== completedB) return completedA - completedB;
+        return (parseMysqlDate(matchA.match_time)?.getTime() || Number.MAX_SAFE_INTEGER)
+          - (parseMysqlDate(matchB.match_time)?.getTime() || Number.MAX_SAFE_INTEGER);
+      });
+    const match = teamMatches[0] || null;
+    const matchDate = parseMysqlDate(match?.match_time);
+    const opponent = !match
+      ? "Belum ditetapkan"
+      : (Number(match.team_a_id || 0) === teamId ? (match.team_b_name || "TBD") : (match.team_a_name || "TBD"));
+    const replacements = {
+      team: team.team_name || "Team",
+      match: match?.match_name || "Belum ditetapkan",
+      tarikh: matchDate ? matchDate.toLocaleDateString("en-GB", {day:"2-digit", month:"2-digit", year:"numeric"}) : "Belum ditetapkan",
+      masa: matchDate ? matchDate.toLocaleTimeString("en-MY", {hour:"numeric", minute:"2-digit", hour12:true}) : "Belum ditetapkan",
+      lawan: opponent
+    };
+    const filledMessage = source.replace(/\{(team|match|tarikh|masa|lawan)\}/gi, (_, key) => replacements[String(key).toLowerCase()] || "");
+    const webUrl = "https://app.gnexcenter.com/clash-league.html";
+    const message = filledMessage.includes(webUrl) ? filledMessage : `${filledMessage}\n\nBuka web Clash League:\n${webUrl}`;
     window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
 
@@ -2634,6 +2919,18 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     return String(value == null ? "" : value).replace(/[&<>"']/g, (char) => ({
       "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
     }[char]));
+  }
+
+  function formatChatMessage(value){
+    let text = String(value == null ? "" : value);
+    if (!text.includes("\n") && /PERINGATAN\s+KEHADIRAN/i.test(text)) {
+      text = text
+        .replace(/\s+(📅)/u, "\n\n$1")
+        .replace(/\s+(🕤|🕘|⏰)/u, "\n$1")
+        .replace(/\s+(PERINGATAN\s+KEHADIRAN)\s+/i, "\n\n$1\n")
+        .replace(/\s+(Pastikan\s+sekurang-kurangnya)/i, "\n\n$1");
+    }
+    return escapeHtml(text).replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
   }
 
   function initials(name){
@@ -3057,14 +3354,23 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
-  function roomIncomingUnread(room){
+  function roomUnreadCount(room){
     const roomId = Number(room.id);
-    const seen = Math.max(Number(room.seen_message_id || 0), Number(seenMessages[roomId] || 0));
-    return state.messages.filter((message) => {
-      if (Number(message.room_id) !== roomId || Number(message.id) <= seen) return false;
+    const serverSeen = Number(room.seen_message_id || 0);
+    const loadedUnread = state.messages.filter((message) => {
+      if (Number(message.room_id) !== roomId || Number(message.id) <= serverSeen) return false;
       if (state.admin) return message.sender_type === "team";
       return message.sender_type === "admin" || message.sender_type === "system" || Number(message.sender_team_id) !== Number(state.chatTeam?.id);
-    });
+    }).length;
+    // Read state belongs to the logged-in account and is shared by every
+    // device. Never let stale per-device localStorage override the database.
+    return Math.max(Number(room.unread_count || 0), loadedUnread);
+  }
+
+  function unreadConversationCount(){
+    // Count each team/group room once, regardless of how many unread messages
+    // are waiting inside that conversation.
+    return state.rooms.filter((room) => roomUnreadCount(room) > 0).length;
   }
 
   function markRoomSeen(roomId){
@@ -3075,7 +3381,10 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       seenMessages[roomId] = maxId;
       saveSeenMessages();
       const room = state.rooms.find((entry) => Number(entry.id) === Number(roomId));
-      if (room) room.seen_message_id = Math.max(Number(room.seen_message_id || 0), maxId);
+      if (room) {
+        room.seen_message_id = Math.max(Number(room.seen_message_id || 0), maxId);
+        room.unread_count = 0;
+      }
       if (state.admin || state.chatTeam) {
         const data = new FormData();
         data.set("action", "markRoomRead");
@@ -3086,10 +3395,18 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   }
 
   function renderDealBadges(){
-    const total = state.rooms.reduce((sum, room) => sum + roomIncomingUnread(room).length, 0);
+    const total = unreadConversationCount();
     dealBadges.forEach((badge) => {
       badge.hidden = total <= 0;
       badge.textContent = total > 9 ? "9+" : String(total);
+    });
+  }
+
+  function renderConfirmBadges(){
+    const total = state.admin ? state.passwordRequests.length : 0;
+    confirmBadges.forEach((badge) => {
+      badge.hidden = total <= 0;
+      badge.textContent = total > 99 ? "99+" : String(total);
     });
   }
 
@@ -3147,8 +3464,63 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
+  function formatLastSeen(value){
+    const date = parseMysqlDate(value);
+    if (!date) return "Belum aktif";
+    const today = new Date();
+    const sameDay = date.getFullYear() === today.getFullYear()
+      && date.getMonth() === today.getMonth()
+      && date.getDate() === today.getDate();
+    const time = date.toLocaleTimeString("en-MY", {hour:"numeric", minute:"2-digit", hour12:true});
+    const day = date.toLocaleDateString("en-MY", {day:"2-digit", month:"2-digit", year:"numeric"});
+    return sameDay ? `Last seen ${time}` : `Last seen ${day} · ${time}`;
+  }
+
+  function formatScheduleDateTime(value){
+    const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (!match) return {date: "TBD", time: "Masa belum ditetapkan"};
+    const hour24 = Number(match[4]);
+    const period = hour24 >= 12 ? "PM" : "AM";
+    const hour12 = hour24 % 12 || 12;
+    return {
+      date: `${match[3]}.${match[2]}.${match[1]}`,
+      time: `${hour12}:${match[5]} ${period}`
+    };
+  }
+
   function matchLabel(match){
     return `${match.team_a_name || "Team A"} vs ${match.team_b_name || "TBD"} - ${match.match_name || "Match"}`;
+  }
+
+  function winnerNextTimeline(match){
+    const routes = {q1_g1:"q2_f1",q1_g2:"q2_f1",q1_g3:"q2_f2",q1_g4:"q2_f2",q2_f1:"q3_f1",q2_f2:"q3_f1"};
+    const targetCode = routes[String(match?.stage_code || "")];
+    if (targetCode) {
+      const item = state.timelineItems.find((entry) => String(entry?.stage_code || "") === targetCode);
+      if (!item) return null;
+      const dateMatch = String(item.date || "").match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+      const months = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",ogos:"08",september:"09",october:"10",november:"11",december:"12"};
+      const date = dateMatch ? `${String(dateMatch[1]).padStart(2,"0")}.${months[String(dateMatch[2]).toLowerCase()] || ""}.${dateMatch[3]}` : String(item.date || "");
+      return {title:String(item.title || ""), date, time:String(item.note || "")};
+    }
+    const name = String(match?.match_name || "").toLowerCase();
+    let targetTitle = "";
+    if (name.includes("group 1") && name.includes("qualifier 1")) targetTitle = "Qualifier 2 / Group 1 VS Group 2 / BO3";
+    else if (name.includes("group 2") && name.includes("qualifier 1")) targetTitle = "Qualifier 2 / Group 1 VS Group 2 / BO3";
+    else if (name.includes("group 3") && name.includes("qualifier 1")) targetTitle = "Qualifier 2 / Group 3 VS Group 4 / BO3";
+    else if (name.includes("group 4") && name.includes("qualifier 1")) targetTitle = "Qualifier 2 / Group 3 VS Group 4 / BO3";
+    else if (name.includes("qualifier 1") && name.includes("fasa 1")) targetTitle = "Qualifier 2 / Group 1 VS Group 2 / BO3";
+    else if (name.includes("qualifier 2")) targetTitle = "Qualifier 3 / Winner Q2A VS Winner Q2B / BO3";
+    else if (name.includes("qualifier 3")) targetTitle = "Qualifier Final / Round 1";
+    else if (name.includes("qualifier final") && name.includes("round 1")) targetTitle = "Qualifier Final / Round 2 / Secure Round";
+    else if (name.includes("secure round") || (name.includes("qualifier final") && name.includes("round 2"))) targetTitle = "Qualifier Final / Last Chance";
+    if (!targetTitle) return null;
+    const item = state.timelineItems.find((entry) => String(entry?.title || "").toLowerCase() === targetTitle.toLowerCase());
+    if (!item) return null;
+    const dateMatch = String(item.date || "").match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+    const months = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",ogos:"08",september:"09",october:"10",november:"11",december:"12"};
+    const date = dateMatch ? `${String(dateMatch[1]).padStart(2,"0")}.${months[String(dateMatch[2]).toLowerCase()] || ""}.${dateMatch[3]}` : String(item.date || "");
+    return {title: targetTitle, date, time: String(item.note || "")};
   }
 
   function checkPointReminderNotifications(){
@@ -3214,6 +3586,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   }
 
   function canAccessPanel(id){
+    if (state.team?.profile_incomplete && !state.admin && id !== "profile") return false;
     if (id === "deal") return Boolean(state.chatTeam || state.admin);
     if (id === "jadual") return isLoggedTeam() || Boolean(state.admin);
     if (id === "profile") return isLoggedTeam() || Boolean(state.admin);
@@ -3230,6 +3603,10 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     if (!canAccessPanel(id)) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (state.team?.profile_incomplete && !state.admin) {
+        openRequiredTeamProfile();
+        return;
+      }
       const message = id === "confirm-slot"
         ? "Login admin dulu untuk buka Confirm Slot."
         : (id === "result-check"
@@ -3241,8 +3618,31 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     }
   }, true);
 
-  document.querySelectorAll("[data-login-tab]").forEach((tab) => {
-    tab.addEventListener("click", () => {
+  function openRequiredTeamProfile(){
+    if (!state.team?.profile_incomplete || state.admin) return;
+    openAppPanel("profile");
+    document.body.classList.add("profile-update-required");
+    if (profileEditHost && !profileEditHost.querySelector("[data-team-edit-form]")) {
+      profileEditHost.innerHTML = teamEditFormHtml(state.team);
+    }
+    if (profileEditButton) {
+      profileEditButton.hidden = true;
+      profileEditButton.textContent = "Lengkapkan Maklumat";
+    }
+    if (profileStatus) profileStatus.textContent = "Wajib lengkapkan IGN dan ID P1 hingga P4 sebelum menggunakan sistem.";
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!state.team?.profile_incomplete || state.admin) return;
+    const triesToLeave = event.target.closest("[data-home-link], [data-panel-close]");
+    if (!triesToLeave) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openRequiredTeamProfile();
+  }, true);
+
+  function activateLoginTab(tab){
+      if (!tab) return;
       document.querySelectorAll("[data-login-tab]").forEach((item) => item.classList.toggle("is-active", item === tab));
       const mode = tab.dataset.loginTab || "team";
       if (loginMode) loginMode.value = mode;
@@ -3255,6 +3655,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       if (nameInput) nameInput.placeholder = mode === "admin" ? "Username admin" : "Contoh: GNEX ESPORT";
       if (secretInput) secretInput.placeholder = mode === "admin" ? "Password admin" : "Password team";
       setLoginStatus("", "");
+  }
+
+  document.querySelectorAll("[data-login-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => activateLoginTab(tab));
+    tab.addEventListener("pointerup", (event) => {
+      if (event.pointerType !== "touch") return;
+      event.preventDefault();
+      activateLoginTab(tab);
     });
   });
 
@@ -3307,15 +3715,17 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     throw lastError || new Error("API error.");
   }
 
-  async function apiGet(action){
+  async function apiGet(action, params = {}){
     let chatToken = "";
     let deviceLoginToken = "";
     try { chatToken = localStorage.getItem(chatTokenKey) || ""; } catch (_) {}
     try { deviceLoginToken = localStorage.getItem(deviceLoginTokenKey) || ""; } catch (_) {}
-    const tokenQuery = chatToken ? `&chat_token=${encodeURIComponent(chatToken)}` : "";
+    const query = new URLSearchParams({action, v:String(Date.now())});
+    Object.entries(params || {}).forEach(([key, value]) => query.set(key, String(value)));
+    if (chatToken) query.set("chat_token", chatToken);
     const headers = {"Accept":"application/json"};
     if (deviceLoginToken) headers["X-Clash-Device-Token"] = deviceLoginToken;
-    const result = await fetchApiWithFallback(`?action=${encodeURIComponent(action)}&v=${Date.now()}${tokenQuery}`, {cache:"no-store", headers});
+    const result = await fetchApiWithFallback(`?${query.toString()}`, {cache:"no-store", headers});
     if (result?.device_login_token) {
       try { localStorage.setItem(deviceLoginTokenKey, result.device_login_token); } catch (_) {}
     }
@@ -3373,9 +3783,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   function setState(data){
     const previousMessages = state.messages.slice();
-    state.team = data.team || null;
+    const incomingTeam = data.team || null;
+    const incomingAdmin = data.admin || null;
+    const preserveRecentAuth = !incomingTeam && !incomingAdmin && Boolean(state.team || state.admin) && Date.now() < authGraceUntil;
+    state.team = preserveRecentAuth ? state.team : incomingTeam;
     state.chatTeam = data.chat_team || state.team || null;
-    state.admin = data.admin || null;
+    state.admin = preserveRecentAuth ? state.admin : incomingAdmin;
+    state.viewingAsTeam = Boolean(data.viewing_as_team);
+    document.body.classList.toggle("identity-ready", Boolean(state.team || state.admin));
     const isAdminAccount = Boolean(state.admin);
     const adCard = document.querySelector(".video-ad-card");
     document.body.classList.toggle("admin-account", isAdminAccount);
@@ -3422,9 +3837,16 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       state.matches = incomingMatches;
     }
     state.results = Array.isArray(data.results) ? data.results : [];
+    state.winnerPool = data.winner_pool && typeof data.winner_pool === "object"
+      ? data.winner_pool
+      : {count:0, teams:[]};
+    state.qualifierFinal = data.qualifier_final && typeof data.qualifier_final === "object"
+      ? data.qualifier_final
+      : {brackets:[], qualified_count:0};
     state.passwordRequests = Array.isArray(data.password_requests) ? data.password_requests : [];
     state.rooms = Array.isArray(data.rooms) ? data.rooms : [];
     state.messages = Array.isArray(data.messages) ? data.messages : [];
+    state.timelineItems = Array.isArray(data.timeline) && data.timeline.length ? data.timeline : defaultTimelineItems;
     state.rulesText = data.rules_text || "";
     state.pinnedInfo = data.pinned_info || "";
     state.pinnedActionTarget = data.pinned_info_action_target || "";
@@ -3446,9 +3868,13 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     renderSchedule();
     renderUpdatePoint();
     renderResultCheck();
+    renderQualifierFinalAdmin();
     renderDeal();
+    renderMatchReadiness();
     renderRules();
+    renderTimeline();
     renderDealBadges();
+    renderConfirmBadges();
     renderNotificationControls();
     renderNotificationSetup();
     renderGuestNotificationButton();
@@ -3457,6 +3883,31 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     checkMessageNotifications(previousMessages);
     syncPushSubscription();
     state.initialized = true;
+    if (state.team?.profile_incomplete && !state.admin) openRequiredTeamProfile();
+    else document.body.classList.remove("profile-update-required");
+  }
+
+  function applyLoginIdentity(data){
+    state.team = data.team || null;
+    state.chatTeam = data.chat_team || state.team || null;
+    state.admin = data.admin || null;
+    state.viewingAsTeam = Boolean(data.viewing_as_team);
+    document.body.classList.toggle("identity-ready", Boolean(state.team || state.admin));
+    document.body.classList.toggle("admin-account", Boolean(state.admin));
+    const adCard = document.querySelector(".video-ad-card");
+    if (adCard) {
+      adCard.hidden = Boolean(state.admin);
+      if (state.admin) adCard.style.setProperty("display", "none", "important");
+      else adCard.style.removeProperty("display");
+    }
+    renderAuthSlot();
+    renderProfile(state.team || state.teams[0]);
+    renderNotificationControls();
+    renderNotificationSetup();
+    renderGuestNotificationButton();
+    renderTopNotificationReminder();
+    state.initialized = true;
+    if (state.team?.profile_incomplete && !state.admin) openRequiredTeamProfile();
   }
 
   function renderAuthSlot(){
@@ -3477,6 +3928,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     }
     logoutButtons.forEach((button) => {
       button.hidden = !(state.team || state.admin);
+      button.textContent = state.viewingAsTeam ? "Kembali Admin" : "Logout";
     });
     adminNavItems.forEach((item) => {
       const showAdminNav = Boolean(state.admin);
@@ -3493,6 +3945,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     if (dealTitle) dealTitle.textContent = state.admin ? "All Chat" : "Room Deal";
     if (allTeamTitle) allTeamTitle.textContent = state.admin ? "Team Confirmed" : "Team Registered";
     if (adminTeamSearch) adminTeamSearch.hidden = !state.admin;
+    if (adminAddTeamToggle) adminAddTeamToggle.hidden = !state.admin;
+    if (adminAddTeamForm && !state.admin) adminAddTeamForm.hidden = true;
     if (whatsappComposer) whatsappComposer.hidden = !state.admin;
   }
 
@@ -3527,7 +3981,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const label = team.status_label || team.status || "Status";
       const checked = Boolean(adminTeamChecks[String(teamId)]);
       return `
-        <article class="team-roster-item ${state.admin ? "is-admin-row" : ""} ${state.admin && checked ? "is-admin-checked" : ""}">
+        <article class="team-roster-item ${state.admin ? "is-admin-row" : "is-public-row"} ${state.admin && checked ? "is-admin-checked" : ""}">
           ${state.admin ? `
             <label class="team-admin-check" title="Tanda untuk semak">
               <input type="checkbox" data-team-check="${teamId}" ${checked ? "checked" : ""}>
@@ -3536,11 +3990,16 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           ` : ""}
           <span class="team-roster-logo">${logo}</span>
           <div>
-            <h3>${escapeHtml(team.team_name)} ${team.online ? `<span class="team-online-badge"><i></i>ONLINE</span>` : ""}</h3>
+            <h3>
+              <span class="team-name-text">${escapeHtml(team.team_name)}</span>
+              ${state.admin ? "" : `<strong class="team-status team-status-inline ${statusClass(team.status)}">${escapeHtml(label)}</strong>`}
+              ${team.online ? `<span class="team-online-badge"><i></i>ONLINE</span>` : ""}
+            </h3>
             <p>${escapeHtml(slot)}</p>
           </div>
           ${state.admin ? `
             <span class="team-admin-actions">
+              <button class="admin-login-team-button" type="button" data-view-as-team="${teamId}">LOGIN TEAM</button>
               <button type="button" data-whatsapp-team="${teamId}">WhatsApp</button>
               <button type="button" data-team-password="${teamId}">Password</button>
               <button type="button" data-team-more="${teamId}">${expandedTeamId === teamId ? "Hide" : "More Info"}</button>
@@ -3548,7 +4007,6 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
               <button type="button" data-team-remove="${teamId}">Remove</button>
             </span>
           ` : ""}
-          ${state.admin ? "" : `<strong class="team-status ${statusClass(team.status)}">${escapeHtml(label)}</strong>`}
           ${canRevealTeamDetails && expandedTeamId === teamId ? teamDetailHtml(team) : ""}
           ${canRevealTeamDetails && editingTeamId === teamId ? teamEditFormHtml(team) : ""}
         </article>
@@ -3565,6 +4023,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     adminNotificationList.style.setProperty("display", showNotificationList ? "block" : "none", "important");
     if (adminNotificationListToggle) {
       adminNotificationListToggle.hidden = !state.admin;
+      adminNotificationListToggle.style.setProperty("display", state.admin ? "inline-grid" : "none", "important");
       adminNotificationListToggle.textContent = notificationListOpen ? "TUTUP NOTI" : "NOTI";
     }
     if (roster) {
@@ -3616,6 +4075,59 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       renderAdminNotificationList();
     });
   }
+
+  adminAddTeamToggle?.addEventListener("click", () => {
+    if (!state.admin || !adminAddTeamForm) return;
+    adminAddTeamForm.hidden = !adminAddTeamForm.hidden;
+    if (!adminAddTeamForm.hidden) adminAddTeamForm.querySelector('[name="team_name"]')?.focus();
+  });
+  adminAddTeamForm?.addEventListener("click", (event) => {
+    if (!event.target.closest("[data-admin-add-team-cancel]")) return;
+    adminAddTeamForm.reset();
+    adminAddTeamForm.hidden = true;
+    if (adminAddTeamStatus) adminAddTeamStatus.textContent = "";
+  });
+  adminAddTeamForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!state.admin) return;
+    const button = adminAddTeamForm.querySelector('[type="submit"]');
+    const data = new FormData(adminAddTeamForm);
+    data.set("action", "adminCreateTeam");
+    try {
+      button.disabled = true;
+      button.textContent = "MENYIMPAN...";
+      if (adminAddTeamStatus) adminAddTeamStatus.textContent = "Mencipta akaun team...";
+      const result = await apiPost(data);
+      adminAddTeamForm.reset();
+      adminAddTeamForm.hidden = true;
+      // Nama team yang dibuka dari Group Match sebelum ini boleh masih berada
+      // dalam kotak carian dan menyebabkan team baharu nampak seperti tiada.
+      teamSearchQuery = "";
+      if (teamSearchInput) teamSearchInput.value = "";
+      notificationListOpen = false;
+      expandedTeamId = null;
+      editingTeamId = null;
+      setState(result);
+      const createdTeamId = Number(result.created_team_id || 0);
+      if (createdTeamId && !state.teams.some((team) => Number(team.id || team.team_id) === createdTeamId)) {
+        const refreshed = await apiGet("state");
+        setState(refreshed);
+      }
+      requestAnimationFrame(() => {
+        if (!createdTeamId) return;
+        const createdRow = roster?.querySelector(`[data-team-edit="${createdTeamId}"]`)?.closest(".team-roster-item");
+        createdRow?.scrollIntoView({block:"center", behavior:"smooth"});
+      });
+      alert(result.message || "Team berjaya ditambah.");
+    } catch (error) {
+      if (adminAddTeamStatus) adminAddTeamStatus.textContent = error.message || "Team gagal ditambah.";
+    } finally {
+      if (button?.isConnected) {
+        button.disabled = false;
+        button.textContent = "SIMPAN TEAM";
+      }
+    }
+  });
 
   if (adminNotificationRows) {
     adminNotificationRows.addEventListener("click", (event) => {
@@ -3919,6 +4431,47 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     renderTopNotificationReminder();
   }
 
+  function scheduleMatchRoom(match){
+    const matchId = Number(match?.id || match?.match_id || 0);
+    const exact = state.rooms.find((room) => Number(room.match_id || 0) === matchId);
+    if (exact) return exact;
+    const teamAId = Number(match?.team_a_id || 0);
+    const teamBId = Number(match?.team_b_id || 0);
+    if (!teamAId || !teamBId) return null;
+    return state.rooms.find((room) => {
+      if (!['match','deal'].includes(String(room.room_type || ''))) return false;
+      const roomAId = Number(room.team_a_id || 0);
+      const roomBId = Number(room.team_b_id || 0);
+      return (roomAId === teamAId && roomBId === teamBId)
+        || (roomAId === teamBId && roomBId === teamAId);
+    }) || null;
+  }
+
+  function scheduleTeamActionsHtml(match){
+    const room = scheduleMatchRoom(match);
+    if (!room) {
+      const hasBothTeams = Number(match?.team_a_id || 0) > 0 && Number(match?.team_b_id || 0) > 0;
+      return `<div class="schedule-team-actions"><button type="button" class="${hasBothTeams ? "is-open-match" : ""}" ${hasBothTeams ? `data-schedule-match-open="${Number(match.id || match.match_id || 0)}"` : "disabled"}>${hasBothTeams ? "BUKA MATCH" : "MENUNGGU LAWAN"}</button></div>`;
+    }
+    const myTeamId = Number(state.team?.id || 0);
+    const attendance = room.attendance && typeof room.attendance === "object" ? room.attendance : {};
+    const confirmed = Boolean(room.my_attendance || attendance[String(myTeamId)] || attendance[myTeamId]);
+    let attendanceButton = "";
+    if (confirmed) {
+      attendanceButton = `<button type="button" class="is-attended" disabled>✓ HADIR</button>`;
+    } else if (room.attendance_open) {
+      attendanceButton = `<button type="button" class="is-attendance" data-schedule-attendance="${Number(room.match_id)}">TANDA HADIR</button>`;
+    } else if (room.attendance_closed) {
+      attendanceButton = `<button type="button" disabled>KEHADIRAN DITUTUP</button>`;
+    }
+    return `
+      <div class="schedule-team-actions">
+        <button type="button" class="is-open-match" data-schedule-room="${Number(room.id)}">BUKA MATCH</button>
+        ${attendanceButton}
+      </div>
+    `;
+  }
+
   function renderSchedule(){
     if (!scheduleList) return;
     collectScheduleDraft();
@@ -3938,7 +4491,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         <article class="match-card next-match-card">
           <p class="next-match-label">Next Match</p>
           <div class="next-match-row">
-            <div class="next-team">${team.logo_url ? `<img src="${escapeHtml(team.logo_url)}" alt="${escapeHtml(team.team_name)}">` : `<span class="team-roster-logo">${escapeHtml(initials(team.team_name))}</span>`}<p>${escapeHtml(team.team_name || "TEAM")}</p></div>
+            <div class="next-team">${team.logo_url ? `<img src="${escapeHtml(team.logo_url)}" alt="${escapeHtml(team.team_name)}">` : `<span class="team-roster-logo">${escapeHtml(initials(team.team_name))}</span>`}<p style="color:#22c55e!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important">${escapeHtml(team.team_name || "TEAM")}</p></div>
             <div class="next-center"><p class="next-status">Waiting</p><strong>VS</strong><p class="next-stage">TBD</p><p class="next-time">Admin belum assign jadual</p></div>
             <div class="next-team"><span class="team-roster-logo">?</span><p>TBD</p></div>
           </div>
@@ -3949,15 +4502,65 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       scheduleList.innerHTML = adminTools + adminScheduleHtml();
       return;
     }
-    scheduleList.innerHTML = state.matches.map((match) => `
+    const nextMatches = state.matches.filter((match) => String(match.status || "").toLowerCase() !== "completed");
+    const historyMatches = state.matches
+      .filter((match) => String(match.status || "").toLowerCase() === "completed")
+      .sort((a, b) => String(b.match_time || "").localeCompare(String(a.match_time || "")));
+    const nextMatchesHtml = nextMatches.length ? nextMatches.map((match) => {
+      const scheduleTime = formatScheduleDateTime(match.match_time);
+      const winnerNext = winnerNextTimeline(match);
+      return `
       <article class="match-card next-match-card">
-        <p class="next-match-label">Next Match</p>
+        <p class="next-match-title">${escapeHtml(match.match_name || "NEXT MATCH")}</p>
         <div class="next-match-row">
-          <div class="next-team">${match.team_a_logo ? `<img src="${escapeHtml(match.team_a_logo)}" alt="${escapeHtml(match.team_a_name)}">` : `<span class="team-roster-logo">${escapeHtml(initials(match.team_a_name))}</span>`}<p>${escapeHtml(match.team_a_name || "Team")}</p></div>
-          <div class="next-center"><p class="next-status">${escapeHtml(match.status || "Up Next")}</p><strong>VS</strong>${matchScoreHtml(match)}<p class="next-stage">${escapeHtml(match.match_name || "Match")}</p><p class="next-time">${escapeHtml(match.match_time || "TBD")}</p></div>
-          <div class="next-team">${match.team_b_logo ? `<img src="${escapeHtml(match.team_b_logo)}" alt="${escapeHtml(match.team_b_name)}">` : `<span class="team-roster-logo">?</span>`}<p>${escapeHtml(match.team_b_name || "TBD")}</p></div>
+          <div class="next-team">${match.team_a_logo ? `<img src="${escapeHtml(match.team_a_logo)}" alt="${escapeHtml(match.team_a_name)}">` : `<span class="team-roster-logo">${escapeHtml(initials(match.team_a_name))}</span>`}<p style="color:#fff!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important">${escapeHtml(match.team_a_name || "Team")}</p></div>
+          <div class="next-center"><strong>VS</strong><p class="next-date">${escapeHtml(scheduleTime.date)}</p><p class="next-time">${escapeHtml(scheduleTime.time)}</p></div>
+          <div class="next-team">${match.team_b_logo ? `<img src="${escapeHtml(match.team_b_logo)}" alt="${escapeHtml(match.team_b_name)}">` : `<span class="team-roster-logo">?</span>`}<p style="color:#fff!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important">${escapeHtml(match.team_b_name || "TBD")}</p></div>
         </div>
-      </article>`).join("");
+        ${winnerNext ? `<p class="winner-next-note"><span>JIKA MENANG</span> → ${escapeHtml(winnerNext.title)} · ${escapeHtml(winnerNext.date)}${winnerNext.time ? ` · ${escapeHtml(winnerNext.time)}` : ""}</p>` : ""}
+        ${scheduleTeamActionsHtml(match)}
+      </article>`;
+    }).join("") : `
+      <article class="match-card schedule-no-next-match">
+        <strong>TIADA NEXT MATCH BUAT MASA INI</strong>
+        <span>Jadual seterusnya akan dipaparkan selepas keputusan disahkan.</span>
+      </article>`;
+    scheduleList.innerHTML = nextMatchesHtml + scheduleHistoryHtml(historyMatches);
+  }
+
+  function scheduleHistoryHtml(matches){
+    if (!matches.length) return "";
+    return `
+      <details class="schedule-history">
+        <summary>
+          <span><b>HISTORY MATCH</b><small>${matches.length} match selesai</small></span>
+          <strong>BUKA</strong>
+        </summary>
+        <div class="schedule-history-list">
+          ${matches.map(scheduleHistoryCardHtml).join("")}
+        </div>
+      </details>`;
+  }
+
+  function scheduleHistoryCardHtml(match){
+    const scheduleTime = formatScheduleDateTime(match.match_time);
+    const pointA = match.team_a_point === null || match.team_a_point === undefined ? "-" : String(match.team_a_point);
+    const pointB = match.team_b_point === null || match.team_b_point === undefined ? "-" : String(match.team_b_point);
+    return `
+      <details class="schedule-history-card">
+        <summary>
+          <span>${escapeHtml(match.match_name || "MATCH")}</span>
+          <b>${escapeHtml(pointA)} - ${escapeHtml(pointB)}</b>
+        </summary>
+        <div class="schedule-history-detail">
+          <p>${escapeHtml(scheduleTime.date)} <span>${escapeHtml(scheduleTime.time)}</span></p>
+          <div>
+            <strong>${escapeHtml(match.team_a_name || "TEAM A")}</strong>
+            <b>${escapeHtml(pointA)} <i>VS</i> ${escapeHtml(pointB)}</b>
+            <strong>${escapeHtml(match.team_b_name || "TBD")}</strong>
+          </div>
+        </div>
+      </details>`;
   }
 
   function adminScheduleHtml(){
@@ -4015,24 +4618,33 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   function randomMatchToolHtml(){
     const stats = scheduleTeamStats();
-    const defaultCount = Math.min(10, stats.pending);
     const draft = scheduleDraft.random;
+    const teamPool = draft.team_pool === "winners" ? "winners" : "new";
+    const available = teamPool === "winners" ? stats.winners : stats.pending;
+    const defaultCount = Math.min(10, available);
     const requestedCount = Number(draft.team_limit || defaultCount || 1);
-    const teamLimit = stats.pending >= 1 ? Math.max(1, Math.min(requestedCount, stats.pending)) : 1;
-    const matchPrefix = draft.match_prefix || "Qualifier Match";
+    const teamLimit = available >= 1 ? Math.max(1, Math.min(requestedCount, available)) : 1;
+    const timelineChoices = state.timelineItems.filter((item) => {
+      const title = String(item.title || "").trim();
+      return title && !/(open|close)\s*register/i.test(title);
+    });
+    const matchPrefix = timelineChoices.some((item) => item.title === draft.match_prefix)
+      ? draft.match_prefix
+      : String(timelineChoices[0]?.title || "Qualifier 1 / Fasa 1 / BO3");
     const matchTime = draft.match_time || "";
     return `
       <form class="match-random-tool" data-random-match-form>
         <div>
           <p class="section-tag">Admin Match Generator</p>
           <h3>Auto Random Lawan</h3>
-          <small>${stats.pending} team baharu belum pernah diproses</small>
+          <small>${available} ${teamPool === "winners" ? "team layak menunggu next round" : "team baharu belum pernah diproses"}</small>
         </div>
-        <label><span>Saiz Batch</span><input type="number" name="team_limit" min="1" max="${Math.max(1, stats.pending)}" value="${escapeHtml(teamLimit)}" ${stats.pending < 1 ? "disabled" : ""}></label>
-        <label><span>Nama Match</span><input name="match_prefix" value="${escapeHtml(matchPrefix)}"></label>
+        <label><span>Pilih Kumpulan</span><select name="team_pool"><option value="new" ${teamPool === "new" ? "selected" : ""}>Team Belum Jadual</option><option value="winners" ${teamPool === "winners" ? "selected" : ""}>Layak Round Seterusnya</option></select></label>
+        <label><span>Saiz Batch</span><input type="number" name="team_limit" min="1" max="${Math.max(1, available)}" value="${escapeHtml(teamLimit)}" ${available < 1 ? "disabled" : ""}></label>
+        <label><span>Pilih Timeline</span><select name="match_prefix">${timelineChoices.map((item) => `<option value="${escapeHtml(item.title)}" ${item.title === matchPrefix ? "selected" : ""}>${escapeHtml(item.title)}</option>`).join("")}</select></label>
         <label><span>Tarikh / Masa</span><input type="datetime-local" name="match_time" value="${escapeHtml(matchTime)}"></label>
         <div class="match-random-actions">
-          <button class="btn primary" type="submit" ${stats.pending < 1 ? "disabled" : ""}>Generate Batch Baru</button>
+          <button class="btn primary" type="submit" ${available < 1 ? "disabled" : ""}>Generate Batch Baru</button>
           <button class="btn schedule-reset-button" type="button" data-reset-schedule ${state.matches.length ? "" : "disabled"}>Reset Semua Jadual</button>
         </div>
       </form>
@@ -4048,12 +4660,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     return {
       confirmed,
       scheduled,
-      pending: Math.max(confirmed - scheduled, 0)
+      pending: Math.max(confirmed - scheduled, 0),
+      winners: Number(state.winnerPool?.count || 0)
     };
   }
 
   function scheduleStatsHtml(){
     const stats = scheduleTeamStats();
+    const waitingTeams = Array.isArray(state.winnerPool?.teams) ? state.winnerPool.teams : [];
     return `
       <div class="schedule-status-grid" aria-label="Status proses jadual">
         <article>
@@ -4071,7 +4685,24 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           <strong>${stats.pending}</strong>
           <small>Team belum masuk jadual</small>
         </article>
+        <article class="${stats.winners ? "is-winner" : "is-clear"}" data-select-team-pool="winners" role="button" tabindex="0" title="Pilih pool pemenang untuk random next round">
+          <span>Layak Round Seterusnya</span>
+          <strong>${stats.winners}</strong>
+          <small>Pemenang belum dapat next match</small>
+        </article>
       </div>
+      <details class="admin-waiting-winners" ${waitingTeams.length ? "open" : ""}>
+        <summary><span>LEPAS NEXT ROUND, BELUM ADA JADUAL</span><strong>${waitingTeams.length}</strong></summary>
+        <div class="admin-waiting-winner-list">
+          ${waitingTeams.length ? waitingTeams.map((team) => `
+            <article>
+              <span class="team-roster-logo">${avatarHtml(initials(team.team_name), team.team_logo, team.team_name)}</span>
+              <div><b>${escapeHtml(team.team_name || "Team")}</b><small>${escapeHtml(team.match_name || "Match selesai")} · ${escapeHtml(team.score || "")}</small></div>
+              <strong>MENUNGGU</strong>
+            </article>
+          `).join("") : `<p>Semua pemenang sudah mempunyai jadual next round.</p>`}
+        </div>
+      </details>
     `;
   }
 
@@ -4138,6 +4769,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     if (randomForm) {
       const data = new FormData(randomForm);
       scheduleDraft.random = {
+        team_pool: String(data.get("team_pool") || "new"),
         team_limit: String(data.get("team_limit") || ""),
         match_prefix: String(data.get("match_prefix") || ""),
         match_time: String(data.get("match_time") || "")
@@ -4185,7 +4817,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const matchTime = String(match.match_time || "").trim();
       const startsAt = matchTime ? new Date(matchTime.replace(" ", "T")).getTime() : NaN;
       const hasStarted = Number.isFinite(startsAt) && Date.now() >= startsAt;
-      return belongsToTeam && hasStarted && !["completed", "hidden"].includes(String(match.status || ""));
+      return belongsToTeam && hasStarted && !match.my_result_submitted && !["completed", "hidden"].includes(String(match.status || ""));
     }) : [];
 
     resultMatchSelect.innerHTML = `<option value="">${eligibleMatches.length ? "Pilih match" : "Belum ada match yang sudah bermula"}</option>` + eligibleMatches.map((match) => `
@@ -4224,40 +4856,110 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     `;
   }
 
+  function renderQualifierFinalAdmin(){
+    if (!qualifierFinalAdmin) return;
+    if (!state.admin) {
+      qualifierFinalAdmin.hidden = true;
+      return;
+    }
+    qualifierFinalAdmin.hidden = false;
+    const brackets = Array.isArray(state.qualifierFinal?.brackets) ? state.qualifierFinal.brackets : [];
+    const current = brackets.find((item) => Number(item.bracket_no) === activeQualifierFinalBracket)
+      || {bracket_no:activeQualifierFinalBracket, entries:[]};
+    const dates = {1:"16 Ogos 2026", 2:"17 Ogos 2026", 3:"18 Ogos 2026", 4:"19 Ogos 2026"};
+    const acceptedTeams = state.teams.filter((team) => team.status === "accepted");
+    const usedTeamIds = new Set(brackets.flatMap((bracket) => bracket.entries || []).map((entry) => Number(entry.team_id || 0)).filter(Boolean));
+    const optionsFor = (selectedId) => `<option value="0">TBD / Pilih team</option>` + acceptedTeams
+      .filter((team) => Number(team.id) === Number(selectedId) || !usedTeamIds.has(Number(team.id)))
+      .map((team) => `<option value="${Number(team.id)}" ${Number(team.id) === Number(selectedId) ? "selected" : ""}>${escapeHtml(team.team_name)}${team.slot_no ? ` / Slot ${Number(team.slot_no)}` : ""}</option>`)
+      .join("");
+    qualifierFinalAdmin.innerHTML = `
+      <div class="qualifier-final-head">
+        <span><small>ADMIN QUALIFIER FINAL</small><strong>4 BRACKET / 32 TEAM</strong></span>
+        <b>${Number(state.qualifierFinal?.qualified_count || 0)} / 12 LAYAK</b>
+      </div>
+      <div class="qualifier-final-tabs">
+        ${[1,2,3,4].map((number) => `<button type="button" class="${activeQualifierFinalBracket === number ? "active" : ""}" data-qf-bracket="${number}">BRACKET ${number}</button>`).join("")}
+      </div>
+      <div class="qualifier-final-meta"><strong>BRACKET ${activeQualifierFinalBracket}</strong><span>${dates[activeQualifierFinalBracket]} / 9:00 PM</span></div>
+      <div class="qualifier-final-entry-list">
+        ${(current.entries || []).map((entry) => `
+          <form class="qualifier-final-entry ${entry.qualified ? "is-qualified" : ""}" data-qf-entry>
+            <input type="hidden" name="bracket_no" value="${activeQualifierFinalBracket}">
+            <input type="hidden" name="slot_no" value="${Number(entry.slot_no)}">
+            <b>${String(Number(entry.slot_no)).padStart(2,"0")}</b>
+            <label><span>Team</span><select name="team_id">${optionsFor(entry.team_id)}</select></label>
+            <label><span>Point</span><input type="number" name="points" min="0" max="9999" value="${entry.points ?? ""}" placeholder="0"></label>
+            <label><span>Rank</span><input type="number" name="placement" min="1" max="8" value="${entry.placement ?? ""}" placeholder="1-8"></label>
+            <button type="submit">${entry.team_id ? "SAVE" : "ADD"}</button>
+            ${entry.qualified ? `<em>LAYAK</em>` : ""}
+          </form>
+        `).join("")}
+      </div>
+      <p class="qualifier-final-note">Top 1, Top 2 dan Top 3 setiap bracket ditanda layak secara automatik. Jumlah akhir: 12 team ke Group Stage.</p>
+    `;
+  }
+
   function renderResultCheck(){
     if (!resultRoster) return;
     if (!state.admin) {
       resultRoster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">LOCK</span><div><h3>Admin sahaja</h3><p>Login admin untuk cek result match.</p></div><strong>Login</strong></article>`;
       return;
     }
-    if (!state.results.length) {
-      resultRoster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">RS</span><div><h3>Belum ada result</h3><p>Result team akan muncul selepas mereka update point.</p></div><strong>Empty</strong></article>`;
+    const searchTerm = String(resultTeamSearch?.value || "").trim().toLocaleLowerCase("ms-MY");
+    const matches = state.matches.filter((match) => {
+        if (!searchTerm) return true;
+        return [match.team_a_name, match.team_b_name]
+          .some((name) => String(name || "").toLocaleLowerCase("ms-MY").includes(searchTerm));
+      }).sort((a, b) => {
+        const aDone = String(a.status || "") === "completed" ? 1 : 0;
+        const bDone = String(b.status || "") === "completed" ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        return String(a.match_time || "9999").localeCompare(String(b.match_time || "9999"));
+      });
+    if (!matches.length) {
+      resultRoster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">RS</span><div><h3>${searchTerm ? "Team tidak dijumpai" : "Belum ada match"}</h3><p>${searchTerm ? "Cuba semak ejaan nama team." : "Match yang mempunyai dua team akan dipaparkan di sini."}</p></div><strong>Empty</strong></article>`;
       return;
     }
-    resultRoster.innerHTML = state.results.map((result) => {
-      const resultId = Number(result.id);
-      const sameMatchResults = state.results.filter((entry) => Number(entry.match_id) === Number(result.match_id));
-      const counterpart = sameMatchResults.find((entry) => Number(entry.team_id) !== Number(result.team_id));
-      const scoresMatch = counterpart
-        && Number(counterpart.team_a_point) === Number(result.team_a_point)
-        && Number(counterpart.team_b_point) === Number(result.team_b_point);
-      const logo = avatarHtml(initials(result.submitter_name), result.submitter_logo || "", result.submitter_name || "Team");
+    resultRoster.innerHTML = matches.map((match) => {
+      const matchId = Number(match.id);
+      const hasTeams = Number(match.team_a_id || 0) > 0 && Number(match.team_b_id || 0) > 0;
+      const completed = String(match.status || "") === "completed";
+      const editing = hasTeams && (!completed || editingResultMatchId === matchId);
+      const teamAPoint = match.team_a_point ?? "";
+      const teamBPoint = match.team_b_point ?? "";
       return `
-        <article class="team-roster-item">
-          <span class="team-roster-logo">${logo}</span>
-          <div>
-            <h3>${escapeHtml(result.submitter_name || "Team")}</h3>
-            <p>${escapeHtml(result.team_a_name)} ${Number(result.team_a_point)} - ${Number(result.team_b_point)} ${escapeHtml(result.team_b_name)}</p>
+        <article class="admin-result-match-card ${completed ? "is-completed" : "is-pending"}" data-result-match-card="${matchId}">
+          <div class="admin-result-card-head">
+            <span>
+              <small>${escapeHtml(formatMatchTime(match.match_time))}</small>
+              <strong>${escapeHtml(match.match_name || "Match")}</strong>
+            </span>
+            <b>${completed ? "SUDAH UPDATE" : (hasTeams ? "BELUM UPDATE" : "TUNGGU TEAM")}</b>
           </div>
-          <span class="team-admin-actions">
-            <button type="button" data-result-more="${resultId}">${expandedResultId === resultId ? "Hide" : "More Info"}</button>
-            ${result.status === "pending" && scoresMatch ? `<button type="button" data-approve-match-result="${Number(result.match_id)}">Sahkan Kedua-dua</button>` : ""}
-          </span>
-          <strong class="team-status ${result.status === "pending" ? "is-pending" : "is-confirm"}">${result.status === "pending" && counterpart && !scoresMatch ? "TIDAK SAMA" : escapeHtml(result.status || "pending")}</strong>
-          ${expandedResultId === resultId ? resultDetailHtml(result) : ""}
+          <div class="admin-result-score-row">
+            <label>
+              <span>${escapeHtml(match.team_a_name || "Team A")}</span>
+              ${editing ? `<input type="number" min="0" max="99" value="${escapeHtml(teamAPoint)}" data-result-team-a>` : `<strong>${Number(teamAPoint)}</strong>`}
+            </label>
+            <em>VS</em>
+            <label>
+              <span>${escapeHtml(match.team_b_name || "Team B")}</span>
+              ${editing ? `<input type="number" min="0" max="99" value="${escapeHtml(teamBPoint)}" data-result-team-b>` : `<strong>${Number(teamBPoint)}</strong>`}
+            </label>
+          </div>
+          <div class="admin-result-card-actions">
+            ${!hasTeams ? `<button type="button" class="is-muted" disabled>TUNGGU TEAM LENGKAP</button>` : (editing
+              ? `<button type="button" data-save-admin-result="${matchId}">${completed ? "SIMPAN EDIT" : "UPDATE POINT"}</button>${completed ? `<button type="button" class="is-muted" data-cancel-result-edit>BATAL</button>` : ""}`
+              : `<button type="button" data-edit-admin-result="${matchId}">EDIT POINT</button>`) }
+          </div>
         </article>
       `;
     }).join("");
+  }
+
+  if (resultTeamSearch) {
+    resultTeamSearch.addEventListener("input", renderResultCheck);
   }
 
   function renderRules(){
@@ -4296,6 +4998,40 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         </article>
       `;
     }).join("");
+  }
+
+  function renderTimeline(){
+    if (!timelineList) return;
+    const items = state.timelineItems.length ? state.timelineItems : defaultTimelineItems;
+    if (timelineActions) timelineActions.hidden = !state.admin;
+    if (timelineEditButton) timelineEditButton.hidden = !state.admin || editingTimeline;
+    if (timelineSaveButton) timelineSaveButton.hidden = !state.admin || !editingTimeline;
+    if (timelineCancelButton) timelineCancelButton.hidden = !state.admin || !editingTimeline;
+    timelineList.classList.toggle("is-editing", Boolean(state.admin && editingTimeline));
+    timelineList.innerHTML = items.map((item, index) => `
+      <article class="official-schedule-item ${item.final ? "is-final" : ""}" data-timeline-index="${index}">
+        ${state.admin && editingTimeline ? `
+          <label><small>Tarikh</small><input name="timeline_date" value="${escapeHtml(item.date || "")}" maxlength="80"></label>
+          <div class="timeline-edit-fields">
+            <label><small>Tajuk</small><input name="timeline_title" value="${escapeHtml(item.title || "")}" maxlength="120"></label>
+            <label><small>Nota / Masa</small><textarea name="timeline_note" rows="2" maxlength="300">${escapeHtml(item.note || "")}</textarea></label>
+          </div>
+        ` : `
+          <time>${escapeHtml(item.date || "-")}</time>
+          <div><h4>${escapeHtml(item.title || "-")}</h4>${String(item.note || "").split("\n").filter(Boolean).map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</div>
+        `}
+      </article>
+    `).join("");
+  }
+
+  function collectTimelineItems(){
+    return Array.from(timelineList?.querySelectorAll("[data-timeline-index]") || []).map((item) => ({
+      date: String(item.querySelector('[name="timeline_date"]')?.value || "").trim(),
+      title: String(item.querySelector('[name="timeline_title"]')?.value || "").trim(),
+      note: String(item.querySelector('[name="timeline_note"]')?.value || "").trim(),
+      final: Boolean(state.timelineItems[Number(item.dataset.timelineIndex)]?.final),
+      stage_code: String(state.timelineItems[Number(item.dataset.timelineIndex)]?.stage_code || "")
+    }));
   }
 
   function getRuleCards(){
@@ -4356,12 +5092,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   function sortedDealRooms(){
     return state.rooms.slice().sort((roomA, roomB) => {
-      const groupA = roomA.room_type === "group" ? 1 : 0;
-      const groupB = roomB.room_type === "group" ? 1 : 0;
-      if (groupA !== groupB) return groupB - groupA;
+      // INFO TOUR is the permanent announcement room and must always lead the list.
+      const pinRank = (room) => room.room_type === "info" ? 100 : (room.room_type === "group" ? 3 : (!state.admin && room.room_type === "admin" ? 2 : 1));
+      const rankA = pinRank(roomA);
+      const rankB = pinRank(roomB);
+      if (rankA !== rankB) return rankB - rankA;
 
-      const unreadA = roomIncomingUnread(roomA).length;
-      const unreadB = roomIncomingUnread(roomB).length;
+      const unreadA = roomUnreadCount(roomA);
+      const unreadB = roomUnreadCount(roomB);
       if (Boolean(unreadA) !== Boolean(unreadB)) return Number(Boolean(unreadB)) - Number(Boolean(unreadA));
 
       const latestA = Number(roomA.last_message_id || 0);
@@ -4371,9 +5109,192 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
+  function roomAttendanceCount(room){
+    const attendance = room?.attendance && typeof room.attendance === "object" ? room.attendance : {};
+    return [Number(room?.team_a_id || 0), Number(room?.team_b_id || 0)]
+      .filter((teamId) => teamId > 0 && Boolean(attendance[String(teamId)] || attendance[teamId]))
+      .length;
+  }
+
+  let readinessGuidingKey = "";
+  let readinessPendingMatchId = 0;
+  let readinessPendingMatchName = "";
+  let readinessSuccessUntil = 0;
+  let readinessSuccessTimer = 0;
+
+  function activeMatchReadinessRoom(){
+    if (!state.team || state.admin) return null;
+    const teamId = Number(state.team.id || 0);
+    return state.rooms
+      .filter((room) => ["match", "deal"].includes(String(room.room_type || ""))
+        && Number(room.match_id || 0) > 0
+        && room.match_status !== "completed"
+        && (room.my_attendance || room.attendance_open)
+        && [Number(room.team_a_id || 0), Number(room.team_b_id || 0)].includes(teamId)
+        && (!room.my_attendance || !room.my_readiness_message))
+      .sort((a, b) => {
+        const timeA = new Date(String(a.match_time || "2999-12-31").replace(" ", "T")).getTime();
+        const timeB = new Date(String(b.match_time || "2999-12-31").replace(" ", "T")).getTime();
+        return timeA - timeB || Number(a.match_id) - Number(b.match_id);
+      })[0] || null;
+  }
+
+  function readinessOverlay(){
+    let overlay = document.querySelector("[data-match-readiness]");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "match-readiness-overlay";
+      overlay.dataset.matchReadiness = "";
+      overlay.hidden = true;
+      document.body.appendChild(overlay);
+    }
+    return overlay;
+  }
+
+  function renderMatchReadiness(){
+    const overlay = readinessOverlay();
+    if (!state.team || state.admin) {
+      readinessPendingMatchId = 0;
+      readinessPendingMatchName = "";
+      readinessGuidingKey = "";
+      readinessSuccessUntil = 0;
+      window.clearTimeout(readinessSuccessTimer);
+      overlay.hidden = true;
+      return;
+    }
+    const room = activeMatchReadinessRoom();
+    if (!room) {
+      if (readinessSuccessUntil > Date.now()) {
+        overlay.hidden = false;
+        return;
+      }
+      if (readinessPendingMatchId) {
+        overlay.hidden = false;
+        overlay.dataset.matchId = String(readinessPendingMatchId);
+        overlay.dataset.step = "success";
+        overlay.innerHTML = `<section class="match-readiness-card is-success"><small>READY TO PLAY ✓</small><h3>Semua selesai!</h3><p>Kehadiran dan Group Match untuk <b>${escapeHtml(readinessPendingMatchName || "match anda")}</b> telah disahkan.<br>Semoga berjaya dalam perlawanan anda!</p><button type="button" data-readiness-done>Tutup · Good luck!</button></section>`;
+        readinessSuccessUntil = Date.now() + 10000;
+        window.clearTimeout(readinessSuccessTimer);
+        readinessSuccessTimer = window.setTimeout(() => {
+          readinessSuccessUntil = 0;
+          if (overlay.dataset.step === "success") overlay.hidden = true;
+        }, 10000);
+        readinessPendingMatchId = 0;
+        readinessPendingMatchName = "";
+      } else {
+        overlay.hidden = true;
+      }
+      return;
+    }
+
+    const attended = Boolean(room.my_attendance);
+    const step = attended ? "message" : "attendance";
+    const guideKey = `${Number(room.match_id)}:${step}`;
+    readinessPendingMatchId = Number(room.match_id);
+    readinessPendingMatchName = String(room.match_name || "Group Match");
+    if (readinessGuidingKey === guideKey) {
+      overlay.hidden = true;
+      return;
+    }
+    overlay.hidden = false;
+    overlay.dataset.matchId = String(room.match_id);
+    overlay.dataset.roomId = String(room.id);
+    overlay.dataset.step = step;
+    overlay.innerHTML = `
+      <section class="match-readiness-card">
+        <small>Persediaan wajib · ${escapeHtml(room.match_name || "Group Match")}</small>
+        <h3>${attended ? "Test Group Match" : "Sahkan kehadiran"}</h3>
+        <p>${attended ? "Kehadiran sudah disahkan. Sekarang hantar satu mesej dalam Group Match untuk memastikan chat team anda berfungsi." : "Team anda belum menanda hadir untuk match ini. Ikut panduan dan sahkan bahawa team mempunyai wakil."}</p>
+        <div class="match-readiness-steps">
+          <span class="${attended ? "is-done" : "is-current"}">1. Tanda tick kehadiran</span>
+          <span class="${attended ? "is-current" : ""}">2. Hantar mesej percubaan</span>
+        </div>
+        <button type="button" data-readiness-guide>${attended ? "Buka Group & Test Mesej" : "Tunjukkan Tempat Tick Hadir"}</button>
+      </section>`;
+  }
+
+  function openReadinessGuide(overlay){
+    const roomId = Number(overlay.dataset.roomId || 0);
+    const step = String(overlay.dataset.step || "attendance");
+    const room = state.rooms.find((entry) => Number(entry.id) === roomId);
+    if (!room) return;
+    readinessGuidingKey = `${Number(room.match_id)}:${step}`;
+    overlay.hidden = true;
+    openAppPanel("deal");
+    state.selectedRoomId = roomId;
+    if (dealApp) dealApp.classList.add("chat-open");
+    forceDealScrollToBottom = step === "message";
+    renderDeal();
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      const target = step === "attendance"
+        ? matchAttendance?.querySelector("[data-attendance-form]")
+        : chatForm;
+      target?.classList.add("readiness-guide-target");
+      target?.scrollIntoView({behavior:"smooth", block:"center"});
+      if (step === "message") {
+        const input = chatForm?.querySelector('[name="message"]');
+        if (input && !input.value.trim()) input.value = "Team kami hadir dan bersedia.";
+        input?.focus({preventScroll:true});
+      }
+      window.setTimeout(() => target?.classList.remove("readiness-guide-target"), 3000);
+    }));
+  }
+
+  document.addEventListener("click", (event) => {
+    const overlay = event.target.closest("[data-match-readiness]");
+    if (!overlay) return;
+    if (event.target.closest("[data-readiness-guide]")) openReadinessGuide(overlay);
+    if (event.target.closest("[data-readiness-done]")) {
+      readinessGuidingKey = "";
+      readinessSuccessUntil = 0;
+      window.clearTimeout(readinessSuccessTimer);
+      overlay.hidden = true;
+    }
+  });
+
+  function isAssignedMatchRoom(room){
+    return ["match", "deal"].includes(String(room?.room_type || ""))
+      && Number(room?.team_a_id || 0) > 0
+      && Number(room?.team_b_id || 0) > 0;
+  }
+
+  function isSelfManagedQualifierRoom(room){
+    if (!["match", "deal"].includes(String(room?.room_type || ""))) return false;
+    const name = String(room?.match_name || "").toLocaleLowerCase("en-MY");
+    return !name.includes("final") && /qualifier\s*[123]\b/i.test(name);
+  }
+
+  function teamHowToRoom(){
+    if (!state.team || state.admin) return null;
+    const now = Date.now();
+    return state.rooms
+      .filter(isSelfManagedQualifierRoom)
+      .sort((a, b) => {
+        const timeA = parseMysqlDate(a.match_time)?.getTime() || Number.MAX_SAFE_INTEGER;
+        const timeB = parseMysqlDate(b.match_time)?.getTime() || Number.MAX_SAFE_INTEGER;
+        const pastA = timeA < now ? 1 : 0;
+        const pastB = timeB < now ? 1 : 0;
+        return pastA - pastB || timeA - timeB;
+      })[0] || null;
+  }
+
+  function teamHowToDealCard(){
+    const room = teamHowToRoom();
+    if (!room) return "";
+    return `<button class="deal-contact-item deal-how-to-card" type="button" data-open-team-how-to="${Number(room.id)}">
+      <span class="deal-contact-avatar">?</span>
+      <span class="deal-contact-main"><strong>CARA BERMAIN</strong><span>Panduan match, update keputusan dan report admin.</span></span>
+      <span class="deal-contact-meta"><b>BUKA →</b></span>
+    </button>`;
+  }
+
   function adminDealFilterHtml(){
     if (!state.admin) return "";
-    const unread = state.rooms.reduce((sum, room) => sum + roomIncomingUnread(room).length, 0);
+    const personalUnread = state.rooms.filter((room) => String(room.room_type || "") === "admin" && roomUnreadCount(room) > 0).length;
+    const groupUnread = state.rooms.filter((room) => ["group", "match", "deal"].includes(String(room.room_type || "")) && roomUnreadCount(room) > 0).length;
+    const awaitingReply = state.rooms.filter((room) => Boolean(room.awaiting_admin_reply)).length;
+    const checkingCount = state.rooms.filter((room) => Boolean(room.report_match) || (isAssignedMatchRoom(room) && roomAttendanceCount(room) < 2)).length;
+    const readyCount = state.rooms.filter((room) => isAssignedMatchRoom(room) && roomAttendanceCount(room) === 2).length;
     const dates = Array.from(new Set(state.rooms
       .filter((room) => ["match", "deal"].includes(String(room.room_type || "")) && room.match_date)
       .map((room) => String(room.match_date))))
@@ -4383,17 +5304,20 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       <div class="deal-filter-bar">
         <div class="deal-filter-tabs" role="tablist" aria-label="Filter chat">
           <button type="button" class="${dealRoomFilter === "all" ? "is-active" : ""}" data-deal-filter="all">All Chat</button>
-          <button type="button" class="${dealRoomFilter === "match" ? "is-active" : ""}" data-deal-filter="match">Group Match</button>
-          <button type="button" class="${dealRoomFilter === "unread" ? "is-active" : ""}" data-deal-filter="unread">Unread${unread ? ` <b>${unread > 99 ? "99+" : unread}</b>` : ""}</button>
+          <button type="button" class="${dealRoomFilter === "checking" ? "is-active" : ""}" data-deal-filter="checking">Checking${checkingCount ? ` <b>${checkingCount > 99 ? "99+" : checkingCount}</b>` : ""}</button>
+          <button type="button" class="${dealRoomFilter === "match" ? "is-active" : ""}" data-deal-filter="match">Group Match${readyCount ? ` <b>${readyCount > 99 ? "99+" : readyCount}</b>` : ""}</button>
+          <button type="button" class="${dealRoomFilter === "unread-personal" ? "is-active" : ""}" data-deal-filter="unread-personal">Unread Personal${personalUnread ? ` <b>${personalUnread > 99 ? "99+" : personalUnread}</b>` : ""}</button>
+          <button type="button" class="${dealRoomFilter === "unread-group" ? "is-active" : ""}" data-deal-filter="unread-group">Unread Group${groupUnread ? ` <b>${groupUnread > 99 ? "99+" : groupUnread}</b>` : ""}</button>
+          <button type="button" class="${dealRoomFilter === "unreplied" ? "is-active" : ""}" data-deal-filter="unreplied">Belum Reply${awaitingReply ? ` <b>${awaitingReply > 99 ? "99+" : awaitingReply}</b>` : ""}</button>
         </div>
         <label class="deal-match-search">
-          <span>NO. MATCH</span>
-          <input type="search" inputmode="numeric" autocomplete="off" data-deal-match-search
-            value="${escapeHtml(dealMatchNumberQuery)}" placeholder="Contoh: 01, 2, 25"
-            aria-label="Cari deal chat mengikut nombor match">
+          <span>CARI MATCH</span>
+          <input type="search" autocomplete="off" data-deal-match-search
+            value="${escapeHtml(dealMatchNumberQuery)}" placeholder="Nama team, slot atau no. match"
+            aria-label="Cari Group Match melalui nama team, slot atau nombor match">
           ${dealMatchNumberQuery ? `<button type="button" data-clear-deal-match-search aria-label="Kosongkan carian">&times;</button>` : ""}
         </label>
-        ${dealRoomFilter === "match" ? `
+        ${["checking", "match"].includes(dealRoomFilter) ? `
           <select class="deal-filter-date" data-deal-date aria-label="Pilih tarikh match">
             <option value="">Semua tarikh</option>
             ${dates.map((date) => `<option value="${escapeHtml(date)}" ${date === dealMatchDate ? "selected" : ""}>${escapeHtml(date)}</option>`).join("")}
@@ -4403,22 +5327,52 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     `;
   }
 
+  function rememberDealFilterScroll(){
+    const tabs = dealList?.querySelector(".deal-filter-tabs");
+    if (tabs) dealFilterScrollLeft = tabs.scrollLeft;
+  }
+
+  function restoreDealFilterScroll(){
+    window.requestAnimationFrame(() => {
+      const tabs = dealList?.querySelector(".deal-filter-tabs");
+      if (!tabs) return;
+      tabs.scrollLeft = dealFilterScrollLeft;
+      window.requestAnimationFrame(() => { tabs.scrollLeft = dealFilterScrollLeft; });
+    });
+  }
+
   function filteredDealRooms(){
     let rooms = sortedDealRooms();
-    if (state.admin && dealRoomFilter === "unread") {
-      rooms = rooms.filter((room) => roomIncomingUnread(room).length > 0);
+    if (state.admin && dealRoomFilter === "unread-personal") {
+      rooms = rooms.filter((room) => String(room.room_type || "") === "admin" && roomUnreadCount(room) > 0);
+    } else if (state.admin && dealRoomFilter === "unread-group") {
+      rooms = rooms.filter((room) => ["group", "match", "deal"].includes(String(room.room_type || "")) && roomUnreadCount(room) > 0);
+    } else if (state.admin && dealRoomFilter === "unreplied") {
+      rooms = rooms.filter((room) => Boolean(room.awaiting_admin_reply));
+    } else if (state.admin && dealRoomFilter === "checking") {
+      rooms = rooms.filter((room) => (Boolean(room.report_match) || (isAssignedMatchRoom(room) && roomAttendanceCount(room) < 2))
+        && (!dealMatchDate || String(room.match_date || "") === dealMatchDate))
+        .sort((a, b) => String(a.match_date || "").localeCompare(String(b.match_date || "")) || Number(a.id) - Number(b.id));
     } else if (state.admin && dealRoomFilter === "match") {
       rooms = rooms.filter((room) => {
-      const isMatch = ["match", "deal"].includes(String(room.room_type || ""));
-      return isMatch && (!dealMatchDate || String(room.match_date || "") === dealMatchDate);
+      return isAssignedMatchRoom(room) && roomAttendanceCount(room) === 2
+        && (!dealMatchDate || String(room.match_date || "") === dealMatchDate);
       }).sort((a, b) => String(a.match_date || "").localeCompare(String(b.match_date || "")) || Number(a.id) - Number(b.id));
     }
-    const searchedNumber = Number(String(dealMatchNumberQuery || "").replace(/\D/g, ""));
-    if (state.admin && searchedNumber > 0) {
+    const searchQuery = String(dealMatchNumberQuery || "").trim().toLocaleLowerCase("ms-MY");
+    if (state.admin && searchQuery) {
       rooms = rooms.filter((room) => {
         if (!["match", "deal"].includes(String(room.room_type || ""))) return false;
+        const searchableNames = [room.team_a_name, room.team_b_name]
+          .map((value) => String(value || "").toLocaleLowerCase("ms-MY"));
+        if (searchableNames.some((name) => name.includes(searchQuery))) return true;
+        const slotQuery = searchQuery.match(/^(?:slot\s*)?#?(\d+)$/i);
+        if (slotQuery) {
+          const slotNumber = Number(slotQuery[1]);
+          if ([Number(room.team_a_slot || 0), Number(room.team_b_slot || 0)].includes(slotNumber)) return true;
+        }
         const numberMatch = String(room.match_name || "").match(/(\d+)\s*$/);
-        return numberMatch && Number(numberMatch[1]) === searchedNumber;
+        return Boolean(numberMatch && slotQuery && Number(numberMatch[1]) === Number(slotQuery[1]));
       });
     }
     return rooms;
@@ -4428,7 +5382,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     let previousGroup = "";
     return rooms.map((room, index) => {
       let heading = "";
-      if (state.admin && dealRoomFilter === "match") {
+      if (state.admin && ["checking", "match"].includes(dealRoomFilter)) {
         const date = room.match_date || "Tarikh belum ditetapkan";
         const sameDateBefore = rooms.slice(0, index).filter((entry) => String(entry.match_date || "") === String(room.match_date || "")).length;
         const chunk = Math.floor(sameDateBefore / 10) + 1;
@@ -4438,11 +5392,11 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           heading = `<div class="deal-room-group-title"><span>${escapeHtml(date)}</span><b>Grouping ${chunk}</b></div>`;
         }
       }
-      const unread = roomIncomingUnread(room).length;
-      const attendance = room.attendance && typeof room.attendance === "object" ? room.attendance : {};
-      const attendanceCount = [Number(room.team_a_id || 0), Number(room.team_b_id || 0)]
-        .filter((teamId) => teamId > 0 && Boolean(attendance[String(teamId)] || attendance[teamId]))
-        .length;
+      const unread = roomUnreadCount(room);
+      const awaitingReplyBadge = state.admin && room.awaiting_admin_reply
+        ? `<b class="chat-reply-needed-badge">REPLY</b>`
+        : "";
+      const attendanceCount = roomAttendanceCount(room);
       const attendanceBadge = ["match", "deal"].includes(String(room.room_type || ""))
         ? `<b class="deal-attendance-badge ${attendanceCount === 2 ? "is-complete" : (attendanceCount === 1 ? "is-partial" : "is-empty")}" title="${attendanceCount} daripada 2 team sudah sahkan hadir">✓ ${attendanceCount}</b>`
         : "";
@@ -4450,20 +5404,38 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         ? (room.team_status === "accepted" ? "is-confirmed-team" : (room.team_status === "pending" ? "is-pending-team" : ""))
         : "";
       const completedClass = room.match_status === "completed" ? "is-completed-match" : "";
-      const roomOnlineCount = Number(Boolean(room.team_a_online)) + Number(Boolean(room.team_b_online));
+      const isMatchRoom = ["match", "deal"].includes(String(room.room_type || ""));
+      const isAdminRoom = String(room.room_type || "") === "admin";
+      const currentTeamId = Number(state.team?.id || 0);
+      const currentIsTeamA = currentTeamId && currentTeamId === Number(room.team_a_id || 0);
+      const opponentName = currentIsTeamA ? room.team_b_name : room.team_a_name;
+      const opponentLogo = currentIsTeamA ? room.team_b_logo : room.team_a_logo;
+      const listAvatar = isMatchRoom
+        ? (state.admin
+            ? "VS"
+            : avatarHtml(initials(opponentName || "VS"), opponentLogo || "", opponentName || "Team lawan"))
+        : (isAdminRoom
+            ? (state.admin
+                ? roomAvatarHtml(room)
+                : avatarHtml("GN", "images/logo baru gnex .webp", "GNEX Admin"))
+            : roomAvatarHtml(room));
+      const listTitle = isMatchRoom
+        ? (room.match_name || "Group Match")
+        : (isAdminRoom ? (state.admin ? (room.title || "TEAM") : "ADMIN") : (room.title || "Room"));
+      const roomDetails = `<span>${escapeHtml(room.last_message || "Belum ada chat.")}</span>`;
       return `${heading}
-        <button class="deal-contact-item ${completedClass} ${Number(room.id) === Number(state.selectedRoomId) ? "is-active" : ""}" type="button" data-room-id="${Number(room.id)}">
-          <span class="deal-contact-avatar">${roomAvatarHtml(room)}</span>
+        <button class="deal-contact-item ${isMatchRoom ? "is-match-list-card" : ""} ${isAdminRoom && !state.admin ? "is-admin-list-card" : ""} ${state.admin && room.admin_checked ? "is-admin-checked" : ""} ${completedClass} ${Number(room.id) === Number(state.selectedRoomId) ? "is-active" : ""}" type="button" data-room-id="${Number(room.id)}">
+          <span class="deal-contact-avatar">${listAvatar}</span>
           <span class="deal-contact-main">
-            <strong class="${roomTeamClass}">${escapeHtml(room.title || "Room")} ${roomOnlineCount ? `<span class="room-online-count"><i></i>${roomOnlineCount} ONLINE</span>` : ""}</strong>
-            <span>${escapeHtml(room.match_name || room.subtitle || "Clash League")}</span>
-            ${room.match_time ? `<span>${escapeHtml(formatMatchTime(room.match_time))}</span>` : ""}
-            <span>${escapeHtml(room.last_message || "Belum ada chat.")}</span>
+            <strong class="${roomTeamClass}">${escapeHtml(listTitle)}</strong>
+            ${roomDetails}
           </span>
           <span class="deal-contact-meta">
+            ${state.admin && isMatchRoom ? `<label class="team-admin-check deal-room-admin-check" title="Tanda room sudah disemak"><input type="checkbox" data-room-admin-check="${Number(room.id)}" ${room.admin_checked ? "checked" : ""}><span></span></label>` : ""}
             ${attendanceBadge}
+            ${awaitingReplyBadge}
             ${unread ? `<b class="chat-unread-badge">${unread > 9 ? "9+" : unread}</b>` : ""}
-            <span>${room.match_status === "completed" ? "COMPLETED" : escapeHtml(room.status || "open")}</span>
+            ${room.match_status === "completed" ? `<span>COMPLETED</span>` : ""}
           </span>
         </button>`;
     }).join("");
@@ -4480,25 +5452,42 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
     const attendance = room.attendance && typeof room.attendance === "object" ? room.attendance : {};
     const teams = [
-      {id: Number(room.team_a_id || 0), name: room.team_a_name || "TBD", online: Boolean(room.team_a_online)},
-      {id: Number(room.team_b_id || 0), name: room.team_b_name || "TBD", online: Boolean(room.team_b_online)}
+      {id: Number(room.team_a_id || 0), name: room.team_a_name || "TBD", online: Boolean(room.team_a_online), lastSeen: room.team_a_last_seen || ""},
+      {id: Number(room.team_b_id || 0), name: room.team_b_name || "TBD", online: Boolean(room.team_b_online), lastSeen: room.team_b_last_seen || ""}
     ];
     const teamCards = teams.map((team) => {
       const confirmedAt = team.id ? String(attendance[String(team.id)] || attendance[team.id] || "") : "";
       return `
         <span class="attendance-team ${state.admin && team.id ? "is-admin-link" : ""} ${confirmedAt ? "is-confirmed" : ""}" ${state.admin && team.id ? `data-attendance-team-profile="${team.id}" data-attendance-team-name="${escapeHtml(team.name)}" role="button" tabindex="0"` : ""}>
-          <b>${escapeHtml(team.name)} ${team.online ? `<span class="team-online-badge"><i></i>ONLINE</span>` : ""}</b>
-          <small>${confirmedAt ? `✓ Ada wakil · ${escapeHtml(formatMatchTime(confirmedAt))}` : "Belum sahkan hadir"}</small>
+          <b>${escapeHtml(team.name)}</b>
+          <small>${confirmedAt ? "✓ HADIR" : "BELUM SAHKAN"} · ${team.online ? "ONLINE" : escapeHtml(formatLastSeen(team.lastSeen))}</small>
+          ${state.admin && team.id ? `<em>Klik: buka Team &amp; WhatsApp →</em>` : ""}
         </span>
       `;
     }).join("");
+    const resultStateLabels = {
+      none: "BELUM ADA LAPORAN",
+      waiting: "MENUNGGU PIHAK LAWAN",
+      matched: "LAPORAN SEPADAN",
+      disputed: "PERTIKAIAN · ADMIN AKAN SEMAK",
+      approved: "KEPUTUSAN DISAHKAN"
+    };
+    const resultState = String(room.result_state || "none");
+    const resultStatusHtml = state.admin ? `
+      <div class="match-result-progress is-${escapeHtml(resultState)}">
+        <span><small>${escapeHtml(room.team_a_name || "Team A")}</small><b>${room.team_a_result_submitted ? "SUDAH HANTAR" : "MENUNGGU"}</b></span>
+        <span><small>${escapeHtml(room.team_b_name || "Team B")}</small><b>${room.team_b_result_submitted ? "SUDAH HANTAR" : "MENUNGGU"}</b></span>
+        <strong>${escapeHtml(resultStateLabels[resultState] || resultStateLabels.none)}</strong>
+      </div>` : "";
 
     const myTeamId = Number(state.team?.id || 0);
     const myConfirmed = myTeamId ? String(attendance[String(myTeamId)] || attendance[myTeamId] || "") : "";
     let actionHtml = "";
     if (state.team && teams.some((team) => team.id === myTeamId)) {
       if (myConfirmed) {
-        actionHtml = `<strong class="attendance-result">✓ Kehadiran disahkan</strong>`;
+        actionHtml = state.team?.is_test_account && state.team?.team_name === "GNEX WEB TESTER"
+          ? `<div class="test-attendance-reset"><strong class="attendance-result">✓ Kehadiran disahkan</strong><button type="button" data-cancel-attendance="${Number(room.match_id)}">Cancel Hadir (Test)</button></div>`
+          : `<strong class="attendance-result">✓ Kehadiran disahkan</strong>`;
       } else if (room.attendance_open) {
         actionHtml = `
           <form data-attendance-form>
@@ -4520,19 +5509,46 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     matchAttendance.innerHTML = `
       <div class="attendance-heading">
         <span><b>Tarikh & Masa Match</b><strong>${escapeHtml(formatMatchTime(room.match_time))}</strong></span>
-        <small>Setiap team boleh sahkan kehadiran sebaik sahaja jadual match dikeluarkan.</small>
+        <small>Sila sahkan kehadiran anda untuk bermain match ini.</small>
       </div>
       <div class="attendance-teams">${teamCards}</div>
       ${actionHtml}
+      ${resultStatusHtml}
     `;
+  }
+
+  function personalRoomMatchTarget(room){
+    if (!state.admin || String(room?.room_type || "") !== "admin") return null;
+    const teamId = Number(room?.team_a_id || room?.team_b_id || 0);
+    if (!teamId) return null;
+    const candidates = state.matches
+      .filter((match) => Number(match.team_a_id || 0) === teamId || Number(match.team_b_id || 0) === teamId)
+      .sort((a, b) => {
+        const rank = (match) => ["live", "up_next"].includes(String(match.status || "")) ? 0 : 1;
+        const rankDiff = rank(a) - rank(b);
+        if (rankDiff) return rankDiff;
+        const timeA = parseMysqlDate(a.match_time)?.getTime() || 0;
+        const timeB = parseMysqlDate(b.match_time)?.getTime() || 0;
+        return rank(a) === 0 ? timeA - timeB : timeB - timeA;
+      });
+    for (const match of candidates) {
+      const matchId = Number(match.id || match.match_id || 0);
+      const matchRoom = state.rooms.find((entry) =>
+        ["match", "deal"].includes(String(entry.room_type || ""))
+        && Number(entry.match_id || 0) === matchId
+      );
+      if (matchRoom) return {match, room:matchRoom};
+    }
+    return null;
   }
 
   function renderDeal(){
     if (!dealList || !dealMessages) return;
+    rememberDealFilterScroll();
     if (renderedDealRoomId) {
       dealScrollPositions[renderedDealRoomId] = {
         top: dealMessages.scrollTop,
-        nearBottom: dealMessages.scrollHeight - dealMessages.clientHeight - dealMessages.scrollTop < 80
+        nearBottom: dealMessages.scrollHeight - dealMessages.clientHeight - dealMessages.scrollTop < 16
       };
     }
     const isGuestChat = !state.chatTeam && !state.admin;
@@ -4556,6 +5572,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const emptyTitle = state.admin ? "Belum ada chat team" : "Belum ada room";
       const emptyText = state.admin ? "Pilih New Chat untuk mula chat dengan team yang daftar." : "Room admin akan dibuat selepas login team.";
       dealList.innerHTML = `${adminFilters}${adminNewChatTool}<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>${emptyTitle}</h3><p>${emptyText}</p></div><strong>Empty</strong></article>`;
+      restoreDealFilterScroll();
       dealMessages.innerHTML = `<p class="profile-empty">${emptyText}</p>`;
       return;
     }
@@ -4569,19 +5586,36 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       || state.rooms[0];
     const selectedRoomId = Number(selected.id);
     const isQuestionRoom = String(selected.room_type || "") === "group";
+    const isInfoRoom = String(selected.room_type || "") === "info";
+    const isMatchChatRoom = ["match", "deal"].includes(String(selected.room_type || ""));
+    const personalMatchTarget = personalRoomMatchTarget(selected);
     const enteringQuestionRoom = isQuestionRoom && renderedDealRoomId !== selectedRoomId;
     state.selectedRoomId = selectedRoomId;
     dealList.innerHTML = adminFilters + adminNewChatTool + (displayRooms.length ? renderDealRoomItems(displayRooms) : emptyFilter);
+    restoreDealFilterScroll();
     const chatScreenHead = dealChatName?.closest(".deal-chat-screen-head");
     if (chatScreenHead) chatScreenHead.classList.toggle("is-question-room", isQuestionRoom);
+    if (chatScreenHead) chatScreenHead.classList.toggle("is-info-room", isInfoRoom);
+    if (chatScreenHead) chatScreenHead.classList.toggle("is-match-room", isMatchChatRoom);
     if (dealChatAvatar) {
-      dealChatAvatar.hidden = isQuestionRoom;
-      if (!isQuestionRoom) dealChatAvatar.innerHTML = roomAvatarHtml(selected);
+      dealChatAvatar.hidden = isQuestionRoom || isMatchChatRoom;
+      if (!isQuestionRoom && !isMatchChatRoom) dealChatAvatar.innerHTML = roomAvatarHtml(selected);
     }
-    if (dealChatName) dealChatName.textContent = selected.title || "Room";
+    if (dealChatName) dealChatName.textContent = isMatchChatRoom ? (selected.match_name || "GROUP MATCH") : (selected.title || "Room");
     if (dealChatName) {
       dealChatName.classList.toggle("is-confirmed-team", selected.room_type === "admin" && selected.team_status === "accepted");
       dealChatName.classList.toggle("is-pending-team", selected.room_type === "admin" && selected.team_status === "pending");
+    }
+    if (personalMatchRoomButton) {
+      personalMatchRoomButton.hidden = !personalMatchTarget;
+      if (personalMatchTarget) {
+        const matchName = String(personalMatchTarget.match.match_name || "GROUP MATCH");
+        personalMatchRoomButton.textContent = matchName;
+        personalMatchRoomButton.title = `Buka ${matchName}`;
+        personalMatchRoomButton.dataset.roomId = String(personalMatchTarget.room.id || 0);
+      } else {
+        personalMatchRoomButton.removeAttribute("data-room-id");
+      }
     }
     if (dealChatSubtitle) {
       const matchMeta = selected.match_time
@@ -4603,7 +5637,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const showQuestionIntro = isQuestionRoom
         && questionIntroRoomId === selectedRoomId
         && Date.now() < questionIntroVisibleUntil;
-      dealChatSubtitle.hidden = isQuestionRoom ? !showQuestionIntro : false;
+      dealChatSubtitle.hidden = isMatchChatRoom || (isQuestionRoom ? !showQuestionIntro : false);
     }
     if (dealChatStatus) {
       const confirmedTeams = state.teams.filter((team) => team.status === "accepted");
@@ -4613,9 +5647,62 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         ? `${onlineTeams.length} / ${confirmedTeams.length} ONLINE`
         : (selected.status || "open");
       dealChatStatus.classList.toggle("is-online-summary", isGroupRoom);
+      dealChatStatus.hidden = isMatchChatRoom || isInfoRoom;
       dealChatStatus.title = isGroupRoom
         ? `${onlineTeams.length} daripada ${confirmedTeams.length} team sedang online`
         : "";
+    }
+    if (chatForm) {
+      chatForm.hidden = isInfoRoom && !state.admin;
+      chatForm.classList.toggle("info-tour-composer", isInfoRoom && Boolean(state.admin));
+      const imagePicker = chatForm.querySelector("[data-info-image-picker]");
+      const allowChatImage = Boolean(state.admin || (!isInfoRoom && state.team));
+      chatForm.classList.toggle("image-send-mode", allowChatImage);
+      if (imagePicker) imagePicker.hidden = !allowChatImage;
+      const normalSendButton = chatForm.querySelector(".chat-send-button");
+      if (normalSendButton) normalSendButton.hidden = isInfoRoom;
+      const importantSendButton = chatForm.querySelector("[data-important-send]");
+      if (importantSendButton) importantSendButton.hidden = !state.admin || !isInfoRoom;
+      const messageInput = chatForm.querySelector('[name="message"]');
+      if (messageInput) messageInput.placeholder = isInfoRoom ? "Tulis pengumuman INFO TOUR..." : "Tulis mesej...";
+    }
+    const showMatchHowTo = isMatchChatRoom && matchHowToRoomId === selectedRoomId;
+    const dealChatScreen = chatScreenHead?.closest(".deal-chat-screen");
+    if (dealChatScreen) dealChatScreen.classList.toggle("how-to-open", showMatchHowTo);
+    if (matchHowToButton) matchHowToButton.hidden = !isMatchChatRoom;
+    if (adminReportMatchButton) {
+      const isReportMatch = Boolean(selected.report_match);
+      adminReportMatchButton.hidden = !state.admin || isInfoRoom;
+      adminReportMatchButton.classList.toggle("is-marked", isReportMatch);
+      adminReportMatchButton.textContent = isReportMatch ? "Reported" : "Report";
+      adminReportMatchButton.title = isReportMatch
+        ? "Buang chat ini daripada Report Match / Checking."
+        : "Tanda chat ini sebagai Report Match dan masukkan ke Checking.";
+    }
+    if (matchAdminPointButton) {
+      const pointAlreadyUpdated = isMatchChatRoom && String(selected.result_state || "") === "approved";
+      matchAdminPointButton.hidden = !isMatchChatRoom || !state.admin;
+      matchAdminPointButton.classList.toggle("is-updated", pointAlreadyUpdated);
+      matchAdminPointButton.title = pointAlreadyUpdated ? "Point match ini sudah dikemas kini." : "Buka Cek Result untuk update point.";
+    }
+    if (matchHowToView) matchHowToView.hidden = !showMatchHowTo;
+    if (showMatchHowTo) syncMatchRoomSettings();
+    if (matchUpdatePointButton) {
+      const myTeamId = Number(state.team?.id || 0);
+      const myResultSubmitted = myTeamId > 0 && (
+        (myTeamId === Number(selected.team_a_id || 0) && Boolean(selected.team_a_result_submitted))
+        || (myTeamId === Number(selected.team_b_id || 0) && Boolean(selected.team_b_result_submitted))
+      );
+      const bothTeamsPresent = roomAttendanceCount(selected) === 2;
+      const matchStartsAt = selected.match_time ? new Date(String(selected.match_time).replace(" ", "T")) : null;
+      const matchHasStarted = Boolean(matchStartsAt && !Number.isNaN(matchStartsAt.getTime()) && Date.now() >= matchStartsAt.getTime());
+      matchUpdatePointButton.hidden = !isMatchChatRoom || !state.team;
+      matchUpdatePointButton.disabled = !matchHasStarted || !bothTeamsPresent || myResultSubmitted || selected.result_state === "approved";
+      matchUpdatePointButton.textContent = myResultSubmitted ? "Dihantar" : "Up Point";
+      matchUpdatePointButton.title = !matchHasStarted
+        ? "Update Point dibuka selepas waktu match bermula."
+        : (!bothTeamsPresent ? "Kedua-dua team perlu sahkan kehadiran dahulu." : "Buka borang Update Point");
+      chatForm?.classList.toggle("match-point-mode", !matchUpdatePointButton.hidden);
     }
     renderMatchAttendance(selected);
     const showPinnedInfo = selected.room_type === "group" && (Boolean(state.pinnedInfo) || Boolean(state.admin));
@@ -4627,7 +5714,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       pinnedAckCount.textContent = `${Number(pinnedAck.accepted || 0)} / ${Number(pinnedAck.total || 0)} TEAM TERIMA`;
     }
     if (pinnedActionButton) {
-      const pinnedActionLabels = {jadual:"BUKA JADUAL", rules:"BACA RULES", profile:"BUKA PROFILE", "all-team":"BUKA TEAM", deal:"BUKA GROUP MATCH"};
+      const pinnedActionLabels = {jadual:"BUKA JADUAL", rules:"BACA RULES", profile:"BUKA PROFILE", "all-team":"BUKA TEAM", deal:"BUKA GROUP MATCH", "cara-bermain":"CARA BERMAIN", "report-match":"REPORT MATCH"};
       const target = String(state.pinnedActionTarget || "");
       pinnedActionButton.hidden = !pinnedActionLabels[target];
       pinnedActionButton.dataset.pinnedAction = target;
@@ -4681,6 +5768,9 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const senderClass = message.sender_type === "team"
         ? (message.sender_team_status === "accepted" ? "is-confirmed-team" : "is-pending-team")
         : "";
+      const teamNameColorClass = selected.room_type === "group" && !state.admin && !mine && message.sender_type === "team"
+        ? `team-chat-color-${Math.abs(Number(message.sender_team_id || 0)) % 10}`
+        : "";
       const replyTeamName = message.reply_team_name || "Team";
       const replySlot = Number(message.reply_team_slot || 0);
       const replySender = message.reply_sender_type === "admin"
@@ -4695,18 +5785,33 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         : "";
       const canReply = selected.room_type === "group";
       const canSelectReply = canReply && !message._pending;
-      const actionLabels = {jadual:"Buka Jadual", rules:"Baca Rules", profile:"Buka Profile", "all-team":"Buka Team", deal:"Buka Group Match"};
-      const actionTarget = String(message.action_target || "");
+      const actionLabels = {jadual:"Buka Jadual", rules:"Baca Rules", profile:"Buka Profile", "all-team":"Buka Team", deal:"Buka Group Match", "cara-bermain":"Cara Bermain", "report-match":"Report Match"};
+      // Keep older announcements useful if they were saved before the
+      // report-match action was accepted by the API.
+      const inferredActionTarget = /\breport\s+match\b/i.test(String(message.message || "")) ? "report-match" : "";
+      const actionTarget = String(message.action_target || inferredActionTarget);
       const actionButton = actionLabels[actionTarget]
         ? `<button class="deal-message-action" type="button" data-chat-nav="${escapeHtml(actionTarget)}">${escapeHtml(actionLabels[actionTarget])}<b>→</b></button>`
         : "";
-      return `<div class="deal-chat-bubble ${mine ? "mine" : "theirs"} ${canSelectReply ? "can-reply" : ""} ${message._pending ? "is-sending" : ""}" ${message._pending ? "" : `data-chat-message-id="${Number(message.id)}"`} ${canSelectReply ? `data-reply-message="${Number(message.id)}" tabindex="0" role="button" aria-label="Reply mesej ${escapeHtml(sender)}"` : ""}><span class="${senderClass}">${escapeHtml(sender)}</span>${replyBlock}<p>${escapeHtml(message.message)}</p>${actionButton}<small>${escapeHtml(message._pending ? "Menghantar..." : (message.created_at || ""))}</small></div>`;
+      const messageImage = message.image_url ? `<a class="info-tour-message-image" href="${escapeHtml(message.image_url)}" target="_blank" rel="noopener"><img src="${escapeHtml(message.image_url)}" alt="Gambar chat" loading="lazy"></a>` : "";
+      const reactions = Array.isArray(message.reactions) ? message.reactions : [];
+      const reactionCounts = reactions.map((reaction) => `<button type="button" data-message-reaction="${Number(message.id)}" data-reaction-emoji="${escapeHtml(reaction.emoji)}">${escapeHtml(reaction.emoji)} <b>${Number(reaction.count || 0)}</b></button>`).join("");
+      const reactionBar = isInfoRoom && !message._pending ? `<div class="info-tour-reactions">${reactionCounts}<span class="info-reaction-picker">${["👍","❤️","🔥","👏","😮"].map((emoji) => `<button type="button" data-message-reaction="${Number(message.id)}" data-reaction-emoji="${emoji}" ${state.team ? "" : "disabled"}>${emoji}</button>`).join("")}</span></div>` : "";
+      const editedLabel = message.edited_at ? " · diedit" : "";
+      return `<div class="deal-chat-bubble ${mine ? "mine" : "theirs"} ${isInfoRoom ? "is-info-message" : ""} ${canSelectReply ? "can-reply" : ""} ${message._pending ? "is-sending" : ""}" ${message._pending ? "" : `data-chat-message-id="${Number(message.id)}"`} ${canSelectReply ? `data-reply-message="${Number(message.id)}" tabindex="0" role="button" aria-label="Reply mesej ${escapeHtml(sender)}"` : ""}><span class="${senderClass} ${teamNameColorClass}">${escapeHtml(sender)}</span>${replyBlock}${message.message ? `<p>${formatChatMessage(message.message)}</p>` : ""}${messageImage}${actionButton}<small>${escapeHtml(message._pending ? "Menghantar..." : ((message.created_at || "") + editedLabel))}</small>${reactionBar}</div>`;
     }).join("") : `<p class="profile-empty">Belum ada mesej. Mulakan perbualan dengan semua team dan admin.</p>`;
 
     const savedScroll = dealScrollPositions[selectedRoomId];
     const roomChanged = renderedDealRoomId !== selectedRoomId;
-    if (forceDealScrollToBottom || roomChanged || !savedScroll || savedScroll.nearBottom) {
+    const userReadingHistory = Date.now() < dealScrollInteractionUntil || Boolean(savedScroll && !savedScroll.nearBottom);
+    const shouldScrollDealToBottom = forceDealScrollToBottom || roomChanged || !savedScroll || (savedScroll.nearBottom && !userReadingHistory);
+    if (shouldScrollDealToBottom) {
       dealMessages.scrollTop = dealMessages.scrollHeight;
+      requestAnimationFrame(() => {
+        if (Number(state.selectedRoomId) === selectedRoomId) {
+          dealMessages.scrollTop = dealMessages.scrollHeight;
+        }
+      });
     } else {
       dealMessages.scrollTop = savedScroll.top;
     }
@@ -4728,9 +5833,14 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
           try { localStorage.setItem(chatTokenKey, String(result.chat_token)); } catch (_) {}
           result.chat_team = result.chat_team || result.team || state.teams.find((team) => String(team.team_name || "").toLowerCase() === String(data.get("name") || "").toLowerCase()) || null;
         }
-        setState(result);
+        authStateVersion += 1;
+        authGraceUntil = Date.now() + 30000;
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        applyLoginIdentity(result);
         setLoginStatus(result.message || "Login berjaya.", "success");
-        if (result.chat_only) openAppPanel("deal"); else goHome();
+        if (result.team?.profile_incomplete) openRequiredTeamProfile();
+        else if (result.chat_only) openAppPanel("deal");
+        else goHome();
       } catch (error) {
         setLoginStatus(friendlyApiError(error, "Login gagal."), "error");
       } finally {
@@ -4923,6 +6033,43 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
+  timelineEditButton?.addEventListener("click", () => {
+    editingTimeline = true;
+    if (timelineStatus) timelineStatus.textContent = "Edit semua card, kemudian Save All.";
+    renderTimeline();
+    timelineList?.querySelector("input")?.focus();
+  });
+
+  timelineCancelButton?.addEventListener("click", () => {
+    editingTimeline = false;
+    if (timelineStatus) timelineStatus.textContent = "";
+    renderTimeline();
+  });
+
+  timelineSaveButton?.addEventListener("click", async () => {
+    const items = collectTimelineItems();
+    if (items.some((item) => !item.date || !item.title)) {
+      if (timelineStatus) timelineStatus.textContent = "Tarikh dan tajuk wajib diisi.";
+      return;
+    }
+    const data = new FormData();
+    data.set("action", "saveTimeline");
+    data.set("timeline", JSON.stringify(items));
+    try {
+      timelineSaveButton.disabled = true;
+      if (timelineStatus) timelineStatus.textContent = "Saving...";
+      const result = await apiPost(data);
+      setState(result);
+      editingTimeline = false;
+      renderTimeline();
+      if (timelineStatus) timelineStatus.textContent = result.message || "Timeline berjaya update.";
+    } catch (error) {
+      if (timelineStatus) timelineStatus.textContent = error.message || "Timeline gagal update.";
+    } finally {
+      timelineSaveButton.disabled = false;
+    }
+  });
+
   if (resultForm) {
     resultForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -4941,10 +6088,110 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   }
 
   if (scheduleList) {
+    scheduleList.addEventListener("change", (event) => {
+      const poolSelect = event.target.closest('[data-random-match-form] select[name="team_pool"]');
+      if (!poolSelect) return;
+      collectScheduleDraft();
+      scheduleDraft.random.team_pool = String(poolSelect.value || "new");
+      scheduleDraft.random.team_limit = "";
+      renderSchedule();
+    });
+
+    scheduleList.addEventListener("click", (event) => {
+      const poolCard = event.target.closest("[data-select-team-pool]");
+      if (!poolCard) return;
+      scheduleDraft.random.team_pool = String(poolCard.dataset.selectTeamPool || "new");
+      scheduleDraft.random.team_limit = "";
+      renderSchedule();
+    });
+
     scheduleList.addEventListener("input", collectScheduleDraft);
     scheduleList.addEventListener("change", collectScheduleDraft);
     scheduleList.addEventListener("toggle", collectScheduleOpenState, true);
     scheduleList.addEventListener("click", async (event) => {
+      const createRoomButton = event.target.closest("[data-schedule-match-open]");
+      if (createRoomButton) {
+        event.preventDefault();
+        const matchId = Number(createRoomButton.dataset.scheduleMatchOpen || 0);
+        if (!matchId) return;
+        const data = new FormData();
+        data.set("action", "openMatchRoomNow");
+        data.set("match_id", String(matchId));
+        try {
+          createRoomButton.disabled = true;
+          createRoomButton.textContent = "MEMBUKA...";
+          const result = await apiPost(data);
+          let roomId = Number(result.room_id || 0);
+          setState(result);
+          if (!roomId) {
+            roomId = Number(state.rooms.find((room) => Number(room.match_id || 0) === matchId)?.id || 0);
+          }
+          if (!roomId) {
+            const match = state.matches.find((entry) => Number(entry.id || entry.match_id || 0) === matchId);
+            roomId = Number(scheduleMatchRoom(match)?.id || 0);
+          }
+          if (!roomId) {
+            const refreshed = await apiGet("state");
+            setState(refreshed);
+            roomId = Number(state.rooms.find((room) => Number(room.match_id || 0) === matchId)?.id || scheduleMatchRoom(state.matches.find((entry) => Number(entry.id || entry.match_id || 0) === matchId))?.id || 0);
+          }
+          if (!roomId) throw new Error("Room sudah dibuat tetapi belum muncul dalam senarai. Refresh sekali dan tekan Buka Match semula.");
+          state.selectedRoomId = roomId;
+          forceDealScrollToBottom = true;
+          replyToMessageId = null;
+          openAppPanel("deal");
+          dealApp?.classList.add("chat-open");
+          renderDeal();
+          markRoomSeen(roomId);
+        } catch (error) {
+          if (createRoomButton.isConnected) {
+            createRoomButton.disabled = false;
+            createRoomButton.textContent = "BUKA MATCH";
+          }
+          alert(error.message || "Group Match gagal dibuka.");
+        }
+        return;
+      }
+      const roomButton = event.target.closest("[data-schedule-room]");
+      if (roomButton) {
+        event.preventDefault();
+        const roomId = Number(roomButton.dataset.scheduleRoom || 0);
+        if (!roomId || !state.rooms.some((room) => Number(room.id) === roomId)) {
+          alert("Group Match ini belum tersedia.");
+          return;
+        }
+        state.selectedRoomId = roomId;
+        forceDealScrollToBottom = true;
+        replyToMessageId = null;
+        openAppPanel("deal");
+        if (dealApp) dealApp.classList.add("chat-open");
+        renderDeal();
+        markRoomSeen(roomId);
+        return;
+      }
+      const attendanceButton = event.target.closest("[data-schedule-attendance]");
+      if (attendanceButton) {
+        event.preventDefault();
+        const matchId = Number(attendanceButton.dataset.scheduleAttendance || 0);
+        if (!matchId || !window.confirm("Sahkan bahawa team anda hadir dan mempunyai wakil untuk match ini?")) return;
+        const data = new FormData();
+        data.set("action", "confirmMatchAttendance");
+        data.set("match_id", String(matchId));
+        data.set("has_representative", "1");
+        try {
+          attendanceButton.disabled = true;
+          attendanceButton.textContent = "MENYIMPAN...";
+          const result = await apiPost(data);
+          setState(result);
+        } catch (error) {
+          if (attendanceButton.isConnected) {
+            attendanceButton.disabled = false;
+            attendanceButton.textContent = "TANDA HADIR";
+          }
+          alert(error.message || "Gagal sahkan kehadiran team.");
+        }
+        return;
+      }
       const updateTeamsButton = event.target.closest("[data-update-match-teams]");
       if (updateTeamsButton) {
         event.preventDefault();
@@ -5141,7 +6388,15 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const data = new FormData();
       data.set("action", "logout");
       try {
-        await apiPost(data);
+        const result = await apiPost(data);
+        if (result.returned_to_admin) {
+          authStateVersion += 1;
+          authGraceUntil = Date.now() + 30000;
+          setState(result);
+          setLoginStatus(result.message || "Kembali ke akaun admin.", "success");
+          goHome();
+          return;
+        }
         try { localStorage.removeItem(deviceLoginTokenKey); } catch (_) {}
         state.team = null; state.admin = null; state.rooms = []; state.messages = []; state.matches = []; state.results = []; state.selectedRoomId = null;
         setLoginStatus("Logout berjaya.", "success");
@@ -5161,6 +6416,33 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
 
     roster.addEventListener("click", async (event) => {
+      const viewAsButton = event.target.closest("[data-view-as-team]");
+      if (viewAsButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        const teamId = Number(viewAsButton.dataset.viewAsTeam || 0);
+        const team = state.teams.find((entry) => Number(entry.id || entry.team_id) === teamId);
+        if (!teamId || !confirm(`Buka paparan sebagai ${team?.team_name || "team ini"}? Logout akan kembalikan anda ke akaun admin.`)) return;
+        const data = new FormData();
+        data.set("action", "adminViewAsTeam");
+        data.set("team_id", String(teamId));
+        try {
+          viewAsButton.disabled = true;
+          viewAsButton.textContent = "Opening...";
+          const result = await apiPost(data);
+          authStateVersion += 1;
+          // This is an intentional identity switch; do not preserve the admin
+          // UI during the normal post-login grace window.
+          authGraceUntil = 0;
+          setState(result);
+          goHome();
+        } catch (error) {
+          alert(error.message || "Paparan team gagal dibuka.");
+          viewAsButton.disabled = false;
+          viewAsButton.textContent = "LOGIN TEAM";
+        }
+        return;
+      }
       const cropCurrentButton = event.target.closest("[data-crop-current-logo]");
       if (cropCurrentButton) {
         event.preventDefault();
@@ -5446,31 +6728,87 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   if (resultRoster) {
     resultRoster.addEventListener("click", async (event) => {
-      const approveButton = event.target.closest("[data-approve-match-result]");
-      if (approveButton) {
+      const editButton = event.target.closest("[data-edit-admin-result]");
+      if (editButton) {
         event.preventDefault();
-        const matchId = Number(approveButton.dataset.approveMatchResult || 0);
-        if (!matchId || !window.confirm("Sahkan result kedua-dua team dan tandakan match sebagai completed?")) return;
+        editingResultMatchId = Number(editButton.dataset.editAdminResult || 0);
+        renderResultCheck();
+        resultRoster.querySelector(`[data-result-match-card="${editingResultMatchId}"] input`)?.focus();
+        return;
+      }
+      const cancelButton = event.target.closest("[data-cancel-result-edit]");
+      if (cancelButton) {
+        event.preventDefault();
+        editingResultMatchId = 0;
+        renderResultCheck();
+        return;
+      }
+      const saveButton = event.target.closest("[data-save-admin-result]");
+      if (saveButton) {
+        event.preventDefault();
+        const matchId = Number(saveButton.dataset.saveAdminResult || 0);
+        const card = saveButton.closest("[data-result-match-card]");
+        const teamAPoint = String(card?.querySelector("[data-result-team-a]")?.value || "").trim();
+        const teamBPoint = String(card?.querySelector("[data-result-team-b]")?.value || "").trim();
+        if (!matchId || teamAPoint === "" || teamBPoint === "") {
+          alert("Isi point kedua-dua team dahulu.");
+          return;
+        }
+        if (Number(teamAPoint) === Number(teamBPoint)) {
+          alert("Result seri tidak boleh disahkan.");
+          return;
+        }
+        if (!window.confirm(`Sahkan keputusan rasmi ${teamAPoint} - ${teamBPoint}?`)) return;
         const data = new FormData();
-        data.set("action", "approveMatchResult");
+        data.set("action", "adminSetMatchResult");
         data.set("match_id", String(matchId));
+        data.set("team_a_point", teamAPoint);
+        data.set("team_b_point", teamBPoint);
         try {
-          approveButton.disabled = true;
+          saveButton.disabled = true;
           const result = await apiPost(data);
-          expandedResultId = null;
+          editingResultMatchId = 0;
           setState(result);
-          alert(result.message || "Result berjaya disahkan.");
+          alert(result.message || "Point berjaya disahkan.");
         } catch (error) {
-          if (approveButton.isConnected) approveButton.disabled = false;
-          alert(error.message || "Result gagal disahkan.");
+          if (saveButton.isConnected) saveButton.disabled = false;
+          alert(error.message || "Gagal sahkan point.");
         }
         return;
       }
-      const moreButton = event.target.closest("[data-result-more]");
-      if (!moreButton) return;
+    });
+  }
+
+  if (qualifierFinalAdmin) {
+    qualifierFinalAdmin.addEventListener("click", (event) => {
+      const bracketButton = event.target.closest("[data-qf-bracket]");
+      if (!bracketButton) return;
+      activeQualifierFinalBracket = Number(bracketButton.dataset.qfBracket || 1);
+      renderQualifierFinalAdmin();
+    });
+    qualifierFinalAdmin.addEventListener("submit", async (event) => {
+      const form = event.target.closest("[data-qf-entry]");
+      if (!form) return;
       event.preventDefault();
-      expandedResultId = expandedResultId === Number(moreButton.dataset.resultMore) ? null : Number(moreButton.dataset.resultMore);
-      renderResultCheck();
+      const data = new FormData(form);
+      data.set("action", "saveQualifierFinalEntry");
+      const teamId = Number(data.get("team_id") || 0);
+      if (teamId > 0 && String(data.get("placement") || "").trim() !== "") {
+        const placement = Number(data.get("placement"));
+        if (placement < 1 || placement > 8) {
+          alert("Rank mesti antara 1 hingga 8.");
+          return;
+        }
+      }
+      const button = form.querySelector("button[type='submit']");
+      try {
+        if (button) button.disabled = true;
+        const result = await apiPost(data);
+        setState(result);
+      } catch (error) {
+        if (button?.isConnected) button.disabled = false;
+        alert(error.message || "Gagal simpan slot Qualifier Final.");
+      }
     });
   }
 
@@ -5495,7 +6833,49 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       }
     });
 
+    dealList.addEventListener("pointerdown", (event) => {
+      if (event.target.closest(".deal-room-admin-check")) event.stopPropagation();
+    });
+
     dealList.addEventListener("click", (event) => {
+      const howToCard = event.target.closest("[data-open-team-how-to]");
+      if (howToCard) {
+        const roomId = Number(howToCard.dataset.openTeamHowTo || 0);
+        if (!roomId || !state.rooms.some((room) => Number(room.id) === roomId)) return;
+        state.selectedRoomId = roomId;
+        matchHowToRoomId = roomId;
+        forceDealScrollToBottom = false;
+        if (dealApp) dealApp.classList.add("chat-open");
+        renderDeal();
+        renderDealBadges();
+        return;
+      }
+      const roomCheckWrap = event.target.closest(".deal-room-admin-check");
+      if (roomCheckWrap) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        const roomCheck = roomCheckWrap.querySelector("[data-room-admin-check]");
+        if (!roomCheck || roomCheck.disabled) return;
+        roomCheck.checked = !roomCheck.checked;
+        const roomId = Number(roomCheck.dataset.roomAdminCheck || 0);
+        const room = state.rooms.find((entry) => Number(entry.id) === roomId);
+        if (!roomId || !room) return;
+        const previousChecked = !roomCheck.checked;
+        roomCheck.closest(".deal-contact-item")?.classList.toggle("is-admin-checked", roomCheck.checked);
+        const data = new FormData();
+        data.set("action", "setRoomAdminCheck");
+        data.set("room_id", String(roomId));
+        data.set("checked", roomCheck.checked ? "1" : "0");
+        roomCheck.disabled = true;
+        apiPost(data).then((result) => setState(result)).catch((error) => {
+          roomCheck.disabled = false;
+          roomCheck.checked = previousChecked;
+          roomCheck.closest(".deal-contact-item")?.classList.toggle("is-admin-checked", previousChecked);
+          alert(error.message || "Gagal simpan tick admin.");
+        });
+        return;
+      }
       const clearMatchSearch = event.target.closest("[data-clear-deal-match-search]");
       if (clearMatchSearch) {
         dealMatchNumberQuery = "";
@@ -5511,6 +6891,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const item = event.target.closest("[data-room-id]");
       if (!item) return;
       state.selectedRoomId = Number(item.dataset.roomId);
+      matchHowToRoomId = 0;
       forceDealScrollToBottom = true;
       replyToMessageId = null;
       markRoomSeen(state.selectedRoomId);
@@ -5529,7 +6910,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     dealList.addEventListener("input", (event) => {
       const input = event.target.closest("[data-deal-match-search]");
       if (!input) return;
-      dealMatchNumberQuery = String(input.value || "").replace(/[^\d]/g, "").slice(0, 4);
+      dealMatchNumberQuery = String(input.value || "").slice(0, 80);
       renderDeal();
       requestAnimationFrame(() => {
         const nextInput = dealList.querySelector("[data-deal-match-search]");
@@ -5547,18 +6928,50 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const teamId = Number(teamButton.dataset.attendanceTeamProfile || 0);
       const teamName = String(teamButton.dataset.attendanceTeamName || "");
       if (!teamId) return false;
+      returnToGroupRoomId = Number(state.selectedRoomId || 0);
+      if (backGroupMatchButton) backGroupMatchButton.hidden = returnToGroupRoomId <= 0;
       teamSearchQuery = teamName;
       if (teamSearchInput) teamSearchInput.value = teamName;
       expandedTeamId = teamId;
       editingTeamId = null;
+      if (whatsappTemplate) whatsappTemplate.value = "ready";
+      applyWhatsappTemplate();
       renderTeams();
       openAppPanel("all-team");
       requestAnimationFrame(() => {
-        roster?.querySelector(`[data-whatsapp-team="${teamId}"]`)?.closest(".team-roster-item")?.scrollIntoView({block:"center"});
+        const whatsappButton = roster?.querySelector(`[data-whatsapp-team="${teamId}"]`);
+        whatsappButton?.closest(".team-roster-item")?.scrollIntoView({block:"center"});
+        whatsappButton?.focus({preventScroll:true});
+        whatsappButton?.classList.add("is-attendance-target");
+        window.setTimeout(() => whatsappButton?.classList.remove("is-attendance-target"), 1800);
       });
       return true;
     };
-    matchAttendance.addEventListener("click", (event) => openAttendanceTeamProfile(event.target));
+    matchAttendance.addEventListener("click", async (event) => {
+      const cancelButton = event.target.closest("[data-cancel-attendance]");
+      if (cancelButton) {
+        const matchId = Number(cancelButton.dataset.cancelAttendance || 0);
+        if (!matchId || !window.confirm("Batalkan kehadiran tester dan ulang semula onboarding match ini?")) return;
+        const data = new FormData();
+        data.set("action", "cancelMatchAttendance");
+        data.set("match_id", String(matchId));
+        try {
+          cancelButton.disabled = true;
+          cancelButton.textContent = "Membatalkan...";
+          readinessGuidingKey = "";
+          const result = await apiPost(data);
+          setState(result);
+        } catch (error) {
+          alert(error.message || "Gagal batalkan kehadiran tester.");
+          if (cancelButton.isConnected) {
+            cancelButton.disabled = false;
+            cancelButton.textContent = "Cancel Hadir (Test)";
+          }
+        }
+        return;
+      }
+      openAttendanceTeamProfile(event.target);
+    });
     matchAttendance.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       if (openAttendanceTeamProfile(event.target)) event.preventDefault();
@@ -5593,12 +7006,129 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
   }
 
+  backGroupMatchButton?.addEventListener("click", () => {
+    const roomId = Number(returnToGroupRoomId || 0);
+    const room = state.rooms.find((entry) => Number(entry.id) === roomId);
+    if (!room) {
+      alert("Group Match asal tidak lagi tersedia. Buka semula melalui menu Deal.");
+      returnToGroupRoomId = 0;
+      backGroupMatchButton.hidden = true;
+      return;
+    }
+    state.selectedRoomId = roomId;
+    forceDealScrollToBottom = false;
+    replyToMessageId = null;
+    openAppPanel("deal");
+    dealApp?.classList.add("chat-open");
+    renderDeal();
+    markRoomSeen(roomId);
+    returnToGroupRoomId = 0;
+    backGroupMatchButton.hidden = true;
+  });
+
+  resultBackGroupButton?.addEventListener("click", () => {
+    const roomId = Number(returnToGroupRoomId || 0);
+    const room = state.rooms.find((entry) => Number(entry.id) === roomId);
+    if (!room) {
+      alert("Group Match asal tidak lagi tersedia. Buka semula melalui menu Deal.");
+      returnToGroupRoomId = 0;
+      resultBackGroupButton.hidden = true;
+      return;
+    }
+    state.selectedRoomId = roomId;
+    forceDealScrollToBottom = false;
+    replyToMessageId = null;
+    openAppPanel("deal");
+    dealApp?.classList.add("chat-open");
+    renderDeal();
+    markRoomSeen(roomId);
+    returnToGroupRoomId = 0;
+    resultBackGroupButton.hidden = true;
+  });
+
+  document.addEventListener("click", (event) => {
+    const normalAllTeamTrigger = event.target.closest('[data-panel-target="all-team"]');
+    if (!normalAllTeamTrigger) return;
+    returnToGroupRoomId = 0;
+    if (backGroupMatchButton) backGroupMatchButton.hidden = true;
+  }, true);
+
+  async function compressChatImage(file){
+    if (!file || !/^image\/(?:jpeg|png|webp)$/i.test(String(file.type || ""))) {
+      throw new Error("Pilih gambar JPG, PNG atau WEBP.");
+    }
+    if (file.size > 12 * 1024 * 1024) {
+      throw new Error("Gambar asal terlalu besar. Maksimum 12MB.");
+    }
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 1600;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", {alpha:false});
+    context.fillStyle = "#000";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", .78));
+    if (!blob) throw new Error("Browser gagal compress gambar.");
+    if (blob.size > 3 * 1024 * 1024) throw new Error("Gambar masih melebihi 3MB selepas compression.");
+    return new File([blob], `chat-${Date.now()}.jpg`, {type:"image/jpeg"});
+  }
+
   if (chatForm) {
+    const resizeChatMessageInput = (input) => {
+      if (!input || input.tagName !== "TEXTAREA") return;
+      input.style.height = "46px";
+      input.style.height = `${Math.min(140, Math.max(46, input.scrollHeight))}px`;
+    };
+    const adminTagMessages = {
+      jadual: "Tekan button Jadual di bawah untuk buka jadual team.",
+      rules: "Tekan button Rules di bawah untuk baca peraturan tournament.",
+      profile: "Tekan button Profile di bawah untuk semak atau tukar maklumat player.",
+      "all-team": "Tekan button Team di bawah untuk buka senarai semua team.",
+      deal: "Sila tick nama team anda untuk memberitahu anda sudah ready. Tekan button Deal di bawah untuk masuk ke Group Match team anda.",
+      "cara-bermain": "Tekan button Cara Bermain di bawah untuk lihat panduan format Main Sendiri.",
+      "report-match": "Tekan button Report Match di bawah untuk laporkan masalah match kepada admin."
+    };
+
     chatForm.querySelector("[data-admin-chat-tags]")?.addEventListener("click", (event) => {
       const tagButton = event.target.closest("[data-chat-tag]");
       if (!tagButton || chatSendInFlight) return;
-      chatForm.dataset.nextChatTag = String(tagButton.dataset.chatTag || "");
-      chatForm.querySelector(".chat-send-button")?.click();
+      const tag = String(tagButton.dataset.chatTag || "");
+      const input = chatForm.querySelector('[name="message"]');
+      chatForm.dataset.nextChatTag = tag;
+      if (input) {
+        input.value = adminTagMessages[tag] || "";
+        resizeChatMessageInput(input);
+        input.focus({preventScroll:true});
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    });
+
+    chatForm.querySelector('[name="message"]')?.addEventListener("input", (event) => {
+      resizeChatMessageInput(event.currentTarget);
+    });
+
+    chatForm.querySelector('[name="message"]')?.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+      const input = event.currentTarget;
+      event.preventDefault();
+      if (event.ctrlKey) {
+        const start = Number(input.selectionStart ?? input.value.length);
+        const end = Number(input.selectionEnd ?? start);
+        input.setRangeText("\n", start, end, "end");
+        input.dispatchEvent(new Event("input", {bubbles:true}));
+        return;
+      }
+      if (chatSendInFlight) return;
+      const importantButton = chatForm.querySelector("[data-important-send]");
+      const normalButton = chatForm.querySelector(".chat-send-button");
+      const submitButton = importantButton && !importantButton.hidden ? importantButton : normalButton;
+      if (submitButton && !submitButton.disabled) chatForm.requestSubmit(submitButton);
     });
 
     chatForm.addEventListener("submit", async (event) => {
@@ -5607,23 +7137,31 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const queuedChatTag = String(chatForm.dataset.nextChatTag || "");
       delete chatForm.dataset.nextChatTag;
       if (!state.selectedRoomId) return;
-      const input = chatForm.querySelector('input[name="message"]');
+      const input = chatForm.querySelector('[name="message"]');
+      const imageInput = chatForm.querySelector('input[name="message_image"]');
+      const selectedRoom = state.rooms.find((room) => Number(room.id) === Number(state.selectedRoomId));
+      const rawImageFile = (state.admin || (selectedRoom?.room_type !== "info" && state.team))
+        ? imageInput?.files?.[0]
+        : null;
       const chatTag = state.admin ? queuedChatTag : "";
-      const tagMessages = {
-        jadual: "Tekan button Jadual di bawah untuk buka jadual team.",
-        rules: "Tekan button Rules di bawah untuk baca peraturan tournament.",
-        profile: "Tekan button Profile di bawah untuk semak atau tukar maklumat player.",
-        "all-team": "Tekan button Team di bawah untuk buka senarai semua team.",
-        deal: "Sila tick nama team anda untuk memberitahu anda sudah ready. Tekan button Deal di bawah untuk masuk ke Group Match team anda."
-      };
-      const message = String(input?.value || "").trim() || tagMessages[chatTag] || "";
-      if (!message) return;
+      const message = String(input?.value || "").trim() || adminTagMessages[chatTag] || "";
+      if (!message && !rawImageFile) return;
+      let imageFile = rawImageFile;
+      if (rawImageFile) {
+        try {
+          imageFile = await compressChatImage(rawImageFile);
+        } catch (error) {
+          alert(error.message || "Gambar gagal diproses.");
+          return;
+        }
+      }
       const data = new FormData();
       data.set("action", "sendMessage");
       data.set("room_id", state.selectedRoomId);
       data.set("message", message);
+      if (imageFile) data.set("message_image", imageFile);
       if (chatTag) data.set("action_target", chatTag);
-      if (state.admin) data.set("push_mode", event.submitter?.value === "all" ? "all" : "none");
+      if (state.admin) data.set("push_mode", selectedRoom?.room_type === "info" || event.submitter?.value === "all" ? "all" : "none");
       if (replyToMessageId) data.set("reply_to_message_id", replyToMessageId);
       const guestNameInput = chatForm.querySelector("[name='guest_name']");
       if (!state.chatTeam && !state.admin) {
@@ -5652,7 +7190,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         sender_team_slot: state.chatTeam?.slot_no || 0,
         guest_name: String(guestNameInput?.value || "").trim(),
         action_target: chatTag,
-        message,
+        message: message || "Gambar sedang dimuat naik...",
         created_at: "Menghantar...",
         reply_to_message_id: replySource?.id || null,
         reply_message: replySource?.message || "",
@@ -5665,11 +7203,13 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       sendButtons.forEach((button) => { button.disabled = true; });
       pendingChatMessages.push(pendingMessage);
       input.value = "";
+      resizeChatMessageInput(input);
       forceDealScrollToBottom = true;
       renderDeal();
       try {
         const result = await apiPost(data);
         pendingChatMessages = pendingChatMessages.filter((entry) => entry._pending_id !== pendingId);
+        if (imageInput) imageInput.value = "";
         replyToMessageId = null;
         forceDealScrollToBottom = true;
         setState(result);
@@ -5678,6 +7218,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       } catch (error) {
         pendingChatMessages = pendingChatMessages.filter((entry) => entry._pending_id !== pendingId);
         input.value = message;
+        resizeChatMessageInput(input);
         renderDeal();
         alert(error.message || "Mesej gagal dihantar.");
       } finally {
@@ -5690,19 +7231,92 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   }
 
   if (dealMessages) {
+    const rememberLiveDealScroll = () => {
+      const roomId = Number(state.selectedRoomId || renderedDealRoomId || 0);
+      if (!roomId) return;
+      dealScrollPositions[roomId] = {
+        top: dealMessages.scrollTop,
+        nearBottom: dealMessages.scrollHeight - dealMessages.clientHeight - dealMessages.scrollTop < 16
+      };
+    };
+    dealMessages.addEventListener("touchstart", () => {
+      dealScrollInteractionUntil = Date.now() + 1800;
+      forceDealScrollToBottom = false;
+      rememberLiveDealScroll();
+    }, {passive:true});
+    dealMessages.addEventListener("scroll", () => {
+      dealScrollInteractionUntil = Date.now() + 900;
+      rememberLiveDealScroll();
+    }, {passive:true});
+    dealMessages.addEventListener("wheel", () => {
+      dealScrollInteractionUntil = Date.now() + 1200;
+      forceDealScrollToBottom = false;
+    }, {passive:true});
     const selectReply = (target) => {
       const bubble = target.closest("[data-reply-message]");
       if (!bubble) return;
       replyToMessageId = Number(bubble.dataset.replyMessage || 0) || null;
       renderDeal();
-      chatForm?.querySelector("input[name='message']")?.focus();
+      chatForm?.querySelector("[name='message']")?.focus({preventScroll:true});
     };
     dealMessages.addEventListener("click", (event) => {
+      const reactionButton = event.target.closest("[data-message-reaction]");
+      if (reactionButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!state.team) {
+          openLogin("Login team dahulu untuk react pengumuman INFO TOUR.");
+          return;
+        }
+        const data = new FormData();
+        data.set("action", "reactMessage");
+        data.set("message_id", String(reactionButton.dataset.messageReaction || ""));
+        data.set("emoji", String(reactionButton.dataset.reactionEmoji || ""));
+        reactionButton.disabled = true;
+        apiPost(data).then(setState).catch((error) => alert(error.message || "React gagal dihantar."));
+        return;
+      }
       const navigationButton = event.target.closest("[data-chat-nav]");
       if (navigationButton) {
         event.preventDefault();
         event.stopPropagation();
         const target = String(navigationButton.dataset.chatNav || "");
+        if (target === "report-match") {
+          const team = state.team || state.chatTeam;
+          if (!team) {
+            openLogin("Login team dahulu untuk report match.");
+            return;
+          }
+          const teamId = Number(team.id || 0);
+          const reportRoom = state.rooms
+            .filter((room) => ["match", "deal"].includes(String(room.room_type || ""))
+              && [Number(room.team_a_id || 0), Number(room.team_b_id || 0)].includes(teamId))
+            .sort((a, b) => {
+              const completedA = a.match_status === "completed" ? 1 : 0;
+              const completedB = b.match_status === "completed" ? 1 : 0;
+              const timeA = new Date(String(a.match_time || "2999-12-31").replace(" ", "T")).getTime();
+              const timeB = new Date(String(b.match_time || "2999-12-31").replace(" ", "T")).getTime();
+              return completedA - completedB || timeA - timeB;
+            })[0];
+          if (!reportRoom) {
+            alert("Group Match team anda belum tersedia untuk dibuat laporan.");
+            return;
+          }
+          state.selectedRoomId = Number(reportRoom.id);
+          renderDeal();
+          reportMatchButton?.click();
+          return;
+        }
+        if (target === "cara-bermain") {
+          const selectedRoom = state.rooms.find((room) => Number(room.id) === Number(state.selectedRoomId));
+          if (!selectedRoom || !["match", "deal"].includes(String(selectedRoom.room_type || ""))) {
+            alert("Panduan Cara Bermain hanya boleh dibuka dalam Group Match.");
+            return;
+          }
+          matchHowToRoomId = Number(state.selectedRoomId || 0);
+          renderDeal();
+          return;
+        }
         if (target === "deal") {
           if (!state.team) {
             if (state.admin) {
@@ -5759,8 +7373,10 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     adminMessageMenu.className = "admin-message-menu";
     adminMessageMenu.hidden = true;
     adminMessageMenu.innerHTML = `
+      <button type="button" data-admin-message-action="edit">Edit mesej</button>
       <button type="button" data-admin-message-action="pin">Pin mesej</button>
       <button type="button" data-admin-message-action="push">Push noti semula</button>
+      <button type="button" class="is-delete" data-admin-message-action="delete">Delete mesej</button>
     `;
     document.body.appendChild(adminMessageMenu);
     let contextMessageId = 0;
@@ -5777,7 +7393,9 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       contextMessageId = Number(bubble.dataset.chatMessageId || 0);
       if (!contextMessageId) return;
       const selectedRoom = state.rooms.find((room) => Number(room.id) === Number(state.selectedRoomId));
+      const editButton = adminMessageMenu.querySelector('[data-admin-message-action="edit"]');
       const pinButton = adminMessageMenu.querySelector('[data-admin-message-action="pin"]');
+      if (editButton) editButton.hidden = selectedRoom?.room_type !== "info";
       if (pinButton) pinButton.hidden = selectedRoom?.room_type !== "group";
       adminMessageMenu.hidden = false;
       const width = adminMessageMenu.offsetWidth || 190;
@@ -5828,11 +7446,26 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const button = event.target.closest("[data-admin-message-action]");
       if (!button || !contextMessageId) return;
       event.stopPropagation();
-      const action = button.dataset.adminMessageAction === "pin" ? "pinChatMessage" : "repushChatMessage";
+      const actionMap = {edit:"editMessage", pin:"pinChatMessage", push:"repushChatMessage", delete:"deleteMessage"};
+      const action = actionMap[String(button.dataset.adminMessageAction || "")] || "";
+      if (!action) return;
+      let editedMessage = "";
+      if (action === "editMessage") {
+        const source = state.messages.find((message) => Number(message.id) === Number(contextMessageId));
+        editedMessage = window.prompt("Edit mesej INFO TOUR:", String(source?.message || ""));
+        if (editedMessage === null) return;
+        editedMessage = editedMessage.trim();
+        if (!editedMessage) {
+          alert("Mesej tidak boleh kosong.");
+          return;
+        }
+      }
       if (action === "repushChatMessage" && !window.confirm("Hantar push notification untuk mesej ini sekali lagi?")) return;
+      if (action === "deleteMessage" && !window.confirm("Padam mesej ini secara kekal? Tindakan ini tidak boleh dibatalkan.")) return;
       const data = new FormData();
       data.set("action", action);
       data.set("message_id", String(contextMessageId));
+      if (action === "editMessage") data.set("message", editedMessage);
       try {
         button.disabled = true;
         const result = await apiPost(data);
@@ -5846,6 +7479,32 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       }
     });
   }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowDown" || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (!state.admin || window.innerWidth <= 860) return;
+    const dealPanel = document.getElementById("deal");
+    if (!dealPanel?.classList.contains("is-open")) return;
+    const activeElement = document.activeElement;
+    if (activeElement?.matches?.("input, textarea, select, [contenteditable='true']")) return;
+
+    const unreadRooms = sortedDealRooms().filter((room) =>
+      Number(room.id) !== Number(state.selectedRoomId)
+      && roomUnreadCount(room) > 0
+    );
+    const nextRoom = unreadRooms[0];
+    if (!nextRoom) return;
+
+    event.preventDefault();
+    state.selectedRoomId = Number(nextRoom.id);
+    matchHowToRoomId = 0;
+    replyToMessageId = null;
+    forceDealScrollToBottom = true;
+    dealApp?.classList.add("chat-open");
+    markRoomSeen(state.selectedRoomId);
+    renderDeal();
+    renderDealBadges();
+  });
 
   chatForm?.querySelector("[data-cancel-reply]")?.addEventListener("click", () => {
     replyToMessageId = null;
@@ -5910,12 +7569,68 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
   let stateRefreshInFlight = false;
   let stateRefreshTimer = 0;
 
+  function applyChatUpdates(data){
+    const incomingAuth = data.auth || {};
+    const sameIdentity = Number(incomingAuth.team_id || 0) === Number(state.team?.id || 0)
+      && Number(incomingAuth.chat_team_id || 0) === Number(state.chatTeam?.id || 0)
+      && Number(incomingAuth.admin_id || 0) === Number(state.admin?.id || 0);
+    if (!sameIdentity) return false;
+
+    const previousMessages = state.messages.slice();
+    state.rooms = Array.isArray(data.rooms) ? data.rooms : state.rooms;
+    if (Array.isArray(data.matches)) {
+      const loggedTeamId = Number(state.team?.id || 0);
+      state.matches = state.team && !state.admin
+        ? data.matches.filter((match) => Number(match.team_a_id || 0) === loggedTeamId || Number(match.team_b_id || 0) === loggedTeamId)
+        : data.matches;
+      renderSchedule();
+      renderUpdatePoint();
+      renderResultCheck();
+      renderMatchReadiness();
+    }
+    const messageMap = new Map(state.messages.map((message) => [Number(message.id || 0), message]));
+    (Array.isArray(data.messages) ? data.messages : []).forEach((message) => {
+      messageMap.set(Number(message.id || 0), message);
+    });
+    const roomMap = new Map(state.rooms.map((room) => [Number(room.id), room]));
+    const perRoom = new Map();
+    Array.from(messageMap.values()).sort((a, b) => Number(b.id || 0) - Number(a.id || 0)).forEach((message) => {
+      const roomId = Number(message.room_id || 0);
+      const room = roomMap.get(roomId);
+      if (!room) return;
+      const limit = ["group", "info"].includes(String(room.room_type || "")) ? 100 : 20;
+      const kept = perRoom.get(roomId) || [];
+      if (kept.length < limit) kept.push(message);
+      perRoom.set(roomId, kept);
+    });
+    state.messages = Array.from(perRoom.values()).flat().sort((a, b) => Number(a.id || 0) - Number(b.id || 0));
+    state.pinnedInfo = data.pinned_info ?? state.pinnedInfo;
+    state.pinnedActionTarget = data.pinned_info_action_target ?? state.pinnedActionTarget;
+    state.pinnedAcknowledgement = data.pinned_acknowledgement || state.pinnedAcknowledgement;
+    renderDeal();
+    renderMatchReadiness();
+    renderDealBadges();
+    checkMessageNotifications(previousMessages);
+    return true;
+  }
+
   async function refreshState(){
-    if (isScheduleFormActive() || stateRefreshInFlight || document.visibilityState === "hidden") return;
+    if (loginBusy || isScheduleFormActive() || stateRefreshInFlight || document.visibilityState === "hidden") return;
     stateRefreshInFlight = true;
+    const refreshAuthVersion = authStateVersion;
     try {
-      const data = await apiGet("state");
-      setState(data);
+      const dealIsOpen = Boolean(document.getElementById("deal")?.classList.contains("is-open"));
+      if (dealIsOpen && state.initialized) {
+        const lastMessageId = state.messages.reduce((max, message) => Math.max(max, Number(message.id || 0)), 0);
+        const data = await apiGet("chatUpdates", {since_message_id:lastMessageId});
+        if (refreshAuthVersion === authStateVersion && !loginBusy && !applyChatUpdates(data)) {
+          const fullData = await apiGet("state");
+          if (refreshAuthVersion === authStateVersion && !loginBusy) setState(fullData);
+        }
+      } else {
+        const data = await apiGet("state");
+        if (refreshAuthVersion === authStateVersion && !loginBusy) setState(data);
+      }
     } catch (error) {
       if (roster) {
         roster.innerHTML = `<article class="team-roster-item team-roster-message"><span class="team-roster-logo">...</span><div><h3>Gagal load database</h3><p>${escapeHtml(error.message || "Check PHP/MySQL hosting.")}</p></div><strong>Error</strong></article>`;
@@ -5929,8 +7644,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     window.clearTimeout(stateRefreshTimer);
     if (document.visibilityState === "hidden") return;
     const dealIsOpen = Boolean(document.getElementById("deal")?.classList.contains("is-open"));
-    const baseDelay = dealIsOpen ? 3000 : 15000;
-    const jitter = Math.floor(Math.random() * (dealIsOpen ? 900 : 3500));
+    const baseDelay = dealIsOpen ? 4000 : 30000;
+    const jitter = Math.floor(Math.random() * (dealIsOpen ? 1000 : 7000));
     stateRefreshTimer = window.setTimeout(async () => {
       await refreshState();
       scheduleStateRefresh();
@@ -5945,8 +7660,21 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     }
   });
 
-  refreshState();
-  scheduleStateRefresh();
+  async function bootstrapState(){
+    try {
+      // Restore the saved account before waiting for the much heavier state
+      // payload. Run sequentially so PHP's session lock cannot let the full
+      // state request block this lightweight identity check.
+      const authData = await apiGet("authState");
+      applyLoginIdentity(authData);
+    } catch (error) {
+      console.warn("Saved login could not be restored early", error);
+    }
+    await refreshState();
+    scheduleStateRefresh();
+  }
+
+  bootstrapState();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       refreshState();

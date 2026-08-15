@@ -1,0 +1,25 @@
+{
+  "name": "GNEX Order Record",
+  "short_name": "GNEX Order",
+  "description": "Rekod dan proses order GNEX.",
+  "id": "/order-record/",
+  "start_url": "/order-record/",
+  "scope": "/order-record/",
+  "display": "standalone",
+  "background_color": "#f2f6fb",
+  "theme_color": "#f7fafc",
+  "icons": [
+    {
+      "src": "images/gnex-home-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/gnex-home-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

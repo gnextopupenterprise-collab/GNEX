@@ -5,6 +5,13 @@ const GAME_ID_VISIBLE_PREFIX = window.GAME_ID_VISIBLE_PREFIX || 0;
 
 let rankingCustomers = [];
 
+window.addEventListener("load", () => {
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("ranking") === "1" && document.getElementById("rankingModal")){
+    openRankingModal();
+  }
+});
+
 function openRankingModal(){
   const modal = document.getElementById("rankingModal");
   modal.classList.remove("hidden");
@@ -15,6 +22,12 @@ function openRankingModal(){
 }
 
 function closeRankingModal(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("ranking") === "1"){
+    window.location.href = "index.html?topup=1&view=ranking";
+    return;
+  }
+
   const modal = document.getElementById("rankingModal");
   modal.classList.add("hidden");
 }
