@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260815-schedule-manager-v72">
+<link rel="stylesheet" href="clash-league.css?v=20260816-date-open-button-v73">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-schedule-manager-v58";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-date-open-button-v59";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -4572,9 +4572,10 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     });
     return `<div class="admin-schedule-groups">${Array.from(groups.entries()).map(([dateKey, matches], index) => `
       <details class="admin-date-card" data-schedule-date="${escapeHtml(dateKey)}" ${openScheduleDates.has(dateKey) || (!scheduleOpenStateReady && index === 0) ? "open" : ""}>
-        <summary data-open-date-manager="${escapeHtml(dateKey)}" title="Buka pengurusan penuh">
+        <summary>
           <span>${escapeHtml(scheduleDateLabel(dateKey))}</span>
           <strong>${matches.length} Match</strong>
+          <button type="button" class="date-manager-open-button" data-open-date-manager="${escapeHtml(dateKey)}">OPEN</button>
         </summary>
         <div class="admin-match-list">
           ${matches.map(adminMatchCardHtml).join("")}

@@ -1552,7 +1552,7 @@ cursor:pointer;
 display:none;
 }
 .admin-date-card>summary{
-grid-template-columns:1fr auto;
+grid-template-columns:1fr auto auto;
 padding:14px 16px;
 color:#70eaff;
 font-size:13px;
@@ -1560,6 +1560,20 @@ font-weight:950;
 letter-spacing:.12em;
 text-transform:uppercase;
 }
+.admin-date-card>summary .date-manager-open-button{
+min-height:30px;
+padding:0 13px;
+border:1px solid rgba(94,224,255,.55);
+border-radius:8px;
+background:rgba(17,156,205,.14);
+color:#7deaff;
+font-size:9px;
+font-weight:950;
+letter-spacing:.08em;
+text-transform:uppercase;
+cursor:pointer;
+}
+.admin-date-card>summary .date-manager-open-button:hover{background:rgba(17,156,205,.28);color:#fff}
 .admin-date-card>summary strong{
 display:inline-grid;
 place-items:center;
