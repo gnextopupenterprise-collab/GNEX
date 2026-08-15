@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260816-manual-team-search-v74">
+<link rel="stylesheet" href="clash-league.css?v=20260816-manager-edit-v75">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -46,7 +46,7 @@
 }
 </style>
 <script>
-window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-manual-team-search-v60";
+window.CLASH_SW_URL = "clash-league-sw.js?v=20260816-manager-edit-v61";
 if ("serviceWorker" in navigator) {
   const checkClashAppUpdate = () => {
     navigator.serviceWorker.getRegistration().then((registration) => {
@@ -4474,6 +4474,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   function renderSchedule(){
     if (!scheduleList) return;
+    if (scheduleList.querySelector("[data-date-manager]")) document.body.classList.remove("date-manager-open");
     collectScheduleDraft();
     collectScheduleOpenState();
     const adminTools = state.admin ? randomMatchToolHtml() + scheduleStatsHtml() : "";
@@ -4613,7 +4614,7 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         <header><div><small>PENGURUSAN QUALIFIER</small><h2>${escapeHtml(stageLabel)}</h2><p>${escapeHtml(scheduleDateLabel(dateKey))} · ${dateMatches.length} jadual</p></div><button type="button" data-close-date-manager aria-label="Tutup">×</button></header>
         <div class="date-manager-grid">
           <main><div class="date-manager-heading"><h3>Senarai Jadual</h3><span>${dateMatches.length} MATCH</span></div><div class="date-manager-matches">
-            ${dateMatches.length ? dateMatches.map((match) => `<article><div><b>${escapeHtml(match.team_a_name || "TBD")} <i>VS</i> ${escapeHtml(match.team_b_name || "TBD")}</b><small>${escapeHtml(match.match_name || "Match")} · ${escapeHtml(formatMatchTime(match.match_time))}</small></div><button type="button" data-manager-delete-match="${Number(match.id)}">DELETE</button></article>`).join("") : `<p class="date-manager-empty">Tiada jadual pada tarikh ini.</p>`}
+            ${dateMatches.length ? dateMatches.map((match) => `<article class="date-manager-match"><div class="date-manager-match-summary"><div><b>${escapeHtml(match.team_a_name || "TBD")} <i>VS</i> ${escapeHtml(match.team_b_name || "TBD")}</b><small>${escapeHtml(match.match_name || "Match")} · ${escapeHtml(formatMatchTime(match.match_time))}</small></div><span class="date-manager-match-actions"><button type="button" class="is-edit" data-manager-edit-match="${Number(match.id)}">EDIT</button><button type="button" data-manager-delete-match="${Number(match.id)}">DELETE</button></span></div><div class="date-manager-match-edit" data-manager-match-edit="${Number(match.id)}" hidden>${matchAdminFormHtml(match)}</div></article>`).join("") : `<p class="date-manager-empty">Tiada jadual pada tarikh ini.</p>`}
           </div></main>
           <aside><div class="date-manager-heading"><h3>Team Qualifier</h3><span>${teams.length} TEAM</span></div><div class="date-manager-teams">
             ${teams.length ? teams.map((team) => `<article>${avatarHtml(initials(team.team_name), team.logo_url, team.team_name)}<b>${escapeHtml(team.team_name)}</b><strong class="${scheduledIds.has(team.id) ? "is-scheduled" : ""}">${scheduledIds.has(team.id) ? "✓" : "—"}</strong></article>`).join("") : `<p class="date-manager-empty">Belum ada team dikesan.</p>`}
@@ -4621,12 +4622,20 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
         </div>
         <form class="date-manager-add" data-manual-match-form><h3>+ Tambah Jadual Manual</h3><label>Nama Jadual<input name="match_name" value="${escapeHtml(dateMatches[0]?.match_name || stageLabel)}" required></label><label>Tarikh / Masa<input type="datetime-local" name="match_time" value="${dateKey === "TBD" ? "" : `${dateKey}T21:30`}" required></label><label>Team A<input type="search" name="team_a_name" list="manual-team-list-${dateKey}" placeholder="Cari nama team..." autocomplete="off" required></label><label>Team B<input type="search" name="team_b_name" list="manual-team-list-${dateKey}" placeholder="Cari nama team..." autocomplete="off" required></label><datalist id="manual-team-list-${dateKey}">${teamSuggestions}</datalist><button type="submit">TAMBAH JADUAL</button></form>
       </div>`;
-    document.body.appendChild(modal);
+    scheduleList.appendChild(modal);
     document.body.classList.add("date-manager-open");
     const close = () => { modal.remove(); document.body.classList.remove("date-manager-open"); };
     modal.querySelector("[data-close-date-manager]").addEventListener("click", close);
     modal.addEventListener("click", async (event) => {
       if (event.target === modal) return close();
+      const editButton = event.target.closest("[data-manager-edit-match]");
+      if (editButton) {
+        const editPanel = modal.querySelector(`[data-manager-match-edit="${Number(editButton.dataset.managerEditMatch || 0)}"]`);
+        if (!editPanel) return;
+        editPanel.hidden = !editPanel.hidden;
+        editButton.textContent = editPanel.hidden ? "EDIT" : "TUTUP";
+        return;
+      }
       const button = event.target.closest("[data-manager-delete-match]");
       if (!button) return;
       const matchId = Number(button.dataset.managerDeleteMatch || 0);
