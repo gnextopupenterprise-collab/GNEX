@@ -9,7 +9,7 @@
 body{min-height:100vh;padding:24px;background:#02040a;color:#fff}
 .admin-wrap{width:min(1100px,100%);margin:0 auto;display:grid;gap:18px}
 .admin-bar,.admin-card{border:1px solid rgba(34,211,238,.28);border-radius:8px;background:linear-gradient(145deg,rgba(14,18,30,.92),rgba(0,0,0,.88));padding:18px}
-.admin-bar{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:end}
+.admin-bar{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:end}
 .admin-bar h1{margin:0;font-size:clamp(28px,5vw,54px);text-transform:uppercase}
 .admin-bar input{min-height:48px;border:1px solid rgba(148,163,184,.24);border-radius:8px;background:#03060b;color:#fff;padding:0 14px;font-weight:800}
 .admin-list{display:grid;gap:12px}
@@ -31,6 +31,7 @@ body{min-height:100vh;padding:24px;background:#02040a;color:#fff}
     </div>
     <input type="password" placeholder="Admin password" data-admin-password>
     <button class="btn primary" type="button" data-load>Load Team</button>
+    <a class="btn secondary" href="clash-league-groups-admin.html" style="display:grid;place-items:center;text-decoration:none">Group Stage</a>
   </section>
 
   <section class="admin-card">

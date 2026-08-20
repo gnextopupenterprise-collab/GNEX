@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#05070c">
+<title>Group Stage Account Check | Clash League</title>
+<link rel="icon" type="image/png" href="images/clash-league-icon-192.png">
+<style>
+:root{color-scheme:dark;--bg:#05070c;--panel:#0d111b;--line:#242b3a;--text:#f6f8fc;--muted:#8e9aaf;--cyan:#25d9f8;--green:#48e09b;--red:#ff667d;--amber:#ffc857}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#102d3a 0,transparent 34%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}.shell{width:min(1220px,calc(100% - 32px));margin:auto;padding:34px 0 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}.back{color:var(--muted);text-decoration:none;font-weight:800}.back:hover{color:var(--cyan)}.eyebrow{margin:0 0 8px;color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}h1{margin:0;font-size:clamp(30px,5vw,58px);line-height:.96;letter-spacing:-.045em;text-transform:uppercase}.login{display:flex;gap:9px;align-items:center}.login input{width:210px;height:46px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:#080b12;color:#fff;outline:none}.login input:focus{border-color:var(--cyan)}.btn{height:46px;padding:0 18px;border:0;border-radius:10px;background:var(--cyan);color:#001018;font-weight:950;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 20px}.stat{padding:18px;border:1px solid var(--line);border-radius:14px;background:rgba(13,17,27,.86)}.stat span{display:block;color:var(--muted);font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}.stat strong{display:block;margin-top:4px;font-size:30px}.stat.ok strong{color:var(--green)}.stat.missing strong{color:var(--red)}
+.notice{margin:0 0 18px;padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#0a0e16;color:var(--muted);font-weight:750}.notice.error{border-color:rgba(255,102,125,.45);color:var(--red)}
+.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.group{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(16,22,34,.96),rgba(8,11,18,.98));box-shadow:0 20px 45px rgba(0,0,0,.18)}.group-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}.group-head h2{margin:0;font-size:20px;letter-spacing:.08em}.group-count{color:var(--muted);font-size:12px;font-weight:850}.team{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:82px;padding:13px 18px;border-bottom:1px solid rgba(36,43,58,.72)}.team:last-child{border-bottom:0}.logo{width:42px;height:42px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);border-radius:50%;background:#111724;color:var(--cyan);font-size:12px;font-weight:950}.logo img{width:100%;height:100%;object-fit:cover}.team-name{display:block;font-size:15px;font-weight:950;text-transform:uppercase}.db-status{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:700}.badge{padding:7px 10px;border:1px solid rgba(255,102,125,.35);border-radius:999px;background:rgba(255,102,125,.09);color:var(--red);font-size:11px;font-weight:950;white-space:nowrap;text-transform:uppercase}.badge.yes{border-color:rgba(72,224,155,.35);background:rgba(72,224,155,.09);color:var(--green)}.badge.wait{border-color:rgba(255,200,87,.35);background:rgba(255,200,87,.09);color:var(--amber)}
+@media(max-width:760px){.shell{width:min(100% - 20px,1220px);padding-top:20px}.top{align-items:flex-start;flex-direction:column}.login{width:100%}.login input{min-width:0;flex:1}.summary{grid-template-columns:repeat(3,1fr)}.stat{padding:13px}.stat strong{font-size:24px}.groups{grid-template-columns:1fr}.team{padding-inline:14px}.badge{padding:6px 8px;font-size:10px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="top">
+    <div>
+      <a class="back" href="clash-admin.html">&larr; Admin Slot</a>
+      <p class="eyebrow">Clash League / Admin</p>
+      <h1>Group Stage<br>Account Check</h1>
+    </div>
+    <form class="login" data-login>
+      <input type="password" autocomplete="current-password" placeholder="Admin password" aria-label="Admin password" data-password>
+      <button class="btn" type="submit" data-load>Semak</button>
+    </form>
+  </div>
+
+  <section class="summary" aria-label="Ringkasan account">
+    <div class="stat"><span>Jumlah Team</span><strong>16</strong></div>
+    <div class="stat ok"><span>Ada Account</span><strong data-total-account>—</strong></div>
+    <div class="stat missing"><span>Belum Ada</span><strong data-total-missing>—</strong></div>
+  </section>
+  <p class="notice" data-notice>Masukkan admin password untuk semak account team dengan database live.</p>
+  <section class="groups" data-groups></section>
+</main>
+<script>
+(() => {
+  const API_URL = "api/clash-league.php";
+  const groupTeams = {
+    A:["GNEX ELITE","LEVEL PRIME","KWNPAIM","ANTI MACRO"],
+    B:["ZEQ N FRIEND","CUCUTOKABAH","SUPERZAIM","SQUAD SABAH"],
+    C:["MYD666","NINESTAR ASIX","ATLANTIS REALITY","HUNTRIX LADIES"],
+    D:["SECRET55","7GL X TEAMBOT","GNRS MY","TITIK"]
+  };
+  const groupsEl = document.querySelector("[data-groups]");
+  const notice = document.querySelector("[data-notice]");
+  const password = document.querySelector("[data-password]");
+  const loadButton = document.querySelector("[data-load]");
+  const normalize = (name) => String(name || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const initials = (name) => name.split(/\s+/).slice(0,2).map(word => word[0]).join("");
+  const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  const statusLabel = {accepted:"Account Aktif",pending:"Menunggu Approval",rejected:"Account Rejected"};
+
+  function render(databaseTeams = null){
+    const indexed = new Map((databaseTeams || []).map(team => [normalize(team.team_name), team]));
+    let accountCount = 0;
+    groupsEl.innerHTML = Object.entries(groupTeams).map(([group, names]) => {
+      const rows = names.map(name => {
+        const team = indexed.get(normalize(name));
+        if (team) accountCount++;
+        const pending = team && team.status === "pending";
+        const badge = !databaseTeams ? "Belum Disemak" : (team ? (pending ? "Ada · Pending" : "Ada Account") : "Belum Ada");
+        const badgeClass = team ? (pending ? "badge wait" : "badge yes") : "badge";
+        const logo = team?.logo_url ? `<img src="${escapeHtml(team.logo_url)}" alt="">` : escapeHtml(initials(name));
+        const detail = !databaseTeams ? "Status account belum dimuatkan" : (team ? `${statusLabel[team.status] || team.status}${team.slot_no ? ` · Slot ${escapeHtml(team.slot_no)}` : ""}` : "Tiada rekod sepadan dalam web");
+        return `<article class="team"><span class="logo">${logo}</span><span><strong class="team-name">${escapeHtml(name)}</strong><small class="db-status">${detail}</small></span><span class="${badgeClass}">${badge}</span></article>`;
+      }).join("");
+      return `<section class="group"><header class="group-head"><h2>GROUP ${group}</h2><span class="group-count">4 TEAM</span></header>${rows}</section>`;
+    }).join("");
+    document.querySelector("[data-total-account]").textContent = databaseTeams ? accountCount : "—";
+    document.querySelector("[data-total-missing]").textContent = databaseTeams ? 16 - accountCount : "—";
+  }
+
+  async function loadAccounts(event){
+    event?.preventDefault();
+    if (!password.value.trim()) { notice.textContent = "Isi admin password dulu."; notice.className = "notice error"; password.focus(); return; }
+    loadButton.disabled = true; loadButton.textContent = "Loading…"; notice.className = "notice"; notice.textContent = "Sedang semak database team…";
+    try {
+      const response = await fetch(`${API_URL}?action=registrations&admin_password=${encodeURIComponent(password.value.trim())}&v=${Date.now()}`, {cache:"no-store"});
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.message || "Gagal semak account.");
+      render(data.teams);
+      const missing = Number(document.querySelector("[data-total-missing]").textContent);
+      notice.textContent = missing ? `${missing} team masih belum ada account dalam web.` : "Semua 16 team sudah ada account dalam web.";
+    } catch (error) { notice.textContent = error.message || "Gagal sambung ke server."; notice.className = "notice error"; }
+    finally { loadButton.disabled = false; loadButton.textContent = "Semak"; }
+  }
+  document.querySelector("[data-login]").addEventListener("submit", loadAccounts);
+  render();
+})();
+</script>
+</body>
+</html>
