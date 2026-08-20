@@ -194,12 +194,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'registrations') {
     json_response(['ok' => true, 'teams' => get_admin_registrations($pdo, $dbConfig)]);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'groupStageAdmin') {
+    group_stage_admin_data($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'registerTeam') {
     register_team($pdo, $rootDir);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'adminCreateTeam') {
     admin_create_team($pdo);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveGroupStageFixture') {
+    save_group_stage_fixture($pdo);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'createOrderRecord') {
@@ -3647,7 +3655,11 @@ function admin_create_team(PDO $pdo): void
 
     $scheduleMessage = '';
     try {
-        sync_admin_added_team_schedule($pdo);
+        if (clean_text($_POST['schedule_context'] ?? '', 30) === 'group_stage') {
+            sync_group_stage_matches($pdo);
+        } else {
+            sync_admin_added_team_schedule($pdo);
+        }
     } catch (Throwable $scheduleError) {
         error_log('Clash League late-team schedule gagal untuk team '.$teamId.': '.$scheduleError->getMessage());
         $scheduleMessage = ' Team sudah masuk Slot '.$slotNo.', tetapi jadual belum berjaya dibuat dan boleh dicuba semula kemudian.';
@@ -3979,6 +3991,95 @@ function get_admin_registrations(PDO $pdo, array $dbConfig): array
     }
 
     return $teams;
+}
+
+function ensure_group_stage_fixtures(PDO $pdo): void
+{
+    $pdo->exec('CREATE TABLE IF NOT EXISTS cl_group_stage_fixtures (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        fixture_key VARCHAR(40) NOT NULL UNIQUE,
+        group_code VARCHAR(4) NOT NULL,
+        team_a_name VARCHAR(100) NOT NULL,
+        team_b_name VARCHAR(100) NOT NULL,
+        match_time DATETIME NOT NULL,
+        match_id INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_cl_group_fixture_time (match_time),
+        FOREIGN KEY (match_id) REFERENCES cl_matches(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+
+    $fixtures = [
+        ['A01','A','GNEX ELITE','LEVEL PRIME','2026-08-21 21:00:00'],['A02','A','KWNPAIM','ANTI MACRO','2026-08-21 21:30:00'],
+        ['B01','B','ZEQ N FRIEND','CUCUTOKABAH','2026-08-21 22:00:00'],['B02','B','SUPERZAIM','SQUAD SABAH','2026-08-21 22:30:00'],
+        ['C01','C','MYD666','NINESTAR ASIX','2026-08-22 21:00:00'],['C02','C','ATLANTIS REALITY','HUNTRIX LADIES','2026-08-22 21:30:00'],
+        ['D01','D','7GL X TEAMBOT','SECRET55','2026-08-22 22:00:00'],['D02','D','GNRS MY','TITIK','2026-08-22 22:30:00'],
+        ['A03','A','GNEX ELITE','KWNPAIM','2026-08-23 21:00:00'],['A04','A','GNEX ELITE','ANTI MACRO','2026-08-23 21:30:00'],
+        ['A05','A','LEVEL PRIME','KWNPAIM','2026-08-23 22:00:00'],['A06','A','LEVEL PRIME','ANTI MACRO','2026-08-23 22:30:00'],
+        ['B03','B','ZEQ N FRIEND','SUPERZAIM','2026-08-24 21:00:00'],['B04','B','ZEQ N FRIEND','SQUAD SABAH','2026-08-24 21:30:00'],
+        ['B05','B','CUCUTOKABAH','SUPERZAIM','2026-08-24 22:00:00'],['B06','B','CUCUTOKABAH','SQUAD SABAH','2026-08-24 22:30:00'],
+        ['C03','C','MYD666','ATLANTIS REALITY','2026-08-25 21:00:00'],['C04','C','MYD666','HUNTRIX LADIES','2026-08-25 21:30:00'],
+        ['C05','C','NINESTAR ASIX','ATLANTIS REALITY','2026-08-25 22:00:00'],['C06','C','NINESTAR ASIX','HUNTRIX LADIES','2026-08-25 22:30:00'],
+        ['D03','D','7GL X TEAMBOT','GNRS MY','2026-08-26 21:00:00'],['D04','D','7GL X TEAMBOT','TITIK','2026-08-26 21:30:00'],
+        ['D05','D','SECRET55','GNRS MY','2026-08-26 22:00:00'],['D06','D','SECRET55','TITIK','2026-08-26 22:30:00'],
+    ];
+    $insert = $pdo->prepare('INSERT IGNORE INTO cl_group_stage_fixtures (fixture_key,group_code,team_a_name,team_b_name,match_time) VALUES (?,?,?,?,?)');
+    foreach ($fixtures as $fixture) $insert->execute($fixture);
+}
+
+function sync_group_stage_matches(PDO $pdo): void
+{
+    ensure_group_stage_fixtures($pdo);
+    $teams = [];
+    foreach ($pdo->query('SELECT id,UPPER(team_name) team_name FROM cl_teams WHERE status="accepted" AND is_test_account=0')->fetchAll() as $team) {
+        $teams[(string)$team['team_name']] = (int)$team['id'];
+    }
+    $findMatch = $pdo->prepare('SELECT id FROM cl_matches WHERE id=? LIMIT 1');
+    $insertMatch = $pdo->prepare('INSERT INTO cl_matches (team_a_id,team_b_id,match_name,stage_code,match_time,status,updated_at) VALUES (?,? ,?,"group_stage_2026",?,"up_next",CURRENT_TIMESTAMP)');
+    $updateMatch = $pdo->prepare('UPDATE cl_matches SET team_a_id=?,team_b_id=?,match_name=?,stage_code="group_stage_2026",match_time=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    $link = $pdo->prepare('UPDATE cl_group_stage_fixtures SET match_id=? WHERE id=?');
+    foreach ($pdo->query('SELECT * FROM cl_group_stage_fixtures ORDER BY match_time,id')->fetchAll() as $fixture) {
+        $teamA = $teams[mb_strtoupper((string)$fixture['team_a_name'])] ?? 0;
+        $teamB = $teams[mb_strtoupper((string)$fixture['team_b_name'])] ?? 0;
+        if (!$teamA || !$teamB || $teamA === $teamB) continue;
+        $matchId = (int)($fixture['match_id'] ?? 0);
+        if ($matchId) { $findMatch->execute([$matchId]); if (!$findMatch->fetchColumn()) $matchId=0; }
+        $name = 'GROUP '.$fixture['group_code'].' / BO1 / 13 ROUND';
+        if ($matchId) $updateMatch->execute([$teamA,$teamB,$name,$fixture['match_time'],$matchId]);
+        else { $insertMatch->execute([$teamA,$teamB,$name,$fixture['match_time']]); $matchId=(int)$pdo->lastInsertId(); $link->execute([$matchId,(int)$fixture['id']]); }
+    }
+}
+
+function group_stage_admin_data(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    sync_group_stage_matches($pdo);
+    $teams = $pdo->query('SELECT id,team_name,logo_url,status,slot_no,phone FROM cl_teams WHERE status!="removed" AND is_test_account=0 ORDER BY team_name')->fetchAll();
+    $fixtures = $pdo->query('SELECT id,fixture_key,group_code,team_a_name,team_b_name,DATE_FORMAT(match_time,"%Y-%m-%dT%H:%i") match_time,match_id FROM cl_group_stage_fixtures ORDER BY match_time,id')->fetchAll();
+    json_response(['ok'=>true,'teams'=>$teams,'fixtures'=>$fixtures]);
+}
+
+function save_group_stage_fixture(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    ensure_group_stage_fixtures($pdo);
+    $id=(int)($_POST['fixture_id'] ?? 0);
+    $teamA=to_upper_text(clean_text($_POST['team_a_name'] ?? '',100));
+    $teamB=to_upper_text(clean_text($_POST['team_b_name'] ?? '',100));
+    $time=normalize_match_time($_POST['match_time'] ?? '');
+    if ($id<=0 || $teamA==='' || $teamB==='' || $teamA===$teamB || !$time) json_response(['ok'=>false,'message'=>'Peserta, tarikh atau masa tidak sah.'],422);
+    $valid=$pdo->prepare('SELECT COUNT(*) FROM cl_teams WHERE status="accepted" AND is_test_account=0 AND team_name IN (?,?)');
+    $valid->execute([$teamA,$teamB]);
+    if ((int)$valid->fetchColumn()!==2) json_response(['ok'=>false,'message'=>'Kedua-dua team mesti sudah ada account aktif.'],422);
+    $stmt=$pdo->prepare('UPDATE cl_group_stage_fixtures SET team_a_name=?,team_b_name=?,match_time=? WHERE id=?');
+    $stmt->execute([$teamA,$teamB,$time,$id]);
+    if (!$stmt->rowCount()) {
+        $exists=$pdo->prepare('SELECT COUNT(*) FROM cl_group_stage_fixtures WHERE id=?');
+        $exists->execute([$id]);
+        if (!(int)$exists->fetchColumn()) json_response(['ok'=>false,'message'=>'Fixture tidak dijumpai.'],404);
+    }
+    sync_group_stage_matches($pdo);
+    json_response(['ok'=>true,'message'=>'Jadual Group Stage berjaya dikemas kini.']);
 }
 
 function current_team(PDO $pdo): ?array
