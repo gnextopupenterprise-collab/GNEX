@@ -1295,7 +1295,7 @@ if ("serviceWorker" in navigator) {
       <div><p class="section-tag">Admin</p><h3>Tambah Team Baru</h3><small>Team wajib lengkapkan IGN dan ID P1–P4 selepas login pertama.</small></div>
       <label><span>Nama Team</span><input name="team_name" maxlength="100" required placeholder="Contoh: GNEX ESPORT"></label>
       <label><span>Nombor Telefon</span><input name="phone" maxlength="40" inputmode="tel" required placeholder="Contoh: 60123456789"></label>
-      <label><span>Password</span><input name="team_password" type="password" required placeholder="Huruf besar, nombor dan simbol"></label>
+      <label><span>Password</span><input name="team_password" type="text" autocomplete="off" spellcheck="false" required placeholder="Huruf besar, nombor dan simbol"></label>
       <div class="admin-add-team-actions"><button class="btn primary" type="submit">SIMPAN TEAM</button><button class="btn secondary" type="button" data-admin-add-team-cancel>CANCEL</button></div>
       <p data-admin-add-team-status></p>
     </form>
@@ -1576,7 +1576,7 @@ if ("serviceWorker" in navigator) {
   <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="group-stage-title">
     <div class="section-head gs-head"><div><p class="section-tag">Clash League / Admin</p><h2 id="group-stage-title">Group Stage</h2></div><div class="gs-stats"><span>16 <small>Team</small></span><span class="is-green"><b data-gs-have>—</b> <small>Ada Account</small></span><span class="is-red"><b data-gs-missing>—</b> <small>Belum Ada</small></span></div></div>
     <p class="gs-notice" data-gs-notice>Memuatkan database Group Stage…</p>
-    <form class="gs-add-form" data-gs-add><input name="team_name" placeholder="Nama team" required><input name="phone" placeholder="No. telefon" required><input name="team_password" type="password" placeholder="Password (A, 1, simbol)" required><button class="btn primary">Add Team</button></form>
+    <form class="gs-add-form" data-gs-add><input name="team_name" placeholder="Nama team" required><input name="phone" placeholder="No. telefon" required><input name="team_password" type="text" autocomplete="off" spellcheck="false" placeholder="Password (A, 1, simbol)" required><button class="btn primary">Add Team</button></form>
     <div class="gs-groups" data-gs-groups></div>
     <div class="gs-schedule"><div class="section-head"><div><p class="section-tag">Official Fixture</p><h2>Match Schedule</h2></div></div><div data-gs-schedules></div></div>
   </div>
