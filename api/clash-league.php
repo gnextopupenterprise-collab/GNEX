@@ -4046,7 +4046,21 @@ function sync_group_stage_matches(PDO $pdo): void
         if ($matchId) { $findMatch->execute([$matchId]); if (!$findMatch->fetchColumn()) $matchId=0; }
         $name = 'GROUP '.$fixture['group_code'].' / BO1 / 13 ROUND';
         if ($matchId) $updateMatch->execute([$teamA,$teamB,$name,$fixture['match_time'],$matchId]);
-        else { $insertMatch->execute([$teamA,$teamB,$name,$fixture['match_time']]); $matchId=(int)$pdo->lastInsertId(); $link->execute([$matchId,(int)$fixture['id']]); }
+        else {
+            try {
+                $insertMatch->execute([$teamA,$teamB,$name,$fixture['match_time']]);
+            } catch (PDOException $error) {
+                // Sesetengah restore/import production mengekalkan ID lama tetapi
+                // meninggalkan AUTO_INCREMENT di belakang MAX(id). Repair sekali
+                // dan retry supaya sync fixture kekal idempotent.
+                if ((string)$error->getCode() !== '23000' || stripos($error->getMessage(), 'PRIMARY') === false) throw $error;
+                $nextMatchId=(int)$pdo->query('SELECT COALESCE(MAX(id),0)+1 FROM cl_matches')->fetchColumn();
+                $pdo->exec('ALTER TABLE cl_matches AUTO_INCREMENT='.$nextMatchId);
+                $insertMatch->execute([$teamA,$teamB,$name,$fixture['match_time']]);
+            }
+            $matchId=(int)$pdo->lastInsertId();
+            $link->execute([$matchId,(int)$fixture['id']]);
+        }
     }
 }
 
