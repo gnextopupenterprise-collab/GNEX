@@ -1071,18 +1071,28 @@ function ensure_active_match_uniqueness_guard(PDO $pdo): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ');
 
-    $triggerNames = $pdo->query('
-        SELECT TRIGGER_NAME FROM information_schema.TRIGGERS
+    $triggerRows = $pdo->query('
+        SELECT TRIGGER_NAME,ACTION_STATEMENT FROM information_schema.TRIGGERS
         WHERE TRIGGER_SCHEMA = DATABASE()
           AND TRIGGER_NAME IN ("cl_match_active_after_insert", "cl_match_active_after_update", "cl_match_active_after_delete")
-    ')->fetchAll(PDO::FETCH_COLUMN);
-    $existing = array_fill_keys(array_map('strval', $triggerNames), true);
+    ')->fetchAll();
+    $existing=[];
+    foreach ($triggerRows as $triggerRow) $existing[(string)$triggerRow['TRIGGER_NAME']] = (string)$triggerRow['ACTION_STATEMENT'];
+    // Group-stage round robin memang mempunyai beberapa fixture akan datang
+    // untuk team sama. Migrate guard lama supaya ia terus melindungi bracket
+    // biasa tanpa menghalang jadual Group Stage rasmi.
+    foreach (['cl_match_active_after_insert','cl_match_active_after_update'] as $triggerName) {
+        if (isset($existing[$triggerName]) && stripos($existing[$triggerName], 'group_stage_2026') === false) {
+            $pdo->exec('DROP TRIGGER '.$triggerName);
+            unset($existing[$triggerName]);
+        }
+    }
 
     if (!isset($existing['cl_match_active_after_insert'])) {
         $pdo->exec('
             CREATE TRIGGER cl_match_active_after_insert AFTER INSERT ON cl_matches FOR EACH ROW
             BEGIN
-                IF NEW.status IN ("up_next", "live") THEN
+                IF NEW.status IN ("up_next", "live") AND COALESCE(NEW.stage_code, "") != "group_stage_2026" THEN
                     IF NEW.team_a_id IS NOT NULL THEN
                         INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_a_id, NEW.id, "A");
                     END IF;
@@ -1098,7 +1108,7 @@ function ensure_active_match_uniqueness_guard(PDO $pdo): void
             CREATE TRIGGER cl_match_active_after_update AFTER UPDATE ON cl_matches FOR EACH ROW
             BEGIN
                 DELETE FROM cl_active_match_teams WHERE match_id = OLD.id;
-                IF NEW.status IN ("up_next", "live") THEN
+                IF NEW.status IN ("up_next", "live") AND COALESCE(NEW.stage_code, "") != "group_stage_2026" THEN
                     IF NEW.team_a_id IS NOT NULL THEN
                         INSERT INTO cl_active_match_teams(team_id, match_id, side) VALUES(NEW.team_a_id, NEW.id, "A");
                     END IF;

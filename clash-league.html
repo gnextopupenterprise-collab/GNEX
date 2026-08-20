@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="apple-touch-icon" sizes="192x192" href="images/clash-league-icon-192.png?v=20260726">
 <link rel="manifest" href="clash-league.webmanifest?v=20260726-5">
-<link rel="stylesheet" href="clash-league.css?v=20260816-manager-edit-v75">
+<link rel="stylesheet" href="clash-league.css?v=20260820-group-stage-native-v76">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -1571,12 +1571,31 @@ if ("serviceWorker" in navigator) {
 })();
 </script>
 
-<section id="group-stage" class="view-panel group-stage-section" aria-hidden="true">
+<section id="group-stage" class="view-panel all-team-section group-stage-section" aria-hidden="true">
   <div class="panel-backdrop" data-panel-close></div>
-  <div class="panel-shell" role="dialog" aria-modal="true" aria-label="Group Stage Admin">
-    <iframe class="group-stage-frame" src="clash-league-groups-admin.html?embedded=1" title="Group Stage Admin" loading="lazy"></iframe>
+  <div class="panel-shell" role="dialog" aria-modal="true" aria-labelledby="group-stage-title">
+    <div class="section-head gs-head"><div><p class="section-tag">Clash League / Admin</p><h2 id="group-stage-title">Group Stage</h2></div><div class="gs-stats"><span>16 <small>Team</small></span><span class="is-green"><b data-gs-have>—</b> <small>Ada Account</small></span><span class="is-red"><b data-gs-missing>—</b> <small>Belum Ada</small></span></div></div>
+    <p class="gs-notice" data-gs-notice>Memuatkan database Group Stage…</p>
+    <form class="gs-add-form" data-gs-add><input name="team_name" placeholder="Nama team" required><input name="phone" placeholder="No. telefon" required><input name="team_password" type="password" placeholder="Password (A, 1, simbol)" required><button class="btn primary">Add Team</button></form>
+    <div class="gs-groups" data-gs-groups></div>
+    <div class="gs-schedule"><div class="section-head"><div><p class="section-tag">Official Fixture</p><h2>Match Schedule</h2></div></div><div data-gs-schedules></div></div>
   </div>
 </section>
+<script>
+(() => {
+  const panel=document.querySelector('#group-stage'); if(!panel)return;
+  const groups={A:['GNEX ELITE','LEVEL PRIME','KWNPAIM','ANTI MACRO'],B:['ZEQ N FRIEND','CUCUTOKABAH','SUPERZAIM','SQUAD SABAH'],C:['MYD666','NINESTAR ASIX','ATLANTIS REALITY','HUNTRIX LADIES'],D:['SECRET55','7GL X TEAMBOT','GNRS MY','TITIK']};
+  const notice=panel.querySelector('[data-gs-notice]'),groupsEl=panel.querySelector('[data-gs-groups]'),schedulesEl=panel.querySelector('[data-gs-schedules]'); let loaded=false;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const norm=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  function renderTeams(teams){const map=new Map(teams.map(t=>[norm(t.team_name),t]));let have=0;groupsEl.innerHTML=Object.entries(groups).map(([g,names])=>`<section class="gs-group"><h3>GROUP ${g}</h3>${names.map(name=>{const t=map.get(norm(name));if(t)have++;return `<article class="gs-team ${t?'has-account':'no-account'}"><span>${esc(name)}<small>${t?(t.status==='accepted'?'Account aktif':`Status: ${esc(t.status)}`):'Tiada rekod dalam web'}</small></span><strong>${t?'ADA ACCOUNT':'BELUM ADA'}</strong></article>`}).join('')}</section>`).join('');panel.querySelector('[data-gs-have]').textContent=have;panel.querySelector('[data-gs-missing]').textContent=16-have;}
+  function renderSchedules(fixtures,teams){const active=teams.filter(t=>t.status==='accepted'),opts=active.map(t=>`<option value="${esc(t.team_name)}">${esc(t.team_name)}</option>`).join(''),days=fixtures.reduce((a,f)=>((a[f.match_time.slice(0,10)]||=[]).push(f),a),{});schedulesEl.innerHTML=Object.entries(days).map(([date,rows])=>`<details class="gs-day" open><summary>${new Date(date+'T00:00:00').toLocaleDateString('en-MY',{day:'numeric',month:'long',year:'numeric'}).toUpperCase()} <span>BO1 · 13 ROUND</span></summary>${rows.map(f=>`<form class="gs-fixture" data-gs-fixture><input type="hidden" name="fixture_id" value="${f.id}"><b>GROUP ${esc(f.group_code)}</b><select name="team_a_name">${opts}</select><em>VS</em><select name="team_b_name">${opts}</select><input name="match_time" type="datetime-local" value="${esc(f.match_time)}"><button>Simpan</button></form>`).join('')}</details>`).join('');fixtures.forEach(f=>{const form=schedulesEl.querySelector(`[name="fixture_id"][value="${f.id}"]`)?.form;if(form){form.team_a_name.value=f.team_a_name;form.team_b_name.value=f.team_b_name;}});}
+  async function load(){notice.className='gs-notice';notice.textContent='Sedang semak database team dan jadual…';try{const r=await fetch(`api/clash-league.php?action=groupStageAdmin&v=${Date.now()}`,{cache:'no-store'}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Gagal load Group Stage.');renderTeams(d.teams);renderSchedules(d.fixtures,d.teams);notice.textContent='Data Group Stage disambungkan terus dengan database live.';loaded=true;}catch(e){notice.className='gs-notice is-error';notice.textContent=e.message;}}
+  panel.querySelector('[data-gs-add]').addEventListener('submit',async e=>{e.preventDefault();const data=new FormData(e.currentTarget);data.set('action','adminCreateTeam');data.set('schedule_context','group_stage');try{const r=await fetch('api/clash-league.php',{method:'POST',body:data}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message);e.currentTarget.reset();await load();}catch(err){notice.className='gs-notice is-error';notice.textContent=err.message;}});
+  schedulesEl.addEventListener('submit',async e=>{if(!e.target.matches('[data-gs-fixture]'))return;e.preventDefault();const data=new FormData(e.target);data.set('action','saveGroupStageFixture');try{const r=await fetch('api/clash-league.php',{method:'POST',body:data}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message);notice.textContent=d.message;await load();}catch(err){notice.className='gs-notice is-error';notice.textContent=err.message;}});
+  window.addEventListener('clash:panel-open',e=>{if(e.detail?.id==='group-stage'&&!loaded)load();});
+})();
+</script>
 
 <aside
   class="video-ad-card"
