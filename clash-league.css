@@ -49,6 +49,9 @@ overflow-x:hidden;
   .match-readiness-card{padding:18px}.match-readiness-card h3{font-size:20px}
 }
 body.panel-open{overflow:hidden}
+.group-stage-section .panel-shell{width:min(1180px,calc(100% - 32px));height:calc(100dvh - 172px);padding:0;overflow:hidden;border-color:rgba(34,211,238,.32);background:#05070c}
+.group-stage-frame{display:block;width:100%;height:100%;border:0;background:#05070c}
+@media(max-width:860px){.group-stage-section .panel-shell{width:100%;height:calc(100dvh - 92px);border-radius:0}}
 .video-ad-card{
 display:none;
 }
