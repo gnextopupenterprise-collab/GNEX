@@ -3904,31 +3904,39 @@ function get_public_teams(PDO $pdo): array
         ORDER BY FIELD(t.status, "accepted", "pending"), COALESCE(t.slot_no, 999999), t.created_at DESC
     ');
 
+    $teamRows = $stmt->fetchAll();
+    $playersByTeam = [];
+    if ($teamRows) {
+        $teamIds = array_map(static fn(array $team): int => (int)$team['id'], $teamRows);
+        $placeholders = implode(',', array_fill(0, count($teamIds), '?'));
+        $playersStmt = $pdo->prepare("SELECT team_id,player_slot,ign,player_id FROM cl_players WHERE team_id IN ($placeholders) ORDER BY team_id,player_slot");
+        $playersStmt->execute($teamIds);
+        foreach ($playersStmt->fetchAll() as $player) {
+            $playersByTeam[(int)$player['team_id']][] = [
+                'slot' => 'P'.(int)$player['player_slot'],
+                'ign' => (string)$player['ign'],
+                'id' => (string)$player['player_id'],
+            ];
+        }
+    }
     $teams = [];
-    foreach ($stmt->fetchAll() as $team) {
-        $teams[] = serialize_team($pdo, $team);
+    foreach ($teamRows as $team) {
+        $teams[] = serialize_team($pdo, $team, $playersByTeam[(int)$team['id']] ?? []);
     }
 
     return $teams;
 }
 
-function serialize_team(PDO $pdo, array $team): array
+function serialize_team(PDO $pdo, array $team, ?array $prefetchedPlayers = null): array
 {
-    $playersStmt = $pdo->prepare('
-        SELECT player_slot, ign, player_id
-        FROM cl_players
-        WHERE team_id = ?
-        ORDER BY player_slot
-    ');
-    $playersStmt->execute([(int) $team['id']]);
-
-    $players = [];
-    foreach ($playersStmt->fetchAll() as $player) {
-        $players[] = [
-            'slot' => 'P' . (int) $player['player_slot'],
-            'ign' => (string) $player['ign'],
-            'id' => (string) $player['player_id'],
-        ];
+    $players = $prefetchedPlayers;
+    if ($players === null) {
+        $playersStmt = $pdo->prepare('SELECT player_slot,ign,player_id FROM cl_players WHERE team_id=? ORDER BY player_slot');
+        $playersStmt->execute([(int)$team['id']]);
+        $players = [];
+        foreach ($playersStmt->fetchAll() as $player) {
+            $players[] = ['slot'=>'P'.(int)$player['player_slot'],'ign'=>(string)$player['ign'],'id'=>(string)$player['player_id']];
+        }
     }
 
     $completeMainPlayers = 0;
@@ -4802,7 +4810,7 @@ function cancel_match_attendance(PDO $pdo): void
     json_response(get_state($pdo) + ['message' => 'Kehadiran tester dibatalkan. Ulang semula tick hadir dan test mesej.']);
 }
 
-function get_messages(PDO $pdo, array $rooms, int $sinceMessageId = 0): array
+function get_messages(PDO $pdo, array $rooms, int $sinceMessageId = 0, bool $includeSharedHistory = true): array
 {
     if (!$rooms) {
         return [];
@@ -4811,7 +4819,9 @@ function get_messages(PDO $pdo, array $rooms, int $sinceMessageId = 0): array
     $placeholders = implode(',', array_fill(0, count($roomIds), '?'));
     // Group/INFO history is included during polling so edits to older messages
     // reach devices that already have a newer message id.
-    $sinceSql = $sinceMessageId > 0 ? ' AND (cm.id > ? OR cr.room_type IN ("group", "info"))' : '';
+    $sinceSql = $sinceMessageId > 0
+        ? ($includeSharedHistory ? ' AND (cm.id > ? OR cr.room_type IN ("group", "info"))' : ' AND cm.id > ?')
+        : '';
     $stmt = $pdo->prepare("
         SELECT m.id, m.room_id, m.sender_type, m.sender_team_id, m.guest_name, m.reply_to_message_id, m.action_target, m.message, m.image_url, m.created_at, m.edited_at,
                t.team_name AS sender_team_name, t.status AS sender_team_status, t.slot_no AS sender_team_slot,
@@ -5190,7 +5200,9 @@ function get_chat_updates(PDO $pdo): array
 
     $rooms = get_deal_rooms($pdo, $chatTeam, $admin, $team !== null);
     $sinceMessageId = max(0, (int) ($_GET['since_message_id'] ?? 0));
-    $messages = get_messages($pdo, $rooms, $sinceMessageId);
+    $includeHistory = !empty($_GET['include_history']);
+    $includeMatches = !empty($_GET['include_matches']);
+    $messages = get_messages($pdo, $rooms, $sinceMessageId, $includeHistory);
 
     return [
         'ok' => true,
@@ -5203,7 +5215,7 @@ function get_chat_updates(PDO $pdo): array
         'rooms' => $rooms,
         // The Deal view polls this endpoint instead of full state. Include the
         // current fixtures so an admin opponent change reaches every team.
-        'matches' => get_team_matches($pdo, $team, $admin),
+        'matches' => $includeMatches ? get_team_matches($pdo, $team, $admin) : null,
         'messages' => $messages,
         'pinned_info' => get_pinned_info($pdo),
         'pinned_info_action_target' => get_pinned_action_target($pdo),

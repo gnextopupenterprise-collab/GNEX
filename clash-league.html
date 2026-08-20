@@ -7735,6 +7735,16 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
 
   let stateRefreshInFlight = false;
   let stateRefreshTimer = 0;
+  let chatDeepSyncAt = 0;
+
+  function chatRoomsSignature(rooms){
+    return (Array.isArray(rooms) ? rooms : []).map((room) => [
+      room.id, room.status, room.last_message_id, room.unread_count,
+      room.admin_checked ? 1 : 0, room.report_match ? 1 : 0,
+      room.team_a_attended ? 1 : 0, room.team_b_attended ? 1 : 0,
+      room.match_status, room.updated_at
+    ].join(":")) .join("|");
+  }
 
   function applyChatUpdates(data){
     const incomingAuth = data.auth || {};
@@ -7744,6 +7754,8 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     if (!sameIdentity) return false;
 
     const previousMessages = state.messages.slice();
+    const previousRoomSignature = chatRoomsSignature(state.rooms);
+    const previousPinnedInfo = state.pinnedInfo;
     state.rooms = Array.isArray(data.rooms) ? data.rooms : state.rooms;
     if (Array.isArray(data.matches)) {
       const loggedTeamId = Number(state.team?.id || 0);
@@ -7774,10 +7786,15 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
     state.pinnedInfo = data.pinned_info ?? state.pinnedInfo;
     state.pinnedActionTarget = data.pinned_info_action_target ?? state.pinnedActionTarget;
     state.pinnedAcknowledgement = data.pinned_acknowledgement || state.pinnedAcknowledgement;
-    renderDeal();
-    renderMatchReadiness();
-    renderDealBadges();
-    checkMessageNotifications(previousMessages);
+    const hasNewMessages = Array.isArray(data.messages) && data.messages.length > 0;
+    const roomsChanged = previousRoomSignature !== chatRoomsSignature(state.rooms);
+    const pinnedChanged = previousPinnedInfo !== state.pinnedInfo;
+    if (hasNewMessages || roomsChanged || pinnedChanged || Array.isArray(data.matches)) {
+      renderDeal();
+      renderMatchReadiness();
+      renderDealBadges();
+      checkMessageNotifications(previousMessages);
+    }
     return true;
   }
 
@@ -7789,7 +7806,13 @@ window.ClashLeagueApi = window.ClashLeagueApi || (() => {
       const dealIsOpen = Boolean(document.getElementById("deal")?.classList.contains("is-open"));
       if (dealIsOpen && state.initialized) {
         const lastMessageId = state.messages.reduce((max, message) => Math.max(max, Number(message.id || 0)), 0);
-        const data = await apiGet("chatUpdates", {since_message_id:lastMessageId});
+        const deepSync = Date.now() - chatDeepSyncAt >= 30000;
+        const data = await apiGet("chatUpdates", {
+          since_message_id:lastMessageId,
+          include_history:deepSync ? 1 : 0,
+          include_matches:deepSync ? 1 : 0
+        });
+        if (deepSync) chatDeepSyncAt = Date.now();
         if (refreshAuthVersion === authStateVersion && !loginBusy && !applyChatUpdates(data)) {
           const fullData = await apiGet("state");
           if (refreshAuthVersion === authStateVersion && !loginBusy) setState(fullData);
