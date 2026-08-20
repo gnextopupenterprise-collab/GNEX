@@ -210,6 +210,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveGroupStageFixture'
     save_group_stage_fixture($pdo);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'saveKnockoutSlot') {
+    save_knockout_slot($pdo);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'createOrderRecord') {
     create_order_record($pdo);
 }
@@ -4082,6 +4086,88 @@ function sync_group_stage_matches(PDO $pdo): void
     }
 }
 
+function calculate_group_stage_standings(PDO $pdo): array
+{
+    ensure_group_stage_fixtures($pdo);
+    $rows=$pdo->query('SELECT f.group_code,f.team_a_name,f.team_b_name,m.status,m.team_a_point,m.team_b_point
+        FROM cl_group_stage_fixtures f LEFT JOIN cl_matches m ON m.id=f.match_id ORDER BY f.group_code,f.match_time,f.id')->fetchAll();
+    $groups=[];
+    foreach ($rows as $row) {
+        $group=(string)$row['group_code'];
+        foreach (['team_a_name','team_b_name'] as $key) {
+            $name=(string)$row[$key];
+            if (!isset($groups[$group][$name])) $groups[$group][$name]=['team_name'=>$name,'played'=>0,'round_points'=>0,'round_against'=>0,'round_diff'=>0,'wins'=>0,'rank'=>0,'qualified'=>false];
+        }
+        if ((string)($row['status'] ?? '')!=='completed' || $row['team_a_point']===null || $row['team_b_point']===null) continue;
+        $a=(string)$row['team_a_name'];$b=(string)$row['team_b_name'];$ap=(int)$row['team_a_point'];$bp=(int)$row['team_b_point'];
+        $groups[$group][$a]['played']++;$groups[$group][$b]['played']++;
+        $groups[$group][$a]['round_points']+=$ap;$groups[$group][$a]['round_against']+=$bp;
+        $groups[$group][$b]['round_points']+=$bp;$groups[$group][$b]['round_against']+=$ap;
+        if ($ap>$bp) $groups[$group][$a]['wins']++; elseif ($bp>$ap) $groups[$group][$b]['wins']++;
+    }
+    $result=[];
+    foreach (['A','B','C','D'] as $group) {
+        $table=array_values($groups[$group] ?? []);
+        foreach ($table as &$team) $team['round_diff']=$team['round_points']-$team['round_against'];
+        unset($team);
+        usort($table,static fn($a,$b)=>$b['round_points']<=>$a['round_points'] ?: $b['round_diff']<=>$a['round_diff'] ?: $b['wins']<=>$a['wins'] ?: strcmp($a['team_name'],$b['team_name']));
+        $complete=count($table)===4 && array_sum(array_column($table,'played'))===12;
+        $tieAtCutoff=$complete && isset($table[1],$table[2]) && (int)$table[1]['round_points']===(int)$table[2]['round_points'];
+        foreach ($table as $index=>&$team) {$team['rank']=$index+1;$team['qualified']=$complete && !$tieAtCutoff && $index<2;}
+        unset($team);
+        $result[]=['group_code'=>$group,'complete'=>$complete,'tie_at_cutoff'=>$tieAtCutoff,'completed_matches'=>(int)(array_sum(array_column($table,'played'))/2),'total_matches'=>6,'teams'=>$table];
+    }
+    return $result;
+}
+
+function ensure_knockout_slots(PDO $pdo): void
+{
+    $pdo->exec('CREATE TABLE IF NOT EXISTS cl_knockout_slots (
+        slot_key VARCHAR(20) PRIMARY KEY, team_id INT NULL, manual_override TINYINT(1) NOT NULL DEFAULT 0,
+        source_label VARCHAR(30) NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY(team_id) REFERENCES cl_teams(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+    $matches=['M1','M2','M3','M4','M5','M6','UBF','M8','M9','M10','M11','M12','LBF','GF'];
+    $insert=$pdo->prepare('INSERT IGNORE INTO cl_knockout_slots(slot_key,source_label) VALUES(?,?)');
+    foreach ($matches as $match) foreach (['A','B'] as $side) $insert->execute([$match.'_'.$side,'TDB']);
+}
+
+function sync_knockout_qualifiers(PDO $pdo, array $standings): void
+{
+    ensure_knockout_slots($pdo);
+    $ranked=[];
+    foreach ($standings as $group) if (!empty($group['complete']) && empty($group['tie_at_cutoff'])) foreach ($group['teams'] as $team) if (!empty($team['qualified'])) $ranked[$group['group_code'].(int)$team['rank']]=$team['team_name'];
+    $seeds=['M1_A'=>'A1','M1_B'=>'B2','M2_A'=>'C1','M2_B'=>'D2','M3_A'=>'B1','M3_B'=>'A2','M4_A'=>'D1','M4_B'=>'C2'];
+    $findTeam=$pdo->prepare('SELECT id FROM cl_teams WHERE team_name=? AND status="accepted" AND is_test_account=0 LIMIT 1');
+    $update=$pdo->prepare('UPDATE cl_knockout_slots SET team_id=?,source_label=? WHERE slot_key=? AND manual_override=0');
+    foreach ($seeds as $slot=>$seed) {
+        $teamId=null;
+        if (isset($ranked[$seed])) {$findTeam->execute([$ranked[$seed]]);$found=(int)($findTeam->fetchColumn() ?: 0);$teamId=$found>0?$found:null;}
+        $update->execute([$teamId,$seed,$slot]);
+    }
+}
+
+function get_knockout_bracket(PDO $pdo, array $standings): array
+{
+    sync_knockout_qualifiers($pdo,$standings);
+    return $pdo->query('SELECT s.slot_key,s.team_id,s.manual_override,s.source_label,t.team_name,t.logo_url
+        FROM cl_knockout_slots s LEFT JOIN cl_teams t ON t.id=s.team_id ORDER BY FIELD(SUBSTRING_INDEX(s.slot_key,"_",1),"M1","M2","M3","M4","M5","M6","UBF","M8","M9","M10","M11","M12","LBF","GF"),s.slot_key')->fetchAll();
+}
+
+function save_knockout_slot(PDO $pdo): void
+{
+    if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
+    ensure_knockout_slots($pdo);
+    $slot=preg_replace('/[^A-Z0-9_]/','',strtoupper((string)($_POST['slot_key'] ?? '')));
+    $allowed=[];foreach (['M1','M2','M3','M4','M5','M6','UBF','M8','M9','M10','M11','M12','LBF','GF'] as $match) foreach(['A','B'] as $side)$allowed[]=$match.'_'.$side;
+    if (!in_array($slot,$allowed,true)) json_response(['ok'=>false,'message'=>'Slot bracket tidak sah.'],422);
+    $teamName=to_upper_text(clean_text($_POST['team_name'] ?? '',100));$teamId=null;
+    if ($teamName!=='') {$stmt=$pdo->prepare('SELECT id FROM cl_teams WHERE team_name=? AND status="accepted" AND is_test_account=0 LIMIT 1');$stmt->execute([$teamName]);$found=(int)($stmt->fetchColumn() ?: 0);if(!$found)json_response(['ok'=>false,'message'=>'Team aktif tidak dijumpai.'],422);$teamId=$found;
+        $matchPrefix=substr($slot,0,strrpos($slot,'_'));$duplicate=$pdo->prepare('SELECT COUNT(*) FROM cl_knockout_slots WHERE slot_key LIKE ? AND slot_key!=? AND team_id=?');$duplicate->execute([$matchPrefix.'\_%',$slot,$teamId]);if((int)$duplicate->fetchColumn()>0)json_response(['ok'=>false,'message'=>'Team sama tidak boleh berada pada kedua-dua side match.'],409);}
+    $stmt=$pdo->prepare('UPDATE cl_knockout_slots SET team_id=?,manual_override=1,source_label="MANUAL" WHERE slot_key=?');$stmt->execute([$teamId,$slot]);
+    json_response(['ok'=>true,'message'=>$teamId?'Slot bracket berjaya dikemas kini.':'Team dibuang daripada slot bracket.']);
+}
+
 function group_stage_admin_data(PDO $pdo): void
 {
     if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
@@ -4093,7 +4179,9 @@ function group_stage_admin_data(PDO $pdo): void
         FROM cl_group_stage_fixtures f
         LEFT JOIN cl_matches m ON m.id=f.match_id
         ORDER BY f.match_time,f.id')->fetchAll();
-    json_response(['ok'=>true,'teams'=>$teams,'fixtures'=>$fixtures]);
+    $standings=calculate_group_stage_standings($pdo);
+    $bracket=get_knockout_bracket($pdo,$standings);
+    json_response(['ok'=>true,'teams'=>$teams,'fixtures'=>$fixtures,'standings'=>$standings,'bracket'=>$bracket]);
 }
 
 function save_group_stage_fixture(PDO $pdo): void
