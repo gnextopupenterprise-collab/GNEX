@@ -4087,7 +4087,12 @@ function group_stage_admin_data(PDO $pdo): void
     if (!current_admin($pdo)) json_response(['ok'=>false,'message'=>'Login admin diperlukan.'],401);
     sync_group_stage_matches($pdo);
     $teams = $pdo->query('SELECT id,team_name,logo_url,status,slot_no,phone FROM cl_teams WHERE status!="removed" AND is_test_account=0 ORDER BY team_name')->fetchAll();
-    $fixtures = $pdo->query('SELECT id,fixture_key,group_code,team_a_name,team_b_name,DATE_FORMAT(match_time,"%Y-%m-%dT%H:%i") match_time,match_id FROM cl_group_stage_fixtures ORDER BY match_time,id')->fetchAll();
+    $fixtures = $pdo->query('SELECT f.id,f.fixture_key,f.group_code,f.team_a_name,f.team_b_name,
+        DATE_FORMAT(f.match_time,"%Y-%m-%dT%H:%i") match_time,f.match_id,
+        m.team_a_point,m.team_b_point,m.status match_status
+        FROM cl_group_stage_fixtures f
+        LEFT JOIN cl_matches m ON m.id=f.match_id
+        ORDER BY f.match_time,f.id')->fetchAll();
     json_response(['ok'=>true,'teams'=>$teams,'fixtures'=>$fixtures]);
 }
 
@@ -6228,6 +6233,9 @@ function admin_set_match_result(PDO $pdo): void
         json_response(['ok' => false, 'message' => $error->getMessage()], 409);
     }
 
+    if (!empty($_POST['compact_response'])) {
+        json_response(['ok'=>true,'message'=>'Point kedua-dua team berjaya ditetapkan oleh admin.','match_id'=>$matchId,'team_a_point'=>$teamAPoint,'team_b_point'=>$teamBPoint,'status'=>'completed']);
+    }
     json_response(get_state($pdo) + ['message' => 'Point kedua-dua team berjaya ditetapkan oleh admin.']);
 }
 
