@@ -646,3 +646,32 @@ window.enableUserNotifications = async function enableUserNotifications(){
     button.classList.toggle("is-on", enabled);
   }
 }
+
+function setupHomepagePerformance(){
+  const root=document.documentElement;
+  const zones=[...document.querySelectorAll("header.hero-glow,.promo-carousel,.card-button-grid,#payment")];
+  const hero=document.querySelector("header.hero-glow");
+  const heroVideo=hero?.querySelector("video");
+  if("IntersectionObserver" in window){
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        entry.target.classList.toggle("is-performance-offscreen",!entry.isIntersecting);
+        if(entry.target===hero&&heroVideo){
+          if(entry.isIntersecting&&!document.hidden) heroVideo.play().catch(()=>{});
+          else heroVideo.pause();
+        }
+      });
+    },{rootMargin:"180px 0px",threshold:0});
+    zones.forEach(zone=>observer.observe(zone));
+  }
+  document.addEventListener("visibilitychange",()=>{
+    root.classList.toggle("is-performance-hidden",document.hidden);
+    if(heroVideo){
+      if(document.hidden||hero?.classList.contains("is-performance-offscreen")) heroVideo.pause();
+      else heroVideo.play().catch(()=>{});
+    }
+  });
+}
+
+if("requestIdleCallback" in window) requestIdleCallback(setupHomepagePerformance,{timeout:1200});
+else window.addEventListener("load",setupHomepagePerformance,{once:true});

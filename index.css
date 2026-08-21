@@ -17,6 +17,12 @@ padding-bottom:92px;
 
 /* Automatic low-power rendering for older phones and data-saver users. */
 .lite-mode *{scroll-behavior:auto!important;animation:none!important}
+.performance-mode .tournament-card-character,.performance-mode .topup-card-item,.performance-mode .jersey-card-item,.performance-mode .gnex-esport-card-logo,.performance-mode .gnex-esport-card-kelly{filter:none!important;backface-visibility:hidden;will-change:transform,opacity}
+.performance-mode .electric-card::before,.performance-mode .tournament-card-button::before,.performance-mode .topup-card-button::before,.performance-mode .jersey-card-button::before,.performance-mode .gnex-esport-card-button::before{box-shadow:none!important}
+.performance-mode .promo-slide{filter:none!important;box-shadow:0 10px 28px rgba(0,0,0,.32)!important;will-change:transform,opacity}
+.performance-mode .backdrop-blur-xl,.performance-mode .game-list-menu a,.performance-mode .image-lightbox{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.performance-mode .is-performance-offscreen,.performance-mode .is-performance-offscreen *,html.is-performance-hidden *{animation-play-state:paused!important}
+.performance-mode .is-performance-offscreen::before,.performance-mode .is-performance-offscreen::after,.performance-mode .is-performance-offscreen *::before,.performance-mode .is-performance-offscreen *::after{animation-play-state:paused!important}
 .balanced-mode .hero-video,.balanced-mode .hero-red-motion{display:none!important}
 .balanced-mode .tournament-card-button::before,.balanced-mode .topup-card-button::before,.balanced-mode .jersey-card-button::before,.balanced-mode .gnex-esport-card-button::before,.balanced-mode .tournament-card-button::after,.balanced-mode .topup-card-button::after,.balanced-mode .jersey-card-button::after,.balanced-mode .gnex-esport-card-button::after{animation:none!important;display:none!important}
 .balanced-mode .tournament-card-character,.balanced-mode .topup-card-item,.balanced-mode .jersey-card-item,.balanced-mode .gnex-esport-card-logo,.balanced-mode .gnex-esport-card-kelly{filter:none!important;will-change:transform,opacity}
