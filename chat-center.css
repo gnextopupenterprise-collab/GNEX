@@ -119,6 +119,19 @@ body.topup-chat-open.chat-focus-mode.keyboard-open .gc-composer{
   padding-bottom:9px;
 }
 
+/* In a focused conversation the bottom nav is hidden, so let the composer
+   occupy its own grid row instead of reserving the old fixed-nav gap. */
+#gc-chat-view{grid-template-rows:72px minmax(0,1fr) auto}
+body.topup-chat-open.chat-focus-mode:not(.keyboard-open) .gc-composer{
+  position:relative;
+  inset:auto;
+  bottom:auto;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom,0px));
+}
+body.topup-chat-open.chat-focus-mode:not(.keyboard-open) .gc-messages{
+  padding-bottom:12px;
+}
+
 .gc-plus,.gc-send{display:grid;place-items:center;border:0}
 .gc-plus{width:38px;height:38px;border-radius:50%;background:#141a23;color:#a1a1aa;font-size:24px;font-weight:300}
 .gc-send{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--gc-cyan2),var(--gc-cyan));color:#02040a}
@@ -139,7 +152,7 @@ body.topup-chat-open{
   body.topup-chat-open .gc-panel{height:100dvh!important;overflow:hidden!important}
   .gc-shell{width:100%;height:100dvh;border:0}
   .gc-view{grid-template-rows:64px auto minmax(0,1fr)}
-  #gc-chat-view{grid-template-rows:64px minmax(0,1fr) 72px}
+  #gc-chat-view{grid-template-rows:64px minmax(0,1fr) auto}
   .gc-header{padding:8px 12px}
   .gc-home-scroll{padding-bottom:130px}
 
