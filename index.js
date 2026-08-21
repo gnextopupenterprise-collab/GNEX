@@ -155,13 +155,7 @@ document.getElementById(sectionId)
 }
 
 function openPriceListPanel(){
-const priceList = document.getElementById("price-list");
-if(!priceList) return;
-
-setBottomNavActive("topup");
-priceList.classList.add("is-open");
-priceList.setAttribute("aria-hidden", "false");
-document.body.classList.add("modal-open");
+window.location.href = "topup-store.php";
 }
 
 async function logoutTopupUser(){

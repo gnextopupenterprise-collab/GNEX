@@ -89,6 +89,17 @@ body.modal-open{
 overflow:hidden;
 }
 
+.topup-store-standalone{position:relative;display:block;min-height:100vh;padding-top:81px;background:#02040a;color:#fff}
+.topup-store-standalone .modal-backdrop,.topup-store-standalone .modal-close{display:none!important}
+.topup-store-standalone .modal-panel{position:relative;height:auto;min-height:calc(100vh - 81px);overflow:visible;border:0;background:radial-gradient(circle at 12% 0%,rgba(34,211,238,.1),transparent 34%),linear-gradient(180deg,rgba(2,6,23,.98),rgba(2,4,10,.99))}
+.topup-store-standalone .price-list-shell{padding-top:48px!important;padding-bottom:70px!important}
+
+@media(max-width:767px){
+.topup-store-standalone{padding-top:75px}
+.topup-store-standalone .modal-panel{min-height:calc(100vh - 75px);padding-bottom:20px}
+.topup-store-standalone .price-list-shell{padding:30px 18px 110px!important}
+}
+
 .modal-view{
 position:fixed;
 inset:81px 0 0;
