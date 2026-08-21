@@ -199,6 +199,9 @@ body.keyboard-open .topup-bottom-nav{
 .gnex-light-theme .gc-icon-btn{background:#fff;color:#334155;border-color:#b9d8e4}
 .gnex-light-theme .gc-tabs{background:#eef4f8;border-color:#d4e4eb}.gnex-light-theme .gc-tabs button{background:#e4ebf1;color:#64748b}
 .gnex-light-theme .gc-tabs button.is-active{background:#d8f5fa;color:#087c91}
+.gc-tabs button[data-gc-tab="admin"],.gnex-light-theme .gc-tabs button[data-gc-tab="admin"]{background:linear-gradient(105deg,#079eea 0%,#117bcf 56%,#1758aa 100%);color:#fff;filter:brightness(.58) saturate(.8)}
+.gc-tabs button[data-gc-tab="group"],.gnex-light-theme .gc-tabs button[data-gc-tab="group"]{background:linear-gradient(105deg,#1758aa 0%,#253b89 55%,#2b2f77 100%);color:#fff;filter:brightness(.58) saturate(.8)}
+.gc-tabs button[data-gc-tab].is-active,.gnex-light-theme .gc-tabs button[data-gc-tab].is-active{filter:brightness(1) saturate(1.12);box-shadow:inset 0 0 0 1px rgba(125,211,252,.5),0 5px 18px rgba(3,105,161,.25)}
 .gnex-light-theme .gc-home-scroll{background:radial-gradient(circle at 85% 0,rgba(8,145,178,.1),transparent 28%),#f4f7fb}
 .gnex-light-theme .gc-card,.gnex-light-theme .gc-channel-post,.gnex-light-theme .gc-empty-state{background:#fff;color:#172033;border-color:#ccd8e2}
 .gnex-light-theme .gc-card-copy p,.gnex-light-theme .gc-section-title small,.gnex-light-theme .gc-head-copy span{color:#64748b}
