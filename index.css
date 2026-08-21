@@ -16,7 +16,7 @@ padding-bottom:92px;
 }
 
 /* Automatic low-power rendering for older phones and data-saver users. */
-.lite-mode *{scroll-behavior:auto!important}
+.lite-mode *{scroll-behavior:auto!important;animation:none!important}
 .lite-mode .hero-video,.lite-mode .hero-red-motion{display:none!important}
 .lite-mode .tournament-card-button::before,.lite-mode .topup-card-button::before,.lite-mode .jersey-card-button::before,.lite-mode .gnex-esport-card-button::before,.lite-mode .tournament-card-button::after,.lite-mode .topup-card-button::after,.lite-mode .jersey-card-button::after,.lite-mode .gnex-esport-card-button::after{animation:none!important;display:none!important}
 .lite-mode .tournament-card-character,.lite-mode .topup-card-item,.lite-mode .jersey-card-item,.lite-mode .gnex-esport-card-logo,.lite-mode .gnex-esport-card-kelly{animation:none!important;filter:none!important}
@@ -25,9 +25,11 @@ padding-bottom:92px;
 .lite-mode .topup-card-item:not(.is-pubg):not(.is-weekly){opacity:1;transform:translate(0,-44%)}
 .lite-mode .jersey-card-item.is-front{opacity:1;transform:none}
 .lite-mode .gnex-esport-card-logo:not(.is-repeat){opacity:1;transform:none}
-.lite-mode .backdrop-blur-xl,.lite-mode .game-list-menu a,.lite-mode .image-lightbox{backdrop-filter:none!important}
+.lite-mode .backdrop-blur-xl,.lite-mode .game-list-menu a,.lite-mode .image-lightbox,.lite-mode .bottom-app-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .lite-mode .tournament-card-button,.lite-mode .topup-card-button,.lite-mode .jersey-card-button,.lite-mode .gnex-esport-card-button{filter:none!important;box-shadow:0 0 0 1px rgba(103,241,253,.55)!important}
-@media(max-width:699px){section:not(.chat-center):not(.topup-price-panel),footer{content-visibility:auto;contain-intrinsic-size:600px}}
+.lite-mode .promo-slide{filter:none!important;box-shadow:none!important;transition:none!important}
+.lite-mode .bottom-app-nav{background:#050a12!important;box-shadow:0 8px 20px rgba(0,0,0,.45)!important}
+.lite-mode .bottom-nav-item,.lite-mode .bottom-nav-item.is-active{transition:none!important}
 
 }
 
