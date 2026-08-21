@@ -1220,7 +1220,7 @@ if ($method === 'POST' && $action === 'setOrderStatus') {
         'title'=>$pushTitle,
         'body'=>$body,
         'url'=>'index.html?chat=guest',
-        'tag'=>'gnex-user-order-'.$conversationId,
+        'tag'=>'gnex-user-order-'.$statusMessageId,
         'badge_count'=>user_unread_count($pdo,$targetDevice),
     ]);
 
@@ -1440,7 +1440,7 @@ if ($method === 'POST' && $action === 'sendMessage') {
             'title'=>'GNEX · Balasan admin',
             'body'=>$body!==''?$body:'Admin menghantar gambar.',
             'url'=>'index.html?chat=guest',
-            'tag'=>'gnex-user-chat-'.$conversation,
+            'tag'=>'gnex-user-chat-'.$messageId,
             'badge_count'=>user_unread_count($pdo,$targetDevice),
         ]);
     } else {

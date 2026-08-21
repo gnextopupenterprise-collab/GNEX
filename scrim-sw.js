@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v15';
+const STATIC_CACHE = 'gnex-static-v16';
 const IMAGE_CACHE = 'gnex-images-v4';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
@@ -245,7 +245,6 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = new URL(event.notification.data?.url || 'scrim.html', self.location.origin).href;
   event.waitUntil((async () => {
-    if ('clearAppBadge' in self.navigator) await self.navigator.clearAppBadge();
     const windows = await self.clients.matchAll({type:'window', includeUncontrolled:true});
     for (const client of windows) {
       if ('focus' in client) {
@@ -269,6 +268,9 @@ async function showGnexPush(data){
     badge:'images/gnex-main-white-192.png',
     data:{url:data.url||'index.html?chat=guest'},
     renotify:true,
+    silent:false,
+    requireInteraction:true,
+    timestamp:Date.now(),
     vibrate:[180,80,180]
   });
   if('setAppBadge' in self.navigator)await self.navigator.setAppBadge(count);
