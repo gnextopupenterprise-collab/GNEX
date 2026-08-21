@@ -1056,6 +1056,7 @@ if ($method === 'POST' && $action === 'login') {
         auth_limit_clear($loginLimitKey);
         session_regenerate_id(true);
         $_SESSION['cl_admin_id'] = (int) $adminAccount['id'];
+        $_SESSION['cl_admin_access_scope'] = (string) (admin($pdo)['access_scope'] ?? 'admin');
         touch_admin_presence($pdo,(int)$adminAccount['id']);
         unset($_SESSION['gt_customer_id'], $_SESSION['gt_pending_customer_id']);
         respond([
@@ -1082,7 +1083,7 @@ if ($method === 'POST' && $action === 'login') {
     auth_limit_clear($loginLimitKey);
     session_regenerate_id(true);
     $_SESSION['gt_customer_id'] = (int) $account['id'];
-    unset($_SESSION['cl_admin_id'], $_SESSION['gt_pending_customer_id']);
+    unset($_SESSION['cl_admin_id'], $_SESSION['cl_admin_access_scope'], $_SESSION['gt_pending_customer_id']);
     if (password_needs_rehash((string)$account['password_hash'], PASSWORD_DEFAULT)) {
         $pdo->prepare('UPDATE gt_customers SET password_hash=? WHERE id=?')->execute([password_hash($password,PASSWORD_DEFAULT),(int)$account['id']]);
     }
@@ -1119,6 +1120,7 @@ if ($method === 'POST' && $action === 'adminLogin') {
     if (!$account || !password_verify($password, (string) $account['password_hash'])) respond(['ok' => false, 'message' => 'Login admin salah.'], 401);
     session_regenerate_id(true);
     $_SESSION['cl_admin_id'] = (int) $account['id'];
+    $_SESSION['cl_admin_access_scope'] = (string) (admin($pdo)['access_scope'] ?? 'admin');
     touch_admin_presence($pdo,(int)$account['id']);
     respond(['ok' => true, 'message' => 'Admin login berjaya.', 'admin' => admin($pdo), 'csrf' => csrf_token()]);
 }
