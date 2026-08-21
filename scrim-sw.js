@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v17';
+const STATIC_CACHE = 'gnex-static-v18';
 const IMAGE_CACHE = 'gnex-images-v4';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
