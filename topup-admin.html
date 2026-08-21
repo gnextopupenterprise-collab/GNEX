@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="images/20260602_004238.png">
   <link rel="manifest" href="admin-manifest.webmanifest?v=1">
   <meta name="theme-color" content="#02050a">
-  <link rel="stylesheet" href="topup-admin.css?v=18">
+  <link rel="stylesheet" href="topup-admin.css?v=19">
 </head>
 <body>
 
@@ -244,7 +244,7 @@
     </section>
 
     <nav class="admin-bottom-nav" aria-label="Admin navigation">
-      <button type="button" class="is-active" data-admin-view="inbox" onclick="showAdminView('inbox')"><span>▣</span>CHAT</button>
+      <button type="button" class="is-active" data-admin-view="inbox" onclick="showAdminView('inbox')"><span>▣</span>CHAT <b id="adminChatBadge" hidden>0</b></button>
       <button type="button" data-admin-view="register" onclick="showAdminView('register')"><span>✓</span>REGISTER <b id="adminPendingBadge">0</b></button>
       <button type="button" data-admin-view="group" onclick="showAdminView('group')"><span>♧</span>GROUP</button>
       <button type="button" data-admin-view="community" onclick="showAdminView('community')"><span>◎</span>KOMUNITI</button>
@@ -264,6 +264,6 @@
     </div>
   </section>
 
-    <script src="topup-admin.js?v=22"></script>
+    <script src="topup-admin.js?v=23"></script>
 </body>
 </html>

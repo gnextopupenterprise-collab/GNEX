@@ -458,6 +458,9 @@ async function loadInbox(
       state.counts;
 
     updateAdminAppBadge();
+    const totalUnread=Object.values(state.counts).reduce((sum,value)=>sum+(Number(value)||0),0);
+    const chatBadge=$("#adminChatBadge");
+    if(chatBadge){chatBadge.textContent=totalUnread>99?"99+":String(totalUnread);chatBadge.hidden=totalUnread===0;}
     $("#countTopup")
       .textContent =
       state.counts.topup || 0;
@@ -564,7 +567,7 @@ function renderInbox(){
             state.conversationId
               ? "is-active"
               : ""
-          } ${Number(item.last_message_id || 0) > Number(item.admin_last_read_message_id || 0) && ["guest","customer"].includes(item.last_sender) ? "is-unread" : ""}"
+          } ${Number(item.unread_count || 0)>0 ? "is-unread" : ""}"
           onclick="openChat(${Number(
             item.id
           )})"
@@ -613,6 +616,8 @@ function renderInbox(){
               )
             }
           </time>
+
+          ${Number(item.unread_count||0)>0?`<b class="inbox-unread-count" aria-label="${Number(item.unread_count)} mesej belum dibaca">${Number(item.unread_count)>99?"99+":Number(item.unread_count)}</b>`:""}
 
         </button>
       `

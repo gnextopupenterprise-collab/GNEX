@@ -14,7 +14,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link rel="stylesheet" href="index.css?v=8">
-<link rel="stylesheet" href="chat-center.css?v=23">
+<link rel="stylesheet" href="chat-center.css?v=24">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -235,6 +235,7 @@ WHATSAPP
 <path d="M16 16h.01"></path>
 </svg>
 <span>Chat</span>
+<strong id="mainChatCount" class="gnex-chat-count" hidden>0</strong>
 </button>
 
 <button type="button" class="bottom-nav-item" data-nav="topup" onclick="if(window.closeChatCenter) closeChatCenter(); openPriceListPanel()" aria-label="GNEX Topup">
@@ -267,6 +268,7 @@ WHATSAPP
 <button type="button" class="bottom-nav-item is-active" data-chat-nav="chat" onclick="openChatNavTab('chat')" aria-label="Chat">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M16 16h.01"></path></svg>
 <span>Chat</span>
+<strong id="insideChatCount" class="gnex-chat-count" hidden>0</strong>
 </button>
 <button type="button" class="bottom-nav-item" data-chat-nav="community" onclick="openChatNavTab('community')" aria-label="Komuniti">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"></circle><circle cx="16" cy="8" r="3"></circle><path d="M2.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M10.5 19a5.5 5.5 0 0 1 11 0"></path></svg>
@@ -908,6 +910,6 @@ Collab
 
 <script src="index.js?v=10"></script>
 <script src="mobile-nav.js?v=11"></script>
-<script src="chat-center.js?v=32"></script>
+<script src="chat-center.js?v=33"></script>
 </body>
 </html>

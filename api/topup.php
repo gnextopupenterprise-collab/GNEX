@@ -710,7 +710,8 @@ if ($method === 'GET' && $action === 'adminInbox') {
             cu.login_id AS phone,cu.status AS account_status,
             (SELECT body FROM gt_messages m WHERE m.conversation_id=c.id ORDER BY m.id DESC LIMIT 1) AS last_message,
             (SELECT id FROM gt_messages m WHERE m.conversation_id=c.id ORDER BY m.id DESC LIMIT 1) AS last_message_id,
-            (SELECT sender_type FROM gt_messages m WHERE m.conversation_id=c.id ORDER BY m.id DESC LIMIT 1) AS last_sender
+            (SELECT sender_type FROM gt_messages m WHERE m.conversation_id=c.id ORDER BY m.id DESC LIMIT 1) AS last_sender,
+            (SELECT COUNT(*) FROM gt_messages m WHERE m.conversation_id=c.id AND m.id>c.admin_last_read_message_id AND m.sender_type IN ("guest","customer")) AS unread_count
          FROM gt_conversations c
          INNER JOIN gt_devices d ON d.id=c.device_id
          LEFT JOIN gt_customers cu ON cu.id=c.customer_id
@@ -722,14 +723,9 @@ if ($method === 'GET' && $action === 'adminInbox') {
     $rows = $stmt->fetchAll();
 
     $counts = ['topup' => 0, 'tour' => 0, 'report' => 0];
-    $countRows = $pdo->query('SELECT c.department,COUNT(*) AS total
+    $countRows = $pdo->query('SELECT c.department,SUM((SELECT COUNT(*) FROM gt_messages m WHERE m.conversation_id=c.id AND m.id>c.admin_last_read_message_id AND m.sender_type IN ("guest","customer"))) AS total
         FROM gt_conversations c
-        WHERE c.status="open" AND EXISTS (
-          SELECT 1 FROM gt_messages m
-          WHERE m.conversation_id=c.id
-            AND m.id>c.admin_last_read_message_id
-            AND m.sender_type IN ("guest","customer")
-        ) GROUP BY c.department')->fetchAll();
+        WHERE c.status="open" GROUP BY c.department')->fetchAll();
     foreach ($countRows as $countRow) {
         $key = normalize_department($countRow['department'] ?? 'topup');
         $counts[$key] = (int) $countRow['total'];

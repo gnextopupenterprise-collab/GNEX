@@ -509,6 +509,7 @@ async function clearGnexBadge(){
 async function updateGnexAppBadge(count){
   const total=Math.max(0,Number(count)||0);
   const previous=Math.max(0,Number(localStorage.getItem("gnex_user_badge_count"))||0);
+  [$("#mainChatCount"),$("#insideChatCount")].filter(Boolean).forEach(badge=>{badge.textContent=total>99?"99+":String(total);badge.hidden=total===0;});
   try{
     if(total>0&&"setAppBadge" in navigator)await navigator.setAppBadge(total);
     else if(total===0&&"clearAppBadge" in navigator)await navigator.clearAppBadge();
