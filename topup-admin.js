@@ -225,7 +225,7 @@ async function subscribeAdminPush(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||Notification.permission!=="granted")return false;
   const appState=await request("state");
   if(!appState.push_public_key)throw new Error("Kunci push server belum tersedia.");
-  const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=1",{scope:new URL("topup-admin.html",location.href).pathname});
+  const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=2",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
   let subscription=await registration.pushManager.getSubscription();
   if(subscription&&localStorage.getItem("gnex_admin_push_vapid_key")!==appState.push_public_key){await subscription.unsubscribe();subscription=null;}
   if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:adminPushKeyBytes(appState.push_public_key)});
@@ -879,6 +879,13 @@ async function openChat(id){
 
   try{
     await request("markConversationRead", {conversation_id:state.conversationId});
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.getRegistration(new URL("topup-admin.html",location.href).pathname).then(async registration=>{
+        for(const notification of await registration?.getNotifications()||[]){
+          if(Number(notification.data?.conversation_id)===state.conversationId)notification.close();
+        }
+      }).catch(()=>{});
+    }
     item.admin_last_read_message_id = item.last_message_id || item.admin_last_read_message_id;
     await loadInbox(false);
   }catch(error){}
@@ -1318,7 +1325,7 @@ async function enableAdminNotifications(){
   state.notificationsEnabled = permission === "granted";
   localStorage.setItem("gnex_admin_notifications", state.notificationsEnabled ? "on" : "off");
   if(state.notificationsEnabled){
-    await navigator.serviceWorker.register("admin-push-sw.js?v=1",{scope:new URL("topup-admin.html",location.href).pathname});
+    await navigator.serviceWorker.register("admin-push-sw.js?v=2",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
     try{await subscribeAdminPush();}catch(error){alert(error.message||"Push notification gagal diaktifkan.");}
   }
   updateAdminNotificationButton();

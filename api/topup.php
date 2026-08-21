@@ -813,7 +813,8 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
           'title'=>$type==='order'?'GNEX ORDER · Order belum dibuka':'GNEX ORDER · Mesej belum dibuka',
           'body'=>(int)$row['unread_count'].' mesej · '.clean($row['latest_body'] ?? '',120),
           'url'=>'topup-admin.html?conversation_id='.(int)$row['id'],
-          'tag'=>'gnex-order-reminder-'.(int)$row['id'],
+          'tag'=>'gnex-order-reminder-'.(int)$row['id'].'-'.time(),
+          'conversation_id'=>(int)$row['id'],
           'badge_count'=>(int)$row['unread_count'],
         ]);
         $pdo->prepare('INSERT INTO gt_admin_reminder_dispatch(admin_id,conversation_id,reminder_type,last_sent_at) VALUES(?,?,?,NOW()) ON DUPLICATE KEY UPDATE last_sent_at=NOW()')->execute([$workerId,(int)$row['id'],$type]);
@@ -1255,7 +1256,8 @@ if ($method === 'POST' && $action === 'submitPinTopup') {
       'title'=>'GNEX ORDER · Order topup baharu',
       'body'=>$gameNames[$gameCode].' · ID '.$gameId.' · '.count($pins).' PIN',
       'url'=>'topup-admin.html?conversation_id='.$conversation,
-      'tag'=>'gnex-pin-order-'.$conversation,
+      'tag'=>'gnex-pin-order-'.$conversation.'-'.time(),
+      'conversation_id'=>$conversation,
       'badge_count'=>count($messages),
     ]);
     respond(['ok'=>true,'conversation_id'=>$conversation,'message_count'=>count($messages),'message'=>'Order dihantar.']);
