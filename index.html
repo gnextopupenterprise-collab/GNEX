@@ -15,7 +15,8 @@
 
 <script>(()=>{const n=navigator,c=n.connection||n.mozConnection||n.webkitConnection;const lite=innerWidth<700||matchMedia('(prefers-reduced-motion:reduce)').matches||c?.saveData||c?.effectiveType==='2g'||c?.effectiveType==='slow-2g';if(lite)document.documentElement.classList.add('lite-mode')})();</script>
 <link rel="stylesheet" href="index.css?v=10">
-<link rel="stylesheet" href="ios-card-fixes.css?v=1">
+<link rel="stylesheet" href="ios-card-fixes.css?v=2">
+<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('scrim-sw.js?v=17',{updateViaCache:'none'}).catch(()=>{}));</script>
 <link rel="stylesheet" href="chat-center.css?v=26">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
@@ -210,7 +211,7 @@ WHATSAPP
 </a>
 
 <button type="button" onclick="openGnexEsportImage()" class="gnex-esport-card-button" aria-label="Open GNEX Guild open member poster">
-<img src="images/optimized/esport-card.webp" alt="GNEX Esport" class="gnex-esport-card-bg" decoding="async">
+<img src="images/optimized/esport-card-cut.webp" alt="GNEX Esport" class="gnex-esport-card-bg" decoding="async">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-kelly" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo is-repeat" aria-hidden="true">

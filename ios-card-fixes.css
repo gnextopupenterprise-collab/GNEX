@@ -1,9 +1,17 @@
-/* Safari/iPhone alignment: keep the GNEX Esport artwork inside its card. */
-@supports (-webkit-touch-callout:none){
-  @media (max-width:767px){
-    .gnex-esport-card-bg{
-      top:-29.5%;
-      height:165%;
-    }
-  }
+/* The source is pre-cropped to the card ratio, so Safari cannot shift it. */
+.gnex-esport-card-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  transform:none;
+}
+
+@media (max-width:767px){
+  .main-bottom-nav{display:flex!important;pointer-events:auto!important}
+  .chat-bottom-nav{display:none!important;pointer-events:none!important}
+  body.topup-chat-open .main-bottom-nav{display:none!important;pointer-events:none!important}
+  body.topup-chat-open .chat-bottom-nav{display:flex!important;pointer-events:auto!important}
+  .bottom-app-nav .bottom-nav-item{pointer-events:auto!important;touch-action:manipulation}
 }

@@ -12,13 +12,14 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v12';
-const IMAGE_CACHE = 'gnex-images-v3';
+const STATIC_CACHE = 'gnex-static-v13';
+const IMAGE_CACHE = 'gnex-images-v4';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
   '/',
   'index.html',
   'index.css',
+  'ios-card-fixes.css',
   'mobile-nav.js',
   'mobile-nav.css',
   'datacust.js',
@@ -58,6 +59,7 @@ const CORE_ASSETS = [
   'images/optimized/jersey-front.webp',
   'images/optimized/jersey-back.webp',
   'images/optimized/esport-card.webp',
+  'images/optimized/esport-card-cut.webp',
   'card gnex esport/gnex-guild-open-member.jpeg'
 ];
 
@@ -113,7 +115,7 @@ function isStaticAsset(url){
 
 async function cacheFirst(request, cacheName){
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, {ignoreSearch:true});
+  const cached = await cache.match(request, {ignoreSearch:cacheName === IMAGE_CACHE});
   if (cached) return cached;
 
   try {
