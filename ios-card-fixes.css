@@ -1,0 +1,9 @@
+/* Safari/iPhone alignment: keep the GNEX Esport artwork inside its card. */
+@supports (-webkit-touch-callout:none){
+  @media (max-width:767px){
+    .gnex-esport-card-bg{
+      top:-29.5%;
+      height:165%;
+    }
+  }
+}
