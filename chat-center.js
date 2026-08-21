@@ -209,7 +209,7 @@
     if(!("serviceWorker" in navigator)||!("PushManager" in window)||Notification.permission!=="granted")return false;
     const appState=await get("state");
     if(!appState.push_public_key)throw new Error("Kunci push server belum tersedia.");
-    const registration=await navigator.serviceWorker.register("scrim-sw.js?v=13",{updateViaCache:"none"});
+    const registration=await navigator.serviceWorker.register("scrim-sw.js?v=16",{updateViaCache:"none"});
     let subscription=await registration.pushManager.getSubscription();
     if(subscription&&localStorage.getItem("gnex_push_vapid_key")!==appState.push_public_key){await subscription.unsubscribe();subscription=null;}
     if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes(appState.push_public_key)});

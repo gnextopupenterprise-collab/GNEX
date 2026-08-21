@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="GNEX Topup Store - tournament, leaderboard, bracket match and game topup hub.">
-<link rel="icon" type="image/png" sizes="64x64" href="images/20260602_004238.png">
+<link rel="icon" type="image/png" sizes="192x192" href="images/gnex-main-white-192.png?v=20260821-1">
 <link rel="apple-touch-icon" href="images/gnex-main-white-192.png?v=20260820-2">
 <link rel="manifest" href="manifest.webmanifest?v=20260820-2">
 <meta name="theme-color" content="#02040a">
@@ -13,7 +13,8 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet" href="index.css?v=8">
+<script>(()=>{const n=navigator,c=n.connection||n.mozConnection||n.webkitConnection;const lite=matchMedia('(prefers-reduced-motion:reduce)').matches||c?.saveData||c?.effectiveType==='2g'||c?.effectiveType==='slow-2g'||(innerWidth<700&&((n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4)));if(lite)document.documentElement.classList.add('lite-mode')})();</script>
+<link rel="stylesheet" href="index.css?v=9">
 <link rel="stylesheet" href="chat-center.css?v=26">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
@@ -109,8 +110,8 @@ WHATSAPP
 
 <!-- HERO -->
 <header class="hero-glow relative overflow-hidden border-b border-zinc-800 pt-24 md:pt-24">
-<video class="hero-video" autoplay muted loop playsinline>
-<source src="videos/a95becc139495c5a04610afbdfb797c6.mp4" type="video/mp4">
+<video class="hero-video" autoplay muted loop playsinline preload="none">
+<source src="videos/a95becc139495c5a04610afbdfb797c6.mp4" type="video/mp4" media="(min-width:700px)">
 </video>
 <div class="hero-red-motion"></div>
 <div class="absolute inset-0 bg-black/55"></div>
@@ -131,7 +132,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-right" onclick="handlePromoSlideClick(event, 1)" aria-label="Promo 2">
-<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
+<img class="promo-slide-image" src="images/optimized/promo-banner.webp" alt="Iklan GNEX Topup" decoding="async">
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
@@ -153,7 +154,7 @@ WHATSAPP
 </button>
 
 <button type="button" class="promo-slide is-left" onclick="handlePromoSlideClick(event, 3)" aria-label="Promo 4">
-<img class="promo-slide-image" src="iklan/banneriklan.png" alt="Iklan GNEX Topup">
+<img class="promo-slide-image" src="images/optimized/promo-banner.webp" alt="Iklan GNEX Topup" decoding="async">
 <div class="promo-slide-inner text-left">
 <div>
 <p class="text-amber-200 text-xs font-black tracking-[0.24em]"></p>
@@ -186,29 +187,29 @@ WHATSAPP
 
 <div class="card-button-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-1 md:gap-3 mt-6 md:mt-8">
 <a href="tournament.html" class="tournament-card-button" onclick="playTournamentTransition(event)" aria-label="Open tournament page">
-<img src="Card design/ESPORT TOURNAMENT CARD.png.png" alt="GNEX Esport Tournament" class="tournament-card-bg">
-<img src="Card design/KELLY.png" alt="" class="tournament-card-character is-kelly" aria-hidden="true">
-<img src="Card design/GRANGER.png" alt="" class="tournament-card-character is-granger" aria-hidden="true">
-<img src="Card design/KELLY.png" alt="" class="tournament-card-character is-kelly-repeat" aria-hidden="true">
+<img src="images/optimized/tournament-card.webp" alt="GNEX Esport Tournament" class="tournament-card-bg" decoding="async">
+<img src="images/optimized/kelly.webp" alt="" class="tournament-card-character is-kelly" aria-hidden="true" decoding="async">
+<img src="images/optimized/granger.webp" alt="" class="tournament-card-character is-granger" aria-hidden="true" decoding="async">
+<img src="images/optimized/kelly.webp" alt="" class="tournament-card-character is-kelly-repeat" aria-hidden="true" decoding="async">
 </a>
 
 <button type="button" onclick="openPriceListPanel()" class="topup-card-button" aria-label="Open GNEX Topup price list">
-<img src="Card design/TOPUP GAMING CARD.png" alt="GNEX Topup Gaming" class="topup-card-bg">
-<img src="Card design/LOGO FF DIAMOND.png" alt="" class="topup-card-item" aria-hidden="true">
-<img src="Card design/LOGO PUBG UC.png" alt="" class="topup-card-item is-pubg" aria-hidden="true">
-<img src="Card design/LOGO WEEKLYMEMBERSHIP (1).png" alt="" class="topup-card-item is-weekly" aria-hidden="true">
+<img src="images/optimized/topup-card.webp" alt="GNEX Topup Gaming" class="topup-card-bg" decoding="async">
+<img src="images/optimized/ff-diamond.webp" alt="" class="topup-card-item" aria-hidden="true" decoding="async">
+<img src="images/optimized/pubg-uc.webp" alt="" class="topup-card-item is-pubg" aria-hidden="true" decoding="async">
+<img src="images/optimized/weekly.webp" alt="" class="topup-card-item is-weekly" aria-hidden="true" decoding="async">
 </button>
 
 <a href="jersey.html" class="jersey-card-button" aria-label="Open GNEX jersey page">
-<img src="card jersey/JERSEY MERCHANDISE CARD (1).png" alt="GNEX Jersey Merchandise" class="jersey-card-bg">
+<img src="images/optimized/jersey-card.webp" alt="GNEX Jersey Merchandise" class="jersey-card-bg" decoding="async">
 <img src="images/logo-gnex-esport-64x64.webp" alt="" class="jersey-card-logo" aria-hidden="true">
-<img src="card jersey/ALOYA FRONT JERSEY V1.png" alt="" class="jersey-card-item is-front" aria-hidden="true">
-<img src="card jersey/ALOYA BACK JERSEY.png" alt="" class="jersey-card-item is-back" aria-hidden="true">
-<img src="card jersey/ALOYA FRONT JERSEY V1.png" alt="" class="jersey-card-item is-front-repeat" aria-hidden="true">
+<img src="images/optimized/jersey-front.webp" alt="" class="jersey-card-item is-front" aria-hidden="true" decoding="async">
+<img src="images/optimized/jersey-back.webp" alt="" class="jersey-card-item is-back" aria-hidden="true" decoding="async">
+<img src="images/optimized/jersey-front.webp" alt="" class="jersey-card-item is-front-repeat" aria-hidden="true" decoding="async">
 </a>
 
 <button type="button" onclick="openGnexEsportImage()" class="gnex-esport-card-button" aria-label="Open GNEX Guild open member poster">
-<img src="card gnex esport/20260611_212528.png" alt="GNEX Esport" class="gnex-esport-card-bg">
+<img src="images/optimized/esport-card.webp" alt="GNEX Esport" class="gnex-esport-card-bg" decoding="async">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-kelly" aria-hidden="true">
 <img src="images/gnex-home-512.png" alt="" class="gnex-esport-card-logo is-repeat" aria-hidden="true">
@@ -908,8 +909,8 @@ Collab
 </div>
 </footer>
 
-<script src="index.js?v=11"></script>
-<script src="mobile-nav.js?v=11"></script>
+<script src="index.js?v=12"></script>
+<script src="mobile-nav.js?v=12"></script>
 <script src="chat-center.js?v=33"></script>
 </body>
 </html>

@@ -608,7 +608,7 @@ async function registerGnexPushWorker(){
   try{
 
     const registration =
-      await navigator.serviceWorker.register("scrim-sw.js?v=13",{updateViaCache:"none"});
+      await navigator.serviceWorker.register("scrim-sw.js?v=16",{updateViaCache:"none"});
 
     console.log(
       "GNEX Push Worker registered",

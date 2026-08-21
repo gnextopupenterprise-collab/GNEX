@@ -12,8 +12,8 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v10';
-const IMAGE_CACHE = 'gnex-images-v1';
+const STATIC_CACHE = 'gnex-static-v12';
+const IMAGE_CACHE = 'gnex-images-v3';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
   '/',
@@ -46,11 +46,18 @@ const CORE_ASSETS = [
   'images/King Elite CS Logo Metalic.png',
   'images/jersey/jersey-hero.webp',
   'images/jersey/jersey-size-chart.webp',
-  'iklan/banneriklan.png',
-  'Card design/ESPORT TOURNAMENT CARD.png.png',
-  'Card design/TOPUP GAMING CARD.png',
-  'card jersey/JERSEY MERCHANDISE CARD (1).png',
-  'card gnex esport/20260611_212528.png',
+  'images/optimized/promo-banner.webp',
+  'images/optimized/tournament-card.webp',
+  'images/optimized/kelly.webp',
+  'images/optimized/granger.webp',
+  'images/optimized/topup-card.webp',
+  'images/optimized/ff-diamond.webp',
+  'images/optimized/pubg-uc.webp',
+  'images/optimized/weekly.webp',
+  'images/optimized/jersey-card.webp',
+  'images/optimized/jersey-front.webp',
+  'images/optimized/jersey-back.webp',
+  'images/optimized/esport-card.webp',
   'card gnex esport/gnex-guild-open-member.jpeg'
 ];
 
@@ -67,7 +74,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isStaticAsset(url)) {
-    event.respondWith(networkFirst(request, STATIC_CACHE));
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
   }
 });
 
@@ -86,7 +93,7 @@ async function cacheCoreAssets(){
 }
 
 async function cleanupOldCaches(){
-  const keep = new Set([STATIC_CACHE, IMAGE_CACHE]);
+  const keep = new Set([STATIC_CACHE, IMAGE_CACHE, 'gnex-push-config-v1']);
   const names = await caches.keys();
   await Promise.all(names.map((name) => {
     if (name.startsWith('gnex-') && !keep.has(name)) {
@@ -107,10 +114,7 @@ function isStaticAsset(url){
 async function cacheFirst(request, cacheName){
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request, {ignoreSearch:true});
-  if (cached) {
-    refreshCache(request, cache, true);
-    return cached;
-  }
+  if (cached) return cached;
 
   try {
     const response = await fetch(request);
@@ -225,6 +229,12 @@ async function warmAssetCache(urls){
 }
 
 self.addEventListener('push', (event) => {
+  if (event.data) {
+    let payload={};
+    try{payload=event.data.json();}catch(error){payload={title:'GNEX',body:event.data.text()};}
+    event.waitUntil(showGnexPush(payload));
+    return;
+  }
   event.waitUntil(showLatestScrimChat());
 });
 
@@ -235,7 +245,8 @@ self.addEventListener('notificationclick', (event) => {
     if ('clearAppBadge' in self.navigator) await self.navigator.clearAppBadge();
     const windows = await self.clients.matchAll({type:'window', includeUncontrolled:true});
     for (const client of windows) {
-      if (client.url.includes('scrim.html') && 'focus' in client) {
+      if ('focus' in client) {
+        await client.navigate(targetUrl);
         return client.focus();
       }
     }
@@ -245,6 +256,20 @@ self.addEventListener('notificationclick', (event) => {
     return undefined;
   })());
 });
+
+async function showGnexPush(data){
+  const count=Math.max(1,Number(data.badge_count)||1);
+  await self.registration.showNotification(data.title||'GNEX',{
+    body:data.body||'Anda mempunyai mesej baharu.',
+    tag:data.tag||'gnex-chat',
+    icon:'images/gnex-main-white-192.png',
+    badge:'images/gnex-main-white-192.png',
+    data:{url:data.url||'index.html?chat=guest'},
+    renotify:true,
+    vibrate:[180,80,180]
+  });
+  if('setAppBadge' in self.navigator)await self.navigator.setAppBadge(count);
+}
 
 async function showLatestScrimChat(){
   try {

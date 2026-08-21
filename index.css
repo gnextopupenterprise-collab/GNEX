@@ -14,6 +14,21 @@ background:#02040a;
 body{
 padding-bottom:92px;
 }
+
+/* Automatic low-power rendering for older phones and data-saver users. */
+.lite-mode *{scroll-behavior:auto!important}
+.lite-mode .hero-video,.lite-mode .hero-red-motion{display:none!important}
+.lite-mode .tournament-card-button::before,.lite-mode .topup-card-button::before,.lite-mode .jersey-card-button::before,.lite-mode .gnex-esport-card-button::before,.lite-mode .tournament-card-button::after,.lite-mode .topup-card-button::after,.lite-mode .jersey-card-button::after,.lite-mode .gnex-esport-card-button::after{animation:none!important;display:none!important}
+.lite-mode .tournament-card-character,.lite-mode .topup-card-item,.lite-mode .jersey-card-item,.lite-mode .gnex-esport-card-logo,.lite-mode .gnex-esport-card-kelly{animation:none!important;filter:none!important}
+.lite-mode .tournament-card-character:not(.is-kelly),.lite-mode .topup-card-item.is-pubg,.lite-mode .topup-card-item.is-weekly,.lite-mode .jersey-card-item:not(.is-front),.lite-mode .gnex-esport-card-kelly,.lite-mode .gnex-esport-card-logo.is-repeat{display:none!important}
+.lite-mode .tournament-card-character.is-kelly{opacity:1;transform:none}
+.lite-mode .topup-card-item:not(.is-pubg):not(.is-weekly){opacity:1;transform:translate(0,-44%)}
+.lite-mode .jersey-card-item.is-front{opacity:1;transform:none}
+.lite-mode .gnex-esport-card-logo:not(.is-repeat){opacity:1;transform:none}
+.lite-mode .backdrop-blur-xl,.lite-mode .game-list-menu a,.lite-mode .image-lightbox{backdrop-filter:none!important}
+.lite-mode .tournament-card-button,.lite-mode .topup-card-button,.lite-mode .jersey-card-button,.lite-mode .gnex-esport-card-button{filter:none!important;box-shadow:0 0 0 1px rgba(103,241,253,.55)!important}
+@media(max-width:699px){section:not(.chat-center):not(.topup-price-panel),footer{content-visibility:auto;contain-intrinsic-size:600px}}
+
 }
 
 body.modal-open{
