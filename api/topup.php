@@ -1236,7 +1236,7 @@ if ($method === 'POST' && $action === 'submitPinTopup') {
     $gameId=clean($input['game_id'] ?? '',120);
     $rawPins=is_array($input['pins'] ?? null)?$input['pins']:[];$pins=[];
     foreach(array_slice($rawPins,0,10) as $pin){$pin=clean($pin,160);if($pin!=='')$pins[]=$pin;}
-    if(!isset($gameNames[$gameCode])||$gameId===''||!$pins)respond(['ok'=>false,'message'=>'Lengkapkan game, ID dan PIN.'],422);
+    if(!isset($gameNames[$gameCode])||$gameId==='')respond(['ok'=>false,'message'=>'Lengkapkan pilihan game dan ID game.'],422);
     $conversation=conversation_id($pdo,$device,$user,'topup');
     $senderType=$user?'customer':'guest';
     $messages=array_merge([
@@ -1254,7 +1254,7 @@ if ($method === 'POST' && $action === 'submitPinTopup') {
     $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
     if($workerId)send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
       'title'=>'GNEX ORDER · Order topup baharu',
-      'body'=>$gameNames[$gameCode].' · ID '.$gameId.' · '.count($pins).' PIN',
+      'body'=>$gameNames[$gameCode].' · ID '.$gameId.($pins?' · '.count($pins).' PIN':' · Tanpa PIN'),
       'url'=>'topup-admin.html?conversation_id='.$conversation,
       'tag'=>'gnex-pin-order-'.$conversation.'-'.time(),
       'conversation_id'=>$conversation,

@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="index.css?v=10">
 <link rel="stylesheet" href="ios-card-fixes.css?v=2">
 <link rel="stylesheet" href="topup-order-form.css?v=2">
-<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('scrim-sw.js?v=20',{updateViaCache:'none'}).catch(()=>{}));</script>
+<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('scrim-sw.js?v=21',{updateViaCache:'none'}).catch(()=>{}));</script>
 <link rel="stylesheet" href="chat-center.css?v=26">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
@@ -545,7 +545,7 @@ Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
             <label><span>Pilih game</span><select id="gc-pin-game" required><option value="">Pilih game</option><option value="ff">Free Fire</option><option value="ml">Mobile Legends</option><option value="pubg">PUBG Mobile</option></select></label>
             <label><span>ID game</span><input id="gc-pin-game-id" maxlength="120" autocomplete="off" placeholder="Masukkan ID game" required></label>
             <div class="gc-pin-list-head"><span>PIN topup</span><button type="button" onclick="addPinTopupInput()">+ TAMBAH PIN</button></div>
-            <div id="gc-pin-list" class="gc-pin-list"><div class="gc-pin-row"><input class="gc-pin-input" maxlength="160" autocomplete="off" placeholder="Masukkan PIN" required></div></div>
+            <div id="gc-pin-list" class="gc-pin-list"><div class="gc-pin-row"><input class="gc-pin-input" maxlength="160" autocomplete="off" placeholder="Masukkan PIN (jika ada)"></div></div>
             <p class="gc-tng-note"><strong>TNG / TRANSFER:</strong> Hantar order dahulu, kemudian hantar gambar resit kepada Admin Topup dalam chat ini.</p>
             <output id="gc-pin-status"></output>
             <button class="gc-pin-submit" type="submit">HANTAR ORDER</button>
@@ -928,6 +928,6 @@ Collab
 
 <script src="index.js?v=12"></script>
 <script src="mobile-nav.js?v=12"></script>
-<script src="chat-center.js?v=34"></script>
+<script src="chat-center.js?v=35"></script>
 </body>
 </html>
