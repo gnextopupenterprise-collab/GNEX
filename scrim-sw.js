@@ -12,7 +12,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v13';
+const STATIC_CACHE = 'gnex-static-v14';
 const IMAGE_CACHE = 'gnex-images-v4';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
@@ -20,6 +20,7 @@ const CORE_ASSETS = [
   'index.html',
   'index.css',
   'ios-card-fixes.css',
+  'topup-order-form.css',
   'mobile-nav.js',
   'mobile-nav.css',
   'datacust.js',

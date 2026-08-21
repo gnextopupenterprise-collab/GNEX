@@ -261,6 +261,8 @@ async function boot(){
         loadInbox(true),
         loadBotStatus()
       ]);
+      const requestedConversation=Number(new URLSearchParams(location.search).get("conversation_id")||0);
+      if(requestedConversation&&state.inbox.some(item=>Number(item.id)===requestedConversation))await openChat(requestedConversation);
 
       startPolling();
     }
@@ -336,6 +338,8 @@ $("#adminLoginForm")
           loadInbox(true),
           loadBotStatus()
         ]);
+        const requestedConversation=Number(new URLSearchParams(location.search).get("conversation_id")||0);
+        if(requestedConversation&&state.inbox.some(item=>Number(item.id)===requestedConversation))await openChat(requestedConversation);
 
         startPolling();
 

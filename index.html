@@ -16,7 +16,8 @@
 <script>(()=>{const n=navigator,c=n.connection||n.mozConnection||n.webkitConnection;const lite=innerWidth<700||matchMedia('(prefers-reduced-motion:reduce)').matches||c?.saveData||c?.effectiveType==='2g'||c?.effectiveType==='slow-2g';if(lite)document.documentElement.classList.add('lite-mode')})();</script>
 <link rel="stylesheet" href="index.css?v=10">
 <link rel="stylesheet" href="ios-card-fixes.css?v=2">
-<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('scrim-sw.js?v=17',{updateViaCache:'none'}).catch(()=>{}));</script>
+<link rel="stylesheet" href="topup-order-form.css?v=1">
+<script>if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('scrim-sw.js?v=18',{updateViaCache:'none'}).catch(()=>{}));</script>
 <link rel="stylesheet" href="chat-center.css?v=26">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
@@ -528,6 +529,7 @@ Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
         <main id="gc-messages" class="gc-messages" aria-live="polite"></main>
 
         <form id="gc-composer" class="gc-composer" onsubmit="sendDepartmentMessage(event)">
+          <button id="gc-topup-now" type="button" class="gc-topup-now" onclick="openPinTopupForm()">TOPUP SEKARANG</button>
           <div id="gc-reply-preview" class="gc-reply-preview" hidden><div><strong>Reply mesej</strong><span id="gc-reply-copy"></span></div><button type="button" onclick="cancelDepartmentReply()" aria-label="Batal reply">×</button></div>
           <button type="button" class="gc-plus" onclick="document.getElementById('gc-image-input').click()" aria-label="Hantar gambar">+</button>
           <input id="gc-image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendDepartmentImage(this)">
@@ -536,6 +538,18 @@ Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
             <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
           </button>
         </form>
+        <section id="gc-pin-order-modal" class="gc-pin-order-modal" hidden aria-hidden="true">
+          <button type="button" class="gc-pin-order-backdrop" onclick="closePinTopupForm()" aria-label="Tutup form"></button>
+          <form class="gc-pin-order-card" onsubmit="submitPinTopupOrder(event)">
+            <header><div><small>GNEX TOPUP</small><h3>Masukkan order</h3></div><button type="button" onclick="closePinTopupForm()" aria-label="Tutup">×</button></header>
+            <label><span>Pilih game</span><select id="gc-pin-game" required><option value="">Pilih game</option><option value="ff">Free Fire</option><option value="ml">Mobile Legends</option><option value="pubg">PUBG Mobile</option></select></label>
+            <label><span>ID game</span><input id="gc-pin-game-id" maxlength="120" autocomplete="off" placeholder="Masukkan ID game" required></label>
+            <div class="gc-pin-list-head"><span>PIN topup</span><button type="button" onclick="addPinTopupInput()">+ TAMBAH PIN</button></div>
+            <div id="gc-pin-list" class="gc-pin-list"><div class="gc-pin-row"><input class="gc-pin-input" maxlength="160" autocomplete="off" placeholder="Masukkan PIN" required></div></div>
+            <output id="gc-pin-status"></output>
+            <button class="gc-pin-submit" type="submit">HANTAR ORDER</button>
+          </form>
+        </section>
       </section>
     </div>
 
@@ -913,6 +927,6 @@ Collab
 
 <script src="index.js?v=12"></script>
 <script src="mobile-nav.js?v=12"></script>
-<script src="chat-center.js?v=33"></script>
+<script src="chat-center.js?v=34"></script>
 </body>
 </html>

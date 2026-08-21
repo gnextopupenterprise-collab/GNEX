@@ -333,6 +333,15 @@ function ensure_schema(PDO $pdo): void
             INDEX idx_gt_push_role(role,enabled),
             INDEX idx_gt_push_device(device_id,enabled)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS gt_admin_conversation_reads (
+            admin_id INT NOT NULL,
+            conversation_id BIGINT UNSIGNED NOT NULL,
+            last_read_message_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            updated_at DATETIME NULL,
+            PRIMARY KEY(admin_id,conversation_id),
+            FOREIGN KEY(admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+            FOREIGN KEY(conversation_id) REFERENCES gt_conversations(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
         'CREATE TABLE IF NOT EXISTS gt_chat_labels (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL UNIQUE,
@@ -769,6 +778,34 @@ if ($method === 'GET' && $action === 'botStatus') {
     ]);
 }
 
+if ($method === 'GET' && $action === 'runOrderReminders') {
+    $secretFile=dirname(__DIR__).DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR.'reminder-secret.php';
+    $expected=is_file($secretFile)?(string)(require $secretFile):'';
+    $provided=(string)($_SERVER['HTTP_X_GNEX_CRON'] ?? '');
+    if($expected==='' || !hash_equals($expected,$provided)) respond(['ok'=>false,'message'=>'Akses cron tidak sah.'],403);
+    $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
+    $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
+    if(!$workerId)respond(['ok'=>true,'sent'=>0]);
+    $stmt=$pdo->prepare('SELECT c.id,c.department,COUNT(m.id) unread_count,MAX(m.id) latest_id,
+      SUBSTRING_INDEX(GROUP_CONCAT(m.body ORDER BY m.id DESC SEPARATOR "\n"),"\n",1) latest_body
+      FROM gt_conversations c
+      JOIN gt_messages m ON m.conversation_id=c.id AND m.sender_type IN ("guest","customer")
+      LEFT JOIN gt_admin_conversation_reads r ON r.admin_id=? AND r.conversation_id=c.id
+      WHERE c.status="open" AND c.department="topup" AND m.id>COALESCE(r.last_read_message_id,0)
+      GROUP BY c.id,c.department ORDER BY latest_id DESC LIMIT 30');
+    $stmt->execute([$workerId]);$sent=0;
+    foreach($stmt->fetchAll() as $row){
+        send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
+          'title'=>'GNEX ORDER · Mesej belum dibuka',
+          'body'=>(int)$row['unread_count'].' mesej · '.clean($row['latest_body'] ?? '',120),
+          'url'=>'topup-admin.html?conversation_id='.(int)$row['id'],
+          'tag'=>'gnex-order-reminder-'.(int)$row['id'],
+          'badge_count'=>(int)$row['unread_count'],
+        ]);$sent++;
+    }
+    respond(['ok'=>true,'sent'=>$sent]);
+}
+
 $input = input_data();
 if ($method === 'POST') require_csrf($input);
 
@@ -785,11 +822,13 @@ if ($method === 'POST' && $action === 'subscribePush') {
 }
 
 if ($method === 'POST' && $action === 'markConversationRead') {
-    require_admin($pdo);
+    $readingAdmin=require_admin($pdo);
     $conversationId = max(0, (int) ($input['conversation_id'] ?? 0));
     if (!$conversationId) respond(['ok'=>false,'message'=>'Chat tidak sah.'], 422);
     $pdo->prepare('UPDATE gt_conversations SET admin_last_read_message_id=COALESCE((SELECT MAX(m.id) FROM gt_messages m WHERE m.conversation_id=?),0) WHERE id=?')
         ->execute([$conversationId,$conversationId]);
+    $pdo->prepare('INSERT INTO gt_admin_conversation_reads(admin_id,conversation_id,last_read_message_id,updated_at) SELECT ?,?,COALESCE(MAX(id),0),NOW() FROM gt_messages WHERE conversation_id=? ON DUPLICATE KEY UPDATE last_read_message_id=VALUES(last_read_message_id),updated_at=NOW()')
+        ->execute([(int)$readingAdmin['id'],$conversationId,$conversationId]);
     respond(['ok'=>true,'csrf'=>csrf_token()]);
 }
 
@@ -1170,6 +1209,40 @@ if ($method === 'POST' && $action === 'setOrderStatus') {
     ]);
 
     respond(['ok'=>true,'message_id'=>$statusMessageId,'order_status'=>$orderStatus,'message'=>$body]);
+}
+
+if ($method === 'POST' && $action === 'submitPinTopup') {
+    if($adminUser)respond(['ok'=>false,'message'=>'Form ini untuk customer.'],403);
+    if(!empty($device['banned_at']))respond(['ok'=>false,'message'=>'Anda telah diban daripada menghantar order.'],403);
+    $gameCode=clean($input['game_code'] ?? '',10);
+    $gameNames=['ff'=>'FREE FIRE','ml'=>'MOBILE LEGENDS','pubg'=>'PUBG MOBILE'];
+    $gameId=clean($input['game_id'] ?? '',120);
+    $rawPins=is_array($input['pins'] ?? null)?$input['pins']:[];$pins=[];
+    foreach(array_slice($rawPins,0,10) as $pin){$pin=clean($pin,160);if($pin!=='')$pins[]=$pin;}
+    if(!isset($gameNames[$gameCode])||$gameId===''||!$pins)respond(['ok'=>false,'message'=>'Lengkapkan game, ID dan PIN.'],422);
+    $conversation=conversation_id($pdo,$device,$user,'topup');
+    $senderType=$user?'customer':'guest';
+    $messages=array_merge([
+      ['ORDER TOPUP · '.$gameNames[$gameCode],'pin_order'],
+      [$gameId,'pin_order_id'],
+    ],array_map(static fn($pin)=>[$pin,'pin_order_pin'],$pins));
+    $pdo->beginTransaction();
+    try{
+      $stmt=$pdo->prepare('INSERT INTO gt_messages(conversation_id,sender_type,body,message_kind) VALUES(?,?,?,?)');
+      foreach($messages as [$message,$kind])$stmt->execute([$conversation,$senderType,$message,$kind]);
+      $pdo->prepare('UPDATE gt_conversations SET last_message_at=NOW(),customer_id=COALESCE(?,customer_id) WHERE id=?')->execute([$user?(int)$user['id']:null,$conversation]);
+      $pdo->commit();
+    }catch(Throwable $error){if($pdo->inTransaction())$pdo->rollBack();throw $error;}
+    $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
+    $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
+    if($workerId)send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
+      'title'=>'GNEX ORDER · Order topup baharu',
+      'body'=>$gameNames[$gameCode].' · ID '.$gameId.' · '.count($pins).' PIN',
+      'url'=>'topup-admin.html?conversation_id='.$conversation,
+      'tag'=>'gnex-pin-order-'.$conversation,
+      'badge_count'=>count($messages),
+    ]);
+    respond(['ok'=>true,'conversation_id'=>$conversation,'message_count'=>count($messages),'message'=>'Order dihantar.']);
 }
 
 if ($method === 'POST' && $action === 'sendMessage') {

@@ -545,6 +545,7 @@ window.openDepartmentChat = async function(department){
 
       state.department =
         department;
+      if($("#gc-topup-now"))$("#gc-topup-now").hidden=department!=="topup";
 
       state.conversationId = 0;
       state.lastMessageId = 0;
@@ -768,6 +769,32 @@ window.openDepartmentChat = async function(department){
     () => loadMessages(true);
 
   window.cancelDepartmentReply=function(){state.replyTo=null;const preview=$("#gc-reply-preview");if(preview)preview.hidden=true;};
+  window.openPinTopupForm=function(){
+    if(state.department!=="topup")return;
+    const modal=$("#gc-pin-order-modal");if(!modal)return;
+    modal.hidden=false;modal.setAttribute("aria-hidden","false");
+    setTimeout(()=>$("#gc-pin-game")?.focus({preventScroll:true}),50);
+  };
+  window.closePinTopupForm=function(){const modal=$("#gc-pin-order-modal");if(!modal)return;modal.hidden=true;modal.setAttribute("aria-hidden","true");};
+  window.addPinTopupInput=function(){
+    const list=$("#gc-pin-list");if(!list||list.children.length>=10)return;
+    const row=document.createElement("div");row.className="gc-pin-row";row.innerHTML='<input class="gc-pin-input" maxlength="160" autocomplete="off" placeholder="Masukkan PIN" required><button type="button" class="gc-pin-remove" aria-label="Buang PIN">×</button>';
+    row.querySelector("button").onclick=()=>row.remove();list.appendChild(row);row.querySelector("input").focus({preventScroll:true});
+  };
+  window.submitPinTopupOrder=async function(event){
+    event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type="submit"]'),status=$("#gc-pin-status");
+    const game=$("#gc-pin-game")?.value||"",gameId=$("#gc-pin-game-id")?.value.trim()||"";
+    const pins=[...document.querySelectorAll(".gc-pin-input")].map(input=>input.value.trim()).filter(Boolean);
+    if(!game||!gameId||!pins.length){status.textContent="Lengkapkan game, ID dan sekurang-kurangnya satu PIN.";return;}
+    button.disabled=true;status.textContent="Menghantar order...";
+    try{
+      const data=await post("submitPinTopup",{game_code:game,game_id:gameId,pins});
+      state.conversationId=Number(data.conversation_id||state.conversationId);form.reset();
+      $("#gc-pin-list").innerHTML='<div class="gc-pin-row"><input class="gc-pin-input" maxlength="160" autocomplete="off" placeholder="Masukkan PIN" required></div>';
+      closePinTopupForm();await loadMessages(true);
+    }catch(error){status.textContent=error.message;}
+    finally{button.disabled=false;}
+  };
   function chooseDepartmentReply(row){
     const id=Number(row?.dataset.messageId||0);if(!id)return;
     state.replyTo={id,body:row.dataset.messageBody||"Mesej"};
