@@ -1,0 +1,8 @@
+[Unit]
+Description=Deploy latest GNEX main branch safely
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/gnex-autodeploy
