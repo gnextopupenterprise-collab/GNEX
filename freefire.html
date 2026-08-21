@@ -1178,7 +1178,7 @@ const response=await fetch("api/topup.php?action=sendMessage",{method:"POST",cre
 const data=await response.json();
 if(!response.ok||!data.ok)throw new Error(data.message||"Order gagal dihantar.");
 button.innerText="ORDER DIHANTAR ✓";
-setTimeout(()=>{window.location.href="index.html?chat=guest";},500);
+setTimeout(()=>{window.location.href="index.html?chat=guest&department=topup";},500);
 }catch(error){
 button.disabled=false;
 button.innerText=originalText;
