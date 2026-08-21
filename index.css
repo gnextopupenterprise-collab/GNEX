@@ -63,6 +63,21 @@ padding-bottom:92px;
 
 }
 
+/* Desktop rendering path: keep the same visuals while reducing paint work. */
+.performance-mode .tournament-card-character,.performance-mode .topup-card-item,.performance-mode .jersey-card-item,.performance-mode .gnex-esport-card-logo,.performance-mode .gnex-esport-card-kelly{filter:none!important;backface-visibility:hidden}
+.performance-mode .electric-card::before,.performance-mode .tournament-card-button::before,.performance-mode .topup-card-button::before,.performance-mode .jersey-card-button::before,.performance-mode .gnex-esport-card-button::before{box-shadow:none!important}
+.performance-mode .promo-slide{filter:none!important;box-shadow:0 10px 28px rgba(0,0,0,.32)!important}
+.performance-mode .backdrop-blur-xl,.performance-mode .game-list-menu a,.performance-mode .image-lightbox{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.performance-mode .is-performance-offscreen,.performance-mode .is-performance-offscreen *,html.is-performance-hidden *{animation-play-state:paused!important}
+.performance-mode .is-performance-offscreen::before,.performance-mode .is-performance-offscreen::after,.performance-mode .is-performance-offscreen *::before,.performance-mode .is-performance-offscreen *::after{animation-play-state:paused!important}
+.performance-mode body.is-performance-scrolling *,.performance-mode body.is-performance-scrolling *::before,.performance-mode body.is-performance-scrolling *::after{animation-play-state:paused!important}
+.performance-mode body.is-performance-scrolling .hero-red-motion,.performance-mode body.is-performance-scrolling .tournament-card-character,.performance-mode body.is-performance-scrolling .topup-card-item,.performance-mode body.is-performance-scrolling .jersey-card-item,.performance-mode body.is-performance-scrolling .gnex-esport-card-logo,.performance-mode body.is-performance-scrolling .gnex-esport-card-kelly,.performance-mode body.is-performance-scrolling .promo-slide:not(.is-active){visibility:hidden!important}
+.performance-mode body.is-performance-scrolling .electric-card::before,.performance-mode body.is-performance-scrolling .tournament-card-button::before,.performance-mode body.is-performance-scrolling .tournament-card-button::after,.performance-mode body.is-performance-scrolling .topup-card-button::before,.performance-mode body.is-performance-scrolling .topup-card-button::after,.performance-mode body.is-performance-scrolling .jersey-card-button::before,.performance-mode body.is-performance-scrolling .jersey-card-button::after,.performance-mode body.is-performance-scrolling .gnex-esport-card-button::before,.performance-mode body.is-performance-scrolling .gnex-esport-card-button::after{display:none!important}
+.performance-mode .hero-glow,.performance-mode .promo-carousel,.performance-mode .card-button-grid,.performance-mode .game-card,.performance-mode .price-jersey-card{contain:layout paint style}
+.performance-mode .modal-panel{overscroll-behavior:contain}
+.performance-mode .game-card>img{filter:none!important}
+.performance-mode body.is-performance-scrolling .game-card,.performance-mode body.is-performance-scrolling .price-jersey-card{box-shadow:none!important}
+
 body.modal-open{
 overflow:hidden;
 }
