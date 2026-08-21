@@ -271,6 +271,7 @@ async function boot(){
 }
 
 function showApp(){
+  document.body.classList.toggle("order-worker",state.admin?.access_scope==="order");
   $("#loginScreen")
     ?.classList.add(
       "is-hidden"
@@ -713,6 +714,7 @@ function renderPending(){
 }
 
 function showAdminView(view){
+  if(state.admin?.access_scope==="order"&&!['inbox','group','profile'].includes(view))return;
   const registration = $("#registrationView");
   const inbox = document.querySelector(".inbox-panel");
   const chat = document.querySelector(".chat-panel");
@@ -760,9 +762,9 @@ async function createAdminGroup(event){
   }finally{button.disabled=false;}
 }
 function adminGroupAvatarMarkup(group){return group?.image_url?`<img src="${esc(group.image_url)}" alt="${esc(group.name)}">`:esc(initials(group?.name||"G"));}
-async function loadAdminGroups(){const box=$("#adminGroupList");if(!box)return;try{const data=await request("groups");window.__adminGroups=data.groups||[];box.innerHTML=window.__adminGroups.map(g=>`<button type="button" class="admin-group-card" onclick="openAdminGroup(${Number(g.id)})"><span class="admin-group-card-avatar">${adminGroupAvatarMarkup(g)}</span><span><strong>${esc(g.name)}</strong><small>${esc(g.last_message||g.description||"Belum ada mesej")}</small><em>${Number(g.members||0)} ahli</em></span><b>›</b></button>`).join("")||'<div class="admin-community-empty">Belum ada group.</div>';}catch(error){box.innerHTML=esc(error.message);}}
-async function openAdminGroup(id){const group=(window.__adminGroups||[]).find(g=>Number(g.id)===Number(id));state.groupId=Number(id);state.groupLastId=0;$("#adminGroupTitle").textContent=group?.name||"Group";$("#adminGroupAvatar").innerHTML=adminGroupAvatarMarkup(group);$("#adminGroupRoom").classList.remove("is-hidden");await loadAdminGroupMessages(true);clearInterval(state.groupPoll);state.groupPoll=setInterval(()=>loadAdminGroupMessages(false),3000);}
-function closeAdminGroup(){clearInterval(state.groupPoll);state.groupId=0;$("#adminGroupRoom")?.classList.add("is-hidden");}
+async function loadAdminGroups(){const box=$("#adminGroupList");if(!box)return;try{const data=await request("groups");window.__adminGroups=data.groups||[];box.innerHTML=window.__adminGroups.map(g=>`<button type="button" class="admin-group-card ${Number(g.pinned)?'is-pinned':''}" onclick="openAdminGroup(${Number(g.id)})"><span class="admin-group-card-avatar">${adminGroupAvatarMarkup(g)}</span><span><strong>${esc(g.name)}${Number(g.pinned)?'<i>PIN</i>':''}</strong><small>${esc(g.embed_url?'Buka GNEX Order Record':g.last_message||g.description||"Belum ada mesej")}</small><em>${g.embed_url?'Dalaman admin & pekerja':`${Number(g.members||0)} ahli`}</em></span><b>›</b></button>`).join("")||'<div class="admin-community-empty">Belum ada group.</div>';}catch(error){box.innerHTML=esc(error.message);}}
+async function openAdminGroup(id){const group=(window.__adminGroups||[]).find(g=>Number(g.id)===Number(id));const embedded=Boolean(group?.embed_url);state.groupId=Number(id);state.groupLastId=0;$("#adminGroupTitle").textContent=group?.name||"Group";$("#adminGroupAvatar").innerHTML=adminGroupAvatarMarkup(group);$("#adminGroupRoom").classList.remove("is-hidden");$("#adminGroupEmbed")?.classList.toggle("is-hidden",!embedded);$("#adminGroupMessages")?.classList.toggle("is-hidden",embedded);$("#adminGroupComposer")?.classList.toggle("is-hidden",embedded);$("#adminGroupRoom")?.querySelector(".admin-group-room-actions")?.classList.toggle("is-hidden",embedded);clearInterval(state.groupPoll);if(embedded){$("#adminGroupEmbedFrame").src=group.embed_url;return;}await loadAdminGroupMessages(true);state.groupPoll=setInterval(()=>loadAdminGroupMessages(false),3000);}
+function closeAdminGroup(){clearInterval(state.groupPoll);state.groupId=0;if($("#adminGroupEmbedFrame"))$("#adminGroupEmbedFrame").src="about:blank";$("#adminGroupRoom")?.classList.add("is-hidden");}
 const adminGroupCrop={image:null,input:null,zoom:1,x:0,y:0,dragging:false,lastX:0,lastY:0,targetType:"group",targetId:null};
 function drawAdminGroupCrop(canvas=$("#adminGroupCropCanvas"),outputScale=1){
   if(!canvas||!adminGroupCrop.image)return;

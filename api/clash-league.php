@@ -9,6 +9,9 @@ date_default_timezone_set('Asia/Kuala_Lumpur');
 const CL_REMEMBER_COOKIE = 'clash_league_remember';
 const CL_REMEMBER_DAYS = 365;
 const CL_REMEMBER_REFRESH_SECONDS = 43200;
+$clSessionPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'sessions';
+if (!is_dir($clSessionPath)) @mkdir($clSessionPath, 0700, true);
+if (is_dir($clSessionPath)) ini_set('session.save_path', $clSessionPath);
 ini_set('session.gc_maxlifetime', (string) (CL_REMEMBER_DAYS * 86400));
 ini_set('session.use_strict_mode', '1');
 session_set_cookie_params([

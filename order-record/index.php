@@ -1,6 +1,9 @@
 <?php
 declare(strict_types=1);
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+$orderSessionPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'sessions';
+if (!is_dir($orderSessionPath)) @mkdir($orderSessionPath, 0700, true);
+if (is_dir($orderSessionPath)) ini_set('session.save_path', $orderSessionPath);
 ini_set('session.gc_maxlifetime', (string) (365 * 86400));
 ini_set('session.use_strict_mode', '1');
 session_set_cookie_params([
@@ -59,10 +62,16 @@ $html = str_replace('</head>', $appRefreshCss . '</head>', $html);
 $html = str_replace('<button class="logout" type="button" data-logout>', '<button class="app-refresh" type="button" data-app-refresh aria-label="Reload app">↻ RELOAD</button><button class="logout" type="button" data-logout>', $html);
 $isStockWorker = (string) ($_SESSION['cl_admin_access_scope'] ?? '') === 'stock';
 $isAllocationUser = (string) ($_SESSION['cl_admin_access_scope'] ?? '') === 'allocation';
+$isOrderWorker = (string) ($_SESSION['cl_admin_access_scope'] ?? '') === 'order';
 if ($isStockWorker) {
     $workerCss = '<style id="stock-worker-access">body.stock-worker [data-nav="all"],body.stock-worker [data-nav="daily"],body.stock-worker [data-nav="stock"],body.stock-worker [data-nav="money"]{display:none!important}body.stock-worker [data-balance-form]{display:none!important}body.stock-worker .bottom{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;max-width:none!important;margin:0!important;border-left:0!important;border-right:0!important;border-radius:0!important}body.stock-worker .app{height:100dvh;overflow:hidden}body.stock-worker [data-view="sim"].active{min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:16px!important}body.stock-worker .sim-list{overflow:visible!important;max-height:none!important}</style>';
     $html = str_replace('</head>', $workerCss . '</head>', $html);
     $html = str_replace('<body>', '<body class="stock-worker">', $html);
+}
+$orderWorkerCss = '<style id="order-worker-access">body.order-worker [data-nav]:not([data-nav="all"]),body.order-worker [data-balance-form],body.order-worker .bottom{display:none!important}body.order-worker .app{height:100dvh!important;grid-template-rows:auto minmax(0,1fr)!important}body.order-worker [data-view="chat"].active{overflow:hidden!important}body.order-worker .back{display:none!important}</style>';
+if ($isOrderWorker) {
+    $html = str_replace('</head>', $orderWorkerCss . '</head>', $html);
+    $html = str_replace('<body>', '<body class="order-worker">', $html);
 }
 $html = str_replace('<body>', '<body class="' . ($isAllocationUser ? 'allocation-user' : 'no-allocation') . '">', $html);
 $html = str_replace('<head>', '<head><base href="../"><link rel="stylesheet" href="order-record-sheet.css?v=20260811-1"><link rel="stylesheet" href="order-record-stock.css?v=20260813-4"><link rel="stylesheet" href="order-record-money.css?v=20260811-2"><link rel="stylesheet" href="order-record-accounts.css?v=20260813-4"><link rel="stylesheet" href="order-record-todo.css?v=20260814-20">', $html);

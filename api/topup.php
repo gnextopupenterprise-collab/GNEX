@@ -370,6 +370,9 @@ function ensure_schema(PDO $pdo): void
             name VARCHAR(120) NOT NULL,
             description VARCHAR(500) NULL,
             image_url VARCHAR(500) NULL,
+            is_internal TINYINT(1) NOT NULL DEFAULT 0,
+            pinned TINYINT(1) NOT NULL DEFAULT 0,
+            embed_url VARCHAR(500) NULL,
             admin_id INT NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE
@@ -480,6 +483,9 @@ function ensure_schema(PDO $pdo): void
     }
     if (!$pdo->query('SHOW COLUMNS FROM gt_groups LIKE "image_url"')->fetch()) {
         $pdo->exec('ALTER TABLE gt_groups ADD COLUMN image_url VARCHAR(500) NULL AFTER description');
+    }
+    if (!$pdo->query('SHOW COLUMNS FROM gt_groups LIKE "is_internal"')->fetch()) {
+        $pdo->exec('ALTER TABLE gt_groups ADD COLUMN is_internal TINYINT(1) NOT NULL DEFAULT 0 AFTER image_url, ADD COLUMN pinned TINYINT(1) NOT NULL DEFAULT 0 AFTER is_internal, ADD COLUMN embed_url VARCHAR(500) NULL AFTER pinned');
     }
     $communityChannelColumn=$pdo->query('SHOW COLUMNS FROM gt_community_posts LIKE "channel"')->fetch();
     if ($communityChannelColumn && str_contains(strtolower((string)($communityChannelColumn['Type']??'')),'enum(')) {
@@ -821,14 +827,14 @@ if ($method === 'GET' && $action === 'communities') {
 }
 
 if ($method === 'GET' && $action === 'groups') {
-    $stmt = $pdo->prepare('SELECT g.id,g.name,g.description,g.image_url,g.created_at,
+    $stmt = $pdo->prepare('SELECT g.id,g.name,g.description,g.image_url,g.is_internal,g.pinned,g.embed_url,g.created_at,
         EXISTS(SELECT 1 FROM gt_group_members gm WHERE gm.group_id=g.id AND gm.device_id=?) AS joined,
         COALESCE((SELECT muted FROM gt_group_members gm WHERE gm.group_id=g.id AND gm.device_id=?),0) AS muted,
         (SELECT COUNT(*) FROM gt_group_members gm WHERE gm.group_id=g.id) AS members,
         (SELECT id FROM gt_group_messages x WHERE x.group_id=g.id ORDER BY x.id DESC LIMIT 1) AS last_message_id,
         (SELECT body FROM gt_group_messages x WHERE x.group_id=g.id ORDER BY x.id DESC LIMIT 1) AS last_message
-        FROM gt_groups g ORDER BY g.id DESC');
-    $stmt->execute([(int)$device['id'],(int)$device['id']]);
+        FROM gt_groups g WHERE (?=1 OR g.is_internal=0) ORDER BY g.pinned DESC,g.id DESC');
+    $stmt->execute([(int)$device['id'],(int)$device['id'],$adminUser?1:0]);
     respond(['ok'=>true,'groups'=>$stmt->fetchAll()]);
 }
 
@@ -946,7 +952,7 @@ if ($method === 'POST' && $action === 'deleteGroup') {
     require_admin($pdo);
     $groupId=max(0,(int)($input['group_id']??0));
     if(!$groupId) respond(['ok'=>false,'message'=>'Group tidak sah.'],422);
-    $stmt=$pdo->prepare('DELETE FROM gt_groups WHERE id=?');
+    $stmt=$pdo->prepare('DELETE FROM gt_groups WHERE id=? AND is_internal=0');
     $stmt->execute([$groupId]);
     if(!$stmt->rowCount()) respond(['ok'=>false,'message'=>'Group tidak dijumpai.'],404);
     respond(['ok'=>true,'message'=>'Group dan semua chatnya telah dipadam.']);

@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="images/20260602_004238.png">
   <link rel="manifest" href="admin-manifest.webmanifest?v=1">
   <meta name="theme-color" content="#02050a">
-  <link rel="stylesheet" href="topup-admin.css?v=21">
+  <link rel="stylesheet" href="topup-admin.css?v=22">
 </head>
 <body>
 
@@ -207,9 +207,12 @@
               <input id="adminGroupProfileImage" type="file" accept="image/jpeg,image/png,image/webp" hidden onchange="openAdminGroupCrop(this)">
               <button type="button" class="is-delete" onclick="deleteAdminGroup()" aria-label="Delete group" title="Delete group">🗑</button>
             </div>
-          </header>
+           </header>
+          <div id="adminGroupEmbed" class="admin-group-embed is-hidden">
+            <iframe id="adminGroupEmbedFrame" title="GNEX Order Record" loading="lazy"></iframe>
+          </div>
            <div id="adminGroupMessages" class="admin-room-messages"></div>
-         <form class="admin-room-composer" onsubmit="sendAdminGroupMessage(event)">
+         <form id="adminGroupComposer" class="admin-room-composer" onsubmit="sendAdminGroupMessage(event)">
             <button type="button" onclick="document.getElementById('adminGroupImage').click()">+</button>
             <input id="adminGroupImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendAdminGroupImage(this)">
             <input id="adminGroupInput" placeholder="Tulis mesej group...">
@@ -265,6 +268,6 @@
     </div>
   </section>
 
-    <script src="topup-admin.js?v=25"></script>
+    <script src="topup-admin.js?v=26"></script>
 </body>
 </html>
