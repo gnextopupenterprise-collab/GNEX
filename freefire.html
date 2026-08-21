@@ -814,7 +814,12 @@ DIGI/CELCOM
 </div>
 </div>
 
-<button id="checkoutButton" type="button" onclick="orderNow()" class="w-full mt-5 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
+<button id="webCheckoutButton" type="button" onclick="orderNow('web')" class="w-full mt-5 bg-cyan-400 hover:bg-cyan-300 text-black font-black px-5 py-4 rounded-lg transition">
+CHECKOUT WEB
+</button>
+<p class="text-cyan-300/80 text-[11px] mt-2 text-center font-bold">Admin lebih mudah menerima order</p>
+
+<button id="checkoutButton" type="button" onclick="orderNow('whatsapp')" class="w-full mt-3 bg-green-500 hover:bg-green-400 text-black font-black px-5 py-4 rounded-lg transition">
 CHECKOUT WHATSAPP
 </button>
 
@@ -1130,6 +1135,7 @@ const selectedPrice = document.getElementById("selectedPrice");
 const selectedPackageBox = document.getElementById("selectedPackageBox");
 const paymentWarning = document.getElementById("paymentWarning");
 const checkoutButton = document.getElementById("checkoutButton");
+const webCheckoutButton = document.getElementById("webCheckoutButton");
 const paymentMethod = document.getElementById("paymentMethod");
 
 selectedPrice.innerText = price;
@@ -1150,11 +1156,37 @@ checkoutButton.classList.toggle("hover:bg-zinc-700", isUnavailable);
 checkoutButton.classList.toggle("bg-green-500", !isUnavailable);
 checkoutButton.classList.toggle("hover:bg-green-400", !isUnavailable);
 checkoutButton.innerText = isUnavailable ? "TUKAR PAYMENT METHOD" : "CHECKOUT WHATSAPP";
+[checkoutButton,webCheckoutButton].forEach((button) => {
+if(!button) return;
+button.disabled = isUnavailable;
+button.classList.toggle("cursor-not-allowed", isUnavailable);
+button.classList.toggle("opacity-50", isUnavailable);
+});
 
 return {price, isUnavailable};
 }
 
-function orderNow(){
+async function sendCheckoutToWeb(message,button){
+const originalText=button.innerText;
+button.disabled=true;
+button.innerText="MENGHANTAR...";
+try{
+const stateResponse=await fetch("api/topup.php?action=state",{credentials:"same-origin"});
+const stateData=await stateResponse.json();
+if(!stateResponse.ok||!stateData.ok)throw new Error(stateData.message||"Chat web tidak tersedia.");
+const response=await fetch("api/topup.php?action=sendMessage",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({csrf:stateData.csrf,department:"topup",source:"web_checkout",body:message})});
+const data=await response.json();
+if(!response.ok||!data.ok)throw new Error(data.message||"Order gagal dihantar.");
+button.innerText="ORDER DIHANTAR ✓";
+setTimeout(()=>{window.location.href="index.html?chat=guest";},500);
+}catch(error){
+button.disabled=false;
+button.innerText=originalText;
+alert(error.message||"Order gagal dihantar ke chat web.");
+}
+}
+
+async function orderNow(destination="whatsapp"){
 if(!currentPackage){
 document.getElementById("packages").scrollIntoView({behavior:"smooth", block:"start"});
 return;
@@ -1178,6 +1210,7 @@ Payment: ${payment}
 Harga: ${priceState.price}`;
 
 const url = `https://wa.me/601115421017?text=${encodeURIComponent(message)}`;
+if(destination==="web")return sendCheckoutToWeb(message,document.getElementById("webCheckoutButton"));
 window.open(url, "_blank");
 }
 
