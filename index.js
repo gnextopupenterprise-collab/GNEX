@@ -684,10 +684,14 @@ function setupHomepagePerformance(){
       isScrolling=false;
       document.body.classList.remove("is-performance-scrolling");
       if(heroVideo&&!document.hidden&&!hero?.classList.contains("is-performance-offscreen")) heroVideo.play().catch(()=>{});
-    },140);
+    },600);
   };
   [window,...document.querySelectorAll(".modal-panel,.gc-home-scroll,.gc-messages,.gc-group-messages")]
-    .forEach(surface=>surface.addEventListener("scroll",handlePerformanceScroll,{passive:true}));
+    .forEach(surface=>{
+      surface.addEventListener("wheel",handlePerformanceScroll,{passive:true});
+      surface.addEventListener("touchmove",handlePerformanceScroll,{passive:true});
+      surface.addEventListener("scroll",handlePerformanceScroll,{passive:true});
+    });
 }
 
 if("requestIdleCallback" in window) requestIdleCallback(setupHomepagePerformance,{timeout:1200});

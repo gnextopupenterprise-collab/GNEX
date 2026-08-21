@@ -77,6 +77,9 @@ padding-bottom:92px;
 .performance-mode .modal-panel{overscroll-behavior:contain}
 .performance-mode .game-card>img{filter:none!important}
 .performance-mode body.is-performance-scrolling .game-card,.performance-mode body.is-performance-scrolling .price-jersey-card{box-shadow:none!important}
+.performance-mode .modal-panel{transform:translateZ(0);backface-visibility:hidden;contain:layout paint style}
+.performance-mode .price-list-shell,.performance-mode #payment,.performance-mode footer{content-visibility:auto;contain-intrinsic-size:auto 800px}
+.performance-mode .price-card-grid,.performance-mode .price-jersey-card{transform:translateZ(0);backface-visibility:hidden}
 
 body.modal-open{
 overflow:hidden;
