@@ -673,7 +673,7 @@ function setupHomepagePerformance(){
   });
   let scrollTimer=0;
   let isScrolling=false;
-  window.addEventListener("scroll",()=>{
+  const handlePerformanceScroll=()=>{
     if(!isScrolling){
       isScrolling=true;
       document.body.classList.add("is-performance-scrolling");
@@ -685,7 +685,9 @@ function setupHomepagePerformance(){
       document.body.classList.remove("is-performance-scrolling");
       if(heroVideo&&!document.hidden&&!hero?.classList.contains("is-performance-offscreen")) heroVideo.play().catch(()=>{});
     },140);
-  },{passive:true});
+  };
+  [window,...document.querySelectorAll(".modal-panel,.gc-home-scroll,.gc-messages,.gc-group-messages")]
+    .forEach(surface=>surface.addEventListener("scroll",handlePerformanceScroll,{passive:true}));
 }
 
 if("requestIdleCallback" in window) requestIdleCallback(setupHomepagePerformance,{timeout:1200});

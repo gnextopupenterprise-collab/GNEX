@@ -12,8 +12,8 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-const STATIC_CACHE = 'gnex-static-v18';
-const IMAGE_CACHE = 'gnex-images-v4';
+const STATIC_CACHE = 'gnex-static-v19';
+const IMAGE_CACHE = 'gnex-images-v5';
 const MAX_IMAGE_CACHE_ITEMS = 180;
 const CORE_ASSETS = [
   '/',
@@ -61,6 +61,12 @@ const CORE_ASSETS = [
   'images/optimized/jersey-back.webp',
   'images/optimized/esport-card.webp',
   'images/optimized/esport-card-cut.webp',
+  'images/optimized/gnex-wordmark-400.webp',
+  'images/optimized/ff-wallpaper-800.webp',
+  'images/optimized/ml-wallpaper-800.webp',
+  'images/optimized/pubg-wallpaper-800.webp',
+  'images/optimized/pubg-logo-240.webp',
+  'images/optimized/jersey-size-chart-1200.webp',
   'card gnex esport/gnex-guild-open-member.jpeg'
 ];
 
