@@ -342,6 +342,15 @@ function ensure_schema(PDO $pdo): void
             FOREIGN KEY(admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
             FOREIGN KEY(conversation_id) REFERENCES gt_conversations(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS gt_admin_reminder_dispatch (
+            admin_id INT NOT NULL,
+            conversation_id BIGINT UNSIGNED NOT NULL,
+            reminder_type ENUM("order","chat") NOT NULL,
+            last_sent_at DATETIME NOT NULL,
+            PRIMARY KEY(admin_id,conversation_id,reminder_type),
+            FOREIGN KEY(admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+            FOREIGN KEY(conversation_id) REFERENCES gt_conversations(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
         'CREATE TABLE IF NOT EXISTS gt_chat_labels (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL UNIQUE,
@@ -786,7 +795,8 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
     $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
     $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
     if(!$workerId)respond(['ok'=>true,'sent'=>0]);
-    $stmt=$pdo->prepare('SELECT c.id,c.department,COUNT(m.id) unread_count,MAX(m.id) latest_id,
+    $stmt=$pdo->prepare('SELECT c.id,c.department,COUNT(m.id) unread_count,MAX(m.id) latest_id,MAX(m.created_at) latest_created,
+      MAX(CASE WHEN m.message_kind LIKE "pin_order%" THEN 1 ELSE 0 END) has_pin_order,
       SUBSTRING_INDEX(GROUP_CONCAT(m.body ORDER BY m.id DESC SEPARATOR "\n"),"\n",1) latest_body
       FROM gt_conversations c
       JOIN gt_messages m ON m.conversation_id=c.id AND m.sender_type IN ("guest","customer")
@@ -795,13 +805,19 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
       GROUP BY c.id,c.department ORDER BY latest_id DESC LIMIT 30');
     $stmt->execute([$workerId]);$sent=0;
     foreach($stmt->fetchAll() as $row){
+        $type=(int)$row['has_pin_order']===1?'order':'chat';$interval=$type==='order'?30:120;
+        $lastStmt=$pdo->prepare('SELECT last_sent_at FROM gt_admin_reminder_dispatch WHERE admin_id=? AND conversation_id=? AND reminder_type=?');
+        $lastStmt->execute([$workerId,(int)$row['id'],$type]);$lastSent=(string)($lastStmt->fetchColumn() ?: $row['latest_created']);
+        if(strtotime($lastSent)>time()-$interval)continue;
         send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
-          'title'=>'GNEX ORDER · Mesej belum dibuka',
+          'title'=>$type==='order'?'GNEX ORDER · Order belum dibuka':'GNEX ORDER · Mesej belum dibuka',
           'body'=>(int)$row['unread_count'].' mesej · '.clean($row['latest_body'] ?? '',120),
           'url'=>'topup-admin.html?conversation_id='.(int)$row['id'],
           'tag'=>'gnex-order-reminder-'.(int)$row['id'],
           'badge_count'=>(int)$row['unread_count'],
-        ]);$sent++;
+        ]);
+        $pdo->prepare('INSERT INTO gt_admin_reminder_dispatch(admin_id,conversation_id,reminder_type,last_sent_at) VALUES(?,?,?,NOW()) ON DUPLICATE KEY UPDATE last_sent_at=NOW()')->execute([$workerId,(int)$row['id'],$type]);
+        $sent++;
     }
     respond(['ok'=>true,'sent'=>$sent]);
 }

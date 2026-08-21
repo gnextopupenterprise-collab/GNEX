@@ -1,10 +1,10 @@
 [Unit]
-Description=Run GNEX ORDER reminder every two minutes
+Description=Run GNEX ORDER reminder dispatcher every 30 seconds
 
 [Timer]
-OnBootSec=2min
-OnUnitActiveSec=2min
-AccuracySec=5s
+OnBootSec=30s
+OnUnitActiveSec=30s
+AccuracySec=2s
 Persistent=true
 
 [Install]
