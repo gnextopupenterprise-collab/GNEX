@@ -5,15 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="GNEX Topup Store - tournament, leaderboard, bracket match and game topup hub.">
 <link rel="icon" type="image/png" sizes="64x64" href="images/20260602_004238.png">
-<link rel="apple-touch-icon" href="images/gnex-home-192.png?v=2">
-<link rel="manifest" href="manifest.webmanifest?v=20260813-4">
+<link rel="apple-touch-icon" href="images/gnex-main-white-192.png?v=20260820-2">
+<link rel="manifest" href="manifest.webmanifest?v=20260820-2">
 <meta name="theme-color" content="#02040a">
 
 <title>GNEX Center</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet" href="index.css">
+<link rel="stylesheet" href="index.css?v=8">
+<link rel="stylesheet" href="chat-center.css?v=23">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QXRQM1SYWH"></script>
 <script>
@@ -226,12 +227,22 @@ WHATSAPP
 <span>Home</span>
 </button>
 
-<button type="button" class="bottom-nav-item" data-nav="topup" onclick="openPriceListPanel()" aria-label="GNEX Topup">
+<button type="button" class="bottom-nav-item" data-nav="chat" onclick="openChatCenter()" aria-label="Chat">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
 <rect x="4" y="5" width="16" height="14" rx="3"></rect>
 <path d="M8 9h8"></path>
 <path d="M8 13h5"></path>
 <path d="M16 16h.01"></path>
+</svg>
+<span>Chat</span>
+</button>
+
+<button type="button" class="bottom-nav-item" data-nav="topup" onclick="if(window.closeChatCenter) closeChatCenter(); openPriceListPanel()" aria-label="GNEX Topup">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M4 7h16v11H4z"></path>
+<path d="M7 7V5h10v2"></path>
+<path d="M8 12h8"></path>
+<path d="M12 9v6"></path>
 </svg>
 <span>Topup</span>
 </button>
@@ -246,79 +257,284 @@ WHATSAPP
 </svg>
 <span>Tour</span>
 </button>
-
-<button type="button" class="bottom-nav-item" data-nav="support" onclick="goSection('support')" aria-label="Support">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M4 12a8 8 0 0 1 16 0"></path>
-<path d="M4 12v4a2 2 0 0 0 2 2h1v-6H4Z"></path>
-<path d="M20 12v4a2 2 0 0 1-2 2h-1v-6h3Z"></path>
-<path d="M9 20h3"></path>
-</svg>
-<span>Support</span>
-</button>
 </nav>
 
-<nav class="bottom-app-nav topup-bottom-nav" aria-label="GNEX Topup mobile navigation">
+<nav class="bottom-app-nav chat-bottom-nav" aria-label="GNEX Chat mobile navigation">
 <button type="button" class="bottom-nav-item" data-nav="home" onclick="goHome()" aria-label="Home">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10.8 9-7 9 7"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg>
 <span>Home</span>
 </button>
-<button type="button" class="bottom-nav-item is-active" data-nav="topup" onclick="openPriceListPanel()" aria-label="GNEX Topup">
+<button type="button" class="bottom-nav-item is-active" data-chat-nav="chat" onclick="openChatNavTab('chat')" aria-label="Chat">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M16 16h.01"></path></svg>
-<span>Topup</span>
+<span>Chat</span>
 </button>
-<button type="button" class="bottom-nav-item" data-nav="ranking" onclick="openTopupRanking()" aria-label="Ranking Topup">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10"></path><path d="M12 20V4"></path><path d="M19 20v-7"></path><path d="M3 20h18"></path></svg>
-<span>Ranking Topup</span>
+<button type="button" class="bottom-nav-item" data-chat-nav="community" onclick="openChatNavTab('community')" aria-label="Komuniti">
+<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"></circle><circle cx="16" cy="8" r="3"></circle><path d="M2.5 19a5.5 5.5 0 0 1 11 0"></path><path d="M10.5 19a5.5 5.5 0 0 1 11 0"></path></svg>
+<span>Komuniti</span>
 </button>
-<button type="button" class="bottom-nav-item" data-nav="profile" onclick="openTopupProfile()" aria-label="Profile">
+<button type="button" class="bottom-nav-item" data-chat-nav="profile" onclick="openChatProfile()" aria-label="Profile">
 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4.5 21a7.5 7.5 0 0 1 15 0"></path></svg>
 <span>Profile</span>
-<span class="profile-login-note" aria-hidden="true"><i></i> LOGIN DULU</span>
 </button>
 </nav>
 
-<!-- GNEX TOPUP CHAT -->
+<!-- GNEX CHAT CENTER -->
+<!-- PRICE LIST -->
 <section id="price-list" class="modal-view" aria-hidden="true">
 <div class="modal-backdrop" onclick="closePriceListPanel()"></div>
-<div class="modal-panel topup-chat-panel">
-<div class="topup-chat-shell">
-<header class="topup-chat-header">
-<button type="button" class="topup-chat-back" onclick="closePriceListPanel()" aria-label="Back to GNEX home">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
-</button>
-<img src="images/logo baru gnex .webp" alt="GNEX Topup" class="topup-chat-avatar">
-<div class="topup-chat-identity"><strong>GNEX TOPUP</strong><span><i></i> Admin online</span></div>
-<button type="button" class="topup-chat-search-toggle" onclick="toggleChatSearch()" aria-label="Search chat" aria-expanded="false" aria-controls="topup-chat-search">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
-</button>
-<div id="topup-chat-search" class="topup-chat-search" aria-hidden="true">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
-<input id="topup-chat-search-input" type="search" placeholder="Cari dalam chat..." oninput="searchTopupChat(this.value)" autocomplete="off">
-<button type="button" onclick="toggleChatSearch(false)" aria-label="Close search">X</button>
+<div class="modal-panel">
+<button type="button" class="modal-close" onclick="closePriceListPanel()" aria-label="Close price list">X</button>
+<div class="price-list-shell max-w-7xl mx-auto px-6 py-16 md:py-20">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<p class="text-cyan-400 font-bold tracking-[0.2em] text-xs">TOPUP STORE</p>
+<h2 class="text-3xl md:text-4xl font-black mt-2">GAME PRICE LIST</h2>
 </div>
-</header>
-
-<main id="topup-chat-messages" class="topup-chat-messages" aria-live="polite">
-<div class="chat-date-chip">Hari ini</div>
-<div class="chat-row is-admin">
-<img src="images/logo baru gnex .webp" alt="" class="chat-avatar">
-<div><div class="chat-name">GNEX Admin</div><div class="chat-bubble">Hai! Selamat datang ke GNEX Topup 👋<br>Ada apa yang kami boleh bantu?</div><time>10:52 AM</time></div>
+<p class="text-zinc-500 text-sm">Fast Delivery / Trusted Seller / Easy Payment</p>
 </div>
-<div class="chat-row is-admin">
-<img src="images/logo baru gnex .webp" alt="" class="chat-avatar">
-<div><div class="chat-bubble">Boleh tanya harga terus di sini atau tekan <b>LIST GAME</b> untuk lihat semua pakej topup.</div><time>10:52 AM</time></div>
+
+<div class="price-card-grid grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/ff-wallpaper.webp" alt="Free Fire topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">FF</span>
+<img src="images/ff-logo.webp" alt="Free Fire logo" class="w-16 h-8 md:w-20 md:h-10 object-contain">
 </div>
-</main>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Free Fire untuk event dan casual player.</p>
+</div>
+<a href="freefire.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
 
-<form class="topup-chat-composer" onsubmit="sendTopupMessage(event)">
-<button type="button" class="chat-attach" aria-label="Attach file">+</button>
-<input id="topup-chat-input" type="text" placeholder="Tulis mesej..." autocomplete="off" aria-label="Message GNEX admin">
-<button type="submit" class="chat-send" aria-label="Send message">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
-</button>
-</form>
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/ml-wallpaper.webp" alt="Mobile Legends topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 20%;">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">MLBB</span>
+<img src="images/logo-ml.webp" alt="Mobile Legends logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Diamonds</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup Mobile Legends dengan seller GNEX.</p>
+</div>
+<a href="mlbb.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
 
+<article class="game-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition hover:-translate-y-1 hover:border-cyan-300">
+<img src="images/pubg-wallpaper.webp" alt="PUBG topup" class="absolute inset-0 w-full h-full object-cover opacity-55 group-hover:scale-105 transition duration-500" style="object-position:center 60%;">
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">PUBG</span>
+<img src="images/pubg-logo.webp" alt="PUBG logo" class="w-20 h-10 md:w-24 md:h-12 object-contain">
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">UC</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Topup PUBG UC dengan checkout WhatsApp GNEX.</p>
+</div>
+<a href="pubg.html" class="w-full text-center bg-cyan-400 hover:bg-cyan-300 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20">
+VIEW PACKAGE
+</a>
+</div>
+</article>
+
+<article class="game-card roblox-card group relative overflow-hidden min-h-[230px] md:min-h-[330px] rounded-xl border border-cyan-500/60 bg-zinc-900 p-4 md:p-6 transition">
+<div class="absolute inset-0 roblox-card-bg"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center">
+<span class="text-xs bg-black/70 border border-cyan-400 px-3 py-1 rounded text-zinc-200">RBX</span>
+<span class="text-zinc-100 font-black tracking-[0.18em] text-xs md:text-sm">ROBLOX</span>
+</div>
+<h3 class="text-2xl md:text-3xl font-black mt-6 md:mt-10">Robux</h3>
+<p class="text-zinc-300 text-xs md:text-sm mt-2 md:mt-3">Roblox topup akan dibuka tidak lama lagi.</p>
+</div>
+<a href="#" onclick="return false" aria-disabled="true" class="w-full text-center bg-cyan-400 text-black font-black py-2.5 md:py-3 rounded-lg transition shadow-lg shadow-cyan-500/20 pointer-events-none opacity-80">
+COMING SOON
+</a>
+</div>
+</article>
+</div>
+
+<a href="jersey.html" class="price-jersey-card group mt-6 grid lg:grid-cols-[1fr_0.85fr] overflow-hidden rounded-lg border border-cyan-500/50 bg-black hover:border-cyan-300 transition">
+<div class="relative min-h-[280px] p-6 md:p-8 flex flex-col justify-between">
+<div class="absolute inset-0 opacity-35 bg-[url('images/jersey/jersey-hero.webp')] bg-cover bg-center"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/25"></div>
+
+<div class="relative z-10">
+<p class="text-cyan-400 font-black tracking-[0.24em] text-xs">OFFICIAL MERCH</p>
+<h3 class="text-4xl md:text-5xl font-black mt-3 leading-none">
+GNEX OFFICIAL <span class="text-cyan-300">JERSEY</span>
+</h3>
+<p class="text-zinc-300 max-w-xl mt-4 leading-relaxed">
+Microfiber eyelet, 145 GSM, limited edition 50 pcs. Dibuat untuk supporter GNEX.
+</p>
+</div>
+
+<div class="relative z-10 flex flex-wrap gap-3 mt-8">
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">RM65</span>
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">XS - XL</span>
+<span class="border border-cyan-400/50 bg-black/70 px-4 py-2 rounded-lg text-sm font-black">ORDER NOW</span>
+</div>
+</div>
+
+<div class="relative min-h-[280px] bg-zinc-950 overflow-hidden">
+<img src="images/jersey/jersey-size-chart.webp" alt="GNEX jersey front and back" class="absolute inset-0 w-full h-full object-cover object-top opacity-90 group-hover:scale-105 transition duration-500">
+<div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/40"></div>
+</div>
+</a>
+</div>
+</div>
+</section>
+
+<section id="chat-center" class="modal-view gnex-chat-center" aria-hidden="true">
+  <div class="modal-backdrop" onclick="closeChatCenter()"></div>
+
+  <div class="modal-panel gc-panel">
+    <div class="gc-shell">
+
+      <aside id="gc-pwa-note" class="gc-pwa-note" hidden aria-live="polite">
+        <img src="images/gnex-main-white-192.png?v=20260820-2" alt="GNEX">
+        <div><strong id="gc-pwa-note-title">Pasang GNEX</strong><span id="gc-pwa-note-copy">Tambah ke Home Screen untuk akses chat lebih cepat.</span></div>
+        <button id="gc-pwa-note-action" type="button">ADD</button>
+      </aside>
+
+      <!-- HOME / INBOX -->
+      <section id="gc-home-view" class="gc-view is-active">
+        <header class="gc-header">
+          <button type="button" class="gc-icon-btn" onclick="closeChatCenter()" aria-label="Back">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
+          </button>
+
+          <img src="images/logo baru gnex .webp" class="gc-logo" alt="GNEX">
+
+          <div class="gc-head-copy">
+            <strong>GNEX CHAT</strong>
+            <span class="gc-admin-presence"><i></i><b>Semak status...</b></span>
+          </div>
+
+          <button type="button" class="gc-icon-btn gc-theme-toggle" onclick="toggleGnexTheme()" aria-label="Tukar tema" title="Tukar tema">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="gc-theme-moon" d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"></path><g class="gc-theme-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></g>
+            </svg>
+          </button>
+        </header>
+
+        <div class="gc-tabs" role="tablist" aria-label="GNEX Chat category">
+          <button type="button" class="is-active" data-gc-tab="admin" onclick="switchChatHomeTab('admin')">ADMIN</button>
+          <button type="button" data-gc-tab="group" onclick="switchChatHomeTab('group')">GROUP</button>
+        </div>
+
+        <main class="gc-home-scroll">
+          <section id="gc-admin-list" class="gc-home-section is-active">
+            <div class="gc-section-title">
+              <div><span>DIRECT MESSAGE</span></div>
+              <small>Mesej diasingkan ikut bahagian</small>
+            </div>
+
+            <div id="gc-department-cards" class="gc-list">
+              <!-- Fallback cards; JS akan update preview mesej -->
+              <button type="button" class="gc-card" onclick="openDepartmentChat('topup')">
+                <div class="gc-avatar topup"><img src="images/admin-topup-logo.png" alt="GNEX Topup"></div>
+                <div class="gc-card-copy"><strong>Admin Topup</strong><p>Pembelian, harga & order topup</p></div>
+                <div class="gc-card-meta"><span class="gc-chevron">›</span></div>
+              </button>
+
+              <button type="button" class="gc-card" onclick="openDepartmentChat('tour')">
+                <div class="gc-avatar tour"><img src="images/admin-tour-logo.png" alt="GNEX Esport"></div>
+                <div class="gc-card-copy"><strong>Admin Tour</strong><p>Tournament, jadual & pendaftaran</p></div>
+                <div class="gc-card-meta"><span class="gc-chevron">›</span></div>
+              </button>
+
+              <button type="button" class="gc-card" onclick="openDepartmentChat('report')">
+                <div class="gc-avatar report"><img src="images/admin-report-logo.png" alt="GNEX"></div>
+                <div class="gc-card-copy"><strong>Admin Report</strong><p>Masalah, aduan & bantuan akaun</p></div>
+                <div class="gc-card-meta"><span class="gc-chevron">›</span></div>
+              </button>
+            </div>
+          </section>
+
+          <section id="gc-group-list" class="gc-home-section">
+            <div class="gc-section-title">
+              <div><span>GROUP CHAT</span><h3>Group GNEX</h3></div>
+              <small>Akan datang</small>
+            </div>
+            <div id="gc-groups" class="gc-list"></div>
+          </section>
+
+          <section id="gc-group-room" class="gc-home-section gc-group-room">
+            <div class="gc-channel-head gc-room-header"><button type="button" class="gc-room-back" onclick="closeGroupRoom()" aria-label="Kembali">‹</button><div class="gc-room-badge">G</div><div class="gc-room-copy"><span>GROUP CHAT · <i></i> LIVE</span><h3 id="gc-group-title">Group</h3></div><button id="gc-group-mute" class="gc-room-action" type="button" onclick="toggleCurrentGroupMute()" aria-label="Mute group">🔔</button></div>
+            <div id="gc-group-messages" class="gc-group-messages"></div>
+            <form id="gc-group-composer" class="gc-group-composer" onsubmit="sendGroupMessage(event)"><button type="button" class="gc-group-plus" onclick="document.getElementById('gc-group-image').click()" aria-label="Hantar gambar">+</button><input id="gc-group-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendGroupImage(this)"><input id="gc-group-input" type="text" placeholder="Tulis mesej..." autocomplete="off"><button type="submit" class="gc-group-send" aria-label="Hantar mesej"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg></button></form>
+          </section>
+
+          <section id="gc-community-list" class="gc-home-section">
+            <div class="gc-section-title">
+              <div><span>TOURNAMENT</span><h3>Komuniti GNEX</h3></div>
+              <small>Pilih komuniti game</small>
+            </div>
+
+            <div id="gc-communities" class="gc-list"></div>
+          </section>
+
+          <section id="gc-community-channel" class="gc-home-section">
+            <div class="gc-channel-head gc-room-header">
+              <button type="button" class="gc-room-back" onclick="closeCommunityChannel()" aria-label="Kembali">‹</button>
+              <div id="gc-community-badge" class="gc-room-badge community">C</div>
+              <div class="gc-room-copy"><span>GNEX CHANNEL · ADMIN ONLY</span><h3 id="gc-channel-title">Komuniti</h3><small>Info rasmi &amp; update komuniti</small></div>
+            </div>
+            <div id="gc-channel-posts" class="gc-channel-posts"></div>
+          </section>
+        </main>
+      </section>
+
+      <!-- DEPARTMENT CHAT -->
+      <section id="gc-chat-view" class="gc-view">
+        <header class="gc-header gc-chat-header">
+          <button type="button" class="gc-icon-btn" onclick="backToChatHome()" aria-label="Back to admin list">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"></path></svg>
+          </button>
+
+          <div id="gc-chat-avatar" class="gc-avatar topup">GT</div>
+
+          <div class="gc-head-copy">
+            <strong id="gc-chat-title">Admin Topup</strong>
+            <span class="gc-admin-presence"><i></i><b>Semak status...</b></span>
+          </div>
+
+          <button type="button" class="gc-icon-btn gc-theme-toggle" onclick="toggleGnexTheme()" aria-label="Tukar tema" title="Tukar tema">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path class="gc-theme-moon" d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"></path><g class="gc-theme-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></g>
+            </svg>
+          </button>
+        </header>
+
+        <main id="gc-messages" class="gc-messages" aria-live="polite"></main>
+
+        <form id="gc-composer" class="gc-composer" onsubmit="sendDepartmentMessage(event)">
+          <div id="gc-reply-preview" class="gc-reply-preview" hidden><div><strong>Reply mesej</strong><span id="gc-reply-copy"></span></div><button type="button" onclick="cancelDepartmentReply()" aria-label="Batal reply">×</button></div>
+          <button type="button" class="gc-plus" onclick="document.getElementById('gc-image-input').click()" aria-label="Hantar gambar">+</button>
+          <input id="gc-image-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendDepartmentImage(this)">
+          <input id="gc-input" type="text" placeholder="Tulis mesej..." autocomplete="off" aria-label="Message GNEX admin">
+          <button type="submit" class="gc-send" aria-label="Send message">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.3"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+          </button>
+        </form>
+      </section>
+    </div>
+
+    <!-- Existing Topup Ranking + Profile kept intact -->
 <section id="topup-ranking-view" class="topup-ranking-view" aria-hidden="true">
 <header class="topup-ranking-header">
 <button type="button" onclick="closeTopupRanking()" aria-label="Back to chat">
@@ -358,6 +574,15 @@ WHATSAPP
 <div><span>GNEX TOPUP</span><h2>PROFILE</h2></div>
 </header>
 <div class="topup-profile-content">
+<section id="topup-user-profile-card" class="topup-user-profile-card" hidden>
+<div id="topup-user-profile-avatar" class="topup-user-profile-avatar">G</div>
+<div class="topup-user-profile-main"><small>GNEX PLAYER ACCOUNT</small><h3 id="topup-user-profile-name">GNEX Player</h3><p id="topup-user-profile-phone">-</p></div>
+<span class="topup-user-profile-status"><i></i> ACTIVE</span>
+<div class="topup-user-profile-stats"><article><b id="topup-user-profile-orders">0</b><span>ORDER</span></article><article><b id="topup-user-profile-spent">RM0</b><span>TOTAL TOPUP</span></article><article><b id="topup-user-profile-game">-</b><span>GAME</span></article></div>
+<div id="topup-user-profile-game-id" class="topup-user-profile-game-id">Belum ada akaun game</div>
+<button id="userNotificationBtn" type="button" class="topup-notification-btn" onclick="enableUserNotifications()">ON NOTIFIKASI</button>
+<button id="userLogoutBtn" type="button" class="topup-user-logout-btn" onclick="logoutTopupUser()">LOGOUT USER</button>
+</section>
 <div id="topup-auth-card" class="topup-auth-card is-login-mode">
 <aside class="topup-auth-welcome">
 <img src="images/logo baru gnex .webp" alt="GNEX logo">
@@ -380,9 +605,26 @@ WHATSAPP
 <p>WELCOME TO GNEX</p>
 <h3>Login Account</h3>
 <span>Masukkan maklumat akaun anda.</span>
-<label><small>Email atau nombor telefon</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="m4 7 8 6 8-6"></path></svg><input name="login_id" type="text" placeholder="Masukkan email atau nombor" required></div></label>
-<label><small>Password</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input name="password" type="password" placeholder="Masukkan password" required></div></label>
-<div class="topup-auth-options"><label><input type="checkbox"> Ingat saya</label><button type="button">Lupa password?</button></div>
+ <label>
+   <small>Nombor telefon / username</small>
+     <div>
+       <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="4">
+         <path d="M6 2h12v20H6z"></path>
+         <path d="M10 18h4"></path>
+       </svg><input name="login_id" type="text" maxlength="40" autocapitalize="none" autocomplete="username" placeholder="Nombor telefon atau username" required>
+     </div>
+</label>
+<label>
+  <small>Password</small>
+   <div>
+     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+       <rect x="5" y="10" width="14" height="10" rx="2"></rect>
+       <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+     </svg><input name="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" placeholder="Masukkan password" required>
+   </div>
+</label>
+   <div class="topup-auth-options">
+<label><input type="checkbox"> Ingat saya</label><button type="button">Lupa password?</button></div>
 <button type="submit" class="topup-auth-submit">LOGIN</button>
 <p class="topup-auth-switch">Belum ada akaun? <button type="button" onclick="selectProfileCard('register')">Register</button></p>
 </form>
@@ -390,11 +632,16 @@ WHATSAPP
 <form class="topup-auth-form is-register-form" onsubmit="submitTopupRegister(event)">
 <p>JOIN GNEX</p>
 <h3>Create Account</h3>
-<span>Daftar akaun player GNEX anda.</span>
-<label><small>Nama player</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg><input name="name" type="text" placeholder="Masukkan nama player" required></div></label>
-<label><small>Email atau nombor telefon</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"></path><path d="m4 7 8 6 8-6"></path></svg><input name="login_id" type="text" placeholder="Masukkan email atau nombor" required></div></label>
-<label><small>Password</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input name="password" type="password" minlength="8" placeholder="Cipta password minimum 8 aksara" required></div></label>
-<button type="submit" class="topup-auth-submit">CREATE ACCOUNT</button>
+<span>Isi maklumat dan tunggu pengesahan admin.</span>
+<label><small>Nama / IGN</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M5 21a7 7 0 0 1 14 0"></path></svg><input name="name" type="text" minlength="2" maxlength="100" autocomplete="name" placeholder="Masukkan nama player" required></div></label>
+<label><small>Nombor telefon</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v20H6z"></path><path d="M10 18h4"></path></svg><input name="login_id" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="Contoh: 01115421017" required></div></label>
+<label><small>Password</small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input name="password" type="password" minlength="8" maxlength="128" pattern="(?=.*[A-Za-z])(?=.*\d).{8,}" title="Minimum 8 aksara dan mesti mengandungi huruf serta nombor" autocomplete="new-password" placeholder="Minimum 8 aksara, huruf + nombor" required></div></label>
+<div class="topup-register-game-grid">
+<label><small>Pilih game</small><div><select name="game_code" required><option value="">Pilih game</option><option value="ff">Free Fire</option><option value="ml">Mobile Legends</option><option value="pubg">PUBG Mobile</option></select></div></label>
+<label><small>ID game</small><div><input name="game_id" type="text" placeholder="Masukkan ID game" required></div></label>
+</div>
+<label><small>Server ID <em>(jika ada)</em></small><div><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v5H4zM4 14h16v5H4z"></path></svg><input name="server_id" type="text" placeholder="Contoh: 2001"></div></label>
+<button type="submit" class="topup-auth-submit">HANTAR PERMOHONAN</button>
 <p class="topup-auth-switch">Sudah ada akaun? <button type="button" onclick="selectProfileCard('login')">Login</button></p>
 </form>
 <p id="topup-auth-status" class="topup-auth-status" role="status"></p>
@@ -402,21 +649,102 @@ WHATSAPP
 </div>
 </div>
 </section>
-
-<div class="game-list-fab-wrap">
-<div id="game-list-menu" class="game-list-menu" aria-hidden="true">
-<a href="freefire.html"><img src="images/ff-logo.webp" alt="">Free Fire</a>
-<a href="mlbb.html"><img src="images/logo-ml.webp" alt="">Mobile Legends</a>
-<a href="pubg.html"><img src="images/pubg-logo.webp" alt="">PUBG Mobile</a>
-</div>
-<button id="game-list-toggle" type="button" class="game-list-toggle" onclick="toggleGameList()" aria-expanded="false" aria-controls="game-list-menu">
-<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="5" width="16" height="14" rx="3"></rect><path d="M8 9h8M8 13h5M16 16h.01"></path></svg>
-<span>LIST GAME</span>
-</button>
-</div>
-</div>
-</div>
+  </div>
 </section>
+
+<nav class="bottom-app-nav topup-bottom-nav" aria-label="GNEX Chat mobile navigation">
+
+  <button
+    type="button"
+    class="bottom-nav-item"
+    data-nav="home"
+    onclick="goHome()"
+    aria-label="Home">
+
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+      stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+
+      <path d="m3 10.8 9-7 9 7"></path>
+      <path d="M5 10v10h14V10"></path>
+      <path d="M9 20v-6h6v6"></path>
+
+    </svg>
+
+    <span>Home</span>
+  </button>
+
+
+  <button
+    type="button"
+    class="bottom-nav-item is-active"
+    data-nav="topup"
+    onclick="backToChatHome()"
+    aria-label="Chat">
+
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+      stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+
+      <rect x="4" y="5" width="16" height="14" rx="3"></rect>
+      <path d="M8 9h8"></path>
+      <path d="M8 13h5"></path>
+      <path d="M16 16h.01"></path>
+
+    </svg>
+
+    <span>Chat</span>
+  </button>
+
+
+  <button
+    type="button"
+    class="bottom-nav-item"
+    data-nav="ranking"
+    onclick="openTopupRanking()"
+    aria-label="Ranking Topup">
+
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+      stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+
+      <path d="M5 20V10"></path>
+      <path d="M12 20V4"></path>
+      <path d="M19 20v-7"></path>
+      <path d="M3 20h18"></path>
+
+    </svg>
+
+    <span>Ranking Topup</span>
+  </button>
+
+
+  <button
+    type="button"
+    class="bottom-nav-item"
+    data-nav="profile"
+    onclick="openTopupProfile()"
+    aria-label="Profile">
+
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none"
+      stroke="currentColor" stroke-width="2.2"
+      stroke-linecap="round" stroke-linejoin="round">
+
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4.5 21a7.5 7.5 0 0 1 15 0"></path>
+
+    </svg>
+
+    <span>Profile</span>
+
+    <span class="profile-login-note" aria-hidden="true">
+      <i></i>
+      LOGIN DULU
+    </span>
+
+  </button>
+
+</nav>
 
 <!-- GNEX ESPORT IMAGE -->
 <section id="gnexEsportImageModal" class="image-lightbox" aria-hidden="true">
@@ -578,459 +906,8 @@ Collab
 </div>
 </footer>
 
-<script>
-function setBottomNavActive(navName){
-document.querySelectorAll(".bottom-nav-item[data-nav]").forEach((item) => {
-item.classList.toggle("is-active", item.dataset.nav === navName);
-});
-}
-
-function goHome(){
-const priceList = document.getElementById("price-list");
-if(priceList && priceList.classList.contains("is-open")){
-priceList.classList.remove("is-open");
-priceList.setAttribute("aria-hidden", "true");
-document.body.classList.remove("modal-open");
-document.body.classList.remove("topup-chat-open");
-}
-
-setBottomNavActive("home");
-window.scrollTo({top:0, behavior:"smooth"});
-}
-
-let topupApiState = {csrf:"", customer:null, lastMessageId:0};
-
-async function loadTopupState(){
-try{
-const response = await fetch("api/topup.php?action=state", {credentials:"same-origin"});
-const data = await response.json();
-if(!response.ok || !data.ok) throw new Error(data.message || "API tidak tersedia.");
-topupApiState.csrf = data.csrf || topupApiState.csrf;
-topupApiState.customer = data.customer || null;
-document.body.classList.toggle("topup-user-logged-in", Boolean(data.customer));
-if(data.customer){
-try{ localStorage.setItem("gnex_topup_user", data.customer.name || "customer"); }catch(error){}
-}else{
-try{ localStorage.removeItem("gnex_topup_user"); }catch(error){}
-}
-return data;
-}catch(error){
-document.body.classList.remove("topup-user-logged-in");
-return null;
-}
-}
-
-function updateTopupLoginPrompt(){
-loadTopupState();
-}
-
-async function postTopup(action, payload){
-if(!topupApiState.csrf) await loadTopupState();
-const response = await fetch(`api/topup.php?action=${encodeURIComponent(action)}`, {
-method:"POST",
-credentials:"same-origin",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({...payload, csrf:topupApiState.csrf})
-});
-const data = await response.json();
-if(data.csrf) topupApiState.csrf = data.csrf;
-if(!response.ok || !data.ok) throw new Error(data.message || "Permintaan gagal.");
-return data;
-}
-
-function setTopupAuthStatus(message, isError = false){
-const status = document.getElementById("topup-auth-status");
-if(!status) return;
-status.textContent = message;
-status.classList.toggle("is-error", isError);
-}
-
-async function submitTopupLogin(event){
-event.preventDefault();
-const form = event.currentTarget;
-const button = form.querySelector("[type=submit]");
-button.disabled = true;
-setTopupAuthStatus("Sedang login...");
-try{
-const data = await postTopup("login", Object.fromEntries(new FormData(form)));
-topupApiState.customer = data.customer;
-document.body.classList.add("topup-user-logged-in");
-try{ localStorage.setItem("gnex_topup_user", data.customer.name); }catch(error){}
-setTopupAuthStatus(`Selamat kembali, ${data.customer.name}.`);
-}catch(error){ setTopupAuthStatus(error.message, true); }
-button.disabled = false;
-}
-
-async function submitTopupRegister(event){
-event.preventDefault();
-const form = event.currentTarget;
-const button = form.querySelector("[type=submit]");
-button.disabled = true;
-setTopupAuthStatus("Sedang mencipta akaun...");
-try{
-const data = await postTopup("register", Object.fromEntries(new FormData(form)));
-topupApiState.customer = data.customer;
-document.body.classList.add("topup-user-logged-in");
-try{ localStorage.setItem("gnex_topup_user", data.customer.name); }catch(error){}
-setTopupAuthStatus(`Akaun ${data.customer.name} berjaya dicipta.`);
-}catch(error){ setTopupAuthStatus(error.message, true); }
-button.disabled = false;
-}
-
-function goSection(sectionId){
-const priceList = document.getElementById("price-list");
-if(priceList && priceList.classList.contains("is-open")){
-priceList.classList.remove("is-open");
-priceList.setAttribute("aria-hidden", "true");
-document.body.classList.remove("modal-open");
-document.body.classList.remove("topup-chat-open");
-}
-if(sectionId === "support"){
-setBottomNavActive("support");
-}
-setTimeout(() => {
-document.getElementById(sectionId).scrollIntoView({behavior:"smooth"});
-}, 40);
-}
-
-function openPriceListPanel(){
-const priceList = document.getElementById("price-list");
-if(!priceList) return;
-
-setBottomNavActive("topup");
-priceList.classList.add("is-open");
-priceList.setAttribute("aria-hidden", "false");
-document.body.classList.add("modal-open");
-document.body.classList.add("topup-chat-open");
-updateTopupLoginPrompt();
-closeTopupRanking(false);
-closeTopupProfile(false);
-
-requestAnimationFrame(() => {
-const messages = document.getElementById("topup-chat-messages");
-if(messages) messages.scrollTop = messages.scrollHeight;
-});
-}
-
-function openTopupRanking(){
-const ranking = document.getElementById("topup-ranking-view");
-if(!ranking) return;
-closeTopupProfile(false);
-ranking.classList.add("is-open");
-ranking.setAttribute("aria-hidden", "false");
-setBottomNavActive("ranking");
-toggleGameList(false);
-}
-
-function closeTopupRanking(restoreNav = true){
-const ranking = document.getElementById("topup-ranking-view");
-if(!ranking) return;
-ranking.classList.remove("is-open");
-ranking.setAttribute("aria-hidden", "true");
-if(restoreNav) setBottomNavActive("topup");
-}
-
-function openTopupProfile(){
-const profile = document.getElementById("topup-profile-view");
-if(!profile) return;
-closeTopupRanking(false);
-profile.classList.add("is-open");
-profile.setAttribute("aria-hidden", "false");
-setBottomNavActive("profile");
-toggleGameList(false);
-}
-
-function closeTopupProfile(restoreNav = true){
-const profile = document.getElementById("topup-profile-view");
-if(!profile) return;
-profile.classList.remove("is-open");
-profile.setAttribute("aria-hidden", "true");
-if(restoreNav) setBottomNavActive("topup");
-}
-
-function selectProfileCard(type){
-const authCard = document.getElementById("topup-auth-card");
-if(!authCard) return;
-authCard.classList.toggle("is-login-mode", type === "login");
-authCard.classList.toggle("is-register-mode", type === "register");
-authCard.querySelectorAll("[data-auth-tab]").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.authTab === type));
-}
-
-function toggleChatSearch(forceState){
-const search = document.getElementById("topup-chat-search");
-const toggle = document.querySelector(".topup-chat-search-toggle");
-const input = document.getElementById("topup-chat-search-input");
-if(!search || !toggle || !input) return;
-
-const shouldOpen = typeof forceState === "boolean" ? forceState : !search.classList.contains("is-open");
-search.classList.toggle("is-open", shouldOpen);
-search.setAttribute("aria-hidden", String(!shouldOpen));
-toggle.setAttribute("aria-expanded", String(shouldOpen));
-if(shouldOpen){
-setTimeout(() => input.focus(), 80);
-}else{
-input.value = "";
-searchTopupChat("");
-}
-}
-
-function searchTopupChat(query){
-const keyword = query.trim().toLowerCase();
-document.querySelectorAll("#topup-chat-messages .chat-row").forEach((row) => {
-const matches = !keyword || row.textContent.toLowerCase().includes(keyword);
-row.classList.toggle("is-search-hidden", !matches);
-});
-}
-
-function toggleGameList(forceState){
-const menu = document.getElementById("game-list-menu");
-const toggle = document.getElementById("game-list-toggle");
-if(!menu || !toggle) return;
-
-const shouldOpen = typeof forceState === "boolean" ? forceState : !menu.classList.contains("is-open");
-menu.classList.toggle("is-open", shouldOpen);
-menu.setAttribute("aria-hidden", String(!shouldOpen));
-toggle.setAttribute("aria-expanded", String(shouldOpen));
-}
-
-async function sendTopupMessage(event){
-event.preventDefault();
-const input = document.getElementById("topup-chat-input");
-const messages = document.getElementById("topup-chat-messages");
-if(!input || !messages) return;
-
-const message = input.value.trim();
-if(!message) return;
-
-input.disabled = true;
-try{
-await postTopup("sendMessage", {body:message});
-}catch(error){
-input.disabled = false;
-input.focus();
-return;
-}
-
-const row = document.createElement("div");
-row.className = "chat-row is-user";
-const body = document.createElement("div");
-const bubble = document.createElement("div");
-const time = document.createElement("time");
-bubble.className = "chat-bubble";
-bubble.textContent = message;
-time.textContent = new Intl.DateTimeFormat("en-MY", {hour:"numeric", minute:"2-digit"}).format(new Date());
-body.append(bubble, time);
-row.appendChild(body);
-messages.appendChild(row);
-input.value = "";
-input.disabled = false;
-input.focus();
-messages.scrollTo({top:messages.scrollHeight, behavior:"smooth"});
-}
-
-function closePriceListPanel(){
-const priceList = document.getElementById("price-list");
-if(!priceList) return;
-
-priceList.classList.remove("is-open");
-priceList.setAttribute("aria-hidden", "true");
-document.body.classList.remove("modal-open");
-document.body.classList.remove("topup-chat-open");
-toggleGameList(false);
-toggleChatSearch(false);
-closeTopupRanking(false);
-closeTopupProfile(false);
-setBottomNavActive("home");
-}
-
-function scrollToPriceList(){
-openPriceListPanel();
-}
-
-function openGnexEsportImage(){
-const modal = document.getElementById("gnexEsportImageModal");
-if(!modal) return;
-
-modal.classList.add("is-open");
-modal.setAttribute("aria-hidden", "false");
-document.body.classList.add("modal-open");
-}
-
-function closeGnexEsportImage(){
-const modal = document.getElementById("gnexEsportImageModal");
-if(!modal) return;
-
-modal.classList.remove("is-open");
-modal.setAttribute("aria-hidden", "true");
-
-const priceList = document.getElementById("price-list");
-if(!priceList || !priceList.classList.contains("is-open")){
-document.body.classList.remove("modal-open");
-}
-}
-
-const promoSlides = Array.from(document.querySelectorAll(".promo-slide"));
-const promoDots = Array.from(document.querySelectorAll(".promo-dot"));
-const promoPositions = ["is-active", "is-right", "is-hidden", "is-left"];
-let promoIndex = 0;
-
-function setPromoSlide(nextIndex){
-promoIndex = (nextIndex + promoSlides.length) % promoSlides.length;
-
-promoSlides.forEach((slide,index) => {
-slide.classList.remove(...promoPositions);
-const offset = (index - promoIndex + promoSlides.length) % promoSlides.length;
-slide.classList.add(promoPositions[offset] || "is-hidden");
-});
-
-promoDots.forEach((dot,index) => {
-dot.classList.toggle("is-active", index === promoIndex);
-});
-}
-
-function movePromoSlide(direction){
-setPromoSlide(promoIndex + direction);
-}
-
-function handlePromoSlideClick(event, index){
-const slide = event.currentTarget;
-if(index !== promoIndex){
-setPromoSlide(index);
-return;
-}
-
-const link = slide.dataset.promoLink;
-if(link){
-window.location.href = link;
-}
-}
-
-let isTournamentTransitioning = false;
-
-function playTournamentTransition(event){
-event.preventDefault();
-
-if(isTournamentTransitioning) return;
-isTournamentTransitioning = true;
-
-const targetUrl = event.currentTarget.getAttribute("href") || "tournament.html";
-const cards = [
-document.querySelector(".tournament-card-button"),
-document.querySelector(".topup-card-button"),
-document.querySelector(".jersey-card-button"),
-document.querySelector(".gnex-esport-card-button")
-].filter(Boolean);
-const tournamentCard = cards[0];
-const esportCard = cards[3];
-
-if(!tournamentCard || !esportCard || window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(max-width: 767px)").matches){
-window.location.href = targetUrl;
-return;
-}
-
-const stage = document.createElement("div");
-stage.className = "tour-transition-stage";
-document.body.appendChild(stage);
-document.body.classList.add("tour-transition-active");
-
-const esportRect = esportCard.getBoundingClientRect();
-const clones = cards.map((card) => {
-const rect = card.getBoundingClientRect();
-const clone = card.cloneNode(true);
-clone.classList.add("tour-transition-clone");
-clone.style.left = `${rect.left}px`;
-clone.style.top = `${rect.top}px`;
-clone.style.width = `${rect.width}px`;
-clone.style.height = `${rect.height}px`;
-clone.style.borderRadius = getComputedStyle(card).borderRadius;
-clone.style.transformOrigin = "top left";
-stage.appendChild(clone);
-card.classList.add("is-transition-source-hidden");
-return {card, clone, rect, isTournament: card === tournamentCard};
-});
-
-clones.forEach(({clone, rect, isTournament}) => {
-const x = esportRect.left - rect.left;
-const y = esportRect.top - rect.top;
-
-clone.animate([
-{transform:"translate(0, 0) scale(1)", opacity:1},
-{transform:`translate(${x}px, ${y}px) scale(${isTournament ? 1.02 : .94})`, opacity:isTournament ? 1 : .18}
-], {
-duration:720,
-easing:"cubic-bezier(.2,.8,.2,1)",
-fill:"forwards"
-});
-});
-
-setTimeout(() => {
-const tournamentClone = clones.find((item) => item.isTournament);
-if(!tournamentClone){
-window.location.href = targetUrl;
-return;
-}
-
-tournamentClone.clone.getAnimations().forEach((animation) => animation.cancel());
-tournamentClone.clone.style.left = `${esportRect.left}px`;
-tournamentClone.clone.style.top = `${esportRect.top}px`;
-tournamentClone.clone.style.width = `${esportRect.width}px`;
-tournamentClone.clone.style.height = `${esportRect.height}px`;
-tournamentClone.clone.style.transform = "translate3d(0, 0, 0) scale(1)";
-tournamentClone.clone.style.transformOrigin = "top left";
-
-clones.forEach(({clone, isTournament}) => {
-if(!isTournament){
-clone.animate([
-{opacity:.18},
-{opacity:0}
-], {
-duration:180,
-easing:"ease",
-fill:"forwards"
-});
-}
-});
-
-stage.classList.add("is-title-view");
-tournamentClone.clone.animate([
-{opacity:1, transform:"translate3d(0, 0, 0) scale(1)"},
-{opacity:0, transform:"translate3d(0, -10px, 0) scale(.96)"}
-], {
-duration:300,
-easing:"ease",
-fill:"forwards"
-});
-
-const titleWrap = document.createElement("div");
-titleWrap.className = "tour-title-view";
-titleWrap.innerHTML = '<div class="tour-title-kicker">GNEX CENTER</div><div class="tour-title-type">TOURNAMENT</div>';
-stage.appendChild(titleWrap);
-
-setTimeout(() => {
-window.location.href = targetUrl;
-}, 1500);
-}, 760);
-}
-
-window.addEventListener("load", () => {
-updateTopupLoginPrompt();
-const params = new URLSearchParams(window.location.search);
-if(params.get("topup") === "1" || window.location.hash === "#price-list"){
-openPriceListPanel();
-if(params.get("view") === "ranking"){
-openTopupRanking();
-}
-}
-});
-
-document.addEventListener("keydown", (event) => {
-if(event.key === "Escape"){
-closeGnexEsportImage();
-closePriceListPanel();
-}
-});
-</script>
-
-<script src="mobile-nav.js?v=10"></script>
+<script src="index.js?v=10"></script>
+<script src="mobile-nav.js?v=11"></script>
+<script src="chat-center.js?v=32"></script>
 </body>
 </html>

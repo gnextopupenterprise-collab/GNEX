@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>GNEX Admin Chat Center</title>
+  <link rel="icon" href="images/logo baru gnex .webp">
+  <link rel="apple-touch-icon" href="images/20260602_004238.png">
+  <link rel="manifest" href="admin-manifest.webmanifest?v=1">
+  <meta name="theme-color" content="#02050a">
+  <link rel="stylesheet" href="topup-admin.css?v=18">
+</head>
+<body>
+
+  <section id="loginScreen" class="login-screen">
+    <form id="adminLoginForm" class="login-card">
+      <img src="images/logo baru gnex .webp" alt="GNEX">
+      <p>GNEX CONTROL CENTRE</p>
+      <h1>Admin Chat</h1>
+      <span>Login sekali sahaja. Selepas masuk, tukar Topup / Tour / Report tanpa login semula.</span>
+
+      <label>
+        Username
+        <input name="username" autocomplete="username" required>
+      </label>
+
+      <label>
+        Password
+        <input name="password" type="password" autocomplete="current-password" required>
+      </label>
+
+      <button type="submit">LOGIN ADMIN</button>
+      <output id="loginStatus"></output>
+    </form>
+  </section>
+
+  <main id="adminApp" class="admin-app is-hidden">
+
+    <aside class="inbox-panel">
+      <header class="admin-brand">
+        <div class="brand-left">
+          <img src="images/logo baru gnex .webp" alt="">
+          <div>
+            <strong>GNEX ADMIN</strong>
+            <span id="adminName">Admin</span>
+          </div>
+        </div>
+
+      </header>
+
+      <div class="department-tabs">
+        <button class="is-active" data-department="topup" onclick="switchDepartment('topup')">
+          <span>TOPUP</span>
+          <b id="countTopup">0</b>
+        </button>
+        <button data-department="tour" onclick="switchDepartment('tour')">
+          <span>TOUR</span>
+          <b id="countTour">0</b>
+        </button>
+        <button data-department="report" onclick="switchDepartment('report')">
+          <span>REPORT</span>
+          <b id="countReport">0</b>
+        </button>
+      </div>
+
+      <div class="inbox-tools">
+        <div>
+          <p id="departmentKicker">ADMIN TOPUP</p>
+          <h2 id="departmentTitle">Topup Inbox</h2>
+        </div>
+        <button id="refreshInbox" type="button" onclick="loadInbox(true)">↻</button>
+      </div>
+
+      <div class="inbox-search">
+        <input id="inboxSearch" type="search" placeholder="Cari customer atau nombor..." oninput="renderInbox()">
+        <select id="inboxLabelFilter" onchange="renderInbox()" aria-label="Filter mengikut label"><option value="">SEMUA LABEL</option></select>
+      </div>
+
+      <div id="inboxList" class="inbox-list"></div>
+
+    </aside>
+
+    <section class="chat-panel">
+      <div id="emptyChat" class="empty-chat">
+        <img src="images/logo baru gnex .webp" alt="">
+        <h2>Pilih chat customer</h2>
+        <p>Inbox sekarang diasingkan kepada Topup, Tour dan Report.</p>
+      </div>
+
+      <div id="chatView" class="chat-view is-hidden">
+        <header class="chat-head">
+
+  <button
+    type="button"
+    class="chat-back-btn"
+    onclick="closeAdminChat()"
+    aria-label="Back to all chats">
+
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.4"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+
+      <path d="m15 18-6-6 6-6"></path>
+
+    </svg>
+
+  </button>
+
+
+  <div class="chat-customer">
+
+    <div class="customer-avatar">
+      G#
+    </div>
+
+    <div>
+      <strong id="chatName">
+        Customer
+      </strong>
+
+      <span id="chatMeta">
+        Guest
+      </span>
+    </div>
+
+  </div>
+
+
+  <span
+    id="chatDepartmentBadge"
+    class="department-badge">
+    TOPUP
+  </span>
+
+  <div class="chat-label-control">
+    <button id="chatLabelBtn" class="chat-label-btn" type="button" onclick="toggleChatLabelMenu()">+ LABEL</button>
+    <div id="chatLabelMenu" class="chat-label-menu is-hidden">
+      <select id="chatLabelSelect" onchange="applyChatLabel(this.value)"><option value="">TIADA LABEL</option></select>
+      <button type="button" onclick="createReusableLabel()">+ LABEL BARU</button>
+    </div>
+  </div>
+  <button id="chatBanBtn" class="chat-ban-btn" type="button" onclick="toggleChatBan()">BAN</button>
+
+</header>
+
+        <main id="adminMessages" class="admin-messages"></main>
+
+        <form id="adminReplyForm" class="admin-composer">
+          <div id="adminReplyPreview" class="admin-reply-preview is-hidden"><div><strong>Reply mesej</strong><span id="adminReplyCopy"></span></div><button type="button" onclick="cancelAdminReply()" aria-label="Batal reply">×</button></div>
+          <button type="button" class="admin-attach" onclick="document.getElementById('adminChatImage').click()">+</button>
+          <input id="adminChatImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendAdminChatImage(this)">
+          <input id="adminReply" type="text" placeholder="Balas mesej..." autocomplete="off">
+          <div id="adminSendActions" class="admin-send-actions">
+            <button type="submit">SEND</button>
+            <button type="button" class="order-process-btn" onclick="setChatOrderStatus('processing',this)">PROSES</button>
+            <button type="button" class="order-done-btn" onclick="setChatOrderStatus('completed',this)">DONE</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="registrationView" class="registration-view is-hidden">
+      <header class="registration-head">
+        <div><p>ADMIN ACCOUNT</p><h2>Request Register</h2></div>
+        <button type="button" onclick="loadInbox(true)" aria-label="Refresh registration requests">↻</button>
+      </header>
+      <div class="registration-content">
+        <div class="pending-head">
+          <strong>Pending Account</strong>
+          <span id="pendingCount">0</span>
+        </div>
+        <div id="pendingList" class="pending-list"></div>
+      </div>
+    </section>
+
+    <section id="groupAdminView" class="admin-page-view is-hidden">
+      <header class="registration-head">
+        <div>
+           <p>GNEX ADMIN</p>
+           <h2>Semua Group</h2>
+        </div>
+        <button class="admin-add-group-btn" type="button" onclick="toggleAdminGroupCreate()" aria-label="Tambah group">+</button>
+      </header>
+      <div class="admin-community-page admin-group-page">
+        <form id="adminGroupForm" class="admin-group-create is-hidden" onsubmit="createAdminGroup(event)">
+          <input id="adminGroupName" maxlength="120" placeholder="Nama group" required>
+          <textarea id="adminGroupDescription" maxlength="500" placeholder="Penerangan group"></textarea>
+          <button type="submit">CREATE GROUP</button>
+        </form>
+        <div id="adminGroupList" class="admin-group-list"></div>
+        <section id="adminGroupRoom" class="admin-group-room is-hidden">
+          <header>
+            <button type="button" onclick="closeAdminGroup()">‹</button>
+            <div id="adminGroupAvatar" class="admin-room-avatar">G</div>
+            <div>
+              <small>GROUP CHAT</small>
+              <strong id="adminGroupTitle">Group</strong>
+            </div>
+            <div class="admin-group-room-actions">
+              <button type="button" onclick="document.getElementById('adminGroupProfileImage').click()" aria-label="Tukar gambar group" title="Tukar gambar">📷</button>
+              <input id="adminGroupProfileImage" type="file" accept="image/jpeg,image/png,image/webp" hidden onchange="openAdminGroupCrop(this)">
+              <button type="button" class="is-delete" onclick="deleteAdminGroup()" aria-label="Delete group" title="Delete group">🗑</button>
+            </div>
+          </header>
+           <div id="adminGroupMessages" class="admin-room-messages"></div>
+         <form class="admin-room-composer" onsubmit="sendAdminGroupMessage(event)">
+            <button type="button" onclick="document.getElementById('adminGroupImage').click()">+</button>
+            <input id="adminGroupImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendAdminGroupImage(this)">
+            <input id="adminGroupInput" placeholder="Tulis mesej group...">
+            <button type="submit">SEND</button>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section id="communityAdminView" class="admin-page-view is-hidden">
+      <header class="registration-head"><div><p>GNEX ADMIN</p><h2>Semua Komuniti</h2></div><button class="admin-add-group-btn" type="button" onclick="toggleAdminCommunityCreate()" aria-label="Tambah komuniti">+</button></header>
+      <div class="admin-community-page admin-community-list-page">
+        <form id="adminCommunityCreateForm" class="admin-group-create is-hidden" onsubmit="createAdminCommunity(event)"><input id="adminCommunityName" maxlength="120" placeholder="Nama komuniti" required><textarea id="adminCommunityDescription" maxlength="500" placeholder="Penerangan komuniti"></textarea><button type="submit">CREATE KOMUNITI</button></form>
+        <div id="adminCommunityList" class="admin-group-list"></div>
+        <section id="adminCommunityRoom" class="admin-group-room admin-community-room is-hidden">
+          <header><button type="button" onclick="closeAdminCommunityRoom()">‹</button><div id="adminCommunityAvatar" class="admin-room-avatar">C</div><div><small>GNEX CHANNEL</small><strong id="adminCommunityTitle">Komuniti</strong></div><div class="admin-group-room-actions"><button type="button" onclick="document.getElementById('adminCommunityProfileImage').click()" aria-label="Tukar gambar komuniti">📷</button><input id="adminCommunityProfileImage" type="file" accept="image/jpeg,image/png,image/webp" hidden onchange="openAdminCommunityCrop(this)"></div></header>
+          <div id="adminCommunityPosts" class="admin-room-messages admin-community-messages"></div>
+          <form id="adminCommunityForm" class="admin-room-composer admin-community-composer" onsubmit="publishCommunityPost(event)"><button type="button" onclick="document.getElementById('adminCommunityImage').click()">+</button><input id="adminCommunityImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden><input id="adminCommunityBody" maxlength="3000" placeholder="Tulis update komuniti..."><button type="submit">SEND</button></form>
+        </section>
+      </div>
+    </section>
+
+    <section id="adminProfileView" class="admin-page-view is-hidden">
+      <header class="registration-head"><div><p>ADMIN ACCOUNT</p><h2>Profile</h2></div></header>
+      <div class="admin-profile-card">
+        <img src="images/logo baru gnex .webp" alt="GNEX">
+        <h3 id="profileAdminName">Admin</h3>
+        <p>GNEX Control Centre</p>
+        <button id="adminNotificationBtn" type="button" onclick="enableAdminNotifications()">ON NOTIFIKASI</button>
+        <button id="botToggleBtn" class="bot-toggle-btn" type="button" onclick="toggleBotStatus()">BOT ON</button>
+        <button class="admin-logout-btn" type="button" onclick="logoutAdmin()">LOGOUT</button>
+      </div>
+    </section>
+
+    <nav class="admin-bottom-nav" aria-label="Admin navigation">
+      <button type="button" class="is-active" data-admin-view="inbox" onclick="showAdminView('inbox')"><span>▣</span>CHAT</button>
+      <button type="button" data-admin-view="register" onclick="showAdminView('register')"><span>✓</span>REGISTER <b id="adminPendingBadge">0</b></button>
+      <button type="button" data-admin-view="group" onclick="showAdminView('group')"><span>♧</span>GROUP</button>
+      <button type="button" data-admin-view="community" onclick="showAdminView('community')"><span>◎</span>KOMUNITI</button>
+      <button type="button" data-admin-view="profile" onclick="showAdminView('profile')"><span>○</span>PROFILE</button>
+    </nav>
+
+  </main>
+
+  <section id="adminGroupCropModal" class="admin-crop-modal" aria-hidden="true">
+    <div class="admin-crop-backdrop" onclick="closeAdminGroupCrop()"></div>
+    <div class="admin-crop-card" role="dialog" aria-modal="true" aria-labelledby="adminCropTitle">
+      <header><div><small>PROFILE CHANNEL</small><h2 id="adminCropTitle">Pilih paparan gambar</h2></div><button type="button" onclick="closeAdminGroupCrop()" aria-label="Tutup">×</button></header>
+      <p>Gerakkan gambar untuk pilih posisi. Gunakan slider untuk zoom.</p>
+      <div class="admin-crop-stage"><canvas id="adminGroupCropCanvas" width="320" height="320"></canvas><span class="admin-crop-ring"></span></div>
+      <label class="admin-crop-zoom"><span>ZOOM</span><input id="adminGroupCropZoom" type="range" min="1" max="3" value="1" step="0.01" oninput="changeAdminGroupCropZoom(this.value)"></label>
+      <div class="admin-crop-actions"><button type="button" onclick="resetAdminGroupCrop()">RESET</button><button id="adminGroupCropSave" type="button" class="is-primary" onclick="saveAdminGroupCrop()">GUNA GAMBAR</button></div>
+    </div>
+  </section>
+
+    <script src="topup-admin.js?v=22"></script>
+</body>
+</html>
