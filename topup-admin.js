@@ -607,17 +607,10 @@ function renderInbox(){
 
           </div>
 
-          <time>
-            ${
-              esc(
-                formatClock(
-                  item.last_message_at
-                )
-              )
-            }
-          </time>
-
-          ${Number(item.unread_count||0)>0?`<b class="inbox-unread-count" aria-label="${Number(item.unread_count)} mesej belum dibaca">${Number(item.unread_count)>99?"99+":Number(item.unread_count)}</b>`:""}
+          <div class="inbox-meta">
+            <time>${esc(formatClock(item.last_message_at))}</time>
+            ${Number(item.unread_count||0)>0?`<b class="inbox-unread-count" aria-label="${Number(item.unread_count)} mesej belum dibaca">${Number(item.unread_count)>99?"99+":Number(item.unread_count)}</b>`:""}
+          </div>
 
         </button>
       `
