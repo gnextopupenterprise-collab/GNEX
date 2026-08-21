@@ -1,0 +1,11 @@
+[Unit]
+Description=Run GNEX ORDER reminder every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=5s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

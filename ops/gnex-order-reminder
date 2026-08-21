@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+secret="$(php -r '$value=require "/var/www/gnex/data/reminder-secret.php"; echo is_string($value)?$value:"";')"
+test -n "$secret"
+curl --fail --silent --show-error --max-time 50 \
+  -H "X-Gnex-Cron: $secret" \
+  'https://gnexcenter.com/api/topup.php?action=runOrderReminders' >/dev/null

@@ -1,0 +1,9 @@
+[Unit]
+Description=GNEX ORDER unread push reminder
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/gnex-order-reminder
+User=root
