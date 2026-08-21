@@ -25,6 +25,23 @@ padding-bottom:92px;
 .performance-mode .is-performance-offscreen::before,.performance-mode .is-performance-offscreen::after,.performance-mode .is-performance-offscreen *::before,.performance-mode .is-performance-offscreen *::after{animation-play-state:paused!important}
 .performance-mode body.is-performance-scrolling *,.performance-mode body.is-performance-scrolling *::before,.performance-mode body.is-performance-scrolling *::after{animation-play-state:paused!important}
 .performance-mode body.is-performance-scrolling .hero-video{visibility:hidden}
+.performance-mode body.is-performance-scrolling .hero-red-motion,
+.performance-mode body.is-performance-scrolling .tournament-card-character,
+.performance-mode body.is-performance-scrolling .topup-card-item,
+.performance-mode body.is-performance-scrolling .jersey-card-item,
+.performance-mode body.is-performance-scrolling .gnex-esport-card-logo,
+.performance-mode body.is-performance-scrolling .gnex-esport-card-kelly,
+.performance-mode body.is-performance-scrolling .promo-slide:not(.is-active){visibility:hidden!important}
+.performance-mode body.is-performance-scrolling .electric-card::before,
+.performance-mode body.is-performance-scrolling .tournament-card-button::before,
+.performance-mode body.is-performance-scrolling .tournament-card-button::after,
+.performance-mode body.is-performance-scrolling .topup-card-button::before,
+.performance-mode body.is-performance-scrolling .topup-card-button::after,
+.performance-mode body.is-performance-scrolling .jersey-card-button::before,
+.performance-mode body.is-performance-scrolling .jersey-card-button::after,
+.performance-mode body.is-performance-scrolling .gnex-esport-card-button::before,
+.performance-mode body.is-performance-scrolling .gnex-esport-card-button::after{display:none!important}
+.performance-mode .hero-glow,.performance-mode .promo-carousel,.performance-mode .card-button-grid{contain:layout paint style}
 .balanced-mode .hero-video,.balanced-mode .hero-red-motion{display:none!important}
 .balanced-mode .tournament-card-button::before,.balanced-mode .topup-card-button::before,.balanced-mode .jersey-card-button::before,.balanced-mode .gnex-esport-card-button::before,.balanced-mode .tournament-card-button::after,.balanced-mode .topup-card-button::after,.balanced-mode .jersey-card-button::after,.balanced-mode .gnex-esport-card-button::after{animation:none!important;display:none!important}
 .balanced-mode .tournament-card-character,.balanced-mode .topup-card-item,.balanced-mode .jersey-card-item,.balanced-mode .gnex-esport-card-logo,.balanced-mode .gnex-esport-card-kelly{filter:none!important;will-change:transform,opacity}
