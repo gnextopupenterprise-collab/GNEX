@@ -671,6 +671,21 @@ function setupHomepagePerformance(){
       else heroVideo.play().catch(()=>{});
     }
   });
+  let scrollTimer=0;
+  let isScrolling=false;
+  window.addEventListener("scroll",()=>{
+    if(!isScrolling){
+      isScrolling=true;
+      document.body.classList.add("is-performance-scrolling");
+      heroVideo?.pause();
+    }
+    clearTimeout(scrollTimer);
+    scrollTimer=setTimeout(()=>{
+      isScrolling=false;
+      document.body.classList.remove("is-performance-scrolling");
+      if(heroVideo&&!document.hidden&&!hero?.classList.contains("is-performance-offscreen")) heroVideo.play().catch(()=>{});
+    },140);
+  },{passive:true});
 }
 
 if("requestIdleCallback" in window) requestIdleCallback(setupHomepagePerformance,{timeout:1200});
