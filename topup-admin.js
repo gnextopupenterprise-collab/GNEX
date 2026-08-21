@@ -408,7 +408,7 @@ async function switchDepartment(
       department !== "topup"
     );
 
-  $("#adminSendActions")
+  $("#adminOrderActions")
     ?.classList.toggle(
       "is-hidden",
       department !== "topup"
@@ -1088,7 +1088,7 @@ window.addEventListener("mouseup",()=>{if(!adminSwipe)return;const {row,dx}=admi
 
 async function setChatOrderStatus(orderStatus,button){
   if(!state.conversationId)return;
-  const buttons=document.querySelectorAll(".admin-send-actions button");
+  const buttons=document.querySelectorAll(".admin-order-actions button");
   buttons.forEach(item=>item.disabled=true);
   try{
     await request("setOrderStatus",{conversation_id:state.conversationId,order_status:orderStatus});

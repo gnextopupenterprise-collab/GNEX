@@ -8,7 +8,7 @@
   <link rel="apple-touch-icon" href="images/20260602_004238.png">
   <link rel="manifest" href="admin-manifest.webmanifest?v=1">
   <meta name="theme-color" content="#02050a">
-  <link rel="stylesheet" href="topup-admin.css?v=19">
+  <link rel="stylesheet" href="topup-admin.css?v=20">
 </head>
 <body>
 
@@ -152,14 +152,15 @@
 
         <form id="adminReplyForm" class="admin-composer">
           <div id="adminReplyPreview" class="admin-reply-preview is-hidden"><div><strong>Reply mesej</strong><span id="adminReplyCopy"></span></div><button type="button" onclick="cancelAdminReply()" aria-label="Batal reply">×</button></div>
-          <button type="button" class="admin-attach" onclick="document.getElementById('adminChatImage').click()">+</button>
-          <input id="adminChatImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendAdminChatImage(this)">
-          <input id="adminReply" type="text" placeholder="Balas mesej..." autocomplete="off">
-          <div id="adminSendActions" class="admin-send-actions">
-            <button type="submit">SEND</button>
+          <div id="adminOrderActions" class="admin-order-actions">
+            <span>STATUS ORDER</span>
             <button type="button" class="order-process-btn" onclick="setChatOrderStatus('processing',this)">PROSES</button>
             <button type="button" class="order-done-btn" onclick="setChatOrderStatus('completed',this)">DONE</button>
           </div>
+          <button type="button" class="admin-attach" onclick="document.getElementById('adminChatImage').click()">+</button>
+          <input id="adminChatImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onchange="sendAdminChatImage(this)">
+          <input id="adminReply" type="text" placeholder="Balas mesej..." autocomplete="off">
+          <button type="submit" class="admin-send-btn">SEND</button>
         </form>
       </div>
     </section>
@@ -264,6 +265,6 @@
     </div>
   </section>
 
-    <script src="topup-admin.js?v=23"></script>
+    <script src="topup-admin.js?v=24"></script>
 </body>
 </html>
