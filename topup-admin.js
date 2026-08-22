@@ -65,6 +65,7 @@ const state = {
   ,communityChannel:""
   ,workerAlertShowing:false
   ,handledWorkerAlertId:0
+  ,workerAlert:null
 };
 
 const meta = {
@@ -367,17 +368,23 @@ async function clearAdminNotifications(filter){
 
 function queueWorkerAlert(alertData){
   const alertId=Number(alertData?.id||0);
-  if(!alertId||state.admin?.access_scope!=="order"||state.workerAlertShowing||state.handledWorkerAlertId===alertId)return;
+  if(!alertId||state.admin?.access_scope!=="order"||state.handledWorkerAlertId===alertId)return;
+  state.workerAlert=alertData;
   state.workerAlertShowing=true;
-  setTimeout(async()=>{
-    window.alert(alertData.message||"Sila isi diamond");
-    try{
-      await request("ackWorkerAlert",{alert_id:alertId});
-      state.handledWorkerAlertId=alertId;
-      await clearAdminNotifications(notification=>Number(notification.data?.alert_id)===alertId||String(notification.tag||"").startsWith(`gnex-diamond-reminder-${alertId}-`));
-    }catch(error){window.alert(error.message||"Peringatan gagal dihentikan. Sila cuba lagi.");}
-    finally{state.workerAlertShowing=false;}
-  },100);
+  const note=$("#workerDiamondNote");
+  if(note){note.querySelector("span").textContent=alertData.message||"Sila isi diamond";note.classList.remove("is-hidden");}
+}
+
+async function acknowledgeWorkerAlert(){
+  const alertId=Number(state.workerAlert?.id||0);if(!alertId)return;
+  const note=$("#workerDiamondNote"),button=note?.querySelector("button");if(button)button.disabled=true;
+  try{
+    await request("ackWorkerAlert",{alert_id:alertId});
+    state.handledWorkerAlertId=alertId;state.workerAlert=null;state.workerAlertShowing=false;
+    note?.classList.add("is-hidden");
+    await clearAdminNotifications(notification=>Number(notification.data?.alert_id)===alertId||String(notification.tag||"").startsWith(`gnex-diamond-reminder-${alertId}-`));
+  }catch(error){window.alert(error.message||"Peringatan gagal dihentikan. Sila cuba lagi.");}
+  finally{if(button)button.disabled=false;}
 }
 
 async function triggerDiamondReminder(){

@@ -30,6 +30,7 @@ button{cursor:pointer}
 .inbox-panel{min-width:0;display:grid;grid-template-rows:auto auto auto auto minmax(0,1fr) auto;border-right:1px solid var(--line);background:#040911}
 .admin-brand{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);background:#07101a}
 .diamond-reminder-btn{min-height:32px;padding:0 9px;border:1px solid #fbbf24;border-radius:9px;background:#fbbf24;color:#111827;font-size:8px;font-weight:1000;letter-spacing:.04em;white-space:nowrap}.diamond-reminder-btn:disabled{cursor:wait;opacity:.6}
+.worker-diamond-note{position:fixed;z-index:10020;left:50%;bottom:88px;display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 28px);padding:7px 8px 7px 12px;border:1px solid rgba(251,191,36,.65);border-radius:12px;background:#171308;color:#fde68a;box-shadow:0 10px 30px rgba(0,0,0,.45);transform:translateX(-50%)}.worker-diamond-note span{font-size:10px;font-weight:900;white-space:nowrap}.worker-diamond-note button{height:27px;min-width:38px;padding:0 10px;border:0;border-radius:8px;background:#fbbf24;color:#111827;font-size:9px;font-weight:1000}.worker-diamond-note button:disabled{opacity:.55}
 .brand-left{display:flex;align-items:center;gap:9px;min-width:0}
 .brand-left img{width:40px;height:40px;object-fit:contain;border:1px solid var(--cyan);border-radius:50%;padding:5px;background:#02040a}
 .brand-left div{display:flex;flex-direction:column;min-width:0}
