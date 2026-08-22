@@ -913,9 +913,8 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
       LEFT JOIN gt_admin_conversation_reads r ON r.admin_id=? AND r.conversation_id=c.id
       WHERE c.status="open" AND c.department="topup" AND m.id>COALESCE(r.last_read_message_id,0)
       GROUP BY c.id,c.department ORDER BY latest_id DESC LIMIT 30');
-    $stmt->execute([$workerId]);
+    $stmt->execute([$workerId]);$sentChatThisRun=false;
     foreach($stmt->fetchAll() as $row){
-        if($activeAlerts)continue;
         $type=(int)$row['has_pin_order']===1?'order':'chat';$interval=$type==='order'?30:120;
         $lastStmt=$pdo->prepare('SELECT last_sent_at FROM gt_admin_reminder_dispatch WHERE admin_id=? AND conversation_id=? AND reminder_type=?');
         $lastStmt->execute([$workerId,(int)$row['id'],$type]);$lastSent=(string)($lastStmt->fetchColumn() ?: $row['latest_created']);
@@ -929,9 +928,10 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
           'badge_count'=>(int)$row['unread_count'],
         ]);
         $pdo->prepare('INSERT INTO gt_admin_reminder_dispatch(admin_id,conversation_id,reminder_type,last_sent_at) VALUES(?,?,?,NOW()) ON DUPLICATE KEY UPDATE last_sent_at=NOW()')->execute([$workerId,(int)$row['id'],$type]);
-        $sent++;
+        $sent++;$sentChatThisRun=true;
     }
     foreach($activeAlerts as $alert){
+        if($sentChatThisRun)break;
         $lastSent=(string)($alert['last_sent_at'] ?? '');
         if($lastSent!=='' && strtotime($lastSent)>time()-30)continue;
         send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
