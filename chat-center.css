@@ -141,6 +141,14 @@ body.topup-chat-open:has(#gc-chat-view.is-active).keyboard-open .chat-bottom-nav
    Re-anchor the complete chat layer to the visible viewport so the home page
    underneath can never replace the conversation while the keyboard is up. */
 @media (max-width:767px){
+  /* CSS focus state applies synchronously, before Safari dispatches its
+     viewport resize event. This prevents the underlying home from flashing. */
+  body.topup-chat-open:has(#gc-input:focus) #chat-center{
+    display:block!important;
+    position:fixed!important;
+    z-index:2147483000!important;
+    background:#02060b!important;
+  }
   body.topup-chat-open.ios-keyboard-open #chat-center{
     display:block!important;
     position:fixed!important;

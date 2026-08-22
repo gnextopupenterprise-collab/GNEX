@@ -1062,6 +1062,18 @@ window.openDepartmentChat = async function(department){
     }
   }
 
+  function primeKeyboardLayer(event){
+    if(!event.target?.matches?.("input,textarea,[contenteditable=true]"))return;
+    if(!document.body.classList.contains("topup-chat-open"))return;
+    const vv=window.visualViewport;
+    if(vv){
+      document.documentElement.style.setProperty("--gc-visual-top",`${Math.max(0,Math.round(vv.offsetTop))}px`);
+      document.documentElement.style.setProperty("--gc-visual-height",`${Math.round(vv.height)}px`);
+    }
+    document.body.classList.add("keyboard-open");
+    if(isIOSKeyboard)document.body.classList.add("ios-keyboard-open");
+  }
+
   if(
     window.visualViewport
   ){
@@ -1077,7 +1089,14 @@ window.openDepartmentChat = async function(department){
         "scroll",
         updateKeyboard
       );
-    document.addEventListener("focusin",()=>requestAnimationFrame(updateKeyboard));
+    /* Run before Safari starts its native focus pan, avoiding a brief flash
+       of the home page while waiting for visualViewport.resize. */
+    document.addEventListener("pointerdown",primeKeyboardLayer,true);
+    document.addEventListener("touchstart",primeKeyboardLayer,{capture:true,passive:true});
+    document.addEventListener("focusin",event=>{
+      primeKeyboardLayer(event);
+      updateKeyboard();
+    },true);
     document.addEventListener("focusout",()=>setTimeout(updateKeyboard,80));
   }
 
