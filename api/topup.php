@@ -942,7 +942,23 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
 }
 
 $input = input_data();
-if ($method === 'POST') require_csrf($input);
+if ($method === 'POST' && $action !== 'recoverAdminInstallation') require_csrf($input);
+
+if ($method === 'POST' && $action === 'recoverAdminInstallation') {
+    $endpoint=clean($input['endpoint'] ?? '',1000);
+    $p256dh=clean($input['keys']['p256dh'] ?? '',255);
+    $authToken=clean($input['keys']['auth'] ?? '',255);
+    if($endpoint===''||$p256dh===''||$authToken==='')respond(['ok'=>false,'message'=>'Pemasangan Android tidak lengkap.'],401);
+    $stmt=$pdo->prepare('SELECT s.admin_id,s.p256dh,s.auth_token,a.username,a.access_scope FROM gt_push_subscriptions s INNER JOIN cl_admin_users a ON a.id=s.admin_id WHERE s.endpoint_hash=? AND s.role="admin" AND s.enabled=1 LIMIT 1');
+    $stmt->execute([hash('sha256',$endpoint)]);$trusted=$stmt->fetch();
+    if(!$trusted||!hash_equals((string)$trusted['p256dh'],$p256dh)||!hash_equals((string)$trusted['auth_token'],$authToken)||strcasecmp((string)$trusted['username'],'GNEX ORDER')!==0)respond(['ok'=>false,'message'=>'Peranti ini belum dipercayai. Login sekali untuk aktifkan semula.'],401);
+    session_regenerate_id(true);
+    $_SESSION['cl_admin_id']=(int)$trusted['admin_id'];
+    $_SESSION['cl_admin_access_scope']=(string)$trusted['access_scope'];
+    $rememberToken=issue_admin_remember_token($pdo,(int)$trusted['admin_id']);
+    touch_admin_presence($pdo,(int)$trusted['admin_id']);
+    respond(['ok'=>true,'admin'=>admin($pdo),'remember_token'=>$rememberToken,'csrf'=>csrf_token()]);
+}
 
 if ($method === 'POST' && $action === 'subscribePush') {
     $endpoint=clean($input['endpoint'] ?? '',1000);
