@@ -265,10 +265,14 @@ async function subscribeAdminPush(){
   if(!appState.push_public_key)throw new Error("Kunci push server belum tersedia.");
   const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=4",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
   let subscription=await registration.pushManager.getSubscription();
+  if(subscription&&state.admin?.access_scope==="order"&&localStorage.getItem("gnex_order_push_refresh_20260822")!=="done"){
+    await subscription.unsubscribe();subscription=null;
+  }
   if(subscription&&localStorage.getItem("gnex_admin_push_vapid_key")!==appState.push_public_key){await subscription.unsubscribe();subscription=null;}
   if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:adminPushKeyBytes(appState.push_public_key)});
   await request("subscribePush",subscription.toJSON());
   localStorage.setItem("gnex_admin_push_vapid_key",appState.push_public_key);
+  if(state.admin?.access_scope==="order")localStorage.setItem("gnex_order_push_refresh_20260822","done");
   return true;
 }
 
@@ -297,7 +301,7 @@ async function boot(){
     state.admin =
       data.admin || null;
 
-    state.notificationsEnabled = localStorage.getItem("gnex_admin_notifications") === "on";
+    state.notificationsEnabled = localStorage.getItem("gnex_admin_notifications") === "on" || (state.admin?.access_scope==="order"&&"Notification" in window&&Notification.permission==="granted");
 
     state.csrf =
       data.csrf ||

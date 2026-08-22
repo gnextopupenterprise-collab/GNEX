@@ -315,6 +315,8 @@ function send_web_push(PDO $pdo, string $where, array $params, array $payload): 
         foreach ($webPush->flush() as $report) {
             if ($report->isSubscriptionExpired()) {
                 $pdo->prepare('DELETE FROM gt_push_subscriptions WHERE endpoint=?')->execute([$report->getEndpoint()]);
+            } elseif (!$report->isSuccess()) {
+                error_log('GNEX push delivery failed: '.$report->getReason().' · '.substr($report->getEndpoint(),0,80));
             }
         }
     } catch (Throwable $error) {
