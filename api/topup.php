@@ -200,16 +200,22 @@ function set_admin_remember_cookie(string $value, int $expires): void
     else $_COOKIE[GT_ADMIN_REMEMBER_COOKIE] = $value;
 }
 
+function admin_remember_request_token(): string
+{
+    $headerToken = (string) ($_SERVER['HTTP_X_GNEX_REMEMBER'] ?? '');
+    return $headerToken !== '' ? $headerToken : (string) ($_COOKIE[GT_ADMIN_REMEMBER_COOKIE] ?? '');
+}
+
 function clear_admin_remember_token(PDO $pdo): void
 {
-    $cookie = (string) ($_COOKIE[GT_ADMIN_REMEMBER_COOKIE] ?? '');
+    $cookie = admin_remember_request_token();
     if (preg_match('/^([a-f0-9]{24})\.[a-f0-9]{64}$/', $cookie, $match)) {
         $pdo->prepare('DELETE FROM gt_admin_remember_tokens WHERE selector=?')->execute([$match[1]]);
     }
     set_admin_remember_cookie('', time() - 42000);
 }
 
-function issue_admin_remember_token(PDO $pdo, int $adminId): void
+function issue_admin_remember_token(PDO $pdo, int $adminId): string
 {
     clear_admin_remember_token($pdo);
     $selector = bin2hex(random_bytes(12));
@@ -217,18 +223,20 @@ function issue_admin_remember_token(PDO $pdo, int $adminId): void
     $expires = time() + GT_ADMIN_REMEMBER_DAYS * 86400;
     $stmt = $pdo->prepare('INSERT INTO gt_admin_remember_tokens(selector,admin_id,token_hash,expires_at,last_used_at) VALUES(?,?,?,?,NOW())');
     $stmt->execute([$selector,$adminId,hash('sha256',$validator),date('Y-m-d H:i:s',$expires)]);
-    set_admin_remember_cookie($selector.'.'.$validator, $expires);
+    $token = $selector.'.'.$validator;
+    set_admin_remember_cookie($token, $expires);
+    return $token;
 }
 
 function restore_admin_from_remember(PDO $pdo): void
 {
     if (!empty($_SESSION['cl_admin_id'])) return;
-    $cookie = (string) ($_COOKIE[GT_ADMIN_REMEMBER_COOKIE] ?? '');
+    $cookie = admin_remember_request_token();
     if (!preg_match('/^([a-f0-9]{24})\.([a-f0-9]{64})$/', $cookie, $match)) {
         if ($cookie !== '') set_admin_remember_cookie('', time() - 42000);
         return;
     }
-    $stmt = $pdo->prepare('SELECT t.admin_id,t.token_hash,a.access_scope FROM gt_admin_remember_tokens t INNER JOIN cl_admin_users a ON a.id=t.admin_id WHERE t.selector=? AND t.expires_at>NOW() LIMIT 1');
+    $stmt = $pdo->prepare('SELECT t.admin_id,t.token_hash,t.expires_at,a.access_scope FROM gt_admin_remember_tokens t INNER JOIN cl_admin_users a ON a.id=t.admin_id WHERE t.selector=? AND t.expires_at>NOW() LIMIT 1');
     $stmt->execute([$match[1]]);
     $row = $stmt->fetch();
     if (!$row || !hash_equals((string)$row['token_hash'], hash('sha256',$match[2]))) {
@@ -239,6 +247,7 @@ function restore_admin_from_remember(PDO $pdo): void
     $_SESSION['cl_admin_id'] = (int) $row['admin_id'];
     $_SESSION['cl_admin_access_scope'] = (string) ($row['access_scope'] ?? 'admin');
     $pdo->prepare('UPDATE gt_admin_remember_tokens SET last_used_at=NOW() WHERE selector=?')->execute([$match[1]]);
+    set_admin_remember_cookie($cookie, max(time() + 86400, strtotime((string)$row['expires_at'])));
 }
 
 function touch_admin_presence(PDO $pdo, int $adminId): void
@@ -709,7 +718,7 @@ if ($method === 'GET' && $action === 'state') {
         $stmt->execute([(int) $_SESSION['gt_pending_customer_id']]);
         $pendingAccount = $stmt->fetch() ?: null;
     }
-    respond(['ok' => true, 'csrf' => csrf_token(), 'customer' => $user, 'pending_customer' => $pendingAccount, 'admin' => $adminUser, 'admin_presence' => admin_presence($pdo), 'push_public_key'=>push_public_key(), 'totals' => $totals, 'game_accounts' => $games]);
+    respond(['ok' => true, 'csrf' => csrf_token(), 'customer' => $user, 'pending_customer' => $pendingAccount, 'admin' => $adminUser, 'remember_token' => $adminUser ? admin_remember_request_token() : null, 'admin_presence' => admin_presence($pdo), 'push_public_key'=>push_public_key(), 'totals' => $totals, 'game_accounts' => $games]);
 }
 
 if ($method === 'GET' && $action === 'chatHome') {
@@ -1184,13 +1193,14 @@ if ($method === 'POST' && $action === 'login') {
         session_regenerate_id(true);
         $_SESSION['cl_admin_id'] = (int) $adminAccount['id'];
         $_SESSION['cl_admin_access_scope'] = (string) (admin($pdo)['access_scope'] ?? 'admin');
-        issue_admin_remember_token($pdo, (int)$adminAccount['id']);
+        $rememberToken = issue_admin_remember_token($pdo, (int)$adminAccount['id']);
         touch_admin_presence($pdo,(int)$adminAccount['id']);
         unset($_SESSION['gt_customer_id'], $_SESSION['gt_pending_customer_id']);
         respond([
             'ok' => true,
             'message' => 'Login admin berjaya.',
             'admin' => admin($pdo),
+            'remember_token' => $rememberToken,
             'redirect' => 'topup-admin.html',
             'csrf' => csrf_token(),
         ]);
@@ -1250,9 +1260,9 @@ if ($method === 'POST' && $action === 'adminLogin') {
     session_regenerate_id(true);
     $_SESSION['cl_admin_id'] = (int) $account['id'];
     $_SESSION['cl_admin_access_scope'] = (string) (admin($pdo)['access_scope'] ?? 'admin');
-    issue_admin_remember_token($pdo, (int)$account['id']);
+    $rememberToken = issue_admin_remember_token($pdo, (int)$account['id']);
     touch_admin_presence($pdo,(int)$account['id']);
-    respond(['ok' => true, 'message' => 'Admin login berjaya.', 'admin' => admin($pdo), 'csrf' => csrf_token()]);
+    respond(['ok' => true, 'message' => 'Admin login berjaya.', 'admin' => admin($pdo), 'remember_token' => $rememberToken, 'csrf' => csrf_token()]);
 }
 
 if ($method === 'POST' && $action === 'setOrderStatus') {

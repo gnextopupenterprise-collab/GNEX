@@ -129,6 +129,10 @@ async function parseResponse(
       data.csrf;
   }
 
+  if(data.remember_token){
+    localStorage.setItem("gnex_admin_remember_token",data.remember_token);
+  }
+
   if(
     !response.ok ||
     !data.ok
@@ -150,8 +154,12 @@ async function request(
 ){
   const options = {
     credentials:"same-origin",
-    cache:"no-store"
+    cache:"no-store",
+    headers:{}
   };
+
+  const rememberToken=localStorage.getItem("gnex_admin_remember_token")||"";
+  if(rememberToken) options.headers["X-GNEX-Remember"]=rememberToken;
 
   if(payload !== null){
 
@@ -166,10 +174,7 @@ async function request(
     options.method =
       "POST";
 
-    options.headers = {
-      "Content-Type":
-        "application/json"
-    };
+    options.headers["Content-Type"] = "application/json";
 
     options.body =
       JSON.stringify({
@@ -361,6 +366,8 @@ async function logoutAdmin(){
       "logout",
       {}
     );
+
+    localStorage.removeItem("gnex_admin_remember_token");
 
     window.location.href = "index.html?chat=guest";
 

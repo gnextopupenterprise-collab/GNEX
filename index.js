@@ -108,6 +108,7 @@ setTopupAuthStatus("Sedang login...");
 try{
 const data = await postTopup("login", Object.fromEntries(new FormData(form)));
 if(data.admin){
+if(data.remember_token) localStorage.setItem("gnex_admin_remember_token",data.remember_token);
 setTopupAuthStatus("Login admin berjaya. Membuka inbox...");
 window.location.href = data.redirect || "topup-admin.html";
 return;
