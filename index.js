@@ -47,9 +47,16 @@ setText("topup-user-profile-game-id", game ? `ID: ${game.game_id || "-"}${game.s
 
 async function loadTopupState(){
 try{
-const response = await fetch("api/topup.php?action=state", {credentials:"same-origin"});
+let adminRememberToken="";
+try{adminRememberToken=localStorage.getItem("gnex_admin_remember_token")||"";}catch(error){}
+const response = await fetch("api/topup.php?action=state", {credentials:"same-origin",cache:"no-store",headers:adminRememberToken?{"X-GNEX-Remember":adminRememberToken}:{}});
 const data = await response.json();
 if(!response.ok || !data.ok) throw new Error(data.message || "API tidak tersedia.");
+if(data.admin?.username==="GNEX ORDER"){
+if(data.remember_token){try{localStorage.setItem("gnex_admin_remember_token",data.remember_token);}catch(error){}}
+window.location.replace("topup-admin.html");
+return data;
+}
 topupApiState.csrf = data.csrf || topupApiState.csrf;
 topupApiState.customer = data.customer || null;
 topupApiState.pendingCustomer = data.pending_customer || null;
