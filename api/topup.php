@@ -1621,12 +1621,24 @@ if ($method === 'POST' && $action === 'sendMessage') {
             'badge_count'=>user_unread_count($pdo,$targetDevice),
         ]);
     } else {
-        send_web_push($pdo,'role="admin"',[],[
+        $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
+        $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
+        $adminWhere=$workerId&&$department==='topup'?'role="admin" AND (admin_id IS NULL OR admin_id<>?)':'role="admin"';
+        $adminParams=$workerId&&$department==='topup'?[$workerId]:[];
+        send_web_push($pdo,$adminWhere,$adminParams,[
             'title'=>'GNEX Admin · Chat baharu',
             'body'=>$body!==''?$body:'User menghantar gambar.',
-            'url'=>'topup-admin.html',
+            'url'=>'topup-admin.html?conversation_id='.$conversation,
             'tag'=>'gnex-admin-chat-'.$conversation,
             'badge_count'=>admin_unread_count($pdo),
+        ]);
+        if($workerId&&$department==='topup')send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
+            'title'=>'GNEX ORDER · Mesej baharu',
+            'body'=>$body!==''?$body:'User menghantar gambar.',
+            'url'=>'topup-admin.html?conversation_id='.$conversation,
+            'tag'=>'gnex-worker-chat-'.$conversation.'-'.$messageId,
+            'conversation_id'=>$conversation,
+            'badge_count'=>admin_personal_unread_count($pdo,$workerId),
         ]);
     }
 
