@@ -991,11 +991,6 @@ window.openDepartmentChat = async function(department){
     const vv =
       window.visualViewport;
 
-    document.documentElement.style.setProperty(
-      "--gc-viewport-height",
-      `${Math.round(vv.height)}px`
-    );
-
     const height =
       Math.max(
         0,
@@ -1012,11 +1007,21 @@ window.openDepartmentChat = async function(department){
       );
 
     const typing=Boolean(document.activeElement?.matches?.("input,textarea,[contenteditable=true]"));
+    const keyboardOpen=typing && height > 100;
+
+    /* Preserve the full chat surface while the software keyboard is open.
+       Applying the reduced visualViewport height exposed the home page. */
+    if(!keyboardOpen){
+      document.documentElement.style.setProperty(
+        "--gc-viewport-height",
+        `${Math.round(vv.height)}px`
+      );
+    }
     document.body
       .classList
       .toggle(
         "keyboard-open",
-        typing && height > 100
+        keyboardOpen
       );
 
     const composer =
@@ -1029,10 +1034,8 @@ window.openDepartmentChat = async function(department){
           "topup-chat-open"
         )
     ){
-      composer.style.transform =
-        height > 100
-          ? `translateY(-${height}px)`
-          : "";
+      /* The visual viewport already accounts for the keyboard. */
+      composer.style.transform = "";
     }
   }
 
