@@ -143,6 +143,14 @@ body.topup-chat-open:has(#gc-chat-view.is-active).keyboard-open .chat-bottom-nav
 @media (max-width:767px){
   /* CSS focus state applies synchronously, before Safari dispatches its
      viewport resize event. This prevents the underlying home from flashing. */
+  body.topup-chat-open.ios-keyboard-open > :not(#chat-center),
+  body.topup-chat-open:has(#gc-input:focus) > :not(#chat-center){
+    visibility:hidden!important;
+  }
+  body.topup-chat-open.ios-keyboard-open > #chat-center,
+  body.topup-chat-open:has(#gc-input:focus) > #chat-center{
+    visibility:visible!important;
+  }
   body.topup-chat-open:has(#gc-input:focus) #chat-center{
     display:block!important;
     position:fixed!important;
