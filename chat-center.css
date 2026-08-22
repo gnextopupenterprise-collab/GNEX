@@ -120,6 +120,20 @@ body.topup-chat-open.chat-focus-mode.keyboard-open .gc-composer{
   padding-bottom:9px;
 }
 
+/* Conversation detection remains authoritative even when another nav helper
+   clears the legacy body class after the chat view has already opened. */
+body.topup-chat-open:has(#gc-chat-view.is-active) .gc-composer{
+  bottom:env(safe-area-inset-bottom,0px);
+  padding-bottom:calc(9px + env(safe-area-inset-bottom,0px));
+}
+body.topup-chat-open:has(#gc-chat-view.is-active) .gc-messages{padding-bottom:94px}
+body.topup-chat-open:has(#gc-chat-view.is-active):not(.keyboard-open) .gc-composer{position:relative;inset:auto;bottom:auto}
+body.topup-chat-open:has(#gc-chat-view.is-active):not(.keyboard-open) .gc-messages{padding-bottom:12px}
+
+@media (max-width:767px){
+  body.topup-chat-open:has(#gc-chat-view.is-active) .chat-bottom-nav{display:none!important}
+}
+
 /* In a focused conversation the bottom nav is hidden, so let the composer
    occupy its own grid row instead of reserving the old fixed-nav gap. */
 #gc-chat-view{grid-template-rows:72px minmax(0,1fr) auto}

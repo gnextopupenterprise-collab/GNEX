@@ -499,6 +499,7 @@
         "is-active",
         name === "chat"
       );
+    document.body.classList.toggle("chat-focus-mode",name === "chat");
   }
 
 async function clearGnexBadge(){
