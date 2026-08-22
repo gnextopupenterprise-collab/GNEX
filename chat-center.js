@@ -982,6 +982,8 @@ window.openDepartmentChat = async function(department){
   let stableViewportHeight=Math.round(
     window.visualViewport?.height || window.innerHeight || 0
   );
+  const isIOSKeyboard=/iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 
   function updateKeyboard(){
     if(
@@ -1004,7 +1006,19 @@ window.openDepartmentChat = async function(department){
       ? Math.max(0,stableViewportHeight-vv.height-vv.offsetTop)
       : 0;
     const height=Math.max(browserKeyboardHeight,viewportKeyboardHeight);
-    const keyboardOpen=typing && height > 100;
+    /* Some iPhone Safari/WebView versions resize and pan both viewport
+       measurements equally, which makes the calculated keyboard height 0.
+       A focused text control on mobile is therefore authoritative. */
+    const keyboardOpen=typing && (height > 100 || window.innerWidth <= 767);
+
+    document.documentElement.style.setProperty(
+      "--gc-visual-top",
+      `${Math.max(0,Math.round(vv.offsetTop))}px`
+    );
+    document.documentElement.style.setProperty(
+      "--gc-visual-height",
+      `${Math.round(vv.height)}px`
+    );
 
     document.documentElement
       .style
@@ -1028,6 +1042,10 @@ window.openDepartmentChat = async function(department){
         "keyboard-open",
         keyboardOpen
       );
+    document.body.classList.toggle(
+      "ios-keyboard-open",
+      isIOSKeyboard && keyboardOpen
+    );
 
     const composer =
       $("#gc-composer");
@@ -1059,6 +1077,8 @@ window.openDepartmentChat = async function(department){
         "scroll",
         updateKeyboard
       );
+    document.addEventListener("focusin",()=>requestAnimationFrame(updateKeyboard));
+    document.addEventListener("focusout",()=>setTimeout(updateKeyboard,80));
   }
 
   setInterval(checkGroupNotifications,10000);
