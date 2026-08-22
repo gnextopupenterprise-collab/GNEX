@@ -979,9 +979,9 @@ window.openDepartmentChat = async function(department){
       state.conversationId = 0;
     };
 
-
-
-
+  let stableViewportHeight=Math.round(
+    window.visualViewport?.height || window.innerHeight || 0
+  );
 
   function updateKeyboard(){
     if(
@@ -991,13 +991,20 @@ window.openDepartmentChat = async function(department){
     const vv =
       window.visualViewport;
 
-    const height =
+    const browserKeyboardHeight =
       Math.max(
         0,
         window.innerHeight -
         vv.height -
         vv.offsetTop
       );
+
+    const typing=Boolean(document.activeElement?.matches?.("input,textarea,[contenteditable=true]"));
+    const viewportKeyboardHeight=typing
+      ? Math.max(0,stableViewportHeight-vv.height-vv.offsetTop)
+      : 0;
+    const height=Math.max(browserKeyboardHeight,viewportKeyboardHeight);
+    const keyboardOpen=typing && height > 100;
 
     document.documentElement
       .style
@@ -1006,15 +1013,13 @@ window.openDepartmentChat = async function(department){
         `${height}px`
       );
 
-    const typing=Boolean(document.activeElement?.matches?.("input,textarea,[contenteditable=true]"));
-    const keyboardOpen=typing && height > 100;
-
     /* Preserve the full chat surface while the software keyboard is open.
        Applying the reduced visualViewport height exposed the home page. */
     if(!keyboardOpen){
+      stableViewportHeight=Math.round(vv.height);
       document.documentElement.style.setProperty(
         "--gc-viewport-height",
-        `${Math.round(vv.height)}px`
+        `${stableViewportHeight}px`
       );
     }
     document.body
