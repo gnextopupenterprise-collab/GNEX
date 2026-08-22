@@ -87,6 +87,37 @@ const meta = {
 const $ =
   (s) => document.querySelector(s);
 
+function adminTokenDatabase(){
+  return new Promise((resolve,reject)=>{
+    if(!("indexedDB" in window))return resolve(null);
+    const request=indexedDB.open("gnex_admin_installation",1);
+    request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains("auth"))request.result.createObjectStore("auth");};
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+
+async function readAdminInstallationToken(){
+  try{
+    const local=localStorage.getItem("gnex_admin_remember_token")||"";
+    if(local)return local;
+  }catch(error){}
+  try{
+    const db=await adminTokenDatabase();if(!db)return "";
+    return await new Promise((resolve,reject)=>{const tx=db.transaction("auth","readonly");const req=tx.objectStore("auth").get("remember_token");req.onsuccess=()=>resolve(String(req.result||""));req.onerror=()=>reject(req.error);});
+  }catch(error){return "";}
+}
+
+async function saveAdminInstallationToken(token){
+  try{localStorage.setItem("gnex_admin_remember_token",token);}catch(error){}
+  try{const db=await adminTokenDatabase();if(!db)return;await new Promise((resolve,reject)=>{const tx=db.transaction("auth","readwrite");tx.objectStore("auth").put(token,"remember_token");tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}catch(error){}
+}
+
+async function clearAdminInstallationToken(){
+  try{localStorage.removeItem("gnex_admin_remember_token");}catch(error){}
+  try{const db=await adminTokenDatabase();if(!db)return;await new Promise((resolve,reject)=>{const tx=db.transaction("auth","readwrite");tx.objectStore("auth").delete("remember_token");tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}catch(error){}
+}
+
 function esc(v){
   return String(v ?? "")
     .replace(
@@ -132,7 +163,7 @@ async function parseResponse(
   }
 
   if(data.remember_token){
-    localStorage.setItem("gnex_admin_remember_token",data.remember_token);
+    await saveAdminInstallationToken(data.remember_token);
   }
 
   if(
@@ -160,7 +191,7 @@ async function request(
     headers:{}
   };
 
-  const rememberToken=localStorage.getItem("gnex_admin_remember_token")||"";
+  const rememberToken=await readAdminInstallationToken();
   if(rememberToken) options.headers["X-GNEX-Remember"]=rememberToken;
 
   if(payload !== null){
@@ -403,7 +434,7 @@ async function logoutAdmin(){
       {}
     );
 
-    localStorage.removeItem("gnex_admin_remember_token");
+    await clearAdminInstallationToken();
 
     window.location.href = "index.html?chat=guest";
 
