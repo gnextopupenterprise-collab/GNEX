@@ -264,23 +264,28 @@ async function subscribeAdminPush(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||Notification.permission!=="granted")return false;
   const appState=await request("state");
   if(!appState.push_public_key)throw new Error("Kunci push server belum tersedia.");
-  const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=4",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
+  const registrations=await navigator.serviceWorker.getRegistrations();
+  for(const oldRegistration of registrations){
+    if(oldRegistration.scope.endsWith("/topup-admin.html"))await oldRegistration.unregister();
+  }
+  const registration=await navigator.serviceWorker.register("scrim-sw.js?v=23",{scope:"/",updateViaCache:"none"});
+  await navigator.serviceWorker.ready;
   let subscription=await registration.pushManager.getSubscription();
-  if(subscription&&state.admin?.access_scope==="order"&&localStorage.getItem("gnex_order_push_refresh_20260822")!=="done"){
+  if(subscription&&state.admin?.access_scope==="order"&&localStorage.getItem("gnex_order_root_push_20260822")!=="done"){
     await subscription.unsubscribe();subscription=null;
   }
   if(subscription&&localStorage.getItem("gnex_admin_push_vapid_key")!==appState.push_public_key){await subscription.unsubscribe();subscription=null;}
   if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:adminPushKeyBytes(appState.push_public_key)});
   await request("subscribePush",subscription.toJSON());
   localStorage.setItem("gnex_admin_push_vapid_key",appState.push_public_key);
-  if(state.admin?.access_scope==="order")localStorage.setItem("gnex_order_push_refresh_20260822","done");
+  if(state.admin?.access_scope==="order")localStorage.setItem("gnex_order_root_push_20260822","done");
   return true;
 }
 
 async function recoverAdminInstallation(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||Notification.permission!=="granted")return null;
   try{
-    const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=4",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
+    const registration=await navigator.serviceWorker.register("scrim-sw.js?v=23",{scope:"/",updateViaCache:"none"});
     const subscription=await registration.pushManager.getSubscription();
     if(!subscription)return null;
     const response=await fetch(`${api}?action=recoverAdminInstallation`,{method:"POST",credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(subscription.toJSON())});
@@ -361,8 +366,9 @@ function showApp(){
 async function clearAdminNotifications(filter){
   if(!("serviceWorker" in navigator))return;
   try{
-    const registration=await navigator.serviceWorker.getRegistration(new URL("topup-admin.html",location.href).pathname);
-    for(const notification of await registration?.getNotifications()||[]){if(filter(notification))notification.close();}
+    for(const registration of await navigator.serviceWorker.getRegistrations()){
+      for(const notification of await registration.getNotifications()){if(filter(notification))notification.close();}
+    }
   }catch(error){}
 }
 
@@ -1422,7 +1428,7 @@ async function enableAdminNotifications(){
   state.notificationsEnabled = permission === "granted";
   localStorage.setItem("gnex_admin_notifications", state.notificationsEnabled ? "on" : "off");
   if(state.notificationsEnabled){
-    await navigator.serviceWorker.register("admin-push-sw.js?v=4",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
+    await navigator.serviceWorker.register("scrim-sw.js?v=23",{scope:"/",updateViaCache:"none"});
     try{await subscribeAdminPush();}catch(error){alert(error.message||"Push notification gagal diaktifkan.");}
   }
   updateAdminNotificationButton();

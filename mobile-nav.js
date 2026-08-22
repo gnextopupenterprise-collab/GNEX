@@ -115,7 +115,7 @@ ${isScrimPage ? `
     if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) return;
 
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("scrim-sw.js?v=16",{updateViaCache:"none"})
+      navigator.serviceWorker.register("scrim-sw.js?v=23",{updateViaCache:"none"})
         .then((registration) => {
           if (registration.waiting) {
             registration.waiting.postMessage("GNEX_SKIP_WAITING");

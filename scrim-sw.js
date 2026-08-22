@@ -272,7 +272,7 @@ async function showGnexPush(data){
     tag:data.tag||'gnex-chat',
     icon:'images/gnex-main-white-192.png',
     badge:'images/gnex-main-white-192.png',
-    data:{url:data.url||'index.html?chat=guest'},
+    data:{...data,url:data.url||'index.html?chat=guest'},
     renotify:true,
     silent:false,
     requireInteraction:true,
