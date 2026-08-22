@@ -282,6 +282,13 @@ function admin_unread_count(PDO $pdo): int
     return (int)$pdo->query('SELECT COUNT(*) FROM gt_conversations c WHERE c.status="open" AND EXISTS(SELECT 1 FROM gt_messages m WHERE m.conversation_id=c.id AND m.id>c.admin_last_read_message_id AND m.sender_type IN ("guest","customer"))')->fetchColumn();
 }
 
+function admin_personal_unread_count(PDO $pdo, int $adminId): int
+{
+    $stmt=$pdo->prepare('SELECT COUNT(*) FROM gt_messages m INNER JOIN gt_conversations c ON c.id=m.conversation_id LEFT JOIN gt_admin_conversation_reads r ON r.admin_id=? AND r.conversation_id=c.id WHERE c.status="open" AND c.department="topup" AND m.sender_type IN ("guest","customer") AND m.id>COALESCE(r.last_read_message_id,0)');
+    $stmt->execute([$adminId]);
+    return (int)$stmt->fetchColumn();
+}
+
 function active_worker_alert(PDO $pdo, ?array $admin): ?array
 {
     if (!$admin || (string)($admin['access_scope'] ?? '') !== 'order') return null;
@@ -925,7 +932,7 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
           'url'=>'topup-admin.html?conversation_id='.(int)$row['id'],
           'tag'=>'gnex-order-reminder-'.(int)$row['id'].'-'.time(),
           'conversation_id'=>(int)$row['id'],
-          'badge_count'=>(int)$row['unread_count'],
+          'badge_count'=>admin_personal_unread_count($pdo,$workerId),
         ]);
         $pdo->prepare('INSERT INTO gt_admin_reminder_dispatch(admin_id,conversation_id,reminder_type,last_sent_at) VALUES(?,?,?,NOW()) ON DUPLICATE KEY UPDATE last_sent_at=NOW()')->execute([$workerId,(int)$row['id'],$type]);
         $sent++;$sentChatThisRun=true;
@@ -938,7 +945,7 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
           'title'=>'GNEX ORDER · TUGAS PENTING','body'=>'Sila isi diamond',
           'url'=>'topup-admin.html?worker_alert='.(int)$alert['id'],
           'tag'=>'gnex-diamond-reminder-'.(int)$alert['id'].'-'.time(),
-          'alert_id'=>(int)$alert['id'],'alert_type'=>'fill_diamond','badge_count'=>1,
+          'alert_id'=>(int)$alert['id'],'alert_type'=>'fill_diamond','badge_count'=>max(1,admin_personal_unread_count($pdo,$workerId)),
         ]);
         $pdo->prepare('UPDATE gt_worker_alerts SET last_sent_at=NOW() WHERE id=? AND status="active"')->execute([(int)$alert['id']]);
         $sent++;
@@ -989,7 +996,7 @@ if ($method === 'POST' && $action === 'triggerWorkerAlert') {
     $alertId=(int)$pdo->lastInsertId();$pdo->commit();
     send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
       'title'=>'GNEX ORDER · TUGAS PENTING','body'=>'Sila isi diamond','url'=>'topup-admin.html?worker_alert='.$alertId,
-      'tag'=>'gnex-diamond-reminder-'.$alertId.'-'.time(),'alert_id'=>$alertId,'alert_type'=>'fill_diamond','badge_count'=>1,
+      'tag'=>'gnex-diamond-reminder-'.$alertId.'-'.time(),'alert_id'=>$alertId,'alert_type'=>'fill_diamond','badge_count'=>max(1,admin_personal_unread_count($pdo,$workerId)),
     ]);
     respond(['ok'=>true,'message'=>'Peringatan dihantar kepada GNEX ORDER dan akan diulang setiap 30 saat.','alert_id'=>$alertId,'csrf'=>csrf_token()]);
 }
