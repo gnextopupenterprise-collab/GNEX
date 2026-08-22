@@ -381,6 +381,11 @@
 
   window.openChatNavTab =
     function(tab){
+      const panel=$("#chat-center");
+      if(!panel?.classList.contains("is-open")){
+        window.openChatCenter?.();
+        return;
+      }
       if(window.closeTopupProfile) closeTopupProfile(false);
       if(window.closeTopupRanking) closeTopupRanking(false);
       showView("home");
@@ -879,6 +884,12 @@ window.openDepartmentChat = async function(department){
         $("#chat-center");
 
       if(!panel) return;
+
+      if(window.closeTopupProfile) closeTopupProfile(false);
+      if(window.closeTopupRanking) closeTopupRanking(false);
+      document.body.classList.remove("group-room-open","community-room-open","community-list-open","chat-focus-mode");
+      $("#gc-group-room")?.classList.remove("is-active");
+      $("#gc-community-channel")?.classList.remove("is-active");
 
       panel.classList.add(
         "is-open"
