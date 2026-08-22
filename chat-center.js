@@ -990,6 +990,11 @@ window.openDepartmentChat = async function(department){
     const vv =
       window.visualViewport;
 
+    document.documentElement.style.setProperty(
+      "--gc-viewport-height",
+      `${Math.round(vv.height)}px`
+    );
+
     const height =
       Math.max(
         0,
@@ -1005,11 +1010,12 @@ window.openDepartmentChat = async function(department){
         `${height}px`
       );
 
+    const typing=Boolean(document.activeElement?.matches?.("input,textarea,[contenteditable=true]"));
     document.body
       .classList
       .toggle(
         "keyboard-open",
-        height > 100
+        typing && height > 100
       );
 
     const composer =
@@ -1032,6 +1038,7 @@ window.openDepartmentChat = async function(department){
   if(
     window.visualViewport
   ){
+    updateKeyboard();
     window.visualViewport
       .addEventListener(
         "resize",
