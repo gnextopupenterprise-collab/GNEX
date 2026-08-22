@@ -988,7 +988,7 @@ async function openChat(id){
 
   try{
     await request("markConversationRead", {conversation_id:state.conversationId});
-    await clearAdminNotifications(notification=>Number(notification.data?.conversation_id)===state.conversationId||String(notification.tag||"").startsWith(`admin-chat-${state.conversationId}`)||String(notification.tag||"").startsWith(`gnex-order-reminder-${state.conversationId}-`));
+    await clearAdminNotifications(notification=>Number(notification.data?.conversation_id)===state.conversationId||String(notification.tag||"").startsWith(`admin-chat-${state.conversationId}`)||String(notification.tag||"").startsWith(`gnex-order-reminder-${state.conversationId}-`)||String(notification.tag||"").startsWith(`gnex-worker-chat-${state.conversationId}-`));
     item.admin_last_read_message_id = item.last_message_id || item.admin_last_read_message_id;
     await loadInbox(false);
   }catch(error){}

@@ -930,8 +930,9 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
           'title'=>$type==='order'?'GNEX ORDER · Order belum dibuka':'GNEX ORDER · Mesej belum dibuka',
           'body'=>(int)$row['unread_count'].' mesej · '.clean($row['latest_body'] ?? '',120),
           'url'=>'topup-admin.html?conversation_id='.(int)$row['id'],
-          'tag'=>'gnex-order-reminder-'.(int)$row['id'].'-'.time(),
+          'tag'=>'gnex-worker-chat-'.(int)$row['id'].'-'.(int)$row['latest_id'],
           'conversation_id'=>(int)$row['id'],
+          'message_id'=>(int)$row['latest_id'],
           'badge_count'=>admin_personal_unread_count($pdo,$workerId),
         ]);
         $pdo->prepare('INSERT INTO gt_admin_reminder_dispatch(admin_id,conversation_id,reminder_type,last_sent_at) VALUES(?,?,?,NOW()) ON DUPLICATE KEY UPDATE last_sent_at=NOW()')->execute([$workerId,(int)$row['id'],$type]);
