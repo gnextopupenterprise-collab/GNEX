@@ -63,6 +63,8 @@ const state = {
   ,groupLastId:0
   ,groupPoll:null
   ,communityChannel:""
+  ,workerAlertShowing:false
+  ,handledWorkerAlertId:0
 };
 
 const meta = {
@@ -230,7 +232,7 @@ async function subscribeAdminPush(){
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||Notification.permission!=="granted")return false;
   const appState=await request("state");
   if(!appState.push_public_key)throw new Error("Kunci push server belum tersedia.");
-  const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=2",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
+  const registration=await navigator.serviceWorker.register("admin-push-sw.js?v=3",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
   let subscription=await registration.pushManager.getSubscription();
   if(subscription&&localStorage.getItem("gnex_admin_push_vapid_key")!==appState.push_public_key){await subscription.unsubscribe();subscription=null;}
   if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:adminPushKeyBytes(appState.push_public_key)});
@@ -255,6 +257,7 @@ async function boot(){
 
     if(state.admin){
       showApp();
+      queueWorkerAlert(data.worker_alert);
 
       if(state.notificationsEnabled&&"Notification" in window&&Notification.permission==="granted")subscribeAdminPush().catch(error=>console.error("Admin push subscription:",error));
 
@@ -297,7 +300,40 @@ function showApp(){
   }
 
   if($("#profileAdminName")) $("#profileAdminName").textContent = state.admin?.username || "Admin";
+  const reminderButton=$("#diamondReminderBtn");
+  if(reminderButton) reminderButton.classList.toggle("is-hidden",String(state.admin?.username||"").toUpperCase()!=="GNEX"||state.admin?.access_scope==="order");
   updateAdminNotificationButton();
+}
+
+async function clearAdminNotifications(filter){
+  if(!("serviceWorker" in navigator))return;
+  try{
+    const registration=await navigator.serviceWorker.getRegistration(new URL("topup-admin.html",location.href).pathname);
+    for(const notification of await registration?.getNotifications()||[]){if(filter(notification))notification.close();}
+  }catch(error){}
+}
+
+function queueWorkerAlert(alertData){
+  const alertId=Number(alertData?.id||0);
+  if(!alertId||state.admin?.access_scope!=="order"||state.workerAlertShowing||state.handledWorkerAlertId===alertId)return;
+  state.workerAlertShowing=true;
+  setTimeout(async()=>{
+    window.alert(alertData.message||"Sila isi diamond");
+    try{
+      await request("ackWorkerAlert",{alert_id:alertId});
+      state.handledWorkerAlertId=alertId;
+      await clearAdminNotifications(notification=>Number(notification.data?.alert_id)===alertId||String(notification.tag||"").startsWith(`gnex-diamond-reminder-${alertId}-`));
+    }catch(error){window.alert(error.message||"Peringatan gagal dihentikan. Sila cuba lagi.");}
+    finally{state.workerAlertShowing=false;}
+  },100);
+}
+
+async function triggerDiamondReminder(){
+  const button=$("#diamondReminderBtn");
+  if(button)button.disabled=true;
+  try{const data=await request("triggerWorkerAlert",{});window.alert(data.message);}
+  catch(error){window.alert(error.message||"Peringatan gagal dihantar.");}
+  finally{if(button)button.disabled=false;}
 }
 
 $("#adminLoginForm")
@@ -461,6 +497,7 @@ async function loadInbox(
       data.pending_registrations || [];
 
     state.labels=data.labels||state.labels||[];
+    queueWorkerAlert(data.worker_alert);
     renderLabelControls();
 
     notifyNewAdminMessages(state.inbox);
@@ -886,13 +923,7 @@ async function openChat(id){
 
   try{
     await request("markConversationRead", {conversation_id:state.conversationId});
-    if("serviceWorker" in navigator){
-      navigator.serviceWorker.getRegistration(new URL("topup-admin.html",location.href).pathname).then(async registration=>{
-        for(const notification of await registration?.getNotifications()||[]){
-          if(Number(notification.data?.conversation_id)===state.conversationId)notification.close();
-        }
-      }).catch(()=>{});
-    }
+    await clearAdminNotifications(notification=>Number(notification.data?.conversation_id)===state.conversationId||String(notification.tag||"").startsWith(`admin-chat-${state.conversationId}`)||String(notification.tag||"").startsWith(`gnex-order-reminder-${state.conversationId}-`));
     item.admin_last_read_message_id = item.last_message_id || item.admin_last_read_message_id;
     await loadInbox(false);
   }catch(error){}
@@ -1332,7 +1363,7 @@ async function enableAdminNotifications(){
   state.notificationsEnabled = permission === "granted";
   localStorage.setItem("gnex_admin_notifications", state.notificationsEnabled ? "on" : "off");
   if(state.notificationsEnabled){
-    await navigator.serviceWorker.register("admin-push-sw.js?v=2",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
+    await navigator.serviceWorker.register("admin-push-sw.js?v=3",{scope:new URL("topup-admin.html",location.href).pathname,updateViaCache:"none"});
     try{await subscribeAdminPush();}catch(error){alert(error.message||"Push notification gagal diaktifkan.");}
   }
   updateAdminNotificationButton();
@@ -1347,7 +1378,7 @@ async function notifyNewAdminMessages(items){
     if(!old || id <= old || !["guest","customer"].includes(item.last_sender)) continue;
     try{
       const registration = await navigator.serviceWorker.ready;
-      await registration.showNotification(`Mesej baharu · ${item.display_name || "Customer"}`, {body:item.last_message || "Chat baharu",icon:"images/logo baru gnex .webp",badge:"images/logo baru gnex .webp",tag:`admin-chat-${item.id}`,data:{url:"topup-admin.html"}});
+      await registration.showNotification(`Mesej baharu · ${item.display_name || "Customer"}`, {body:item.last_message || "Chat baharu",icon:"images/logo baru gnex .webp",badge:"images/logo baru gnex .webp",tag:`admin-chat-${item.id}`,data:{url:`topup-admin.html?conversation_id=${item.id}`,conversation_id:Number(item.id)}});
     }catch(error){}
   }
 }

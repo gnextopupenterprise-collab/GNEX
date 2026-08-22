@@ -282,6 +282,15 @@ function admin_unread_count(PDO $pdo): int
     return (int)$pdo->query('SELECT COUNT(*) FROM gt_conversations c WHERE c.status="open" AND EXISTS(SELECT 1 FROM gt_messages m WHERE m.conversation_id=c.id AND m.id>c.admin_last_read_message_id AND m.sender_type IN ("guest","customer"))')->fetchColumn();
 }
 
+function active_worker_alert(PDO $pdo, ?array $admin): ?array
+{
+    if (!$admin || (string)($admin['access_scope'] ?? '') !== 'order') return null;
+    $stmt=$pdo->prepare('SELECT id,alert_type,message,created_at FROM gt_worker_alerts WHERE target_admin_id=? AND status="active" ORDER BY id DESC LIMIT 1');
+    $stmt->execute([(int)$admin['id']]);
+    $row=$stmt->fetch();
+    return $row ?: null;
+}
+
 function send_web_push(PDO $pdo, string $where, array $params, array $payload): void
 {
     $autoload=dirname(__DIR__).DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
@@ -425,6 +434,22 @@ function ensure_schema(PDO $pdo): void
             PRIMARY KEY(admin_id,conversation_id,reminder_type),
             FOREIGN KEY(admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
             FOREIGN KEY(conversation_id) REFERENCES gt_conversations(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
+        'CREATE TABLE IF NOT EXISTS gt_worker_alerts (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            alert_type VARCHAR(40) NOT NULL,
+            message VARCHAR(255) NOT NULL,
+            target_admin_id INT NOT NULL,
+            requested_by_admin_id INT NOT NULL,
+            status ENUM("active","acknowledged") NOT NULL DEFAULT "active",
+            last_sent_at DATETIME NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            acknowledged_at DATETIME NULL,
+            acknowledged_by_admin_id INT NULL,
+            FOREIGN KEY(target_admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+            FOREIGN KEY(requested_by_admin_id) REFERENCES cl_admin_users(id) ON DELETE CASCADE,
+            FOREIGN KEY(acknowledged_by_admin_id) REFERENCES cl_admin_users(id) ON DELETE SET NULL,
+            INDEX idx_gt_worker_alert_due(target_admin_id,status,last_sent_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
         'CREATE TABLE IF NOT EXISTS gt_chat_labels (
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -718,7 +743,7 @@ if ($method === 'GET' && $action === 'state') {
         $stmt->execute([(int) $_SESSION['gt_pending_customer_id']]);
         $pendingAccount = $stmt->fetch() ?: null;
     }
-    respond(['ok' => true, 'csrf' => csrf_token(), 'customer' => $user, 'pending_customer' => $pendingAccount, 'admin' => $adminUser, 'remember_token' => $adminUser ? admin_remember_request_token() : null, 'admin_presence' => admin_presence($pdo), 'push_public_key'=>push_public_key(), 'totals' => $totals, 'game_accounts' => $games]);
+    respond(['ok' => true, 'csrf' => csrf_token(), 'customer' => $user, 'pending_customer' => $pendingAccount, 'admin' => $adminUser, 'worker_alert' => active_worker_alert($pdo,$adminUser), 'remember_token' => $adminUser ? admin_remember_request_token() : null, 'admin_presence' => admin_presence($pdo), 'push_public_key'=>push_public_key(), 'totals' => $totals, 'game_accounts' => $games]);
 }
 
 if ($method === 'GET' && $action === 'chatHome') {
@@ -854,6 +879,7 @@ if ($method === 'GET' && $action === 'adminInbox') {
         'conversations' => $rows,
         'pending_registrations' => $pending
         ,'labels' => $labels
+        ,'worker_alert' => active_worker_alert($pdo,$adminUser)
     ]);
 }
 
@@ -875,6 +901,18 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
     $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
     $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
     if(!$workerId)respond(['ok'=>true,'sent'=>0]);
+    $alertStmt=$pdo->prepare('SELECT id,message FROM gt_worker_alerts WHERE target_admin_id=? AND status="active" AND (last_sent_at IS NULL OR last_sent_at<=DATE_SUB(NOW(),INTERVAL 30 SECOND)) ORDER BY id ASC');
+    $alertStmt->execute([$workerId]);$sent=0;
+    foreach($alertStmt->fetchAll() as $alert){
+        send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
+          'title'=>'GNEX · PERINGATAN','body'=>(string)$alert['message'],
+          'url'=>'topup-admin.html?worker_alert='.(int)$alert['id'],
+          'tag'=>'gnex-diamond-reminder-'.(int)$alert['id'].'-'.time(),
+          'alert_id'=>(int)$alert['id'],'alert_type'=>'fill_diamond','badge_count'=>1,
+        ]);
+        $pdo->prepare('UPDATE gt_worker_alerts SET last_sent_at=NOW() WHERE id=? AND status="active"')->execute([(int)$alert['id']]);
+        $sent++;
+    }
     $stmt=$pdo->prepare('SELECT c.id,c.department,COUNT(m.id) unread_count,MAX(m.id) latest_id,MAX(m.created_at) latest_created,
       MAX(CASE WHEN m.message_kind LIKE "pin_order%" THEN 1 ELSE 0 END) has_pin_order,
       SUBSTRING_INDEX(GROUP_CONCAT(m.body ORDER BY m.id DESC SEPARATOR "\n"),"\n",1) latest_body
@@ -883,7 +921,7 @@ if ($method === 'GET' && $action === 'runOrderReminders') {
       LEFT JOIN gt_admin_conversation_reads r ON r.admin_id=? AND r.conversation_id=c.id
       WHERE c.status="open" AND c.department="topup" AND m.id>COALESCE(r.last_read_message_id,0)
       GROUP BY c.id,c.department ORDER BY latest_id DESC LIMIT 30');
-    $stmt->execute([$workerId]);$sent=0;
+    $stmt->execute([$workerId]);
     foreach($stmt->fetchAll() as $row){
         $type=(int)$row['has_pin_order']===1?'order':'chat';$interval=$type==='order'?30:120;
         $lastStmt=$pdo->prepare('SELECT last_sent_at FROM gt_admin_reminder_dispatch WHERE admin_id=? AND conversation_id=? AND reminder_type=?');
@@ -916,6 +954,31 @@ if ($method === 'POST' && $action === 'subscribePush') {
     $stmt=$pdo->prepare('INSERT INTO gt_push_subscriptions(endpoint,endpoint_hash,p256dh,auth_token,role,device_id,admin_id,enabled,updated_at) VALUES(?,?,?,?,?,?,?,?,NOW()) ON DUPLICATE KEY UPDATE p256dh=VALUES(p256dh),auth_token=VALUES(auth_token),role=VALUES(role),device_id=VALUES(device_id),admin_id=VALUES(admin_id),enabled=1,updated_at=NOW()');
     $stmt->execute([$endpoint,hash('sha256',$endpoint),$p256dh,$authToken,$role,$role==='user'?(int)$device['id']:null,$role==='admin'?(int)$adminUser['id']:null,1]);
     respond(['ok'=>true,'message'=>'Push notification aktif.','csrf'=>csrf_token()]);
+}
+
+if ($method === 'POST' && $action === 'triggerWorkerAlert') {
+    $requestingAdmin=require_admin($pdo);
+    if (strcasecmp((string)($requestingAdmin['username'] ?? ''),'GNEX') !== 0 || (string)($requestingAdmin['access_scope'] ?? '') === 'order') respond(['ok'=>false,'message'=>'Butang ini hanya untuk akaun GNEX.'],403);
+    $workerStmt=$pdo->prepare('SELECT id FROM cl_admin_users WHERE username=? AND access_scope="order" LIMIT 1');
+    $workerStmt->execute(['GNEX ORDER']);$workerId=(int)($workerStmt->fetchColumn() ?: 0);
+    if(!$workerId)respond(['ok'=>false,'message'=>'Akaun GNEX ORDER tidak dijumpai.'],404);
+    $pdo->beginTransaction();
+    $pdo->prepare('UPDATE gt_worker_alerts SET status="acknowledged",acknowledged_at=NOW(),acknowledged_by_admin_id=? WHERE target_admin_id=? AND alert_type="fill_diamond" AND status="active"')->execute([(int)$requestingAdmin['id'],$workerId]);
+    $pdo->prepare('INSERT INTO gt_worker_alerts(alert_type,message,target_admin_id,requested_by_admin_id,status,last_sent_at) VALUES("fill_diamond","Sila isi diamond",?,?,"active",NOW())')->execute([$workerId,(int)$requestingAdmin['id']]);
+    $alertId=(int)$pdo->lastInsertId();$pdo->commit();
+    send_web_push($pdo,'role="admin" AND admin_id=?',[$workerId],[
+      'title'=>'GNEX · PERINGATAN','body'=>'Sila isi diamond','url'=>'topup-admin.html?worker_alert='.$alertId,
+      'tag'=>'gnex-diamond-reminder-'.$alertId.'-'.time(),'alert_id'=>$alertId,'alert_type'=>'fill_diamond','badge_count'=>1,
+    ]);
+    respond(['ok'=>true,'message'=>'Peringatan dihantar kepada GNEX ORDER dan akan diulang setiap 30 saat.','alert_id'=>$alertId,'csrf'=>csrf_token()]);
+}
+
+if ($method === 'POST' && $action === 'ackWorkerAlert') {
+    $ackAdmin=require_admin($pdo);$alertId=max(0,(int)($input['alert_id'] ?? 0));
+    if((string)($ackAdmin['access_scope'] ?? '')!=='order' || !$alertId)respond(['ok'=>false,'message'=>'Peringatan tidak sah.'],403);
+    $stmt=$pdo->prepare('UPDATE gt_worker_alerts SET status="acknowledged",acknowledged_at=NOW(),acknowledged_by_admin_id=? WHERE id=? AND target_admin_id=? AND status="active"');
+    $stmt->execute([(int)$ackAdmin['id'],$alertId,(int)$ackAdmin['id']]);
+    respond(['ok'=>true,'acknowledged'=>(bool)$stmt->rowCount(),'csrf'=>csrf_token()]);
 }
 
 if ($method === 'POST' && $action === 'markConversationRead') {
